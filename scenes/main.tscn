@@ -6,6 +6,8 @@
 [ext_resource type="Script" uid="uid://d01mwdf8p448u" path="res://scripts/interaction/FocusInteractable.cs" id="4_focus"]
 [ext_resource type="Texture2D" uid="uid://bxemtl23wcx0a" path="res://assets/textures/test sceen.png" id="5_screen_texture"]
 [ext_resource type="Texture2D" uid="uid://ccjivqsnoseua" path="res://assets/textures/test man.png" id="6_map_texture"]
+[ext_resource type="Script" path="res://scripts/computer/DeskComputerInteraction.cs" id="7_computer_renderer"]
+[ext_resource type="Script" path="res://scripts/computer/DeskComputerInteractable.cs" id="8_computer_interactable"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_sgp6g"]
 size = Vector3(6, 0.1, 6)
@@ -50,6 +52,21 @@ size = Vector3(2, 0.45, 0.08)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_desk_collision"]
 size = Vector3(2.2, 0.82, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_folder_card"]
+albedo_color = Color(0.42, 0.31, 0.16, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dossier_paper"]
+albedo_color = Color(0.72, 0.68, 0.56, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_dossier_folder"]
+size = Vector3(0.62, 0.035, 0.42)
+
+[sub_resource type="BoxMesh" id="BoxMesh_dossier_stack"]
+size = Vector3(0.5, 0.028, 0.32)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_dossier_focus"]
+size = Vector3(0.82, 0.35, 0.62)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lamp_metal"]
 albedo_color = Color(0.08, 0.075, 0.065, 1)
@@ -114,8 +131,14 @@ size = Vector2(0.46, 0.3)
 [sub_resource type="BoxMesh" id="BoxMesh_keyboard"]
 size = Vector3(0.76, 0.04, 0.22)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_screen_input"]
+size = Vector3(0.5, 0.04, 0.34)
+
 [sub_resource type="BoxShape3D" id="BoxShape3D_pc_focus"]
 size = Vector3(0.68, 0.5, 0.14)
+
+[sub_resource type="SystemFont" id="SystemFont_terminal"]
+font_names = PackedStringArray("Cascadia Mono", "Consolas", "Courier New")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_chair_dark"]
 albedo_color = Color(0.2, 0.17, 0.13, 1)
@@ -263,6 +286,32 @@ mesh = SubResource("BoxMesh_desk_panel")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.41, 0)
 shape = SubResource("BoxShape3D_desk_collision")
 
+[node name="EmployeeDossierFolder" type="Node3D" parent="Desk"]
+
+[node name="FolderCover" type="MeshInstance3D" parent="Desk/EmployeeDossierFolder"]
+transform = Transform3D(0.965926, 0, -0.258819, 0, 1, 0, 0.258819, 0, 0.965926, -0.22, 0.845, 0.12)
+material_override = SubResource("StandardMaterial3D_folder_card")
+mesh = SubResource("BoxMesh_dossier_folder")
+
+[node name="DossierStack" type="MeshInstance3D" parent="Desk/EmployeeDossierFolder"]
+transform = Transform3D(0.965926, 0, -0.258819, 0, 1, 0, 0.258819, 0, 0.965926, -0.18, 0.877, 0.1)
+material_override = SubResource("StandardMaterial3D_dossier_paper")
+mesh = SubResource("BoxMesh_dossier_stack")
+
+[node name="FocusCameraPose" type="Node3D" parent="Desk/EmployeeDossierFolder"]
+transform = Transform3D(0.999339, 0, -0.03634, -0.015522, 0.904181, -0.426867, 0.032858, 0.427149, 0.903584, -0.18, 1.12, 0.65)
+
+[node name="InteractionOutline" type="Node" parent="Desk/EmployeeDossierFolder"]
+script = ExtResource("3_outline")
+
+[node name="FocusArea" type="Area3D" parent="Desk/EmployeeDossierFolder"]
+script = ExtResource("4_focus")
+Label = "Employee Folder"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Desk/EmployeeDossierFolder/FocusArea"]
+transform = Transform3D(0.965926, 0, -0.258819, 0, 1, 0, 0.258819, 0, 0.965926, -0.2, 0.965, 0.11)
+shape = SubResource("BoxShape3D_dossier_focus")
+
 [node name="DeskLamp" type="Node3D" parent="Desk" unique_id=1333564166]
 
 [node name="Base" type="MeshInstance3D" parent="Desk/DeskLamp" unique_id=745426511]
@@ -301,6 +350,117 @@ spot_angle_attenuation = 0.85
 
 [node name="DeskComputer" type="Node3D" parent="Desk" unique_id=1983203568]
 transform = Transform3D(0.87344146, 0, -0.4869292, 0, 1, 0, 0.4869292, 0, 0.87344146, 0.5865929, 0, -0.1503967)
+script = ExtResource("7_computer_renderer")
+ScreenPath = NodePath("Screen")
+ViewportPath = NodePath("ComputerViewport")
+EmissionEnergy = 0.85
+ScreenInputAreaPath = NodePath("ScreenInputArea")
+ScreenInputCollisionMask = 2
+
+[node name="ComputerViewport" type="SubViewport" parent="Desk/DeskComputer"]
+disable_3d = true
+size = Vector2i(1024, 768)
+render_target_update_mode = 4
+
+[node name="ComputerUI" type="Control" parent="Desk/DeskComputer/ComputerViewport"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="ColorRect" parent="Desk/DeskComputer/ComputerViewport/ComputerUI"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.01, 0.025, 0.018, 1)
+
+[node name="Header" type="Label" parent="Desk/DeskComputer/ComputerViewport/ComputerUI"]
+layout_mode = 0
+offset_left = 58.0
+offset_top = 48.0
+offset_right = 966.0
+offset_bottom = 106.0
+theme_override_colors/font_color = Color(0.64, 0.98, 0.74, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 44
+text = "К.О.Н.Т.У.Р-Д 1.0"
+
+[node name="Subtitle" type="Label" parent="Desk/DeskComputer/ComputerViewport/ComputerUI"]
+layout_mode = 0
+offset_left = 62.0
+offset_top = 122.0
+offset_right = 850.0
+offset_bottom = 168.0
+theme_override_colors/font_color = Color(0.45, 0.86, 0.57, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 30
+text = "РАЙОННЫЙ ТЕРМИНАЛ"
+
+[node name="Separator" type="ColorRect" parent="Desk/DeskComputer/ComputerViewport/ComputerUI"]
+layout_mode = 0
+offset_left = 60.0
+offset_top = 184.0
+offset_right = 964.0
+offset_bottom = 190.0
+color = Color(0.14, 0.55, 0.25, 1)
+
+[node name="StatusLines" type="Label" parent="Desk/DeskComputer/ComputerViewport/ComputerUI"]
+layout_mode = 0
+offset_left = 66.0
+offset_top = 228.0
+offset_right = 944.0
+offset_bottom = 474.0
+theme_override_colors/font_color = Color(0.54, 0.94, 0.63, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 27
+text = "СЕАНС: ОПЕРАТОР 041
+КАНАЛ: ВНУТРЕННИЙ
+АРХИВ: ДОСТУП ОГРАНИЧЕН
+СОСТОЯНИЕ: ТЕСТОВЫЙ ИНТЕРФЕЙС АКТИВЕН"
+
+[node name="TestPanel" type="ColorRect" parent="Desk/DeskComputer/ComputerViewport/ComputerUI"]
+layout_mode = 0
+offset_left = 66.0
+offset_top = 528.0
+offset_right = 426.0
+offset_bottom = 616.0
+color = Color(0.04, 0.21, 0.09, 1)
+
+[node name="TestPanelLabel" type="Label" parent="Desk/DeskComputer/ComputerViewport/ComputerUI/TestPanel"]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 336.0
+offset_bottom = 66.0
+theme_override_colors/font_color = Color(0.76, 1, 0.75, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 28
+text = "[ ПРОВЕРКА ЭКРАНА ]"
+
+[node name="TestButton" type="Button" parent="Desk/DeskComputer/ComputerViewport/ComputerUI"]
+layout_mode = 0
+offset_left = 646.0
+offset_top = 528.0
+offset_right = 946.0
+offset_bottom = 616.0
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 26
+text = "ВЫПОЛНИТЬ"
+
+[node name="ComputerCursor" type="ColorRect" parent="Desk/DeskComputer/ComputerViewport/ComputerUI"]
+visible = false
+layout_mode = 0
+offset_left = 512.0
+offset_top = 384.0
+offset_right = 524.0
+offset_bottom = 406.0
+mouse_filter = 2
+color = Color(0.84, 1, 0.72, 1)
 
 [node name="SystemUnit" type="MeshInstance3D" parent="Desk/DeskComputer" unique_id=1456588823]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0.02)
@@ -332,6 +492,16 @@ transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 1
 material_override = SubResource("StandardMaterial3D_screen_texture")
 mesh = SubResource("PlaneMesh_monitor_screen")
 
+[node name="ScreenInputArea" type="Area3D" parent="Desk/DeskComputer"]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 1.22, 0.175)
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("8_computer_interactable")
+Label = "Computer"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Desk/DeskComputer/ScreenInputArea"]
+shape = SubResource("BoxShape3D_screen_input")
+
 [node name="Keyboard" type="MeshInstance3D" parent="Desk/DeskComputer" unique_id=2105246244]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.845, 0.34)
 material_override = SubResource("StandardMaterial3D_warm_plastic")
@@ -344,7 +514,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0023897886, 1.22, 0.4249377
 script = ExtResource("3_outline")
 
 [node name="FocusArea" type="Area3D" parent="Desk/DeskComputer" unique_id=1147997028]
-script = ExtResource("4_focus")
+script = ExtResource("8_computer_interactable")
 Label = "Computer"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Desk/DeskComputer/FocusArea" unique_id=1860177257]
@@ -413,6 +583,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
 current = true
 
 [node name="InteractionRay" type="RayCast3D" parent="Player/Head/Camera3D" unique_id=1797604442]
+enabled = true
 target_position = Vector3(0, 0, -5)
 collide_with_areas = true
 collide_with_bodies = false

@@ -12,6 +12,7 @@ public partial class FlyPlayer : CharacterBody3D
 	[Export] public NodePath InteractionRayPath { get; set; } = new("Head/Camera3D/InteractionRay");
 
 	public bool IsSeated => _isSeated;
+	public bool MovementEnabled { get; private set; } = true;
 
 	private Node3D _head = null!;
 	private RayCast3D _interactionRay = null!;
@@ -111,7 +112,7 @@ public partial class FlyPlayer : CharacterBody3D
 
 	public override void _PhysicsProcess(double delta)
 	{
-		if (_isSeated || _transitionKind != CameraTransitionKind.None)
+		if (!MovementEnabled || _isSeated || _transitionKind != CameraTransitionKind.None)
 		{
 			Velocity = Vector3.Zero;
 			return;
@@ -167,6 +168,23 @@ public partial class FlyPlayer : CharacterBody3D
 		Velocity = Vector3.Zero;
 		StartCameraTransition(CameraTransitionKind.Focus, cameraTransform);
 		Input.MouseMode = Input.MouseModeEnum.Captured;
+	}
+
+	public void SetMovementEnabled(bool enabled)
+	{
+		MovementEnabled = enabled;
+		if (!MovementEnabled)
+		{
+			Velocity = Vector3.Zero;
+		}
+	}
+
+	public void ExitFocusedView()
+	{
+		if (_isViewFocused)
+		{
+			ReturnToSeatView();
+		}
 	}
 
 	private void StandUpFromSeat()
