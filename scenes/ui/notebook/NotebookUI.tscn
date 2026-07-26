@@ -1,0 +1,498 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/NotebookDebugBars.cs" id="1_notebook_bars"]
+
+[sub_resource type="SystemFont" id="SystemFont_terminal"]
+font_names = PackedStringArray("Cascadia Mono", "Consolas", "Courier New")
+subpixel_positioning = 0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_row"]
+bg_color = Color(0.055, 0.075, 0.065, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.22, 0.32, 0.25, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bar_border"]
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.34, 0.45, 0.37, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_normal"]
+bg_color = Color(0.075, 0.11, 0.09, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.35, 0.5, 0.4, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_hover"]
+bg_color = Color(0.12, 0.18, 0.14, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.58, 0.82, 0.64, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_pressed"]
+bg_color = Color(0.17, 0.25, 0.2, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.76, 1, 0.75, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_input_normal"]
+bg_color = Color(0.018, 0.03, 0.025, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.32, 0.45, 0.36, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_input_focus"]
+bg_color = Color(0.03, 0.05, 0.04, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.72, 1, 0.76, 1)
+
+[node name="NotebookUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_notebook_bars")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.045, 0.065, 0.055, 1)
+
+[node name="Header" type="Label" parent="."]
+layout_mode = 0
+offset_left = 56.0
+offset_top = 44.0
+offset_right = 944.0
+offset_bottom = 96.0
+theme_override_colors/font_color = Color(0.75, 1, 0.72, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 36
+text = "БЛОКНОТ СМЕНЫ / DEBUG"
+
+[node name="Parameters" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 48.0
+offset_top = 128.0
+offset_right = 976.0
+offset_bottom = 578.0
+theme_override_constants/separation = 20
+
+[node name="InfectionRow" type="PanelContainer" parent="Parameters"]
+custom_minimum_size = Vector2(0, 122)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_row")
+
+[node name="MarginContainer" type="MarginContainer" parent="Parameters/InfectionRow"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 14
+
+[node name="RowContent" type="HBoxContainer" parent="Parameters/InfectionRow/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="NameLabel" type="Label" parent="Parameters/InfectionRow/MarginContainer/RowContent"]
+custom_minimum_size = Vector2(170, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.66, 0.52, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 26
+text = "ЗАРАЖЕНИЕ"
+vertical_alignment = 1
+
+[node name="BarColumn" type="VBoxContainer" parent="Parameters/InfectionRow/MarginContainer/RowContent"]
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="Caption" type="Label" parent="Parameters/InfectionRow/MarginContainer/RowContent/BarColumn"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.86, 0.72, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 18
+text = "биологический риск сектора"
+
+[node name="AnimatedBar" type="Control" parent="Parameters/InfectionRow/MarginContainer/RowContent/BarColumn"]
+clip_contents = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+
+[node name="Background" type="ColorRect" parent="Parameters/InfectionRow/MarginContainer/RowContent/BarColumn/AnimatedBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.015, 0.025, 0.022, 1)
+
+[node name="MainFill" type="ColorRect" parent="Parameters/InfectionRow/MarginContainer/RowContent/BarColumn/AnimatedBar"]
+layout_mode = 0
+color = Color(0.78, 0.22, 0.12, 1)
+
+[node name="FlashFill" type="ColorRect" parent="Parameters/InfectionRow/MarginContainer/RowContent/BarColumn/AnimatedBar"]
+visible = false
+layout_mode = 0
+color = Color(1, 1, 1, 0.86)
+
+[node name="Border" type="Panel" parent="Parameters/InfectionRow/MarginContainer/RowContent/BarColumn/AnimatedBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_bar_border")
+
+[node name="ValueLabel" type="Label" parent="Parameters/InfectionRow/MarginContainer/RowContent"]
+custom_minimum_size = Vector2(106, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.98, 0.84, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 26
+text = "30.00%"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Controls" type="HBoxContainer" parent="Parameters/InfectionRow/MarginContainer/RowContent"]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="MinusButton" type="Button" parent="Parameters/InfectionRow/MarginContainer/RowContent/Controls"]
+custom_minimum_size = Vector2(42, 48)
+layout_mode = 2
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_button_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+text = "-"
+
+[node name="PlusButton" type="Button" parent="Parameters/InfectionRow/MarginContainer/RowContent/Controls"]
+custom_minimum_size = Vector2(42, 48)
+layout_mode = 2
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_button_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+text = "+"
+
+[node name="DeltaInput" type="LineEdit" parent="Parameters/InfectionRow/MarginContainer/RowContent/Controls"]
+custom_minimum_size = Vector2(92, 48)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.98, 0.84, 1)
+theme_override_colors/caret_color = Color(0.72, 1, 0.76, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_input_normal")
+theme_override_styles/focus = SubResource("StyleBoxFlat_input_focus")
+placeholder_text = "-100..100"
+text = "25.00"
+alignment = 2
+
+[node name="ApplyButton" type="Button" parent="Parameters/InfectionRow/MarginContainer/RowContent/Controls"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_button_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+text = "OK"
+
+[node name="PublicityRow" type="PanelContainer" parent="Parameters"]
+custom_minimum_size = Vector2(0, 122)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_row")
+
+[node name="MarginContainer" type="MarginContainer" parent="Parameters/PublicityRow"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 14
+
+[node name="RowContent" type="HBoxContainer" parent="Parameters/PublicityRow/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="NameLabel" type="Label" parent="Parameters/PublicityRow/MarginContainer/RowContent"]
+custom_minimum_size = Vector2(170, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.78, 0.42, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 26
+text = "ГЛАСНОСТЬ"
+vertical_alignment = 1
+
+[node name="BarColumn" type="VBoxContainer" parent="Parameters/PublicityRow/MarginContainer/RowContent"]
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="Caption" type="Label" parent="Parameters/PublicityRow/MarginContainer/RowContent/BarColumn"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.86, 0.72, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 18
+text = "видимость инцидента"
+
+[node name="AnimatedBar" type="Control" parent="Parameters/PublicityRow/MarginContainer/RowContent/BarColumn"]
+clip_contents = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+
+[node name="Background" type="ColorRect" parent="Parameters/PublicityRow/MarginContainer/RowContent/BarColumn/AnimatedBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.015, 0.025, 0.022, 1)
+
+[node name="MainFill" type="ColorRect" parent="Parameters/PublicityRow/MarginContainer/RowContent/BarColumn/AnimatedBar"]
+layout_mode = 0
+color = Color(0.92, 0.68, 0.24, 1)
+
+[node name="FlashFill" type="ColorRect" parent="Parameters/PublicityRow/MarginContainer/RowContent/BarColumn/AnimatedBar"]
+visible = false
+layout_mode = 0
+color = Color(1, 1, 1, 0.86)
+
+[node name="Border" type="Panel" parent="Parameters/PublicityRow/MarginContainer/RowContent/BarColumn/AnimatedBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_bar_border")
+
+[node name="ValueLabel" type="Label" parent="Parameters/PublicityRow/MarginContainer/RowContent"]
+custom_minimum_size = Vector2(106, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.98, 0.84, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 26
+text = "20.00%"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Controls" type="HBoxContainer" parent="Parameters/PublicityRow/MarginContainer/RowContent"]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="MinusButton" type="Button" parent="Parameters/PublicityRow/MarginContainer/RowContent/Controls"]
+custom_minimum_size = Vector2(42, 48)
+layout_mode = 2
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_button_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+text = "-"
+
+[node name="PlusButton" type="Button" parent="Parameters/PublicityRow/MarginContainer/RowContent/Controls"]
+custom_minimum_size = Vector2(42, 48)
+layout_mode = 2
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_button_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+text = "+"
+
+[node name="DeltaInput" type="LineEdit" parent="Parameters/PublicityRow/MarginContainer/RowContent/Controls"]
+custom_minimum_size = Vector2(92, 48)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.98, 0.84, 1)
+theme_override_colors/caret_color = Color(0.72, 1, 0.76, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_input_normal")
+theme_override_styles/focus = SubResource("StyleBoxFlat_input_focus")
+placeholder_text = "-100..100"
+text = "25.00"
+alignment = 2
+
+[node name="ApplyButton" type="Button" parent="Parameters/PublicityRow/MarginContainer/RowContent/Controls"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_button_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+text = "OK"
+
+[node name="LoyaltyRow" type="PanelContainer" parent="Parameters"]
+custom_minimum_size = Vector2(0, 122)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_row")
+
+[node name="MarginContainer" type="MarginContainer" parent="Parameters/LoyaltyRow"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 14
+
+[node name="RowContent" type="HBoxContainer" parent="Parameters/LoyaltyRow/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="NameLabel" type="Label" parent="Parameters/LoyaltyRow/MarginContainer/RowContent"]
+custom_minimum_size = Vector2(170, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.95, 0.78, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 26
+text = "ЛОЯЛЬНОСТЬ"
+vertical_alignment = 1
+
+[node name="BarColumn" type="VBoxContainer" parent="Parameters/LoyaltyRow/MarginContainer/RowContent"]
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="Caption" type="Label" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/BarColumn"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.86, 0.72, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 18
+text = "готовность персонала"
+
+[node name="AnimatedBar" type="Control" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/BarColumn"]
+clip_contents = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+
+[node name="Background" type="ColorRect" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/BarColumn/AnimatedBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.015, 0.025, 0.022, 1)
+
+[node name="MainFill" type="ColorRect" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/BarColumn/AnimatedBar"]
+layout_mode = 0
+color = Color(0.34, 0.72, 0.58, 1)
+
+[node name="FlashFill" type="ColorRect" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/BarColumn/AnimatedBar"]
+visible = false
+layout_mode = 0
+color = Color(1, 1, 1, 0.86)
+
+[node name="Border" type="Panel" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/BarColumn/AnimatedBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_bar_border")
+
+[node name="ValueLabel" type="Label" parent="Parameters/LoyaltyRow/MarginContainer/RowContent"]
+custom_minimum_size = Vector2(106, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.98, 0.84, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 26
+text = "70.00%"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Controls" type="HBoxContainer" parent="Parameters/LoyaltyRow/MarginContainer/RowContent"]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="MinusButton" type="Button" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/Controls"]
+custom_minimum_size = Vector2(42, 48)
+layout_mode = 2
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_button_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+text = "-"
+
+[node name="PlusButton" type="Button" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/Controls"]
+custom_minimum_size = Vector2(42, 48)
+layout_mode = 2
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_button_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+text = "+"
+
+[node name="DeltaInput" type="LineEdit" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/Controls"]
+custom_minimum_size = Vector2(92, 48)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.98, 0.84, 1)
+theme_override_colors/caret_color = Color(0.72, 1, 0.76, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_input_normal")
+theme_override_styles/focus = SubResource("StyleBoxFlat_input_focus")
+placeholder_text = "-100..100"
+text = "25.00"
+alignment = 2
+
+[node name="ApplyButton" type="Button" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/Controls"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_button_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+text = "OK"
+
+[node name="Footer" type="Label" parent="."]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 628.0
+offset_right = 920.0
+offset_bottom = 690.0
+theme_override_colors/font_color = Color(0.52, 0.78, 0.48, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 24
+text = "F3 DEBUG VIEWER: NOTEBOOK"

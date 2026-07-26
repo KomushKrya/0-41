@@ -4,10 +4,13 @@
 [ext_resource type="Script" uid="uid://cgktm1kb8yxqs" path="res://scripts/interaction/SeatInteractable.cs" id="2_seat"]
 [ext_resource type="Script" uid="uid://d0fbn8kr5taka" path="res://scripts/interaction/InteractionOutline.cs" id="3_outline"]
 [ext_resource type="Script" uid="uid://d01mwdf8p448u" path="res://scripts/interaction/FocusInteractable.cs" id="4_focus"]
-[ext_resource type="Texture2D" uid="uid://bxemtl23wcx0a" path="res://assets/textures/test sceen.png" id="5_screen_texture"]
-[ext_resource type="Texture2D" uid="uid://ccjivqsnoseua" path="res://assets/textures/test man.png" id="6_map_texture"]
-[ext_resource type="Script" path="res://scripts/computer/DeskComputerInteraction.cs" id="7_computer_renderer"]
-[ext_resource type="Script" path="res://scripts/computer/DeskComputerInteractable.cs" id="8_computer_interactable"]
+[ext_resource type="Script" uid="uid://ddn5p1xirvbik" path="res://scripts/computer/DeskComputerInteraction.cs" id="7_computer_renderer"]
+[ext_resource type="Script" uid="uid://bjwfxhtauk3gn" path="res://scripts/computer/DeskComputerInteractable.cs" id="8_computer_interactable"]
+[ext_resource type="Script" uid="uid://bcaq6umhc7opl" path="res://scripts/debug/DebugInterfaceOverlay.cs" id="9_debug_overlay"]
+[ext_resource type="PackedScene" path="res://scenes/ui/computer/ComputerUI.tscn" id="10_computer_ui"]
+[ext_resource type="PackedScene" uid="uid://b5yfoidtc831t" path="res://scenes/ui/map/MapUI.tscn" id="11_map_ui"]
+[ext_resource type="PackedScene" path="res://scenes/ui/dossier/DossierUI.tscn" id="12_dossier_ui"]
+[ext_resource type="PackedScene" path="res://scenes/ui/notebook/NotebookUI.tscn" id="13_notebook_ui"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_sgp6g"]
 size = Vector3(6, 0.1, 6)
@@ -22,21 +25,10 @@ size = Vector3(6, 0, 6)
 size = Vector3(6, 3, 0.1)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_map_texture"]
-cull_mode = 2
-albedo_texture = ExtResource("6_map_texture")
-texture_filter = 0
+albedo_color = Color(0.16, 0.23, 0.18, 1)
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_wall_map"]
-size = Vector2(1.8, 1.1)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_map_frame"]
-albedo_color = Color(0.18, 0.15, 0.11, 1)
-
-[sub_resource type="BoxMesh" id="BoxMesh_map_frame_horizontal"]
-size = Vector3(1.92, 0.06, 0.06)
-
-[sub_resource type="BoxMesh" id="BoxMesh_map_frame_vertical"]
-size = Vector3(0.06, 1.16, 0.06)
+[sub_resource type="BoxMesh" id="PlaneMesh_wall_map"]
+size = Vector3(1.8, 1.1, 0.06)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_map_focus"]
 size = Vector3(1.9, 1.18, 0.12)
@@ -44,54 +36,30 @@ size = Vector3(1.9, 1.18, 0.12)
 [sub_resource type="BoxMesh" id="BoxMesh_desk_top"]
 size = Vector3(2.2, 0.12, 1)
 
-[sub_resource type="BoxMesh" id="BoxMesh_desk_leg"]
-size = Vector3(0.12, 0.7, 0.12)
-
-[sub_resource type="BoxMesh" id="BoxMesh_desk_panel"]
-size = Vector3(2, 0.45, 0.08)
-
 [sub_resource type="BoxShape3D" id="BoxShape3D_desk_collision"]
 size = Vector3(2.2, 0.82, 1)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_folder_card"]
 albedo_color = Color(0.42, 0.31, 0.16, 1)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dossier_paper"]
-albedo_color = Color(0.72, 0.68, 0.56, 1)
-
 [sub_resource type="BoxMesh" id="BoxMesh_dossier_folder"]
 size = Vector3(0.62, 0.035, 0.42)
 
-[sub_resource type="BoxMesh" id="BoxMesh_dossier_stack"]
-size = Vector3(0.5, 0.028, 0.32)
-
 [sub_resource type="BoxShape3D" id="BoxShape3D_dossier_focus"]
 size = Vector3(0.82, 0.35, 0.62)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_notebook_card"]
+albedo_color = Color(0.18, 0.24, 0.16, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_notebook"]
+size = Vector3(0.5, 0.035, 0.34)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lamp_metal"]
 albedo_color = Color(0.08, 0.075, 0.065, 1)
 roughness = 0.42
 
-[sub_resource type="BoxMesh" id="BoxMesh_lamp_base"]
-size = Vector3(0.34, 0.06, 0.24)
-
-[sub_resource type="BoxMesh" id="BoxMesh_lamp_stem"]
-size = Vector3(0.055, 0.48, 0.055)
-
-[sub_resource type="BoxMesh" id="BoxMesh_lamp_arm"]
-size = Vector3(0.05, 0.05, 0.34)
-
 [sub_resource type="BoxMesh" id="BoxMesh_lamp_head"]
 size = Vector3(0.34, 0.2, 0.24)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lamp_bulb"]
-albedo_color = Color(1, 0.82, 0.48, 1)
-emission_enabled = true
-emission = Color(1, 0.72, 0.36, 1)
-emission_energy_multiplier = 0.8
-
-[sub_resource type="BoxMesh" id="BoxMesh_lamp_bulb"]
-size = Vector3(0.08, 0.08, 0.08)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_warm_plastic"]
 albedo_color = Color(0.62, 0.55, 0.42, 1)
@@ -99,46 +67,26 @@ albedo_color = Color(0.62, 0.55, 0.42, 1)
 [sub_resource type="BoxMesh" id="BoxMesh_computer_case"]
 size = Vector3(0.78, 0.16, 0.56)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dark_detail"]
-albedo_color = Color(0.05, 0.05, 0.045, 1)
-
-[sub_resource type="BoxMesh" id="BoxMesh_floppy_slot"]
-size = Vector3(0.28, 0.025, 0.02)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dark_screen"]
-albedo_color = Color(0.03, 0.08, 0.06, 1)
-
-[sub_resource type="BoxMesh" id="BoxMesh_status_light"]
-size = Vector3(0.045, 0.045, 0.02)
-
-[sub_resource type="BoxMesh" id="BoxMesh_monitor_neck"]
-size = Vector3(0.18, 0.12, 0.16)
-
 [sub_resource type="BoxMesh" id="BoxMesh_monitor_body"]
 size = Vector3(0.62, 0.45, 0.42)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_screen_texture"]
-cull_mode = 2
-albedo_texture = ExtResource("5_screen_texture")
+albedo_color = Color(0.02, 0.08, 0.055, 1)
 emission_enabled = true
 emission_energy_multiplier = 0.75
-emission_texture = ExtResource("5_screen_texture")
 texture_filter = 0
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_monitor_screen"]
-size = Vector2(0.46, 0.3)
+[sub_resource type="BoxMesh" id="PlaneMesh_monitor_screen"]
+size = Vector3(0.48, 0.02, 0.36)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_screen_input"]
+size = Vector3(0.5, 0.04, 0.38)
 
 [sub_resource type="BoxMesh" id="BoxMesh_keyboard"]
 size = Vector3(0.76, 0.04, 0.22)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_screen_input"]
-size = Vector3(0.5, 0.04, 0.34)
-
 [sub_resource type="BoxShape3D" id="BoxShape3D_pc_focus"]
-size = Vector3(0.68, 0.5, 0.14)
-
-[sub_resource type="SystemFont" id="SystemFont_terminal"]
-font_names = PackedStringArray("Cascadia Mono", "Consolas", "Courier New")
+size = Vector3(0.7, 0.54, 0.16)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_chair_dark"]
 albedo_color = Color(0.2, 0.17, 0.13, 1)
@@ -149,11 +97,12 @@ size = Vector3(0.68, 0.1, 0.62)
 [sub_resource type="BoxMesh" id="BoxMesh_chair_back"]
 size = Vector3(0.68, 0.78, 0.1)
 
-[sub_resource type="BoxMesh" id="BoxMesh_chair_leg"]
-size = Vector3(0.08, 0.46, 0.08)
-
 [sub_resource type="BoxShape3D" id="BoxShape3D_chair_interaction"]
 size = Vector3(1.35, 1.25, 1.35)
+
+[sub_resource type="SystemFont" id="SystemFont_terminal"]
+font_names = PackedStringArray("Cascadia Mono", "Consolas", "Courier New")
+subpixel_positioning = 0
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_4b8od"]
 radius = 0.3
@@ -205,7 +154,7 @@ shape = SubResource("BoxShape3D_4b8od")
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 3, 1.5, 0)
 shape = SubResource("BoxShape3D_4b8od")
 
-[node name="RoomLight" type="OmniLight3D" parent="."]
+[node name="RoomLight" type="OmniLight3D" parent="." unique_id=1938854956]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.45, 1.1)
 light_color = Color(1, 0.78, 0.52, 1)
 light_energy = 0.55
@@ -216,29 +165,16 @@ omni_attenuation = 1.45
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.0260931, 0, 0)
 
 [node name="Board" type="MeshInstance3D" parent="WallMap" unique_id=1558148831]
-transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 1.65, -2.93)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.65, -2.93)
 material_override = SubResource("StandardMaterial3D_map_texture")
 mesh = SubResource("PlaneMesh_wall_map")
 
-[node name="Frame_Top" type="MeshInstance3D" parent="WallMap" unique_id=1661318767]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.23, -2.9)
-material_override = SubResource("StandardMaterial3D_map_frame")
-mesh = SubResource("BoxMesh_map_frame_horizontal")
+[node name="MapViewport" type="SubViewport" parent="WallMap" unique_id=1310102743]
+disable_3d = true
+size = Vector2i(1024, 768)
+render_target_update_mode = 4
 
-[node name="Frame_Bottom" type="MeshInstance3D" parent="WallMap" unique_id=161113577]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.07, -2.9)
-material_override = SubResource("StandardMaterial3D_map_frame")
-mesh = SubResource("BoxMesh_map_frame_horizontal")
-
-[node name="Frame_Left" type="MeshInstance3D" parent="WallMap" unique_id=580878213]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.96, 1.65, -2.9)
-material_override = SubResource("StandardMaterial3D_map_frame")
-mesh = SubResource("BoxMesh_map_frame_vertical")
-
-[node name="Frame_Right" type="MeshInstance3D" parent="WallMap" unique_id=332375696]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.96, 1.65, -2.9)
-material_override = SubResource("StandardMaterial3D_map_frame")
-mesh = SubResource("BoxMesh_map_frame_vertical")
+[node name="MapUI" parent="WallMap/MapViewport" unique_id=1444459321 instance=ExtResource("11_map_ui")]
 
 [node name="FocusCameraPose" type="Node3D" parent="WallMap" unique_id=949352356]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.65, -2.0227613)
@@ -260,84 +196,60 @@ shape = SubResource("BoxShape3D_map_focus")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76, 0)
 mesh = SubResource("BoxMesh_desk_top")
 
-[node name="Leg_FrontLeft" type="MeshInstance3D" parent="Desk" unique_id=1685752796]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.94, 0.35, 0.38)
-mesh = SubResource("BoxMesh_desk_leg")
-
-[node name="Leg_FrontRight" type="MeshInstance3D" parent="Desk" unique_id=323013912]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.94, 0.35, 0.38)
-mesh = SubResource("BoxMesh_desk_leg")
-
-[node name="Leg_BackLeft" type="MeshInstance3D" parent="Desk" unique_id=1171297912]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.94, 0.35, -0.38)
-mesh = SubResource("BoxMesh_desk_leg")
-
-[node name="Leg_BackRight" type="MeshInstance3D" parent="Desk" unique_id=923497588]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.94, 0.35, -0.38)
-mesh = SubResource("BoxMesh_desk_leg")
-
-[node name="BackPanel" type="MeshInstance3D" parent="Desk" unique_id=1610209230]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.43, -0.42)
-mesh = SubResource("BoxMesh_desk_panel")
-
 [node name="StaticBody3D" type="StaticBody3D" parent="Desk" unique_id=577329841]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Desk/StaticBody3D" unique_id=375324990]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.41, 0)
 shape = SubResource("BoxShape3D_desk_collision")
 
-[node name="EmployeeDossierFolder" type="Node3D" parent="Desk"]
+[node name="EmployeeDossierFolder" type="Node3D" parent="Desk" unique_id=1330508951]
 
-[node name="FolderCover" type="MeshInstance3D" parent="Desk/EmployeeDossierFolder"]
+[node name="FolderCover" type="MeshInstance3D" parent="Desk/EmployeeDossierFolder" unique_id=1765990478]
 transform = Transform3D(0.965926, 0, -0.258819, 0, 1, 0, 0.258819, 0, 0.965926, -0.22, 0.845, 0.12)
 material_override = SubResource("StandardMaterial3D_folder_card")
 mesh = SubResource("BoxMesh_dossier_folder")
 
-[node name="DossierStack" type="MeshInstance3D" parent="Desk/EmployeeDossierFolder"]
-transform = Transform3D(0.965926, 0, -0.258819, 0, 1, 0, 0.258819, 0, 0.965926, -0.18, 0.877, 0.1)
-material_override = SubResource("StandardMaterial3D_dossier_paper")
-mesh = SubResource("BoxMesh_dossier_stack")
+[node name="DossierViewport" type="SubViewport" parent="Desk/EmployeeDossierFolder" unique_id=1308388049]
+disable_3d = true
+size = Vector2i(1024, 768)
+render_target_update_mode = 4
 
-[node name="FocusCameraPose" type="Node3D" parent="Desk/EmployeeDossierFolder"]
+[node name="DossierUI" parent="Desk/EmployeeDossierFolder/DossierViewport" unique_id=43024866 instance=ExtResource("12_dossier_ui")]
+
+[node name="FocusCameraPose" type="Node3D" parent="Desk/EmployeeDossierFolder" unique_id=1229888620]
 transform = Transform3D(0.999339, 0, -0.03634, -0.015522, 0.904181, -0.426867, 0.032858, 0.427149, 0.903584, -0.18, 1.12, 0.65)
 
-[node name="InteractionOutline" type="Node" parent="Desk/EmployeeDossierFolder"]
+[node name="InteractionOutline" type="Node" parent="Desk/EmployeeDossierFolder" unique_id=927401834]
 script = ExtResource("3_outline")
 
-[node name="FocusArea" type="Area3D" parent="Desk/EmployeeDossierFolder"]
+[node name="FocusArea" type="Area3D" parent="Desk/EmployeeDossierFolder" unique_id=1599722219]
 script = ExtResource("4_focus")
 Label = "Employee Folder"
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Desk/EmployeeDossierFolder/FocusArea"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Desk/EmployeeDossierFolder/FocusArea" unique_id=1650559015]
 transform = Transform3D(0.965926, 0, -0.258819, 0, 1, 0, 0.258819, 0, 0.965926, -0.2, 0.965, 0.11)
 shape = SubResource("BoxShape3D_dossier_focus")
 
+[node name="Notebook" type="Node3D" parent="Desk" unique_id=632908185]
+
+[node name="NotebookBlock" type="MeshInstance3D" parent="Desk/Notebook" unique_id=122716246]
+transform = Transform3D(0.939693, 0, 0.34202, 0, 1, 0, -0.34202, 0, 0.939693, 0.38, 0.845, 0.16)
+material_override = SubResource("StandardMaterial3D_notebook_card")
+mesh = SubResource("BoxMesh_notebook")
+
+[node name="NotebookViewport" type="SubViewport" parent="Desk/Notebook" unique_id=1662681711]
+disable_3d = true
+size = Vector2i(1024, 768)
+render_target_update_mode = 4
+
+[node name="NotebookUI" parent="Desk/Notebook/NotebookViewport" unique_id=3024908 instance=ExtResource("13_notebook_ui")]
+
 [node name="DeskLamp" type="Node3D" parent="Desk" unique_id=1333564166]
 
-[node name="Base" type="MeshInstance3D" parent="Desk/DeskLamp" unique_id=745426511]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.75, 0.84, 0.2)
-material_override = SubResource("StandardMaterial3D_lamp_metal")
-mesh = SubResource("BoxMesh_lamp_base")
-
-[node name="Stem" type="MeshInstance3D" parent="Desk/DeskLamp" unique_id=1837021428]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.75, 1.08, 0.2)
-material_override = SubResource("StandardMaterial3D_lamp_metal")
-mesh = SubResource("BoxMesh_lamp_stem")
-
-[node name="Arm" type="MeshInstance3D" parent="Desk/DeskLamp" unique_id=1956592907]
-transform = Transform3D(-0.8222308, 0.10283458, 0.5597876, 0.048284, 0.992599, -0.111424, -0.5671031, -0.06458722, -0.82111025, -0.685, 1.26, 0.05)
-material_override = SubResource("StandardMaterial3D_lamp_metal")
-mesh = SubResource("BoxMesh_lamp_arm")
-
-[node name="Head" type="MeshInstance3D" parent="Desk/DeskLamp" unique_id=1060704362]
-transform = Transform3D(0.989861, 0, -0.142041, 0.020163, 0.989873, 0.140516, 0.140602, -0.141955, 0.979837, -0.62, 1.24, -0.1)
+[node name="LampBlock" type="MeshInstance3D" parent="Desk/DeskLamp" unique_id=1386706136]
+transform = Transform3D(0.989861, 0, -0.142041, 0.020163, 0.989873, 0.140516, 0.140602, -0.141955, 0.979837, -0.68, 1.08, 0.03)
 material_override = SubResource("StandardMaterial3D_lamp_metal")
 mesh = SubResource("BoxMesh_lamp_head")
-
-[node name="Bulb" type="MeshInstance3D" parent="Desk/DeskLamp" unique_id=910028183]
-transform = Transform3D(0.989861, 0, -0.142041, 0.020163, 0.989873, 0.140516, 0.140602, -0.141955, 0.979837, -0.64, 1.22, -0.24)
-material_override = SubResource("StandardMaterial3D_lamp_bulb")
-mesh = SubResource("BoxMesh_lamp_bulb")
 
 [node name="MapSpotLight" type="SpotLight3D" parent="Desk/DeskLamp" unique_id=1261481786]
 transform = Transform3D(0.9929038, -0.02481003, 0.116303496, 0.03089962, 0.99822813, -0.05085214, -0.11483578, 0.05408502, 0.99191105, -0.62, 1.24, -0.25847402)
@@ -351,136 +263,19 @@ spot_angle_attenuation = 0.85
 [node name="DeskComputer" type="Node3D" parent="Desk" unique_id=1983203568]
 transform = Transform3D(0.87344146, 0, -0.4869292, 0, 1, 0, 0.4869292, 0, 0.87344146, 0.5865929, 0, -0.1503967)
 script = ExtResource("7_computer_renderer")
-ScreenPath = NodePath("Screen")
-ViewportPath = NodePath("ComputerViewport")
 EmissionEnergy = 0.85
-ScreenInputAreaPath = NodePath("ScreenInputArea")
-ScreenInputCollisionMask = 2
 
-[node name="ComputerViewport" type="SubViewport" parent="Desk/DeskComputer"]
+[node name="ComputerViewport" type="SubViewport" parent="Desk/DeskComputer" unique_id=1213979485]
 disable_3d = true
 size = Vector2i(1024, 768)
 render_target_update_mode = 4
 
-[node name="ComputerUI" type="Control" parent="Desk/DeskComputer/ComputerViewport"]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Background" type="ColorRect" parent="Desk/DeskComputer/ComputerViewport/ComputerUI"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.01, 0.025, 0.018, 1)
-
-[node name="Header" type="Label" parent="Desk/DeskComputer/ComputerViewport/ComputerUI"]
-layout_mode = 0
-offset_left = 58.0
-offset_top = 48.0
-offset_right = 966.0
-offset_bottom = 106.0
-theme_override_colors/font_color = Color(0.64, 0.98, 0.74, 1)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 44
-text = "К.О.Н.Т.У.Р-Д 1.0"
-
-[node name="Subtitle" type="Label" parent="Desk/DeskComputer/ComputerViewport/ComputerUI"]
-layout_mode = 0
-offset_left = 62.0
-offset_top = 122.0
-offset_right = 850.0
-offset_bottom = 168.0
-theme_override_colors/font_color = Color(0.45, 0.86, 0.57, 1)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 30
-text = "РАЙОННЫЙ ТЕРМИНАЛ"
-
-[node name="Separator" type="ColorRect" parent="Desk/DeskComputer/ComputerViewport/ComputerUI"]
-layout_mode = 0
-offset_left = 60.0
-offset_top = 184.0
-offset_right = 964.0
-offset_bottom = 190.0
-color = Color(0.14, 0.55, 0.25, 1)
-
-[node name="StatusLines" type="Label" parent="Desk/DeskComputer/ComputerViewport/ComputerUI"]
-layout_mode = 0
-offset_left = 66.0
-offset_top = 228.0
-offset_right = 944.0
-offset_bottom = 474.0
-theme_override_colors/font_color = Color(0.54, 0.94, 0.63, 1)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 27
-text = "СЕАНС: ОПЕРАТОР 041
-КАНАЛ: ВНУТРЕННИЙ
-АРХИВ: ДОСТУП ОГРАНИЧЕН
-СОСТОЯНИЕ: ТЕСТОВЫЙ ИНТЕРФЕЙС АКТИВЕН"
-
-[node name="TestPanel" type="ColorRect" parent="Desk/DeskComputer/ComputerViewport/ComputerUI"]
-layout_mode = 0
-offset_left = 66.0
-offset_top = 528.0
-offset_right = 426.0
-offset_bottom = 616.0
-color = Color(0.04, 0.21, 0.09, 1)
-
-[node name="TestPanelLabel" type="Label" parent="Desk/DeskComputer/ComputerViewport/ComputerUI/TestPanel"]
-layout_mode = 0
-offset_left = 24.0
-offset_top = 24.0
-offset_right = 336.0
-offset_bottom = 66.0
-theme_override_colors/font_color = Color(0.76, 1, 0.75, 1)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 28
-text = "[ ПРОВЕРКА ЭКРАНА ]"
-
-[node name="TestButton" type="Button" parent="Desk/DeskComputer/ComputerViewport/ComputerUI"]
-layout_mode = 0
-offset_left = 646.0
-offset_top = 528.0
-offset_right = 946.0
-offset_bottom = 616.0
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 26
-text = "ВЫПОЛНИТЬ"
-
-[node name="ComputerCursor" type="ColorRect" parent="Desk/DeskComputer/ComputerViewport/ComputerUI"]
-visible = false
-layout_mode = 0
-offset_left = 512.0
-offset_top = 384.0
-offset_right = 524.0
-offset_bottom = 406.0
-mouse_filter = 2
-color = Color(0.84, 1, 0.72, 1)
+[node name="ComputerUI" parent="Desk/DeskComputer/ComputerViewport" unique_id=1879832016 instance=ExtResource("10_computer_ui")]
 
 [node name="SystemUnit" type="MeshInstance3D" parent="Desk/DeskComputer" unique_id=1456588823]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0.02)
 material_override = SubResource("StandardMaterial3D_warm_plastic")
 mesh = SubResource("BoxMesh_computer_case")
-
-[node name="FloppySlot" type="MeshInstance3D" parent="Desk/DeskComputer" unique_id=2024025243]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.2, 0.925, 0.315)
-material_override = SubResource("StandardMaterial3D_dark_detail")
-mesh = SubResource("BoxMesh_floppy_slot")
-
-[node name="PowerButton" type="MeshInstance3D" parent="Desk/DeskComputer" unique_id=404250402]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28, 0.925, 0.315)
-material_override = SubResource("StandardMaterial3D_dark_screen")
-mesh = SubResource("BoxMesh_status_light")
-
-[node name="MonitorNeck" type="MeshInstance3D" parent="Desk/DeskComputer" unique_id=1064540509]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.02, -0.03)
-material_override = SubResource("StandardMaterial3D_warm_plastic")
-mesh = SubResource("BoxMesh_monitor_neck")
 
 [node name="MonitorBody" type="MeshInstance3D" parent="Desk/DeskComputer" unique_id=1668346304]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.22, -0.05)
@@ -492,14 +287,13 @@ transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 1
 material_override = SubResource("StandardMaterial3D_screen_texture")
 mesh = SubResource("PlaneMesh_monitor_screen")
 
-[node name="ScreenInputArea" type="Area3D" parent="Desk/DeskComputer"]
+[node name="ScreenInputArea" type="Area3D" parent="Desk/DeskComputer" unique_id=634891409]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 1.22, 0.175)
 collision_layer = 2
 collision_mask = 0
 script = ExtResource("8_computer_interactable")
-Label = "Computer"
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Desk/DeskComputer/ScreenInputArea"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Desk/DeskComputer/ScreenInputArea" unique_id=1390204543]
 shape = SubResource("BoxShape3D_screen_input")
 
 [node name="Keyboard" type="MeshInstance3D" parent="Desk/DeskComputer" unique_id=2105246244]
@@ -515,7 +309,6 @@ script = ExtResource("3_outline")
 
 [node name="FocusArea" type="Area3D" parent="Desk/DeskComputer" unique_id=1147997028]
 script = ExtResource("8_computer_interactable")
-Label = "Computer"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Desk/DeskComputer/FocusArea" unique_id=1860177257]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.22, 0.175)
@@ -533,26 +326,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.86, 1.51)
 material_override = SubResource("StandardMaterial3D_chair_dark")
 mesh = SubResource("BoxMesh_chair_back")
 
-[node name="Leg_FrontLeft" type="MeshInstance3D" parent="Chair" unique_id=946137787]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.27, 0.23, 0.94)
-material_override = SubResource("StandardMaterial3D_chair_dark")
-mesh = SubResource("BoxMesh_chair_leg")
-
-[node name="Leg_FrontRight" type="MeshInstance3D" parent="Chair" unique_id=1990096130]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.27, 0.23, 0.94)
-material_override = SubResource("StandardMaterial3D_chair_dark")
-mesh = SubResource("BoxMesh_chair_leg")
-
-[node name="Leg_BackLeft" type="MeshInstance3D" parent="Chair" unique_id=431009673]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.27, 0.23, 1.42)
-material_override = SubResource("StandardMaterial3D_chair_dark")
-mesh = SubResource("BoxMesh_chair_leg")
-
-[node name="Leg_BackRight" type="MeshInstance3D" parent="Chair" unique_id=320923789]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.27, 0.23, 1.42)
-material_override = SubResource("StandardMaterial3D_chair_dark")
-mesh = SubResource("BoxMesh_chair_leg")
-
 [node name="SeatCameraPose" type="Node3D" parent="Chair" unique_id=1197587113]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.45, 1.18)
 
@@ -569,6 +342,52 @@ script = ExtResource("2_seat")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.72, 1.18)
 shape = SubResource("BoxShape3D_chair_interaction")
 
+[node name="DebugInterfaceOverlay" type="CanvasLayer" parent="." unique_id=687672162]
+layer = 100
+script = ExtResource("9_debug_overlay")
+PcViewportPath = NodePath("../Desk/DeskComputer/ComputerViewport")
+MapViewportPath = NodePath("../WallMap/MapViewport")
+DossierViewportPath = NodePath("../Desk/EmployeeDossierFolder/DossierViewport")
+NotebookViewportPath = NodePath("../Desk/Notebook/NotebookViewport")
+
+[node name="Panel" type="PanelContainer" parent="DebugInterfaceOverlay" unique_id=292140006]
+visible = false
+offset_left = 120.0
+offset_top = 44.0
+offset_right = 1160.0
+offset_bottom = 692.0
+
+[node name="MarginContainer" type="MarginContainer" parent="DebugInterfaceOverlay/Panel" unique_id=1568886450]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="VBoxContainer" type="VBoxContainer" parent="DebugInterfaceOverlay/Panel/MarginContainer" unique_id=612527928]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="DebugInterfaceOverlay/Panel/MarginContainer/VBoxContainer" unique_id=1043649870]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 1, 0.76, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 24
+text = "DEBUG INTERFACE: none"
+
+[node name="Preview" type="TextureRect" parent="DebugInterfaceOverlay/Panel/MarginContainer/VBoxContainer" unique_id=1421758498]
+custom_minimum_size = Vector2(1000, 562)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Help" type="Label" parent="DebugInterfaceOverlay/Panel/MarginContainer/VBoxContainer" unique_id=752734667]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.82, 0.6, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 18
+text = "F3: debug on/off | F4: interaction areas | F5: map layout | 1: PC | 2: MAP | 3: DOSSIER | 4: NOTEBOOK | Esc: close"
+
 [node name="Player" type="CharacterBody3D" parent="." unique_id=939831022]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 2)
 script = ExtResource("1_o5qli")
@@ -583,7 +402,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
 current = true
 
 [node name="InteractionRay" type="RayCast3D" parent="Player/Head/Camera3D" unique_id=1797604442]
-enabled = true
 target_position = Vector3(0, 0, -5)
 collide_with_areas = true
 collide_with_bodies = false

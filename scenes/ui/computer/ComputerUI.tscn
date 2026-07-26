@@ -1,0 +1,105 @@
+[gd_scene load_steps=2 format=3]
+
+[sub_resource type="SystemFont" id="SystemFont_terminal"]
+font_names = PackedStringArray("Cascadia Mono", "Consolas", "Courier New")
+subpixel_positioning = 0
+
+[node name="ComputerUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.01, 0.025, 0.018, 1)
+
+[node name="Header" type="Label" parent="."]
+layout_mode = 0
+offset_left = 58.0
+offset_top = 48.0
+offset_right = 966.0
+offset_bottom = 106.0
+theme_override_colors/font_color = Color(0.64, 0.98, 0.74, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 44
+text = "К.О.Н.Т.У.Р-Д 1.0"
+
+[node name="Subtitle" type="Label" parent="."]
+layout_mode = 0
+offset_left = 62.0
+offset_top = 122.0
+offset_right = 850.0
+offset_bottom = 168.0
+theme_override_colors/font_color = Color(0.45, 0.86, 0.57, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 30
+text = "РАЙОННЫЙ ТЕРМИНАЛ"
+
+[node name="Separator" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = 60.0
+offset_top = 184.0
+offset_right = 964.0
+offset_bottom = 190.0
+color = Color(0.14, 0.55, 0.25, 1)
+
+[node name="StatusLines" type="Label" parent="."]
+layout_mode = 0
+offset_left = 66.0
+offset_top = 228.0
+offset_right = 944.0
+offset_bottom = 474.0
+theme_override_colors/font_color = Color(0.54, 0.94, 0.63, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 27
+text = "СЕАНС: ОПЕРАТОР 041
+КАНАЛ: ВНУТРЕННИЙ
+АРХИВ: ДОСТУП ОГРАНИЧЕН
+СОСТОЯНИЕ: ТЕСТОВЫЙ ИНТЕРФЕЙС АКТИВЕН"
+
+[node name="TestPanel" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = 66.0
+offset_top = 528.0
+offset_right = 426.0
+offset_bottom = 616.0
+color = Color(0.04, 0.21, 0.09, 1)
+
+[node name="TestPanelLabel" type="Label" parent="TestPanel"]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 336.0
+offset_bottom = 66.0
+theme_override_colors/font_color = Color(0.76, 1, 0.75, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 28
+text = "[ ПРОВЕРКА ЭКРАНА ]"
+
+[node name="TestButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 646.0
+offset_top = 528.0
+offset_right = 946.0
+offset_bottom = 616.0
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 26
+text = "ВЫПОЛНИТЬ"
+
+[node name="ComputerCursor" type="ColorRect" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 512.0
+offset_top = 384.0
+offset_right = 524.0
+offset_bottom = 406.0
+mouse_filter = 2
+color = Color(0.84, 1, 0.72, 1)
