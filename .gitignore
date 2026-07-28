@@ -33,3 +33,10 @@ desktop.ini
 
 # Godot generated translations
 *.translation
+
+# Obsidian vault config (content/raw/.obsidian, КОНТУР/.obsidian, etc.)
+.obsidian/
+
+# Claude Code project config / local MCP server registration
+.claude
+.mcp.json
