@@ -14,6 +14,9 @@ public partial class EventBus : Node
 	public event Action<int> DayChanged = delegate { };
 	public event Action<ShiftState> ShiftStateChanged = delegate { };
 	public event Action<double> ShiftTimeChanged = delegate { };
+	public event Action BottomTextAdvanceRequested = delegate { };
+	public event Action<string> BottomTextStarted = delegate { };
+	public event Action<string> BottomTextFinished = delegate { };
 
 	public override void _Ready()
 	{
@@ -41,6 +44,23 @@ public partial class EventBus : Node
 	{
 		RecordEvent("ShiftStartRequested");
 		ShiftStartRequested.Invoke();
+	}
+
+	public void RequestBottomTextAdvance()
+	{
+		BottomTextAdvanceRequested.Invoke();
+	}
+
+	public void PublishBottomTextStarted(string contentId)
+	{
+		RecordEvent($"BottomTextStarted: {contentId}");
+		BottomTextStarted.Invoke(contentId);
+	}
+
+	public void PublishBottomTextFinished(string contentId)
+	{
+		RecordEvent($"BottomTextFinished: {contentId}");
+		BottomTextFinished.Invoke(contentId);
 	}
 
 	private void RecordEvent(string eventName)

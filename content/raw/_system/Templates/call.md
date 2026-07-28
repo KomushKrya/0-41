@@ -4,6 +4,8 @@ type: call
 status: draft
 requirements:
   -
+properties:
+  -
 ---
 
 <!-- requirements — список условий/флагов (например, предыдущий сюжетный выбор),

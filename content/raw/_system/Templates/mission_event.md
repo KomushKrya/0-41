@@ -4,6 +4,8 @@ type: mission_event
 status: draft
 requirements:
   -
+properties:
+  -
 ---
 
 <!-- Нарративная вводная — что видят/с чем столкнулись сотрудники на выезде.

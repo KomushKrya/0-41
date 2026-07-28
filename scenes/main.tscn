@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/notebook/NotebookUI.tscn" id="13_notebook_ui"]
 [ext_resource type="Script" uid="uid://bjwfxhtauk3gn" path="res://scripts/computer/DeskComputerInteractable.cs" id="14_computer_interactable"]
 [ext_resource type="Script" uid="uid://cxbebiv6k1myu" path="res://scripts/interaction/SubViewportInputController.cs" id="15_viewport_input"]
+[ext_resource type="PackedScene" path="res://scenes/ui/bottom_text/BottomTextUI.tscn" id="16_bottom_text_ui"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_sgp6g"]
 size = Vector3(6, 0.1, 6)
@@ -476,6 +477,8 @@ offset_right = 1.0
 offset_bottom = 8.0
 mouse_filter = 2
 color = Color(0.72, 1, 0.76, 0.9)
+
+[node name="BottomTextUI" parent="." instance=ExtResource("16_bottom_text_ui")]
 
 [node name="Player" type="CharacterBody3D" parent="." unique_id=939831022]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 2.446639, 0.9, -1.1071303)
