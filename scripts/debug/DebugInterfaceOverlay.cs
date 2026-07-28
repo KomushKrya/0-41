@@ -7,6 +7,8 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 	[Export] public NodePath PreviewPath { get; set; } = new("Panel/MarginContainer/VBoxContainer/Preview");
 	[Export] public NodePath TitlePath { get; set; } = new("Panel/MarginContainer/VBoxContainer/Title");
 	[Export] public NodePath HelpPath { get; set; } = new("Panel/MarginContainer/VBoxContainer/Help");
+	[Export] public NodePath SessionReadoutPath { get; set; } = new("SessionReadout");
+	[Export] public NodePath CenterRayMarkerPath { get; set; } = new("CenterRayMarker");
 	[Export] public NodePath PcViewportPath { get; set; } = new("");
 	[Export] public NodePath MapViewportPath { get; set; } = new("");
 	[Export] public NodePath DossierViewportPath { get; set; } = new("");
@@ -16,6 +18,8 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 	private TextureRect _preview = null!;
 	private Label _title = null!;
 	private Label _help = null!;
+	private Label _sessionReadout = null!;
+	private Control _centerRayMarker = null!;
 	private SubViewport _activeViewport = null!;
 	private Control _interactionAreaDebugRoot = null!;
 	private ColorRect _viewportAreaRect = null!;
@@ -25,6 +29,7 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 	private bool _isDebugModeEnabled;
 	private bool _isInteractionAreaDebugEnabled;
 	private bool _isMapLayoutDebugEnabled;
+	private bool _isSessionReadoutEnabled;
 	private string _activeInterfaceName = "none";
 
 	public override void _Ready()
@@ -33,14 +38,23 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 		_preview = GetNode<TextureRect>(PreviewPath);
 		_title = GetNode<Label>(TitlePath);
 		_help = GetNode<Label>(HelpPath);
+		_sessionReadout = GetNode<Label>(SessionReadoutPath);
+		_centerRayMarker = GetNode<Control>(CenterRayMarkerPath);
 
 		CreateInteractionAreaDebugOverlay();
 		_panel.Visible = false;
+		_sessionReadout.Visible = false;
+		_centerRayMarker.Visible = false;
 		UpdateText();
 	}
 
 	public override void _Process(double delta)
 	{
+		if (_isSessionReadoutEnabled)
+		{
+			UpdateSessionReadout();
+		}
+
 		UpdateInteractionAreaDebugOverlay();
 	}
 
@@ -87,12 +101,19 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 			return;
 		}
 
+		if (keyEvent.Keycode == Key.F2)
+		{
+			SetSessionReadoutEnabled(!_isSessionReadoutEnabled);
+			GetViewport().SetInputAsHandled();
+			return;
+		}
+
 		if (!_isDebugModeEnabled)
 		{
 			return;
 		}
 
-		if (IsActiveViewportTextInputFocused() && keyEvent.Keycode is not Key.F3 and not Key.F4 and not Key.F5 and not Key.Escape)
+		if (IsActiveViewportTextInputFocused() && keyEvent.Keycode is not Key.F2 and not Key.F3 and not Key.F4 and not Key.F5 and not Key.Escape)
 		{
 			_activeViewport.PushInput(keyEvent, true);
 			GetViewport().SetInputAsHandled();
@@ -150,6 +171,47 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 
 		Input.MouseMode = Input.MouseModeEnum.Visible;
 		UpdateText();
+	}
+
+	private void SetSessionReadoutEnabled(bool isEnabled)
+	{
+		_isSessionReadoutEnabled = isEnabled;
+		_sessionReadout.Visible = isEnabled;
+		_centerRayMarker.Visible = isEnabled;
+
+		if (isEnabled)
+		{
+			UpdateSessionReadout();
+		}
+
+		UpdateText();
+	}
+
+	private void UpdateSessionReadout()
+	{
+		GameSession session = GameSession.Instance;
+		int elapsedSeconds = Mathf.FloorToInt((float)session.ElapsedShiftSeconds);
+		int hours = elapsedSeconds / 3600;
+		int minutes = elapsedSeconds % 3600 / 60;
+		int seconds = elapsedSeconds % 60;
+
+		_sessionReadout.Text =
+			$"GAME SESSION\n" +
+			$"DAY: {session.CurrentDay} / {session.TotalDays}\n" +
+			$"SHIFT: {session.ShiftState}\n" +
+			$"ELAPSED: {hours:00}:{minutes:00}:{seconds:00}\n\n" +
+			$"EVENT BUS\n{BuildEventBusReadout()}";
+	}
+
+	private string BuildEventBusReadout()
+	{
+		var eventLines = new List<string>();
+		foreach (string eventName in EventBus.Instance.RecentEvents)
+		{
+			eventLines.Add($"  {eventName}");
+		}
+
+		return eventLines.Count == 0 ? "  (no events)" : string.Join("\n", eventLines);
 	}
 
 	private void SetMapLayoutDebugEnabled(bool isEnabled)
@@ -417,6 +479,6 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 		string areasState = _isInteractionAreaDebugEnabled ? "areas:on" : "areas:off";
 		string layoutState = _isMapLayoutDebugEnabled ? "map-layout:on" : "map-layout:off";
 		_title.Text = $"DEBUG INTERFACE: {_activeInterfaceName} | {areasState} | {layoutState}";
-		_help.Text = "F3: debug on/off | F4: interaction areas | F5: map layout | 1: PC | 2: MAP | 3: DOSSIER | 4: NOTEBOOK | Esc: close";
+		_help.Text = "F2: session data and ray | F3: debug on/off | F4: interaction areas | F5: map layout | 1: PC | 2: MAP | 3: DOSSIER | 4: NOTEBOOK | Esc: close";
 	}
 }

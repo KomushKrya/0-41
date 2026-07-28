@@ -63,7 +63,8 @@ public partial class ComputerScreenRenderer : Node3D
 			EmissionEnabled = true,
 			EmissionTexture = viewportTexture,
 			EmissionEnergyMultiplier = EmissionEnergy,
-			TextureFilter = BaseMaterial3D.TextureFilterEnum.Nearest
+			TextureFilter = BaseMaterial3D.TextureFilterEnum.Nearest,
+			CullMode = BaseMaterial3D.CullModeEnum.Disabled
 		};
 
 		_screen.MaterialOverride = screenMaterial;

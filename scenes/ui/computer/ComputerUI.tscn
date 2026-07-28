@@ -1,4 +1,6 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/computer/ComputerTerminalUI.cs" id="1_terminal_ui"]
 
 [sub_resource type="SystemFont" id="SystemFont_terminal"]
 font_names = PackedStringArray("Cascadia Mono", "Consolas", "Courier New")
@@ -11,6 +13,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_terminal_ui")
 
 [node name="Background" type="ColorRect" parent="."]
 layout_mode = 1
@@ -84,7 +87,7 @@ theme_override_fonts/font = SubResource("SystemFont_terminal")
 theme_override_font_sizes/font_size = 28
 text = "[ ПРОВЕРКА ЭКРАНА ]"
 
-[node name="TestButton" type="Button" parent="."]
+[node name="StartShiftButton" type="Button" parent="."]
 layout_mode = 0
 offset_left = 646.0
 offset_top = 528.0

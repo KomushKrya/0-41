@@ -2,10 +2,10 @@ using Godot;
 
 public partial class DeskComputerInteractable : Area3D, IInteractable
 {
-	[Export] public string Label { get; set; } = "Computer";
+	[Export] public string Label { get; set; } = "Computer Screen";
 	[Export] public bool RequiresSeated { get; set; } = true;
-	[Export] public NodePath ComputerPath { get; set; } = new("..");
-	[Export] public NodePath OutlinePath { get; set; } = new("../InteractionOutline");
+	[Export] public NodePath ComputerPath { get; set; } = new("../..");
+	[Export] public NodePath OutlinePath { get; set; } = new("../../InteractionOutline");
 
 	private DeskComputerInteraction _computer = null!;
 	private InteractionOutline _outline = null!;
