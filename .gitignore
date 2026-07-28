@@ -40,3 +40,4 @@ desktop.ini
 # Claude Code project config / local MCP server registration
 .claude
 .mcp.json
+AGENTS.md
