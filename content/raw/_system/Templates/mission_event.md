@@ -2,6 +2,8 @@
 id: mission_event_
 type: mission_event
 status: draft
+requirements:
+  -
 ---
 
 <!-- Нарративная вводная — что видят/с чем столкнулись сотрудники на выезде.
