@@ -1,5 +1,35 @@
-venv
-.claude
-.idea
-.mcp.json
-content/raw/.obsidian
+# Godot local/editor cache
+.godot/
+.import/
+.export/
+
+# Godot export presets may contain local paths or secrets
+export.cfg
+export_presets.cfg
+
+# Godot Mono / .NET build outputs
+.mono/
+bin/
+obj/
+
+# Rider / JetBrains
+.idea/
+
+# VS Code local settings
+.vscode/
+
+# Visual Studio
+.vs/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# Godot generated translations
+*.translation
