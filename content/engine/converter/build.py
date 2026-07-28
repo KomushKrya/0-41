@@ -29,6 +29,12 @@ FOLDER_TYPES = {
     "reports": "report",
 }
 
+# Типы, которые показываются виджетом нижнего текста: у них кусок должен влезать
+# примерно в две строки. Остальные (энциклопедия, отчёты) рендерятся на своих
+# экранах, где места больше, и под это ограничение не попадают.
+BOTTOM_TEXT_TYPES = ("call", "cutscene")
+DEFAULT_MAX_CHUNK_CHARS = 150
+
 COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
 REVEAL_OPEN_RE = re.compile(r"^%%\s*reveal:\s*([^\s%]+)\s*%%$")
 REVEAL_CLOSE_RE = re.compile(r"^%%\s*/\s*reveal\s*%%$")
@@ -185,8 +191,12 @@ def parse_option(name: str, lines: list[str], source: Path) -> dict:
     }
 
 
-def parse_file(path: Path, expected_type: str) -> dict:
-    raw_text = path.read_text(encoding="utf-8")
+def parse_file(path: Path, expected_type: str, repo_root: Path) -> dict:
+    try:
+        raw_text = path.read_text(encoding="utf-8")
+    except UnicodeDecodeError as error:
+        raise BuildFailed(f"{path}: файл должен быть в UTF-8 ({error})") from None
+
     frontmatter_lines, body_lines = split_frontmatter(raw_text, path)
     frontmatter = parse_frontmatter(frontmatter_lines, path)
 
@@ -233,11 +243,11 @@ def parse_file(path: Path, expected_type: str) -> dict:
         entry["outcome"] = frontmatter.get("outcome", "")
 
     entry["_status"] = frontmatter["status"]
-    entry["_source"] = path.as_posix()
+    entry["_source"] = path.relative_to(repo_root).as_posix()
     return entry
 
 
-def collect_entries(raw_root: Path) -> list[dict]:
+def collect_entries(raw_root: Path, repo_root: Path) -> list[dict]:
     entries: list[dict] = []
     errors: list[str] = []
 
@@ -248,7 +258,7 @@ def collect_entries(raw_root: Path) -> list[dict]:
 
         for path in sorted(folder_path.rglob("*.md")):
             try:
-                entries.append(parse_file(path, content_type))
+                entries.append(parse_file(path, content_type, repo_root))
             except BuildFailed as error:
                 errors.append(str(error))
 
@@ -309,6 +319,24 @@ def write_locale(entries: list[dict], out_root: Path, locale: str) -> list[str]:
     return written
 
 
+def collect_long_chunks(entries: list[dict], limit: int) -> list[str]:
+    warnings: list[str] = []
+
+    for entry in entries:
+        if entry["type"] not in BOTTOM_TEXT_TYPES:
+            continue
+
+        for index, chunk in enumerate(entry["chunks"], start=1):
+            length = len(chunk["text"])
+            if length > limit:
+                warnings.append(
+                    f"{entry['_source']}: кусок {index} длиной {length} символов "
+                    f"(больше {limit}, не влезет в две строки)"
+                )
+
+    return warnings
+
+
 def write_registry(entries: list[dict], registry_path: Path) -> None:
     rows = sorted((entry["id"], entry["type"], entry["_source"]) for entry in entries)
     lines = [
@@ -332,6 +360,12 @@ def main() -> int:
         action="store_true",
         help="собрать и незавершённые тексты (status: draft)",
     )
+    parser.add_argument(
+        "--max-chunk-chars",
+        type=int,
+        default=DEFAULT_MAX_CHUNK_CHARS,
+        help="длина куска, после которой он не влезает в две строки",
+    )
     args = parser.parse_args()
 
     repo_root = Path(__file__).resolve().parents[3]
@@ -340,7 +374,7 @@ def main() -> int:
     registry_path = raw_root / "_system" / "ids_registry.md"
 
     try:
-        entries = collect_entries(raw_root)
+        entries = collect_entries(raw_root, repo_root)
         validate(entries)
     except BuildFailed as error:
         print("Сборка не удалась:", file=sys.stderr)
@@ -348,6 +382,9 @@ def main() -> int:
         return 1
 
     write_registry(entries, registry_path)
+
+    for warning in collect_long_chunks(entries, args.max_chunk_chars):
+        print(f"внимание: {warning}", file=sys.stderr)
 
     drafts = [entry for entry in entries if entry["_status"] != "ready"]
     if not args.include_drafts:
