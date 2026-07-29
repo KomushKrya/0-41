@@ -1,0 +1,68 @@
+{
+  "timings": {
+    "phoneRingSeconds": 15.0,
+    "mapMarkerSeconds": 30.0,
+    "radioSeconds": 20.0,
+    "shiftCallWindowSeconds": 300.0,
+    "minSecondsBetweenCalls": 12.0,
+    "reportDelaySeconds": 1.0
+  },
+  "scales": {
+    "min": 0.0,
+    "max": 100.0,
+    "startInfection": 20.0,
+    "startPublicity": 15.0,
+    "startLoyalty": 70.0,
+    "infectionLoseAt": 100.0,
+    "publicityLoseAt": 100.0,
+    "loyaltyLoseAt": 0.0
+  },
+  "resolution": {
+    "coverageExponent": 2.0,
+    "maxDiceChance": 0.95,
+    "minDiceChance": 0.02,
+    "radioMissedChanceMultiplier": 0.5,
+    "successInjuryMultiplier": 0.25,
+    "successDeathMultiplier": 0.1,
+    "riskCoverageInfluence": 1.5
+  },
+  "employees": {
+    "injuryPenaltyPerStat": 1,
+    "skillPointsPerLevel": 3,
+    "maxLevel": 10,
+    "experiencePerLevelBase": 150,
+    "experiencePerLevelStep": 100,
+    "maxStatValue": 20
+  },
+  "zones": {
+    "weightNormal": 1.0,
+    "weightInfected": 2.2,
+    "weightQuarantine": 0.4,
+    "weightCleared": 0.1,
+    "infectedRequirementMultiplier": 1.2,
+    "clearedRequirementMultiplier": 0.9,
+    "failStreakToInfect": 2,
+    "successStreakToClear": 3
+  },
+  "loot": {
+    "consumableFindChance": 0.2,
+    "standardOrStorySlots": 1,
+    "consumableSlots": 2
+  },
+  "days": [
+    {
+      "day": 1, "staffLimit": 3, "minCalls": 5, "maxCalls": 6, "requirementMultiplier": 1.0,
+      "consumablesPerShift": 4, "standardPerShift": 1,
+      "shiftNoteId": "note_day1", "outroCutsceneId": "cutscene_day1_day2",
+
+      "//": "Обучающая смена: таймеры выключены, первые три вызова строго по одному,",
+      "//порядок": "затем два приходят внахлёст — показать, что вызовы накладываются.",
+      "disableTimers": true,
+      "sequentialCallCount": 3,
+      "missionOrder": ["m_d1_02", "m_d1_05", "m_d1_03", "m_d1_06", "m_d1_04"]
+    },
+    { "day": 2, "staffLimit": 4, "minCalls": 6, "maxCalls": 7, "requirementMultiplier": 1.15, "consumablesPerShift": 4, "standardPerShift": 1, "shiftNoteId": "note_day2", "outroCutsceneId": "cutscene_day2_day3" },
+    { "day": 3, "staffLimit": 5, "minCalls": 7, "maxCalls": 9, "requirementMultiplier": 1.3, "consumablesPerShift": 5, "standardPerShift": 2, "shiftNoteId": "note_day3", "outroCutsceneId": "cutscene_day3_day4" },
+    { "day": 4, "staffLimit": 6, "minCalls": 8, "maxCalls": 10, "requirementMultiplier": 1.5, "consumablesPerShift": 5, "standardPerShift": 2, "shiftNoteId": "note_day4", "outroCutsceneId": "cutscene_finale" }
+  ]
+}

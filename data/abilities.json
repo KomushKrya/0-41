@@ -1,0 +1,41 @@
+[
+  {
+	"id": "ab_mimic_hunter",
+	"name": "Насмотренность",
+	"description": "Различает подмену раньше остальных. +1 ко всем характеристикам против мимиков.",
+	"condition": "AgainstCreatureTag",
+	"conditionValue": "мимик",
+	"allStatsBonus": 1
+  },
+  {
+	"id": "ab_skin_breaker",
+	"name": "Тяжёлая рука",
+	"description": "+2 к силе против перекожников.",
+	"condition": "AgainstCreatureTag",
+	"conditionValue": "перекожник",
+	"bonus": { "strength": 2 }
+  },
+  {
+	"id": "ab_filter_master",
+	"name": "Работа в фильтрах",
+	"description": "+2 к выносливости и ловкости при использовании расходника «Новые фильтры».",
+	"condition": "WithEquipment",
+	"conditionValue": "eq_filters",
+	"bonus": { "endurance": 2, "agility": 2 }
+  },
+  {
+	"id": "ab_calm",
+	"name": "Ледяная выдержка",
+	"description": "+1 к хладнокровию всегда.",
+	"condition": "Always",
+	"bonus": { "composure": 1 }
+  },
+  {
+	"id": "ab_signal",
+	"name": "Слух на помехи",
+	"description": "+2 к восприятию против звуковых аномалий.",
+	"condition": "AgainstCreatureTag",
+	"conditionValue": "гул",
+	"bonus": { "perception": 2 }
+  }
+]

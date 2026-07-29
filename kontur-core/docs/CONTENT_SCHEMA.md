@@ -1,0 +1,177 @@
+# Схема контента (JSON)
+
+Схему задаёт ядро. Текстовый движок (Obsidian `.md` → JSON, раздел 14 ДД) обязан
+выдавать ровно этот формат. Это закрывает открытый вопрос про фронтматтер:
+конвертеру не нужно «угадывать» тип записи — он собирает файлы по типам.
+
+Общие правила:
+
+* имена полей — camelCase, регистр при чтении не важен;
+* перечисления пишутся строками (`"Consumable"`, `"Infected"`, `"AgainstCreatureTag"`);
+* пропущенное поле = значение по умолчанию, `null` для необязательных ссылок;
+* блок характеристик — объект с любым подмножеством из пяти ключей:
+  `strength`, `perception`, `endurance`, `agility`, `composure`;
+* блок изменения шкал — объект с любым подмножеством: `infection`, `publicity`, `loyalty`
+  (положительное = рост шкалы; для лояльности рост — это хорошо, для остальных — плохо);
+* комментарии `//` и висящие запятые допускаются.
+
+Загрузчик **валидирует ссылочную целостность** и падает с понятным сообщением,
+если миссия ссылается на несуществующую зону, существо, свойство или радио-сцену.
+Это специально: битую ссылку нужно ловить на загрузке, а не на середине смены.
+
+---
+
+## `config.json` — один объект
+
+Все балансные числа. Разделы: `timings`, `scales`, `resolution`, `employees`,
+`zones`, `loot`, `days[]`. Полный список полей — в `src/Kontur.Core/Config/SimulationConfig.cs`
+(там же значения по умолчанию и ссылки на пункты ДД).
+
+Ключевое: числа из ДД (15 / 30 / 20 секунд, окно 300 с, лимиты штата 3/4/5/6,
+5–10 вызовов) живут здесь, а не в коде.
+
+### Сценарные и обучающие смены
+
+У каждого дня в `days[]` есть три необязательных поля, позволяющих превратить смену
+в обучающую, не трогая код (ДД, раздел 12: сложность задаётся контентом и параметрами):
+
+```json
+{
+  "day": 1,
+  "disableTimers": true,
+  "sequentialCallCount": 3,
+  "missionOrder": ["m_d1_02", "m_d1_05", "m_d1_03", "m_d1_06", "m_d1_04"]
+}
+```
+
+| Поле | Что делает |
+|---|---|
+| `disableTimers` | Отключает таймеры игрока: звонок, метка и радио ждут действия сколько угодно. Таймеры дороги, работы на объекте и возвращения продолжают идти — иначе вызов не завершится. В событиях `IncidentCreated`, `MapMarkerSpawned`, `RadioTriggered` длительность приходит равной `0` — интерфейс по этому признаку не рисует обратный отсчёт. |
+| `sequentialCallCount` | Сколько первых вызовов приходят строго по одному: следующий не поступит, пока не закрыт предыдущий. Остальные идут обычным расписанием, поэтому конец смены можно сделать с наложением. |
+| `missionOrder` | Жёсткий порядок миссий вместо случайного подбора. `minCalls`/`maxCalls` при этом игнорируются, а неизвестный Id — ошибка загрузки, а не тихий пропуск. Сценарная смена завершается сразу после закрытия последнего вызова, не дожидаясь конца пятиминутного окна. |
+
+День 1 в поставляемом контенте использует все три: сначала простой вызов с раскрытием
+энциклопедии, затем два вызова с радио, в конце два внахлёст.
+
+## `zones.json` — массив
+
+```json
+{ "id": "z_center", "name": "Центральный район", "state": "Normal",
+  "baseWeight": 1.0, "mapX": 0.50, "mapY": 0.45 }
+```
+
+`state`: `Normal` | `Infected` | `Quarantine` | `Cleared`.
+`mapX`/`mapY` — нормализованные координаты для отрисовки метки; ядру не нужны,
+прокидываются в UI как есть.
+
+## `creatures.json` — массив
+
+```json
+{
+  "id": "cr_mimic", "name": "Мимик", "tags": ["мимик"], "illustrationId": "art_mimic",
+  "paragraphs": ["базовый абзац", "абзац свойства 1", "абзац свойства 2", "абзац свойства 3"],
+  "properties": [
+    { "id": "pr_mimic_clock", "name": "Застывшее время", "paragraphIndex": 1 }
+  ]
+}
+```
+
+Абзац `0` открывается при первом опознании существа. Абзацы `1..3` открываются,
+когда соответствующее свойство проявилось на вызове **и группа выжила**.
+`paragraphIndex` обязан лежать в `1..paragraphs.length-1` — проверяется загрузчиком.
+
+## `abilities.json` — массив
+
+```json
+{ "id": "ab_mimic_hunter", "name": "Насмотренность",
+  "condition": "AgainstCreatureTag", "conditionValue": "мимик", "allStatsBonus": 1 }
+```
+
+`condition`: `Always` | `AgainstCreatureTag` | `WithEquipment`.
+`conditionValue` — тег существа или id снаряжения.
+`bonus` — точечные прибавки, `allStatsBonus` — ко всем сразу. Можно вместе.
+
+## `equipment.json` — массив
+
+```json
+{ "id": "eq_armor", "name": "Бронежилет 6Б", "kind": "Standard",
+  "bonus": { "endurance": 3 }, "deathChanceMultiplier": 0.5 }
+```
+
+`kind`: `Consumable` (тратится всегда) | `Standard` (возвращается после успеха) |
+`Story` (теряется только при гибели всей группы).
+`successChanceBonus` — прямая прибавка к шансу при броске, `0..1`.
+
+## `employees.json` — один объект
+
+```json
+{
+  "startingRoster": [ { "id": "emp_gorin", "name": "Горин А. П.", "level": 2,
+                        "stats": { "strength": 5 }, "abilities": ["ab_skin_breaker"] } ],
+  "hirePool":      [ { "id": "emp_shubin", "availableFromDay": 2, "...": "..." } ]
+}
+```
+
+`availableFromDay` реализует правило ДД «на поздних сменах нанимаемые сотрудники
+стартуют с более высокими базовыми характеристиками» — просто кладите сильных
+кандидатов с бо́льшим значением.
+
+## `radio.json` — массив
+
+```json
+{
+  "id": "radio_mimic_school",
+  "situationText": "что видят сотрудники на месте",
+  "options": [
+    { "id": "opt_wait", "text": "Всем замереть в подсобке на пятнадцать минут.",
+      "requirementMultiplier": 0.4, "deathChanceMultiplier": 0.3,
+      "quality": "Best", "revealsPropertyId": "pr_mimic_waiting" }
+  ]
+}
+```
+
+`quality` (`Best` | `Good` | `Bad`) **не передаётся в интерфейс** — в событие
+`RadioTriggered` уходят только `id` и `text`. Поле нужно для баланса и автопилота.
+Подсказок в UI быть не должно (ДД, раздел 8).
+
+Прочие поля варианта: `injuryChanceMultiplier`, `appliesQuarantine` (переводит зону
+в карантин), `extraScales` (дополнительное изменение шкал именно за этот выбор).
+
+## `missions.json` — массив
+
+```json
+{
+  "id": "m_d1_01", "day": 1, "zoneId": "z_center", "creatureId": "cr_mimic",
+  "title": "Вызов в школе №14", "callerName": "вахтёр",
+  "briefingText": "текст на экране после ответа на звонок",
+  "requirements": { "perception": 8, "composure": 5 },
+  "travelSeconds": 12, "onSiteSeconds": 6, "returnSeconds": 9,
+  "radioEncounterId": "radio_mimic_school",
+  "scalesOnSuccess":       { "infection": -2, "publicity": -1, "loyalty":  2 },
+  "scalesOnFailure":       { "infection":  5, "publicity":  4, "loyalty": -4 },
+  "scalesOnMissedCall":    { "infection":  6, "publicity":  6, "loyalty": -6 },
+  "scalesOnExpiredMarker": { "infection":  5, "publicity":  5, "loyalty": -5 },
+  "experienceOnSuccess": 100, "experienceOnFailure": 25,
+  "injuryChance": 0.24, "deathChance": 0.07,
+  "reportSuccessText": "…", "reportFailureText": "…",
+  "manifestedPropertyIds": ["pr_mimic_clock"]
+}
+```
+
+* `radioEncounterId` отсутствует или `null` → вмешательство игрока этой миссией
+  не предусмотрено (ДД, раздел 8: решает дизайн задания, а не случайность).
+* `manifestedPropertyIds` — свойства, которые существо проявляет именно здесь.
+  Раскроются, если группа выжила. Радио-вариант может добавить своё через
+  `revealsPropertyId`.
+* Требования указываются «как для базового дня»: множители дня и штриховки зоны
+  ядро применит само.
+
+## `shift_notes.json` — массив
+
+```json
+{ "day": 1, "title": "Записка сменщика. Смена 1", "text": "…",
+  "outroCutsceneId": "cutscene_day1_day2" }
+```
+
+`outroCutsceneId` уходит в событие `ShiftEnded` — слой Godot по нему включает
+пререндеренный ролик.
