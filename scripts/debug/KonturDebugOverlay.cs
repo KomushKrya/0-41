@@ -965,21 +965,54 @@ public partial class KonturDebugOverlay : CanvasLayer
 		for (int i = 0; i < entries.Count; i++)
 		{
 			EncyclopediaEntryView entry = entries[i];
-			builder.Append("  [b]").Append(entry.CreatureName).Append("[/b]  ")
-				.Append("абзацев ").Append(entry.KnownParagraphs.Count)
-				.Append(" из ").Append(entry.TotalParagraphs).Append('\n');
 
-			for (int p = 0; p < entry.KnownParagraphs.Count; p++)
+			// Ядро отдаёт только id: имя и абзацы лежат в текстовом движке.
+			ContentEntry article = Content.Instance?.GetEntry(entry.CreatureId);
+			string title = article != null && article.Name.Length > 0 ? article.Name : entry.CreatureId;
+
+			builder.Append("  [b]").Append(title).Append("[/b]  ")
+				.Append("свойств ").Append(entry.RevealedPropertyIds.Count)
+				.Append(" из ").Append(entry.TotalProperties).Append('\n');
+
+			for (int p = 0; p < entry.RevealedPropertyIds.Count; p++)
 			{
-				builder.Append("    • ").Append(Shorten(entry.KnownParagraphs[p], 150)).Append('\n');
+				string propertyId = entry.RevealedPropertyIds[p];
+				builder.Append("    • ").Append(propertyId);
+
+				string paragraph = FindParagraph(article, propertyId);
+				if (paragraph.Length > 0)
+				{
+					builder.Append(" — ").Append(Shorten(paragraph, 120));
+				}
+
+				builder.Append('\n');
 			}
 
-			int hidden = entry.TotalParagraphs - entry.KnownParagraphs.Count;
+			int hidden = entry.TotalProperties - entry.RevealedPropertyIds.Count;
 			if (hidden > 0)
 			{
-				builder.Append("    [color=#6f7a6f]скрыто абзацев: ").Append(hidden).Append("[/color]\n");
+				builder.Append("    [color=#6f7a6f]скрыто свойств: ").Append(hidden).Append("[/color]\n");
 			}
 		}
+	}
+
+	/// <summary>Абзац статьи, помеченный этим свойством. Пусто, если статьи нет.</summary>
+	private static string FindParagraph(ContentEntry article, string propertyId)
+	{
+		if (article == null)
+		{
+			return string.Empty;
+		}
+
+		foreach (ContentChunk chunk in article.Chunks)
+		{
+			if (chunk.Reveal == propertyId)
+			{
+				return chunk.Text;
+			}
+		}
+
+		return string.Empty;
 	}
 
 	/// <summary>Отчёты, которые в игре появляются на компьютере после возвращения группы.</summary>
@@ -1001,13 +1034,13 @@ public partial class KonturDebugOverlay : CanvasLayer
 			builder.Append("  ").Append(report.IncidentId).Append("  ")
 				.Append(report.IsSuccess ? "[color=#9fd6a6]УСПЕХ[/color]" : "[color=#ff6b6b]ПРОВАЛ[/color]")
 				.Append("  ")
-				.Append(string.IsNullOrEmpty(report.CreatureName) ? "существо не опознано" : report.CreatureName)
+				.Append(string.IsNullOrEmpty(report.CreatureId) ? "существо не опознано" : report.CreatureId)
 				.Append('\n');
 
-			if (report.RevealedParagraphIndices.Count > 0)
+			if (report.RevealedPropertyIds.Count > 0)
 			{
-				builder.Append("    открыты абзацы: ")
-					.Append(string.Join(", ", report.RevealedParagraphIndices)).Append('\n');
+				builder.Append("    открыты свойства: ")
+					.Append(string.Join(", ", report.RevealedPropertyIds)).Append('\n');
 			}
 		}
 	}

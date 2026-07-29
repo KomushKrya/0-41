@@ -178,7 +178,7 @@ namespace Kontur.Harness
 			for (int i = 0; i < entries.Count; i++)
 			{
 				EncyclopediaEntryView entry = entries[i];
-				Console.WriteLine($"  {entry.CreatureName}: абзацев {entry.KnownParagraphs.Count} из {entry.TotalParagraphs}");
+				Console.WriteLine($"  {entry.CreatureId}: свойств {entry.RevealedPropertyIds.Count} из {entry.TotalProperties}");
 			}
 		}
 

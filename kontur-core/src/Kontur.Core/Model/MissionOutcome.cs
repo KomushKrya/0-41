@@ -93,11 +93,9 @@ namespace Kontur.Core.Model
 		/// <summary>Существо, с которым столкнулась группа. Пусто, если никто не вернулся.</summary>
 		public string CreatureId { get; set; } = string.Empty;
 
-		public string CreatureName { get; set; } = string.Empty;
-
 		public bool IsSuccess { get; set; }
 
-		/// <summary>Индексы абзацев энциклопедии, открытые этой миссией.</summary>
-		public List<int> RevealedParagraphIndices { get; } = new List<int>();
+		/// <summary>Id свойств энциклопедии, открытых этой миссией.</summary>
+		public List<string> RevealedPropertyIds { get; } = new List<string>();
 	}
 }

@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="kontur_prototype"
-run/main_scene="res://scenes/debug/EncyclopediaTest.tscn"
+run/main_scene="res://scenes/debug/KonturDebug.tscn"
 config/features=PackedStringArray("4.7", "C#", "GL Compatibility")
 config/icon="res://icon.svg"
 

@@ -65,19 +65,17 @@ namespace Kontur.Core.Events
 	/// <summary>Отчёт появился на компьютере (ДД, раздел 3, п. 12).</summary>
 	public sealed record MissionReportReady(MissionReport Report) : IGameEvent;
 
-	/// <summary>В энциклопедии открыт новый абзац (ДД, раздел 10).</summary>
-	public sealed record CreatureRevealed(
-		string CreatureId,
-		string CreatureName,
-		int ParagraphIndex,
-		string ParagraphText,
-		string PropertyId) : IGameEvent;
+	/// <summary>
+	/// В энциклопедии открыто новое свойство существа (ДД, раздел 10).
+	/// Текста здесь нет: абзац под свойство разворачивает интерфейс через текстовый движок.
+	/// </summary>
+	public sealed record CreatureRevealed(string CreatureId, string PropertyId) : IGameEvent;
 
 	/// <summary>Сюжетный флаг поменялся. Виджеты с условным текстом перечитывают себя по нему.</summary>
 	public sealed record FlagChanged(string Flag, bool Value) : IGameEvent;
 
 	/// <summary>Существо опознано и добавлено в энциклопедию впервые.</summary>
-	public sealed record CreatureIdentified(string CreatureId, string CreatureName) : IGameEvent;
+	public sealed record CreatureIdentified(string CreatureId) : IGameEvent;
 
 	public sealed record ZoneStateChanged(string ZoneId, ZoneState OldState, ZoneState NewState, string Reason) : IGameEvent;
 

@@ -208,8 +208,12 @@ DispatchEstimateView estimate = simulation.EstimateDispatch(incidentId, employee
 |---|---|---|
 | `DispatchScreenRequested` | `IncidentId`, `MissionId` | открыть экран отправки |
 | `MissionReportReady` | `Report` | добавить отчёт |
-| `CreatureIdentified` | `CreatureId`, `CreatureName` | новая карточка в энциклопедии |
-| `CreatureRevealed` | `CreatureId`, `CreatureName`, `ParagraphIndex`, `ParagraphText`, `PropertyId` | дописать абзац |
+| `CreatureIdentified` | `CreatureId` | новая карточка в энциклопедии |
+| `CreatureRevealed` | `CreatureId`, `PropertyId` | открыть абзац под это свойство |
+
+В обоих событиях **прозы нет намеренно**: имя существа и абзацы статьи лежат в
+текстовом движке под тем же id. Разворачивает их интерфейс — см.
+[ТЕКСТОВЫЕ-БОКСЫ.md](ТЕКСТОВЫЕ-БОКСЫ.md).
 
 ### Радиостанция
 
@@ -287,7 +291,7 @@ IncidentView(Id, MissionId, Title, ZoneId, CallerName, Phase, RemainingSeconds,
 
 ZoneView(Id, Name, State, MapX, MapY)
 EquipmentSlotView(Id, Name, Description, Kind, Quantity, IsShiftOnly)
-EncyclopediaEntryView(CreatureId, CreatureName, IllustrationId, KnownParagraphs, TotalParagraphs)
+EncyclopediaEntryView(CreatureId, IllustrationId, RevealedPropertyIds, TotalProperties)
 HireCandidateView(Id, Name, RankTitle, Level, Stats)
 DispatchEstimateView(Requirements, SquadStats, Coverage, SuccessChance, IsAutoSuccess)
 
@@ -347,8 +351,8 @@ EmployeeIds, InjuredEmployeeIds, KilledEmployeeIds, EquipmentIds
 ScaleDelta, RadioWasTriggered, RadioWasMissed, ChosenRadioOptionId, SquadWiped
 ```
 
-**`MissionReport`** — `IncidentId`, `MissionId`, `Title`, `Text`, `CreatureId`, `CreatureName`,
-`IsSuccess`, `RevealedParagraphIndices`. `CreatureName` пуст, если никто не вернулся.
+**`MissionReport`** — `IncidentId`, `MissionId`, `Title`, `Text`, `CreatureId`,
+`IsSuccess`, `RevealedPropertyIds`. `CreatureId` пуст, если никто не вернулся.
 
 ---
 

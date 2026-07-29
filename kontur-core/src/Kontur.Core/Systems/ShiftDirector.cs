@@ -497,7 +497,7 @@ namespace Kontur.Core.Systems
 				outcome.EmployeeIds,
 				outcome.IsSuccess ? mission.ExperienceOnSuccess : mission.ExperienceOnFailure);
 
-			List<int> revealed = _encyclopedia.ProcessMissionResult(mission, outcome, incident.ChosenOption);
+			List<string> revealed = _encyclopedia.ProcessMissionResult(mission, outcome, incident.ChosenOption);
 
 			if (outcome.IsSuccess)
 			{
@@ -549,7 +549,7 @@ namespace Kontur.Core.Systems
 			IncidentRuntime incident,
 			MissionOutcome outcome,
 			CreatureDefinition? creature,
-			List<int> revealedParagraphs)
+			List<string> revealedProperties)
 		{
 			var report = new MissionReport
 			{
@@ -563,10 +563,9 @@ namespace Kontur.Core.Systems
 			if (!outcome.SquadWiped && creature != null)
 			{
 				report.CreatureId = creature.Id;
-				report.CreatureName = creature.Name;
 			}
 
-			report.RevealedParagraphIndices.AddRange(revealedParagraphs);
+			report.RevealedPropertyIds.AddRange(revealedProperties);
 			return report;
 		}
 

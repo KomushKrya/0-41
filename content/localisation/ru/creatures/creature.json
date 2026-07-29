@@ -1,4 +1,37 @@
 {
+	"creature_hum": {
+		"id": "creature_hum",
+		"type": "creature",
+		"requirements": [],
+		"properties": [
+			"property_hum_crowd",
+			"property_hum_plugs",
+			"property_hum_channel"
+		],
+		"chunks": [
+			{
+				"text": "Объект класса «поле». Материального носителя не имеет. Фиксируется как устойчивый низкочастотный фон в радиусе до 200 метров.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Фон нарастает от присутствия людей. Чем больше группа на объекте, тем быстрее растёт интенсивность — малые группы работают дольше.",
+				"kind": "text",
+				"reveal": "property_hum_crowd"
+			},
+			{
+				"text": "Полностью гасится штатными заглушками. Без них у личного состава через 10 минут начинается дезориентация.",
+				"kind": "text",
+				"reveal": "property_hum_plugs"
+			},
+			{
+				"text": "Смещается вдоль коммуникаций: теплотрасс, коллекторов, кабельных каналов. Перекрытие канала останавливает смещение.",
+				"kind": "text",
+				"reveal": "property_hum_channel"
+			}
+		],
+		"name": "Гул"
+	},
 	"creature_mimic": {
 		"id": "creature_mimic",
 		"type": "creature",

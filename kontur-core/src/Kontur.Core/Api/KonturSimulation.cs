@@ -404,19 +404,7 @@ namespace Kontur.Core.Api
 		/// </summary>
 		public bool IsPropertyRevealed(string creatureId, string propertyId)
 		{
-			CreatureDefinition? creature = Content.FindCreature(creatureId);
-			if (creature == null)
-			{
-				return false;
-			}
-
-			CreatureProperty? property = creature.FindProperty(propertyId);
-			if (property == null)
-			{
-				return false;
-			}
-
-			return _state.Encyclopedia.IsParagraphRevealed(creature.Id, property.ParagraphIndex);
+			return _state.Encyclopedia.IsPropertyRevealed(creatureId, propertyId);
 		}
 
 		public IReadOnlyList<EncyclopediaEntryView> GetEncyclopedia()
@@ -431,23 +419,22 @@ namespace Kontur.Core.Api
 					continue;
 				}
 
-				IReadOnlyCollection<int> revealed = _state.Encyclopedia.GetRevealedParagraphs(creatureId);
-				var paragraphs = new List<string>();
-
-				for (int i = 0; i < creature.Paragraphs.Count; i++)
+				// Порядок свойств берём из определения существа, а не из множества
+				// раскрытых: снимок должен быть стабильным между вызовами.
+				var revealedIds = new List<string>();
+				for (int i = 0; i < creature.Properties.Count; i++)
 				{
-					if (revealed.Contains(i))
+					if (_state.Encyclopedia.IsPropertyRevealed(creature.Id, creature.Properties[i]))
 					{
-						paragraphs.Add(creature.Paragraphs[i]);
+						revealedIds.Add(creature.Properties[i]);
 					}
 				}
 
 				result.Add(new EncyclopediaEntryView(
 					creature.Id,
-					creature.Name,
 					creature.IllustrationId,
-					paragraphs,
-					creature.Paragraphs.Count));
+					revealedIds,
+					creature.Properties.Count));
 			}
 
 			return result;

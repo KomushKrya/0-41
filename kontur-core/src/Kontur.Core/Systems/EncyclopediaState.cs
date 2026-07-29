@@ -4,70 +4,75 @@ using System.Collections.Generic;
 namespace Kontur.Core.Systems
 {
 	/// <summary>
-	/// Что игрок знает о существах (ДД, раздел 10).
-	/// Абзац 0 — базовый, открывается при первом опознании существа.
-	/// Абзацы 1..3 открываются, когда соответствующее свойство проявилось и было замечено.
+	/// Что игрок знает об существах (ДД, раздел 10).
+	///
+	/// Ключ раскрытия — id свойства, а не номер абзаца: текст статьи можно править и
+	/// переставлять, не ломая уже сохранённые раскрытия. Какой абзац стоит за свойством,
+	/// знает текстовый движок — там абзац помечен %% reveal: <id свойства> %%.
+	///
+	/// Существо, попавшее в словарь, считается опознанным: вводный абзац статьи
+	/// показывается без всяких свойств, поэтому отдельного признака для него не нужно.
 	/// </summary>
 	public sealed class EncyclopediaState
 	{
-		private readonly Dictionary<string, HashSet<int>> _revealedParagraphs =
-			new Dictionary<string, HashSet<int>>(StringComparer.OrdinalIgnoreCase);
+		private readonly Dictionary<string, HashSet<string>> _revealed =
+			new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
 		public void Clear()
 		{
-			_revealedParagraphs.Clear();
+			_revealed.Clear();
 		}
 
 		public bool IsCreatureKnown(string creatureId)
 		{
-			return _revealedParagraphs.ContainsKey(creatureId);
+			return _revealed.ContainsKey(creatureId);
 		}
 
-		public bool IsParagraphRevealed(string creatureId, int paragraphIndex)
+		public bool IsPropertyRevealed(string creatureId, string propertyId)
 		{
-			HashSet<int>? set;
-			return _revealedParagraphs.TryGetValue(creatureId, out set) && set.Contains(paragraphIndex);
+			HashSet<string>? set;
+			return _revealed.TryGetValue(creatureId, out set) && set.Contains(propertyId);
 		}
 
-		public IReadOnlyCollection<int> GetRevealedParagraphs(string creatureId)
+		public IReadOnlyCollection<string> GetRevealedProperties(string creatureId)
 		{
-			HashSet<int>? set;
-			if (_revealedParagraphs.TryGetValue(creatureId, out set))
+			HashSet<string>? set;
+			if (_revealed.TryGetValue(creatureId, out set))
 			{
 				return set;
 			}
 
-			return Array.Empty<int>();
+			return Array.Empty<string>();
 		}
 
 		public IReadOnlyCollection<string> GetKnownCreatureIds()
 		{
-			return _revealedParagraphs.Keys;
+			return _revealed.Keys;
 		}
 
 		/// <summary>Возвращает true, если существо опознано впервые.</summary>
 		public bool Identify(string creatureId)
 		{
-			if (_revealedParagraphs.ContainsKey(creatureId))
+			if (_revealed.ContainsKey(creatureId))
 			{
 				return false;
 			}
 
-			_revealedParagraphs[creatureId] = new HashSet<int> { 0 };
+			_revealed[creatureId] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 			return true;
 		}
 
-		/// <summary>Возвращает true, если абзац действительно открыт этим вызовом.</summary>
-		public bool RevealParagraph(string creatureId, int paragraphIndex)
+		/// <summary>Возвращает true, если свойство действительно открыто этим вызовом.</summary>
+		public bool RevealProperty(string creatureId, string propertyId)
 		{
-			HashSet<int>? set;
-			if (!_revealedParagraphs.TryGetValue(creatureId, out set))
+			HashSet<string>? set;
+			if (!_revealed.TryGetValue(creatureId, out set))
 			{
-				set = new HashSet<int> { 0 };
-				_revealedParagraphs[creatureId] = set;
+				set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+				_revealed[creatureId] = set;
 			}
 
-			return set.Add(paragraphIndex);
+			return set.Add(propertyId);
 		}
 	}
 }

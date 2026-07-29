@@ -92,26 +92,14 @@ namespace Kontur.Core.Content
 		public double DeathChanceMultiplier { get; set; } = 1.0;
 	}
 
-	public sealed class CreaturePropertyDto
-	{
-		public string Id { get; set; } = string.Empty;
-
-		public string Name { get; set; } = string.Empty;
-
-		public int ParagraphIndex { get; set; } = 1;
-	}
-
 	public sealed class CreatureDto
 	{
 		public string Id { get; set; } = string.Empty;
 
-		public string Name { get; set; } = string.Empty;
-
 		public List<string>? Tags { get; set; }
 
-		public List<string>? Paragraphs { get; set; }
-
-		public List<CreaturePropertyDto>? Properties { get; set; }
+		/// <summary>Только id свойств — абзацы под них лежат в текстовом движке.</summary>
+		public List<string>? Properties { get; set; }
 
 		public string IllustrationId { get; set; } = string.Empty;
 	}

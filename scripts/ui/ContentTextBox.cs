@@ -142,8 +142,9 @@ public abstract partial class ContentTextBox : Control
 	/// <summary>
 	/// Открыт ли условный абзац. По умолчанию спрашивает ядро в два шага: сначала пак
 	/// сюжетных флагов (id свойства = имя флага), затем раскрытия энциклопедии, где то же
-	/// свойство может быть открыто отчётом с выезда. Если флаги живут где-то ещё —
-	/// переопределяй здесь, это единственная точка.
+	/// свойство может быть открыто отчётом с выезда. Id записи и id существа в
+	/// геймплейных данных — один и тот же, поэтому переводить ничего не нужно.
+	/// Если флаги живут где-то ещё — переопределяй здесь, это единственная точка.
 	/// </summary>
 	protected virtual bool IsRevealed(string propertyId)
 	{
@@ -154,17 +155,7 @@ public abstract partial class ContentTextBox : Control
 		}
 
 		return runtime.Simulation.IsFlagSet(propertyId)
-			|| runtime.Simulation.IsPropertyRevealed(ResolveCreatureId(ContentId), propertyId);
-	}
-
-	/// <summary>
-	/// Как из id записи получить id существа в геймплейных данных. Пока это один и тот же
-	/// id; когда тексты и data/creatures.json сойдутся на общих идентификаторах,
-	/// переопределение станет ненужным.
-	/// </summary>
-	protected virtual string ResolveCreatureId(string contentId)
-	{
-		return contentId;
+			|| runtime.Simulation.IsPropertyRevealed(ContentId, propertyId);
 	}
 
 	/// <summary>

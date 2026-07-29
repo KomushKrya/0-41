@@ -27,7 +27,11 @@ namespace Kontur.Core.Content
 
 		private static readonly JsonSerializerOptions Options = CreateOptions();
 
-		public static ContentDatabase Load(IContentSource source)
+		/// <param name="textCatalog">
+		/// Текстовый движок для сверки id. Null — сверка пропускается: ядро должно
+		/// собираться и прогоняться без движка.
+		/// </param>
+		public static ContentDatabase Load(IContentSource source, ITextCatalog? textCatalog = null)
 		{
 			if (source == null)
 			{
@@ -51,7 +55,7 @@ namespace Kontur.Core.Content
 			LoadMissions(source, database);
 			LoadShiftNotes(source, database);
 
-			Validate(database);
+			Validate(database, textCatalog);
 			return database;
 		}
 
@@ -123,7 +127,6 @@ namespace Kontur.Core.Content
 				var creature = new CreatureDefinition
 				{
 					Id = dto.Id,
-					Name = dto.Name,
 					IllustrationId = dto.IllustrationId
 				};
 
@@ -132,22 +135,9 @@ namespace Kontur.Core.Content
 					creature.Tags.AddRange(dto.Tags);
 				}
 
-				if (dto.Paragraphs != null)
-				{
-					creature.Paragraphs.AddRange(dto.Paragraphs);
-				}
-
 				if (dto.Properties != null)
 				{
-					foreach (CreaturePropertyDto propertyDto in dto.Properties)
-					{
-						creature.Properties.Add(new CreatureProperty
-						{
-							Id = propertyDto.Id,
-							Name = propertyDto.Name,
-							ParagraphIndex = propertyDto.ParagraphIndex
-						});
-					}
+					creature.Properties.AddRange(dto.Properties);
 				}
 
 				database.Creatures[creature.Id] = creature;
@@ -263,7 +253,7 @@ namespace Kontur.Core.Content
 			}
 		}
 
-		private static void Validate(ContentDatabase database)
+		private static void Validate(ContentDatabase database, ITextCatalog? textCatalog)
 		{
 			var errors = new List<string>();
 
@@ -285,7 +275,7 @@ namespace Kontur.Core.Content
 				{
 					foreach (string propertyId in mission.ManifestedPropertyIds)
 					{
-						if (creature.FindProperty(propertyId) == null)
+						if (!creature.HasProperty(propertyId))
 						{
 							errors.Add($"Миссия '{mission.Id}': существо '{creature.Id}' не имеет свойства '{propertyId}'.");
 						}
@@ -301,18 +291,31 @@ namespace Kontur.Core.Content
 			foreach (KeyValuePair<string, CreatureDefinition> pair in database.Creatures)
 			{
 				CreatureDefinition creature = pair.Value;
-				if (creature.Paragraphs.Count == 0)
+				if (creature.Properties.Count == 0)
 				{
-					errors.Add($"Существо '{creature.Id}': нет ни одного абзаца энциклопедии.");
+					errors.Add($"Существо '{creature.Id}': не объявлено ни одного свойства.");
 				}
 
-				foreach (CreatureProperty property in creature.Properties)
+				// Абзацы и имя живут в текстовом движке. Без каталога сверить нечем —
+				// ядро прогоняется и без движка, поэтому это не ошибка.
+				if (textCatalog == null)
 				{
-					if (property.ParagraphIndex <= 0 || property.ParagraphIndex >= creature.Paragraphs.Count)
+					continue;
+				}
+
+				if (!textCatalog.HasEntry(creature.Id))
+				{
+					errors.Add($"Существо '{creature.Id}': нет статьи энциклопедии с таким id.");
+					continue;
+				}
+
+				foreach (string propertyId in creature.Properties)
+				{
+					if (!textCatalog.HasProperty(creature.Id, propertyId))
 					{
 						errors.Add(
-							$"Существо '{creature.Id}', свойство '{property.Id}': paragraphIndex={property.ParagraphIndex} " +
-							$"вне диапазона 1..{creature.Paragraphs.Count - 1}.");
+							$"Существо '{creature.Id}': в статье нет блока " +
+							$"%% reveal: {propertyId} %% под объявленное свойство.");
 					}
 				}
 			}

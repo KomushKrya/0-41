@@ -120,13 +120,13 @@ namespace Kontur.Harness
 
 				case MissionReportReady s:
 					return $"ОТЧЁТ {s.Report.IncidentId}: {(s.Report.IsSuccess ? "УСПЕХ" : "ПРОВАЛ")}"
-						+ (string.IsNullOrEmpty(s.Report.CreatureName) ? " | существо не опознано" : $" | существо: {s.Report.CreatureName}");
+						+ (string.IsNullOrEmpty(s.Report.CreatureId) ? " | существо не опознано" : $" | существо: {s.Report.CreatureId}");
 
 				case CreatureIdentified s:
-					return $"ЭНЦИКЛОПЕДИЯ: опознано существо «{s.CreatureName}»";
+					return $"ЭНЦИКЛОПЕДИЯ: опознано существо {s.CreatureId}";
 
 				case CreatureRevealed s:
-					return $"ЭНЦИКЛОПЕДИЯ: «{s.CreatureName}» — открыт абзац {s.ParagraphIndex} (свойство {s.PropertyId})";
+					return $"ЭНЦИКЛОПЕДИЯ: {s.CreatureId} — открыто свойство {s.PropertyId}";
 
 				case ZoneStateChanged s:
 					return $"КАРТА: зона {s.ZoneId} {s.OldState} -> {s.NewState} ({s.Reason})";

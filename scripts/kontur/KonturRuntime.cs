@@ -44,7 +44,20 @@ public partial class KonturRuntime : Node
 	{
 		try
 		{
-			ContentDatabase content = ContentLoader.Load(new GodotContentSource(ContentRoot));
+			// Каталог текстов нужен, чтобы ядро сверило свои id со статьями энциклопедии.
+			// Если автозагрузка Content почему-то ещё не поднялась, сверку пропускаем:
+			// уронить игру из-за порядка автозагрузок хуже, чем не проверить контент.
+			ITextCatalog textCatalog = null;
+			if (Content.Instance != null)
+			{
+				textCatalog = new GodotTextCatalog();
+			}
+			else
+			{
+				GD.PushWarning("[KONTUR] Автозагрузка Content не готова — сверка текстовых id пропущена.");
+			}
+
+			ContentDatabase content = ContentLoader.Load(new GodotContentSource(ContentRoot), textCatalog);
 			Simulation = new KonturSimulation(content, Seed);
 		}
 		catch (ContentException exception)

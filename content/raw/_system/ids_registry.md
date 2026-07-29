@@ -7,6 +7,7 @@
 |----|------|------|
 | `call_black_mold` | call | content/raw/calls/black_mold.md |
 | `call_pensioner_door` | call | content/raw/calls/pensioner_door.md |
+| `creature_hum` | creature | content/raw/creatures/gul.md |
 | `creature_mimic` | creature | content/raw/creatures/mimic.md |
 | `creature_perekozhnik` | creature | content/raw/creatures/perekozhnik.md |
 | `creature_simulacre` | creature | content/raw/creatures/simulacre.md |

@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://dfeaugy36p7gv"]
+
+[ext_resource type="Script" path="res://scripts/debug/EncyclopediaTestOverlay.cs" id="1_encyclopedia_test"]
+
+[node name="EncyclopediaTest" type="CanvasLayer" unique_id=733834035]
+layer = 100
+script = ExtResource("1_encyclopedia_test")

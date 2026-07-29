@@ -59,12 +59,15 @@ namespace Kontur.Core.Api
 		int Quantity,
 		bool IsShiftOnly);
 
+	/// <summary>
+	/// Что известно об существе. Имя и абзацы берутся интерфейсом из текстового движка
+	/// по CreatureId и RevealedPropertyIds — ядро прозу не хранит.
+	/// </summary>
 	public sealed record EncyclopediaEntryView(
 		string CreatureId,
-		string CreatureName,
 		string IllustrationId,
-		IReadOnlyList<string> KnownParagraphs,
-		int TotalParagraphs);
+		IReadOnlyList<string> RevealedPropertyIds,
+		int TotalProperties);
 
 	public sealed record HireCandidateView(string Id, string Name, string RankTitle, int Level, StatBlock Stats);
 

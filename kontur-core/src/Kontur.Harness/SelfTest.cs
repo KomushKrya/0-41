@@ -19,6 +19,11 @@ namespace Kontur.Harness
 		private static int _passed;
 		private static int _failed;
 
+		// Снимок детерминированного прогона: «раскрыто/всего» по существам в порядке id.
+		// Меняется только вместе с балансом или контентом, но не при рефакторинге.
+		private const string ExpectedRevealSignature = "1/3 1/3 1/3";
+		private const int ExpectedRevealEvents = 3;
+
 		public static bool Run(ContentDatabase content)
 		{
 			_passed = 0;
@@ -37,6 +42,7 @@ namespace Kontur.Harness
 			TestEquipmentSlotLimits(content);
 			TestStaffLimit(content);
 			TestFlags(content);
+			TestEncyclopediaReveals(content);
 			TestDeterminism(content);
 			TestTutorialShift(content);
 			TestFullShiftCompletes(content);
@@ -361,6 +367,60 @@ namespace Kontur.Harness
 			Check("Порядок вызовов совпадает со сценарием", sameOrder);
 			Check("Обучающая смена завершается", !scripted.IsShiftActive);
 			Check("В конце смены вызовы накладываются", maxSimultaneous > 1);
+		}
+
+		/// <summary>
+		/// Характеризационная проверка энциклопедии: фиксирует, сколько свойств каждого
+		/// существа открывает детерминированный прогон. Считает через публичный
+		/// IsPropertyRevealed и не завязана ни на номера абзацев, ни на конкретные id, —
+		/// поэтому переживает переход раскрытий с индексов абзацев на id свойств.
+		/// </summary>
+		private static void TestEncyclopediaReveals(ContentDatabase content)
+		{
+			var simulation = new KonturSimulation(content, 41);
+			var oper = new AutoOperator(simulation, content, RadioStrategy.Best, 41);
+
+			int revealEvents = 0;
+			simulation.Events.Subscribe<CreatureRevealed>(_ => revealEvents++);
+
+			simulation.StartShift(1);
+
+			double guard = 0.0;
+			while (simulation.IsShiftActive && guard < 1800.0)
+			{
+				simulation.Tick(0.25);
+				guard += 0.25;
+				oper.Update();
+			}
+
+			var signature = new System.Text.StringBuilder();
+			var creatureIds = new List<string>(content.Creatures.Keys);
+			creatureIds.Sort(StringComparer.Ordinal);
+
+			for (int i = 0; i < creatureIds.Count; i++)
+			{
+				CreatureDefinition creature = content.FindCreature(creatureIds[i])!;
+				int revealed = 0;
+				for (int p = 0; p < creature.Properties.Count; p++)
+				{
+					if (simulation.IsPropertyRevealed(creature.Id, PropertyIdAt(creature, p)))
+					{
+						revealed++;
+					}
+				}
+
+				signature.Append(revealed).Append('/').Append(creature.Properties.Count).Append(' ');
+			}
+
+			Console.WriteLine("       снимок раскрытий: " + signature.ToString().Trim() + $", событий {revealEvents}");
+			Check("Раскрытия энциклопедии не изменились", signature.ToString().Trim() == ExpectedRevealSignature);
+			Check("События раскрытия совпадают со снимком", revealEvents == ExpectedRevealEvents);
+		}
+
+		/// <summary>Прослойка на время перехода: до рефакторинга свойство — объект, после — id.</summary>
+		private static string PropertyIdAt(CreatureDefinition creature, int index)
+		{
+			return creature.Properties[index];
 		}
 
 		private static void TestFullShiftCompletes(ContentDatabase content)
