@@ -33,4 +33,8 @@ desktop.ini
 
 # Godot generated translations
 *.translation
-.obsidian/ 
+.obsidian/
+
+# Claude Code project config / local MCP server registration
+.mcp.json
+AGENTS.md
