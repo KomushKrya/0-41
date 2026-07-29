@@ -19,22 +19,6 @@ public partial class BottomTextRenderer : CanvasLayer
 		_panel = GetNode<Control>("Panel");
 		_label = GetNode<Label>("Panel/MarginContainer/Text");
 		_panel.Visible = false;
-
-		EventBus.Instance.BottomTextAdvanceRequested += Advance;
-	}
-
-	public override void _ExitTree()
-	{
-		EventBus.Instance.BottomTextAdvanceRequested -= Advance;
-	}
-
-	public override void _UnhandledInput(InputEvent @event)
-	{
-		if (@event is InputEventMouseButton { ButtonIndex: MouseButton.Right, Pressed: true })
-		{
-			EventBus.Instance.RequestBottomTextAdvance();
-			GetViewport().SetInputAsHandled();
-		}
 	}
 
 	public void Play(string contentId)
@@ -50,10 +34,9 @@ public partial class BottomTextRenderer : CanvasLayer
 		_chunkIndex = 0;
 		_panel.Visible = true;
 		_label.Text = _chunks[_chunkIndex].Text;
-		EventBus.Instance.PublishBottomTextStarted(_contentId);
 	}
 
-	private void Advance()
+	public void Advance()
 	{
 		if (!IsPlaying)
 		{
@@ -74,14 +57,10 @@ public partial class BottomTextRenderer : CanvasLayer
 
 	private void Finish()
 	{
-		string finishedId = _contentId;
-
 		_chunks = new List<ContentChunk>();
 		_contentId = string.Empty;
 		_chunkIndex = -1;
 		_panel.Visible = false;
-
-		EventBus.Instance.PublishBottomTextFinished(finishedId);
 
 		if (FreeWhenFinished)
 		{
