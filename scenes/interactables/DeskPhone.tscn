@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_phone"]
+albedo_color = Color(1, 0, 0, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_phone"]
+size = Vector3(0.3, 0.15, 0.25)
+
+[node name="DeskPhone" type="Node3D"]
+
+[node name="VisualRoot" type="Node3D" parent="."]
+
+[node name="PhoneBody" type="MeshInstance3D" parent="VisualRoot"]
+transform = Transform3D(-0.514673, 0, -0.8573866, 0, 1, 0, 0.8573866, 0, -0.514673, 2.2010708, 0.90322566, 1.8605828)
+material_override = SubResource("StandardMaterial3D_phone")
+mesh = SubResource("BoxMesh_phone")

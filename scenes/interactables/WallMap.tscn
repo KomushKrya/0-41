@@ -1,0 +1,25 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" uid="uid://b5yfoidtc831t" path="res://scenes/ui/map/MapUI.tscn" id="1_map_ui"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_map_texture"]
+albedo_color = Color(0.7019608, 0.6745098, 0.56078434, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_wall_map"]
+size = Vector3(2.5, 1.5, 0.06)
+
+[node name="WallMap" type="Node3D"]
+
+[node name="VisualRoot" type="Node3D" parent="."]
+
+[node name="Board" type="MeshInstance3D" parent="VisualRoot"]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 3.926299, 1.6739725, 1.6254405)
+material_override = SubResource("StandardMaterial3D_map_texture")
+mesh = SubResource("BoxMesh_wall_map")
+
+[node name="MapViewport" type="SubViewport" parent="."]
+disable_3d = true
+size = Vector2i(1024, 768)
+render_target_update_mode = 4
+
+[node name="MapUI" parent="MapViewport" instance=ExtResource("1_map_ui")]

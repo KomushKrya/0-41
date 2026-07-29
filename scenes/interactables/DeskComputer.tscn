@@ -1,0 +1,92 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://ddn5p1xirvbik" path="res://scripts/computer/DeskComputerInteraction.cs" id="1_computer_interaction"]
+[ext_resource type="PackedScene" path="res://scenes/ui/computer/ComputerUI.tscn" id="2_computer_ui"]
+[ext_resource type="Script" uid="uid://bjwfxhtauk3gn" path="res://scripts/computer/DeskComputerInteractable.cs" id="3_computer_interactable"]
+[ext_resource type="Script" uid="uid://cxbebiv6k1myu" path="res://scripts/interaction/SubViewportInputController.cs" id="4_viewport_input"]
+[ext_resource type="Script" uid="uid://d0fbn8kr5taka" path="res://scripts/interaction/InteractionOutline.cs" id="5_outline"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_warm_plastic"]
+albedo_color = Color(0.62, 0.55, 0.42, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_computer_case"]
+size = Vector3(0.78, 0.16, 0.56)
+
+[sub_resource type="BoxMesh" id="BoxMesh_monitor_body"]
+size = Vector3(0.62, 0.45, 0.42)
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_computer_screen"]
+viewport_path = NodePath("ComputerViewport")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_screen_texture"]
+resource_local_to_scene = true
+cull_mode = 2
+albedo_color = Color(0.02, 0.08, 0.055, 1)
+albedo_texture = SubResource("ViewportTexture_computer_screen")
+emission_enabled = true
+emission_energy_multiplier = 0.75
+emission_texture = SubResource("ViewportTexture_computer_screen")
+texture_filter = 0
+
+[sub_resource type="BoxMesh" id="BoxMesh_monitor_screen"]
+size = Vector3(0.48, 0.02, 0.36)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_screen_interaction"]
+size = Vector3(0.5, 0.04, 0.38)
+
+[sub_resource type="BoxMesh" id="BoxMesh_keyboard"]
+size = Vector3(0.76, 0.04, 0.22)
+
+[node name="DeskComputer" type="Node3D"]
+script = ExtResource("1_computer_interaction")
+
+[node name="ComputerViewport" type="SubViewport" parent="."]
+disable_3d = true
+size = Vector2i(1024, 768)
+render_target_update_mode = 4
+
+[node name="ComputerUI" parent="ComputerViewport" instance=ExtResource("2_computer_ui")]
+
+[node name="VisualRoot" type="Node3D" parent="."]
+
+[node name="SystemUnit" type="MeshInstance3D" parent="VisualRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0.02)
+material_override = SubResource("StandardMaterial3D_warm_plastic")
+mesh = SubResource("BoxMesh_computer_case")
+
+[node name="MonitorBody" type="MeshInstance3D" parent="VisualRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.22, -0.05)
+material_override = SubResource("StandardMaterial3D_warm_plastic")
+mesh = SubResource("BoxMesh_monitor_body")
+
+[node name="Screen" type="MeshInstance3D" parent="VisualRoot"]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 1.22, 0.175)
+material_override = SubResource("StandardMaterial3D_screen_texture")
+mesh = SubResource("BoxMesh_monitor_screen")
+
+[node name="InteractionArea" type="Area3D" parent="VisualRoot/Screen"]
+collision_layer = 3
+collision_mask = 0
+script = ExtResource("3_computer_interactable")
+ComputerPath = NodePath("../../..")
+OutlinePath = NodePath("../../../InteractionOutline")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="VisualRoot/Screen/InteractionArea"]
+shape = SubResource("BoxShape3D_screen_interaction")
+
+[node name="Keyboard" type="MeshInstance3D" parent="VisualRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.018652678, 0.845, 0.47963765)
+material_override = SubResource("StandardMaterial3D_warm_plastic")
+mesh = SubResource("BoxMesh_keyboard")
+
+[node name="FocusCameraPose" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0018137693, 1.22, 0.42388302)
+
+[node name="ViewportInput" type="Node" parent="."]
+script = ExtResource("4_viewport_input")
+ViewportPath = NodePath("../ComputerViewport")
+CursorPath = NodePath("../ComputerViewport/ComputerUI/ComputerCursor")
+
+[node name="InteractionOutline" type="Node" parent="."]
+script = ExtResource("5_outline")
+VisualRootPath = NodePath("../VisualRoot/MonitorBody")

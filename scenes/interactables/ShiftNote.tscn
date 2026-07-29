@@ -1,0 +1,15 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_note"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_note"]
+size = Vector3(0.33398438, 0.020751953, 0.42089844)
+
+[node name="ShiftNote" type="Node3D"]
+
+[node name="VisualRoot" type="Node3D" parent="."]
+
+[node name="NotePage" type="MeshInstance3D" parent="VisualRoot"]
+transform = Transform3D(0.97184837, 0, 0.23560765, 0, 1, 0, -0.23560765, 0, 0.97184837, 0.09934169, 0.8337445, 0.24461687)
+material_override = SubResource("StandardMaterial3D_note")
+mesh = SubResource("BoxMesh_note")
