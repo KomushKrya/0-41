@@ -3,4 +3,20 @@
     <TargetFramework>net8.0</TargetFramework>
     <EnableDynamicLoading>true</EnableDynamicLoading>
   </PropertyGroup>
+
+  <!--
+    Симуляционное ядро подключается как отдельная сборка, а не как исходники.
+    Compile Remove обязателен: Godot.NET.Sdk по умолчанию включает все .cs под корнем
+    проекта, и без него в игру попали бы и файлы ядра, и консольный харнесс,
+    и Godot-эскизы из kontur-core/integration.
+    Kontur.Harness намеренно не подключается: это инструмент разработки.
+  -->
+  <ItemGroup>
+    <Compile Remove="kontur-core\**\*.cs" />
+    <None Remove="kontur-core\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="kontur-core\src\Kontur.Core\Kontur.Core.csproj" />
+  </ItemGroup>
 </Project>
