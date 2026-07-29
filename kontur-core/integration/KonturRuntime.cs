@@ -1,0 +1,71 @@
+// ЭСКИЗ ДЛЯ ИНТЕГРАЦИИ. В Godot-проект пока не копируется — см. docs/INTEGRATION.md.
+//
+// После мержа ветки: scripts/kontur/KonturRuntime.cs + autoload под именем "Kontur".
+
+using System;
+using Godot;
+using Kontur.Core.Api;
+using Kontur.Core.Content;
+using Kontur.Core.Events;
+
+namespace Kontur.Integration
+{
+	/// <summary>
+	/// Мост между симуляционным ядром и сценами. Единственное место, где движок
+	/// встречается с ядром. Сцены подписываются на события этого узла и вызывают
+	/// команды через Simulation — напрямую в системы ядра никто не лезет.
+	/// </summary>
+	public partial class KonturRuntime : Node
+	{
+		[Export] public string ContentRoot { get; set; } = "res://data/";
+
+		[Export] public int Seed { get; set; } = 41;
+
+		/// <summary>Пауза симуляции — для меню, роликов и отладки.</summary>
+		[Export] public bool IsPaused { get; set; }
+
+		private IDisposable? _logSubscription;
+
+		public KonturSimulation Simulation { get; private set; } = null!;
+
+		public override void _Ready()
+		{
+			ContentDatabase content = ContentLoader.Load(new GodotContentSource(ContentRoot));
+			Simulation = new KonturSimulation(content, Seed);
+
+			// Единый лог всех сигналов ядра в Output — первое, что стоит смотреть при отладке.
+			_logSubscription = Simulation.Events.SubscribeAll(e => GD.Print("[KONTUR] ", e.GetType().Name, " ", e));
+
+			Simulation.Events.Subscribe<ShiftEnded>(OnShiftEnded);
+			Simulation.Events.Subscribe<GameOverTriggered>(OnGameOver);
+		}
+
+		public override void _Process(double delta)
+		{
+			if (IsPaused)
+			{
+				return;
+			}
+
+			Simulation.Tick(delta);
+		}
+
+		public override void _ExitTree()
+		{
+			_logSubscription?.Dispose();
+			_logSubscription = null;
+		}
+
+		private void OnShiftEnded(ShiftEnded e)
+		{
+			// Здесь — переход к пререндеренному ролику по e.OutroCutsceneId.
+			GD.Print($"Смена {e.Day} завершена. Ролик: {e.OutroCutsceneId}");
+		}
+
+		private void OnGameOver(GameOverTriggered e)
+		{
+			// Здесь — финальный экран под конкретную причину проигрыша.
+			GD.Print($"Game over: {e.Reason}");
+		}
+	}
+}
