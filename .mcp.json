@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "godot": {
+      "command": "venv/Scripts/python.exe",
+      "args": ["-m", "godot_mcp_server"]
+    }
+  }
+}
