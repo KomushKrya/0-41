@@ -36,6 +36,15 @@ BOTTOM_TEXT_TYPES = ("call", "cutscene")
 DEFAULT_MAX_CHUNK_CHARS = 150
 
 COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
+# Заметки для разработчиков: блок %% dev %% ... %% /dev %% и инлайн %% dev: ... %%.
+DEV_BLOCK_RE = re.compile(r"%%\s*dev\s*%%.*?%%\s*/\s*dev\s*%%", re.DOTALL)
+DEV_INLINE_RE = re.compile(r"[ \t]*%%\s*dev:[^\n]*?%%")
+DEV_LEFTOVER_RE = re.compile(r"%%\s*/?\s*dev\b")
+# Служебная шапка звонка — [ЗВОНОК ПЕРЕНАПРАВЛЕН ...], [НА ЛИНИИ СТАРИК] и т.п.
+# В куски попадает отдельным kind, чтобы виджет рендерил её не как реплику.
+CALL_META_RE = re.compile(r"^%%\s*call_meta:\s*(.+?)\s*%%$")
+CHUNK_KIND_TEXT = "text"
+CHUNK_KIND_CALL_META = "call_meta"
 REVEAL_OPEN_RE = re.compile(r"^%%\s*reveal:\s*([^\s%]+)\s*%%$")
 REVEAL_CLOSE_RE = re.compile(r"^%%\s*/\s*reveal\s*%%$")
 OPTION_RE = re.compile(r"^##\s*Вариант:\s*(.+?)\s*$")
@@ -93,6 +102,25 @@ def parse_frontmatter(lines: list[str], source: Path) -> dict:
     return data
 
 
+def strip_dev_notes(text: str, source: Path) -> str:
+    """Выкидывает dev-заметки до разбора кусков, чтобы они не дошли до JSON.
+
+    Обсидиан и так не показывает %%-комментарии, так что автор видит заметку
+    только в исходнике. Инлайн-форма съедает пробел перед собой, иначе внутри
+    абзаца оставалась бы двойная пробельная дырка.
+    """
+    text = DEV_BLOCK_RE.sub("", text)
+    text = DEV_INLINE_RE.sub("", text)
+
+    if DEV_LEFTOVER_RE.search(text):
+        raise BuildFailed(
+            f"{source}: незакрытый dev-тег — нужно либо %% dev: ... %% в одну строку, "
+            "либо %% dev %% ... %% /dev %%"
+        )
+
+    return text
+
+
 def parse_chunks(lines: list[str], source: Path) -> list[dict]:
     """Абзац = один кусок текста (клик). %% reveal %% помечает кусок условным."""
     chunks: list[dict] = []
@@ -103,11 +131,19 @@ def parse_chunks(lines: list[str], source: Path) -> list[dict]:
         nonlocal buffer
         text = " ".join(part.strip() for part in buffer).strip()
         if text:
-            chunks.append({"text": text, "reveal": reveal})
+            chunks.append({"text": text, "kind": CHUNK_KIND_TEXT, "reveal": reveal})
         buffer = []
 
     for raw_line in lines:
         line = raw_line.strip()
+
+        meta_match = CALL_META_RE.match(line)
+        if meta_match:
+            flush()
+            chunks.append(
+                {"text": meta_match.group(1), "kind": CHUNK_KIND_CALL_META, "reveal": reveal}
+            )
+            continue
 
         open_match = REVEAL_OPEN_RE.match(line)
         if open_match:
@@ -191,6 +227,14 @@ def parse_option(name: str, lines: list[str], source: Path) -> dict:
     }
 
 
+def all_chunks(entry: dict) -> list[dict]:
+    """Куски вводной плюс куски всех вариантов — у mission_event текст есть и там."""
+    chunks = list(entry["chunks"])
+    for option in entry.get("options", []):
+        chunks.extend(option["chunks"])
+    return chunks
+
+
 def parse_file(path: Path, expected_type: str, repo_root: Path) -> dict:
     try:
         raw_text = path.read_text(encoding="utf-8")
@@ -209,7 +253,8 @@ def parse_file(path: Path, expected_type: str, repo_root: Path) -> dict:
             f"{path}: type={frontmatter['type']!r}, но файл лежит в папке типа {expected_type!r}"
         )
 
-    body_lines = COMMENT_RE.sub("", "\n".join(body_lines)).split("\n")
+    body_text = COMMENT_RE.sub("", "\n".join(body_lines))
+    body_lines = strip_dev_notes(body_text, path).split("\n")
 
     entry: dict = {
         "id": frontmatter["id"],
@@ -226,6 +271,14 @@ def parse_file(path: Path, expected_type: str, repo_root: Path) -> dict:
             raise BuildFailed(f"{path}: у mission_event должен быть хотя бы один вариант решения")
     else:
         entry["chunks"] = parse_chunks(body_lines, path)
+
+    if expected_type not in BOTTOM_TEXT_TYPES:
+        for chunk in all_chunks(entry):
+            if chunk["kind"] == CHUNK_KIND_CALL_META:
+                raise BuildFailed(
+                    f"{path}: %% call_meta %% рендерится только виджетом нижнего текста, "
+                    f"а тип {expected_type!r} показывается на своём экране"
+                )
 
     if expected_type == "creature":
         entry["name"] = frontmatter.get("name", "")
@@ -281,11 +334,7 @@ def validate(entries: list[dict]) -> None:
 
     known_ids = set(by_id)
     for entry in entries:
-        texts = [chunk["text"] for chunk in entry["chunks"]]
-        for option in entry.get("options", []):
-            texts.extend(chunk["text"] for chunk in option["chunks"])
-
-        for text in texts:
+        for text in (chunk["text"] for chunk in all_chunks(entry)):
             for link_type, link_id in LINK_RE.findall(text):
                 if link_id not in known_ids:
                     errors.append(f"{entry['_source']}: ссылка [[{link_type}:{link_id}]] ведёт в никуда")
@@ -327,6 +376,10 @@ def collect_long_chunks(entries: list[dict], limit: int) -> list[str]:
             continue
 
         for index, chunk in enumerate(entry["chunks"], start=1):
+            # Шапка звонка живёт в своём узле, ограничение на две строки к ней не относится.
+            if chunk["kind"] == CHUNK_KIND_CALL_META:
+                continue
+
             length = len(chunk["text"])
             if length > limit:
                 warnings.append(

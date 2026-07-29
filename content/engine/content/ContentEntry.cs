@@ -15,8 +15,17 @@ public sealed class ContentEntry
 
 public sealed class ContentChunk
 {
+	/// <summary>Обычная реплика или абзац.</summary>
+	public const string KindText = "text";
+
+	/// <summary>Служебная шапка звонка — [ЗВОНОК ПЕРЕНАПРАВЛЕН ...], рендерится отдельно.</summary>
+	public const string KindCallMeta = "call_meta";
+
 	public string Text = string.Empty;
+	public string Kind = KindText;
 	public string Reveal = string.Empty;
+
+	public bool IsCallMeta => Kind == KindCallMeta;
 }
 
 public sealed class ContentOption
