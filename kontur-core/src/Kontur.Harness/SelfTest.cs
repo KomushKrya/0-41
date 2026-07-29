@@ -36,6 +36,7 @@ namespace Kontur.Harness
 			TestExpiredMarkerIsAutoFailure(content);
 			TestEquipmentSlotLimits(content);
 			TestStaffLimit(content);
+			TestFlags(content);
 			TestDeterminism(content);
 			TestTutorialShift(content);
 			TestFullShiftCompletes(content);
@@ -254,6 +255,35 @@ namespace Kontur.Harness
 			{
 				Check("Найм сверх лимита отклоняется", !simulation.HireEmployee(more[0].Id, 2).IsSuccess);
 			}
+		}
+
+		private static void TestFlags(ContentDatabase content)
+		{
+			var simulation = new KonturSimulation(content, 41);
+
+			var changes = new List<FlagChanged>();
+			simulation.Events.Subscribe<FlagChanged>(changes.Add);
+
+			Check("Незнакомый флаг не установлен", !simulation.IsFlagSet("property_mimic_routine"));
+
+			simulation.SetFlag("property_mimic_routine");
+			Check("Флаг установлен", simulation.IsFlagSet("property_mimic_routine"));
+			Check("Об установке пришло событие", changes.Count == 1 && changes[0].Value);
+
+			simulation.SetFlag("property_mimic_routine");
+			Check("Повторная установка события не даёт", changes.Count == 1);
+
+			Check("Регистр имени не важен", simulation.IsFlagSet("PROPERTY_MIMIC_ROUTINE"));
+
+			Check("Переключение снимает флаг", !simulation.ToggleFlag("property_mimic_routine"));
+			Check("О снятии пришло событие", changes.Count == 2 && !changes[1].Value);
+
+			simulation.SetFlag("flag_one");
+			simulation.SetFlag("flag_two");
+			Check("Флаги накапливаются", simulation.GetFlags().Count == 2);
+
+			simulation.ResetToNewGame();
+			Check("Новая партия обнуляет флаги", simulation.GetFlags().Count == 0);
 		}
 
 		private static void TestDeterminism(ContentDatabase content)

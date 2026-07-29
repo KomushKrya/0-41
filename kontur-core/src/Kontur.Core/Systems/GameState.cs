@@ -24,6 +24,9 @@ namespace Kontur.Core.Systems
 
 		public EncyclopediaState Encyclopedia { get; } = new EncyclopediaState();
 
+		/// <summary>Сюжетные флаги — условные абзацы текстов, requirements, последствия выборов.</summary>
+		public FlagSet Flags { get; } = new FlagSet();
+
 		public EquipmentInventory Inventory { get; } = new EquipmentInventory();
 
 		/// <summary>Кандидаты, уже нанятые в предыдущие дни — повторно не предлагаются.</summary>

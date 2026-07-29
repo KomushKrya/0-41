@@ -106,6 +106,7 @@ namespace Kontur.Core.Api
 			_director.AbortShift();
 
 			_state.Encyclopedia.Clear();
+			_state.Flags.Clear();
 			_state.Inventory.Clear();
 
 			_state.Zones.Clear();
@@ -360,6 +361,62 @@ namespace Kontur.Core.Api
 			}
 
 			return result;
+		}
+
+		// ------------------------------------------------------------------ сюжетные флаги
+
+		public bool IsFlagSet(string flag)
+		{
+			return _state.Flags.IsSet(flag);
+		}
+
+		public IReadOnlyCollection<string> GetFlags()
+		{
+			return _state.Flags.All;
+		}
+
+		/// <summary>Ставит или снимает флаг. Событие уходит только при реальном изменении.</summary>
+		public void SetFlag(string flag, bool value = true)
+		{
+			if (_state.Flags.Set(flag, value))
+			{
+				_bus.Publish(new FlagChanged(flag, value));
+			}
+		}
+
+		/// <summary>Переключает флаг и возвращает новое значение.</summary>
+		public bool ToggleFlag(string flag)
+		{
+			if (string.IsNullOrEmpty(flag))
+			{
+				return false;
+			}
+
+			bool value = _state.Flags.Toggle(flag);
+			_bus.Publish(new FlagChanged(flag, value));
+			return value;
+		}
+
+		/// <summary>
+		/// Раскрыто ли конкретное свойство существа. Нужно текстовым виджетам: в текстах
+		/// условные абзацы помечены id свойства, а не номером абзаца, поэтому
+		/// GetEncyclopedia() с готовыми абзацами им не подходит.
+		/// </summary>
+		public bool IsPropertyRevealed(string creatureId, string propertyId)
+		{
+			CreatureDefinition? creature = Content.FindCreature(creatureId);
+			if (creature == null)
+			{
+				return false;
+			}
+
+			CreatureProperty? property = creature.FindProperty(propertyId);
+			if (property == null)
+			{
+				return false;
+			}
+
+			return _state.Encyclopedia.IsParagraphRevealed(creature.Id, property.ParagraphIndex);
 		}
 
 		public IReadOnlyList<EncyclopediaEntryView> GetEncyclopedia()

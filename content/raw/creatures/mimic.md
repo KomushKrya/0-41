@@ -1,10 +1,10 @@
 ---
 id: creature_mimic
 type: creature
-status: draft
+status: ready
 name: Мимик
 requirements:
-  -
+  - 
 properties:
   - property_mimic_routine
   - property_mimic_speech

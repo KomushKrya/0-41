@@ -73,6 +73,9 @@ namespace Kontur.Core.Events
 		string ParagraphText,
 		string PropertyId) : IGameEvent;
 
+	/// <summary>Сюжетный флаг поменялся. Виджеты с условным текстом перечитывают себя по нему.</summary>
+	public sealed record FlagChanged(string Flag, bool Value) : IGameEvent;
+
 	/// <summary>Существо опознано и добавлено в энциклопедию впервые.</summary>
 	public sealed record CreatureIdentified(string CreatureId, string CreatureName) : IGameEvent;
 
