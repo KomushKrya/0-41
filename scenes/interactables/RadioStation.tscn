@@ -1,0 +1,12 @@
+[gd_scene format=3]
+
+[sub_resource type="BoxMesh" id="BoxMesh_radio"]
+size = Vector3(0.491, 0.25, 0.709)
+
+[node name="RadioStation" type="Node3D"]
+
+[node name="VisualRoot" type="Node3D" parent="."]
+
+[node name="RadioBody" type="MeshInstance3D" parent="VisualRoot"]
+transform = Transform3D(0.45123398, 0, 0.8924057, 0, 1, 0, -0.8924057, 0, 0.45123398, 1.9888412, 0.9760301, 0.2204625)
+mesh = SubResource("BoxMesh_radio")
