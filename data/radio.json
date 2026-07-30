@@ -137,7 +137,7 @@
 				"requirementMultiplier": 1.5,
 				"injuryChanceMultiplier": 2.0,
 				"quality": "Bad",
-				"revealsPropertyId": "property_hum_crowd"
+				"revealsPropertyId": "property_kanalotvar_lure"
 			},
 			{
 				"id": "opt_two",
@@ -145,7 +145,7 @@
 				"requirementMultiplier": 0.5,
 				"injuryChanceMultiplier": 0.5,
 				"quality": "Best",
-				"revealsPropertyId": "property_hum_plugs"
+				"revealsPropertyId": "property_kanalotvar_sound"
 			},
 			{
 				"id": "opt_vent",
@@ -171,7 +171,7 @@
 				"text": "Перекрыть канал впереди и остановить смещение.",
 				"requirementMultiplier": 0.45,
 				"quality": "Best",
-				"revealsPropertyId": "property_hum_channel",
+				"revealsPropertyId": "property_kanalotvar_water",
 				"extraScales": {
 					"infection": -3.0
 				}

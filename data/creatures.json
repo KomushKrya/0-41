@@ -22,5 +22,17 @@
 			"property_perekozhnik_distance",
 			"property_perekozhnik_heartbeat"
 		]
+	},
+	{
+		"id": "creature_kanalotvar",
+		"tags": [
+			"каналотварь"
+		],
+		"illustrationId": "",
+		"properties": [
+			"property_kanalotvar_water",
+			"property_kanalotvar_lure",
+			"property_kanalotvar_sound"
+		]
 	}
 ]
