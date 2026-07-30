@@ -25,10 +25,14 @@ public sealed class GodotTextCatalog : ITextCatalog
 			return false;
 		}
 
-		foreach (ContentChunk chunk in entry.Chunks)
+		// Смотрим объявленный список, а не перебираем куски в поисках %% reveal %%: для существ
+		// конвертер сверяет одно с другим на сборке, и расхождение — ошибка билда. Перебор дал
+		// бы второй ответ на тот же вопрос, который держался бы синхронным по договорённости.
+		// Гарантия распространяется только на creature — у остальных типов properties пока
+		// пустой задел, и на них этот метод рассчитывать не может.
+		foreach (string property in entry.Properties)
 		{
-			if (chunk.Reveal.Length > 0
-				&& chunk.Reveal.Equals(propertyId, System.StringComparison.OrdinalIgnoreCase))
+			if (property.Equals(propertyId, System.StringComparison.OrdinalIgnoreCase))
 			{
 				return true;
 			}

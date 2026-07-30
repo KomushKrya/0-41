@@ -14,7 +14,6 @@ using Godot;
 public partial class ContentHotReload : Node
 {
 	private const string ConverterPath = "res://content/engine/converter/build.py";
-	private const string LocalisationRoot = "res://content/localisation";
 
 	/// <summary>
 	/// Собрать текст на старте игры. Благодаря этому content/localisation не нужно держать
@@ -163,37 +162,21 @@ public partial class ContentHotReload : Node
 	}
 
 	/// <summary>
-	/// Свёртка времени правки всех файлов локали. Точное значение неважно — важно, что оно
-	/// меняется, когда конвертер что-то переписал.
+	/// Свёртка времени правки всех собранных файлов. Точное значение неважно — важно, что оно
+	/// меняется, когда конвертер что-то переписал. Обход общий с загрузчиком, поэтому следим
+	/// ровно за теми файлами, которые Content потом и прочитает.
 	/// </summary>
-	private ulong LocaleStamp()
+	private static ulong LocaleStamp()
 	{
 		ulong stamp = 0;
-		AccumulateStamp(LocalisationRoot, ref stamp);
-		return stamp;
-	}
-
-	private static void AccumulateStamp(string path, ref ulong stamp)
-	{
-		if (!DirAccess.DirExistsAbsolute(path))
+		foreach (string path in Content.EnumerateJsonFiles(Content.LocalisationRoot))
 		{
-			return;
-		}
-
-		foreach (string fileName in DirAccess.GetFilesAt(path))
-		{
-			if (fileName.EndsWith(".json"))
+			unchecked
 			{
-				unchecked
-				{
-					stamp = (stamp * 31) + FileAccess.GetModifiedTime($"{path}/{fileName}");
-				}
+				stamp = (stamp * 31) + FileAccess.GetModifiedTime(path);
 			}
 		}
 
-		foreach (string directoryName in DirAccess.GetDirectoriesAt(path))
-		{
-			AccumulateStamp($"{path}/{directoryName}", ref stamp);
-		}
+		return stamp;
 	}
 }

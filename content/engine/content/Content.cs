@@ -7,7 +7,8 @@ public partial class Content : Node
 {
 	[Export] public string Locale { get; set; } = "ru";
 
-	private const string LocalisationRoot = "res://content/localisation";
+	/// <summary>Корень собранного текста. Публичный: на него смотрит и горячая перезагрузка.</summary>
+	public const string LocalisationRoot = "res://content/localisation";
 
 	/// <summary>Должно совпадать с VARIABLE_RE в content/engine/converter/build.py.</summary>
 	private static readonly Regex VariablePattern = new(@"\{\{([^{}]*)\}\}");
@@ -36,22 +37,40 @@ public partial class Content : Node
 			return;
 		}
 
-		LoadDirectory(localeRoot);
+		foreach (string path in EnumerateJsonFiles(localeRoot))
+		{
+			LoadFile(path);
+		}
 	}
 
-	private void LoadDirectory(string path)
+	/// <summary>
+	/// Все .json под указанной папкой, вложенные тоже (UI/perks лежит на два уровня вниз).
+	///
+	/// Единственное место, где решается, что считать файлом собранного текста: на нём сидят
+	/// и загрузка, и слежение горячей перезагрузки. Иначе правило пришлось бы менять в двух
+	/// местах, и второе однажды забыли бы.
+	/// </summary>
+	public static IEnumerable<string> EnumerateJsonFiles(string root)
 	{
-		foreach (string fileName in DirAccess.GetFilesAt(path))
+		if (!DirAccess.DirExistsAbsolute(root))
+		{
+			yield break;
+		}
+
+		foreach (string fileName in DirAccess.GetFilesAt(root))
 		{
 			if (fileName.EndsWith(".json"))
 			{
-				LoadFile($"{path}/{fileName}");
+				yield return $"{root}/{fileName}";
 			}
 		}
 
-		foreach (string directoryName in DirAccess.GetDirectoriesAt(path))
+		foreach (string directoryName in DirAccess.GetDirectoriesAt(root))
 		{
-			LoadDirectory($"{path}/{directoryName}");
+			foreach (string nested in EnumerateJsonFiles($"{root}/{directoryName}"))
+			{
+				yield return nested;
+			}
 		}
 	}
 
