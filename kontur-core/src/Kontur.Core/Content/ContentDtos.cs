@@ -60,10 +60,7 @@ namespace Kontur.Core.Content
 	{
 		public string Id { get; set; } = string.Empty;
 
-		public string Name { get; set; } = string.Empty;
-
-		public string Description { get; set; } = string.Empty;
-
+		/// <summary>Название и описание — в текстовом движке, здесь только механика.</summary>
 		public string Condition { get; set; } = "Always";
 
 		public string ConditionValue { get; set; } = string.Empty;

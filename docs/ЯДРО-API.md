@@ -284,7 +284,7 @@ MissionResolved
 
 ```csharp
 EmployeeView(Id, Name, RankTitle, Level, Stats, Experience, ExperienceToNextLevel,
-             UnspentSkillPoints, Status, IsInjured, CurrentIncidentId, AbilityNames, PortraitId)
+             UnspentSkillPoints, Status, IsInjured, CurrentIncidentId, AbilityIds, PortraitId)
 
 IncidentView(Id, MissionId, Title, ZoneId, CallerName, Phase, RemainingSeconds,
              Requirements, SquadEmployeeIds, EquipmentIds)
@@ -301,6 +301,11 @@ ShiftStatusView(Day, IsShiftActive, ShiftTime, IsCallWindowClosed, OpenIncidents
 
 `GetActiveIncidents()` возвращает только незакрытые вызовы. `MapX`/`MapY` — нормализованные
 `0..1` координаты района на карте.
+
+`AbilityIds` — именно id, а не названия: текст перков лежит в текстовом движке
+(`content/raw/UI/perks`), и достаёт его слой Godot — `Content.Instance.GetEntry(id).Name`
+плюс `Content.Fill(...)` для чисел в описании. Ядро на GodotSharp не ссылается и текста
+не носит.
 
 ---
 

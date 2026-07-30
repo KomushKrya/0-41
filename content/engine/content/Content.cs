@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Godot;
 
 public partial class Content : Node
@@ -6,6 +8,9 @@ public partial class Content : Node
 	[Export] public string Locale { get; set; } = "ru";
 
 	private const string LocalisationRoot = "res://content/localisation";
+
+	/// <summary>Должно совпадать с VARIABLE_RE в content/engine/converter/build.py.</summary>
+	private static readonly Regex VariablePattern = new(@"\{\{([^{}]*)\}\}");
 
 	private readonly Dictionary<string, ContentEntry> _entries = new();
 
@@ -66,6 +71,38 @@ public partial class Content : Node
 		return entry != null ? entry.Chunks : new List<ContentChunk>();
 	}
 
+	/// <summary>
+	/// Подставляет значения вместо {{имя}}. Чистая функция: движок значений не знает —
+	/// числа живут в геймплейных данных (data/abilities.json и т.п.) и приходят через
+	/// resolve. Неразрешённая подстановка остаётся в тексте как есть — пустое место
+	/// прочиталось бы как опечатка автора, а видимое {{имя}} сразу называет причину.
+	/// Ругаться на пропажу — дело вызывающего: только он знает, из какой записи текст.
+	/// </summary>
+	public static string Fill(string text, Func<string, string> resolve)
+	{
+		if (string.IsNullOrEmpty(text) || !HasVariables(text))
+		{
+			return text;
+		}
+
+		return VariablePattern.Replace(text, match =>
+		{
+			string value = resolve != null ? resolve(match.Groups[1].Value) : null;
+			return string.IsNullOrEmpty(value) ? match.Value : value;
+		});
+	}
+
+	public static string Fill(string text, IReadOnlyDictionary<string, string> values)
+	{
+		return Fill(text, name => values != null && values.TryGetValue(name, out string value) ? value : null);
+	}
+
+	/// <summary>Есть ли в тексте {{имя}} — дешёвая проверка перед регуляркой.</summary>
+	public static bool HasVariables(string text)
+	{
+		return !string.IsNullOrEmpty(text) && text.Contains("{{");
+	}
+
 	private void LoadFile(string path)
 	{
 		using FileAccess file = FileAccess.Open(path, FileAccess.ModeFlags.Read);
@@ -106,6 +143,7 @@ public partial class Content : Node
 			Day = source.TryGetValue("day", out Variant day) ? day.AsInt32() : 0,
 			Requirements = ReadStringList(source, "requirements"),
 			Properties = ReadStringList(source, "properties"),
+			Variables = ReadStringList(source, "variables"),
 			Chunks = ReadChunks(source, "chunks")
 		};
 

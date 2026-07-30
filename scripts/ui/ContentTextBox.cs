@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Godot;
 using Kontur.Core.Events;
+using Kontur.Core.Model;
 
 /// <summary>
 /// Базовый текстовый бокс: берёт запись контента по id, отбрасывает условные абзацы,
@@ -41,6 +43,9 @@ using Kontur.Core.Events;
 /// </summary>
 public abstract partial class ContentTextBox : Control
 {
+	/// <summary>Группа, по которой горячая перезагрузка находит все боксы в сцене.</summary>
+	public const string GroupName = "content_text_box";
+
 	/// <summary>Что показывать. Меняется и в рантайме — через Open().</summary>
 	[Export] public string ContentId { get; set; } = string.Empty;
 
@@ -54,6 +59,9 @@ public abstract partial class ContentTextBox : Control
 	[Export] public bool RefreshOnReveal { get; set; } = true;
 
 	private readonly List<ContentChunk> _chunks = new();
+
+	/// <summary>Имена подстановок, о которых уже пожаловались: иначе Refresh() зальёт Output.</summary>
+	private readonly HashSet<string> _reportedMissingValues = new();
 
 	private IDisposable _revealSubscription;
 
@@ -72,6 +80,8 @@ public abstract partial class ContentTextBox : Control
 
 	public override void _Ready()
 	{
+		AddToGroup(GroupName);
+
 		if (RefreshOnReveal)
 		{
 			KonturRuntime runtime = KonturRuntime.Get(this);
@@ -101,6 +111,7 @@ public abstract partial class ContentTextBox : Control
 	public void Open(string contentId)
 	{
 		ContentId = contentId;
+		_reportedMissingValues.Clear();
 
 		if (contentId.Length == 0)
 		{
@@ -136,6 +147,16 @@ public abstract partial class ContentTextBox : Control
 		Rebuild();
 	}
 
+	/// <summary>
+	/// Достать запись из Content заново и перерисовать. Нужно после перезагрузки текста:
+	/// бокс держит ссылку на прежний ContentEntry, и одного Refresh() мало — он покажет
+	/// то же самое. Ставит на место и переименованный, и пропавший id.
+	/// </summary>
+	public void Reload()
+	{
+		Open(ContentId);
+	}
+
 	/// <summary>Нарисовать <see cref="Chunks"/>. Зовётся при каждом Open() и Refresh(), в том числе с пустым списком.</summary>
 	protected abstract void Render();
 
@@ -168,6 +189,70 @@ public abstract partial class ContentTextBox : Control
 		return chunk.Reveal.Length == 0 || RevealEverything || IsRevealed(chunk.Reveal);
 	}
 
+	/// <summary>
+	/// Значение для подстановки {{имя}}. Пара к <see cref="IsRevealed"/>: тот решает, показывать
+	/// ли абзац, этот — чем заполнить дырку в нём. По умолчанию ищет число в геймплейных данных
+	/// записи с тем же id — сейчас это перки, где {{bonus.strength}} и {{allStatsBonus}} берутся
+	/// из data/abilities.json, поэтому правка баланса меняет текст сама, без правки текста.
+	/// Пустая строка значит «не знаю»: подстановка останется видимой в тексте.
+	/// Числа других типов появятся здесь же — это единственная точка.
+	/// </summary>
+	protected virtual string ResolveValue(string name)
+	{
+		KonturRuntime runtime = KonturRuntime.Get(this);
+		if (runtime == null || !runtime.IsReady)
+		{
+			return string.Empty;
+		}
+
+		return runtime.Simulation.Content.Abilities.TryGetValue(ContentId, out Ability ability)
+			? AbilityValue(ability, name)
+			: string.Empty;
+	}
+
+	private static string AbilityValue(Ability ability, string name)
+	{
+		if (name.Equals("allStatsBonus", StringComparison.OrdinalIgnoreCase))
+		{
+			return ability.AllStatsBonus.ToString(CultureInfo.InvariantCulture);
+		}
+
+		const string bonusPrefix = "bonus.";
+		if (name.StartsWith(bonusPrefix, StringComparison.OrdinalIgnoreCase)
+			&& StatKinds.TryParse(name.Substring(bonusPrefix.Length), out StatKind kind))
+		{
+			return ability.Bonus[kind].ToString(CultureInfo.InvariantCulture);
+		}
+
+		return string.Empty;
+	}
+
+	/// <summary>
+	/// Разворачивает {{имя}} в куске. Кусок лежит в кэше <see cref="Content"/> и общий для всех
+	/// боксов, поэтому подстановка идёт в копию: иначе первый показ переписал бы текст всем
+	/// остальным, а при смене значения подставлять было бы уже некуда.
+	/// </summary>
+	private ContentChunk Substitute(ContentChunk chunk)
+	{
+		if (!Content.HasVariables(chunk.Text))
+		{
+			return chunk;
+		}
+
+		string filled = Content.Fill(chunk.Text, name =>
+		{
+			string value = ResolveValue(name);
+			if (string.IsNullOrEmpty(value) && _reportedMissingValues.Add(name))
+			{
+				GD.PushWarning($"{Name}: нечем заполнить {{{{{name}}}}} в записи {ContentId}");
+			}
+
+			return value;
+		});
+
+		return new ContentChunk { Text = filled, Kind = chunk.Kind, Reveal = chunk.Reveal };
+	}
+
 	/// <summary>Записи с таким id нет. По умолчанию предупреждение в Output.</summary>
 	protected virtual void OnMissingContent(string contentId)
 	{
@@ -188,12 +273,14 @@ public abstract partial class ContentTextBox : Control
 					continue;
 				}
 
-				if (chunk.IsCallMeta && CallMeta.Length == 0)
+				ContentChunk ready = Substitute(chunk);
+
+				if (ready.IsCallMeta && CallMeta.Length == 0)
 				{
-					CallMeta = chunk.Text;
+					CallMeta = ready.Text;
 				}
 
-				_chunks.Add(chunk);
+				_chunks.Add(ready);
 			}
 		}
 

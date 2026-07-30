@@ -9,6 +9,10 @@ public sealed class ContentEntry
 	public int Day;
 	public IReadOnlyList<string> Requirements = new List<string>();
 	public IReadOnlyList<string> Properties = new List<string>();
+
+	/// <summary>Имена подстановок {{имя}}, встреченные в тексте: что игра должна заполнить.</summary>
+	public IReadOnlyList<string> Variables = new List<string>();
+
 	public IReadOnlyList<ContentChunk> Chunks = new List<ContentChunk>();
 	public IReadOnlyList<ContentOption> Options = new List<ContentOption>();
 }

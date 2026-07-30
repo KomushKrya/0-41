@@ -86,8 +86,6 @@ namespace Kontur.Core.Content
 				var ability = new Ability
 				{
 					Id = dto.Id,
-					Name = dto.Name,
-					Description = dto.Description,
 					Condition = ParseEnum(dto.Condition, AbilityConditionKind.Always, AbilitiesFile, dto.Id, "condition"),
 					ConditionValue = dto.ConditionValue,
 					Bonus = dto.Bonus == null ? StatBlock.Zero : dto.Bonus.ToModel(),

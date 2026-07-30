@@ -19,7 +19,9 @@ import re
 import sys
 from pathlib import Path
 
-# Папка контента -> значение поля type во фронтматтере.
+# Папка контента -> значение поля type во фронтматтере. Ключ — путь от content/raw,
+# так что тип может лежать и во вложенной папке (UI/perks); промежуточные папки
+# (UI) сами контент не держат.
 FOLDER_TYPES = {
     "calls": "call",
     "cutscenes": "cutscene",
@@ -27,6 +29,7 @@ FOLDER_TYPES = {
     "creatures": "creature",
     "shift_notes": "shift_note",
     "reports": "report",
+    "UI/perks": "perk",
 }
 
 # Поля, которые есть только у своего типа: имя -> значение по умолчанию.
@@ -35,6 +38,7 @@ TYPE_FIELDS = {
     "creature": {"name": ""},
     "shift_note": {"day": 0},
     "report": {"outcome": ""},
+    "perk": {"name": ""},
 }
 
 # Типы, которые показываются виджетом нижнего текста: у них кусок должен влезать
@@ -62,6 +66,13 @@ REVEAL_CLOSE_RE = re.compile(r"^%%\s*/\s*reveal\s*%%$")
 OPTION_RE = re.compile(r"^##\s*Вариант:\s*(.+?)\s*$")
 OPTION_META_RE = re.compile(r"^(requirement_modifier|canon)\s*:\s*(.*)$")
 LINK_RE = re.compile(r"\[\[([a-z_]+):([a-z0-9_]+)\]\]")
+# Подстановка числа из геймплейных данных: «+{{bonus.strength}} к силе».
+# Намеренно не %%: Обсидиан прячет %%...%% в режиме чтения, а плейсхолдер должен
+# оставаться видимым автору. Конвертер значение не подставляет — оно живёт на
+# стороне Godot (data/abilities.json и т.п.), движок только помечает место.
+VARIABLE_RE = re.compile(r"\{\{([^{}]*)\}\}")
+VARIABLE_NAME_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$")
+VARIABLE_LEFTOVER_RE = re.compile(r"\{\{|\}\}")
 LIST_ITEM_RE = re.compile(r"^\s+-\s*(.*)$")
 SCALAR_RE = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)\s*:\s*(.*)$")
 
@@ -78,26 +89,33 @@ def check_layout(raw_root: Path) -> tuple[list[str], list[str]]:
     """
     errors: list[str] = []
     warnings: list[str] = []
+    check_directory(raw_root, raw_root, errors, warnings)
+    return errors, warnings
 
-    for path in sorted(raw_root.iterdir()):
-        if path.name.startswith(("_", ".")):
+
+def check_directory(path: Path, raw_root: Path, errors: list[str], warnings: list[str]) -> None:
+    for item in sorted(path.iterdir()):
+        if item.name.startswith(("_", ".")):
             continue
 
-        if not path.is_dir():
-            warnings.append(f"{path}: лежит вне папки типа и в сборку не попадёт")
-        elif path.name not in FOLDER_TYPES:
+        relative = item.relative_to(raw_root).as_posix()
+
+        if not item.is_dir():
+            warnings.append(f"{item}: лежит вне папки типа и в сборку не попадёт")
+        elif relative in FOLDER_TYPES:
+            warnings.extend(
+                f"{child}: не .md и в сборку не попадёт"
+                for child in sorted(item.rglob("*"))
+                if child.is_file() and child.suffix != ".md"
+            )
+        elif any(folder.startswith(f"{relative}/") for folder in FOLDER_TYPES):
+            # Промежуточная папка (UI): своего типа у неё нет, идём глубже.
+            check_directory(item, raw_root, errors, warnings)
+        else:
             errors.append(
-                f"{path}: неизвестная папка контента; допустимы "
+                f"{item}: неизвестная папка контента; допустимы "
                 f"{', '.join(sorted(FOLDER_TYPES))} либо служебная с '_' в начале"
             )
-        else:
-            warnings.extend(
-                f"{item}: не .md и в сборку не попадёт"
-                for item in sorted(path.rglob("*"))
-                if item.is_file() and item.suffix != ".md"
-            )
-
-    return errors, warnings
 
 
 def parse_frontmatter(text: str, source: Path) -> tuple[dict, list[str]]:
@@ -267,6 +285,33 @@ def parse_options(lines: list[str], source: Path) -> tuple[list[str], list[dict]
     return intro, [parse_option(name, body, source) for name, body in blocks]
 
 
+def collect_variables(entry: dict, source: Path) -> list[str]:
+    """Имена подстановок из всех кусков записи — чтобы игра знала, что заполнять.
+
+    Значения конвертер не знает и знать не должен: числа живут в геймплейных
+    данных. Проверяется только форма имени — иначе опечатка вроде {{ bonus.strength}}
+    молча доехала бы до игрока как есть.
+    """
+    names: set[str] = set()
+
+    for chunk in all_chunks(entry):
+        for raw_name in VARIABLE_RE.findall(chunk["text"]):
+            if not VARIABLE_NAME_RE.match(raw_name):
+                raise BuildFailed(
+                    f"{source}: непонятное имя подстановки {{{{{raw_name}}}}} — "
+                    "допустимы буквы, цифры и _ через точку, без пробелов"
+                )
+            names.add(raw_name)
+
+        if VARIABLE_LEFTOVER_RE.search(VARIABLE_RE.sub("", chunk["text"])):
+            raise BuildFailed(
+                f"{source}: непарные скобки подстановки в куске {chunk['text']!r} — "
+                "нужно {{имя}} целиком в одну строку"
+            )
+
+    return sorted(names)
+
+
 def all_chunks(entry: dict):
     """Куски вводной плюс куски всех вариантов — у mission_event текст есть и там."""
     yield from entry["chunks"]
@@ -314,6 +359,8 @@ def parse_file(path: Path, expected_type: str, repo_root: Path) -> dict:
             raise BuildFailed(f"{path}: у mission_event должен быть хотя бы один вариант решения")
     else:
         entry["chunks"] = parse_chunks(body_lines, path)
+
+    entry["variables"] = collect_variables(entry, path)
 
     for field, default in TYPE_FIELDS.get(expected_type, {}).items():
         value = frontmatter.get(field, default)

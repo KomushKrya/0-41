@@ -268,13 +268,6 @@ namespace Kontur.Core.Api
 			{
 				Employee employee = _state.Roster[i];
 
-				var abilityNames = new List<string>();
-				for (int a = 0; a < employee.AbilityIds.Count; a++)
-				{
-					Ability? ability = Content.FindAbility(employee.AbilityIds[a]);
-					abilityNames.Add(ability == null ? employee.AbilityIds[a] : ability.Name);
-				}
-
 				result.Add(new EmployeeView(
 					employee.Id,
 					employee.Name,
@@ -287,7 +280,7 @@ namespace Kontur.Core.Api
 					employee.Status,
 					employee.IsInjured,
 					employee.CurrentIncidentId,
-					abilityNames,
+					new List<string>(employee.AbilityIds),
 					employee.PortraitId));
 			}
 

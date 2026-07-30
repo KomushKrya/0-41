@@ -22,17 +22,5 @@
 			"property_perekozhnik_distance",
 			"property_perekozhnik_heartbeat"
 		]
-	},
-	{
-		"id": "creature_hum",
-		"tags": [
-			"гул"
-		],
-		"illustrationId": "art_hum",
-		"properties": [
-			"property_hum_crowd",
-			"property_hum_plugs",
-			"property_hum_channel"
-		]
 	}
 ]
