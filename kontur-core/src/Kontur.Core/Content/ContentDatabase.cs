@@ -10,7 +10,7 @@ namespace Kontur.Core.Content
 	{
 		public SimulationConfig Config { get; set; } = SimulationConfig.CreateDefault();
 
-		public Dictionary<string, Zone> Zones { get; } = new Dictionary<string, Zone>(StringComparer.OrdinalIgnoreCase);
+		public Dictionary<string, BuildingDefinition> Buildings { get; } = new Dictionary<string, BuildingDefinition>(StringComparer.OrdinalIgnoreCase);
 
 		public Dictionary<string, Ability> Abilities { get; } = new Dictionary<string, Ability>(StringComparer.OrdinalIgnoreCase);
 
@@ -43,10 +43,10 @@ namespace Kontur.Core.Content
 			return result;
 		}
 
-		public Zone? FindZone(string zoneId)
+		public BuildingDefinition? FindBuilding(string buildingId)
 		{
-			Zone? zone;
-			return Zones.TryGetValue(zoneId, out zone) ? zone : null;
+			BuildingDefinition? building;
+			return Buildings.TryGetValue(buildingId, out building) ? building : null;
 		}
 
 		public CreatureDefinition? FindCreature(string creatureId)

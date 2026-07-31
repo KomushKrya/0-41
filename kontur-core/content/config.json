@@ -34,16 +34,6 @@
     "experiencePerLevelStep": 100,
     "maxStatValue": 20
   },
-  "zones": {
-    "weightNormal": 1.0,
-    "weightInfected": 2.2,
-    "weightQuarantine": 0.4,
-    "weightCleared": 0.1,
-    "infectedRequirementMultiplier": 1.2,
-    "clearedRequirementMultiplier": 0.9,
-    "failStreakToInfect": 2,
-    "successStreakToClear": 3
-  },
   "loot": {
     "consumableFindChance": 0.2,
     "standardOrStorySlots": 1,

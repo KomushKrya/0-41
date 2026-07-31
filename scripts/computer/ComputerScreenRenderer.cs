@@ -2,15 +2,20 @@ using Godot;
 
 public partial class ComputerScreenRenderer : Node3D
 {
+	private const string ScreenShaderPath = "res://assets/shaders/ComputerScreen.gdshader";
+
 	[Export] public NodePath ScreenPath { get; set; } = new("Screen");
+	[Export] public string ScreenNodeName { get; set; } = "Plane_001";
 	[Export] public NodePath ViewportPath { get; set; } = new("ComputerViewport");
 	[Export] public float EmissionEnergy { get; set; } = 0.65f;
 
 	private MeshInstance3D _screen = null!;
 	private SubViewport _viewport = null!;
+	private Node _computerRoot = null!;
 
 	public override void _Ready()
 	{
+		_computerRoot = ResolveComputerRoot();
 		_screen = ResolveScreen();
 		_viewport = ResolveViewport();
 
@@ -22,17 +27,27 @@ public partial class ComputerScreenRenderer : Node3D
 		ApplyViewportMaterial();
 	}
 
-	private MeshInstance3D ResolveScreen()
+	private Node ResolveComputerRoot()
 	{
-		if (HasNode(ScreenPath))
+		if (HasNode(ViewportPath) || HasNode(ScreenPath))
 		{
-			return GetNode<MeshInstance3D>(ScreenPath);
+			return this;
 		}
 
-		var found = FindChild("Screen", true, false) as MeshInstance3D;
+		return GetParent() ?? this;
+	}
+
+	private MeshInstance3D ResolveScreen()
+	{
+		if (_computerRoot.HasNode(ScreenPath))
+		{
+			return _computerRoot.GetNode<MeshInstance3D>(ScreenPath);
+		}
+
+		var found = _computerRoot.FindChild(ScreenNodeName, true, false) as MeshInstance3D;
 		if (found == null)
 		{
-			GD.PushError($"{nameof(ComputerScreenRenderer)}: Screen MeshInstance3D was not found.");
+			GD.PushError($"{nameof(ComputerScreenRenderer)}: {ScreenNodeName} MeshInstance3D was not found.");
 		}
 
 		return found;
@@ -40,12 +55,12 @@ public partial class ComputerScreenRenderer : Node3D
 
 	private SubViewport ResolveViewport()
 	{
-		if (HasNode(ViewportPath))
+		if (_computerRoot.HasNode(ViewportPath))
 		{
-			return GetNode<SubViewport>(ViewportPath);
+			return _computerRoot.GetNode<SubViewport>(ViewportPath);
 		}
 
-		var found = FindChild("ComputerViewport", true, false) as SubViewport;
+		var found = _computerRoot.FindChild("ComputerViewport", true, false) as SubViewport;
 		if (found == null)
 		{
 			GD.PushError($"{nameof(ComputerScreenRenderer)}: ComputerViewport was not found.");
@@ -57,16 +72,18 @@ public partial class ComputerScreenRenderer : Node3D
 	private void ApplyViewportMaterial()
 	{
 		var viewportTexture = _viewport.GetTexture();
-		var screenMaterial = new StandardMaterial3D
+		var screenShader = ResourceLoader.Load<Shader>(ScreenShaderPath);
+		if (screenShader == null)
 		{
-			AlbedoTexture = viewportTexture,
-			EmissionEnabled = true,
-			EmissionTexture = viewportTexture,
-			EmissionEnergyMultiplier = EmissionEnergy,
-			TextureFilter = BaseMaterial3D.TextureFilterEnum.Nearest,
-			CullMode = BaseMaterial3D.CullModeEnum.Disabled
-		};
+			GD.PushError($"{nameof(ComputerScreenRenderer)}: screen shader was not found at {ScreenShaderPath}.");
+			return;
+		}
+
+		var screenMaterial = new ShaderMaterial { Shader = screenShader };
+		screenMaterial.SetShaderParameter("screen_texture", viewportTexture);
+		screenMaterial.SetShaderParameter("emission_energy", EmissionEnergy);
 
 		_screen.MaterialOverride = screenMaterial;
+		GD.Print($"{nameof(ComputerScreenRenderer)}: viewport {viewportTexture.GetSize()} applied to {_screen.GetPath()}.");
 	}
 }

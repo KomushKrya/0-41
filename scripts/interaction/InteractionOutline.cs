@@ -1,3 +1,5 @@
+#nullable enable
+
 using Godot;
 using System.Collections.Generic;
 
@@ -5,50 +7,43 @@ public partial class InteractionOutline : Node
 {
 	[Export] public NodePath VisualRootPath { get; set; } = new("..");
 	[Export] public Color OutlineColor { get; set; } = new(0.85f, 0.95f, 0.75f);
-	[Export] public float OutlineWidth { get; set; } = 0.035f;
+	[Export(PropertyHint.Range, "1,4,1")] public int OutlinePixels { get; set; } = 3;
 
-	private readonly List<MeshInstance3D> _outlineMeshes = new();
+	private readonly List<MeshInstance3D> _sourceMeshes = new();
+	private ScreenSpaceOutlineManager? _manager;
 
 	public override void _Ready()
 	{
 		Node visualRoot = GetNode(VisualRootPath);
-		StandardMaterial3D outlineMaterial = CreateOutlineMaterial();
-		List<MeshInstance3D> sourceMeshes = new(FindVisualMeshes(visualRoot));
-
-		foreach (MeshInstance3D sourceMesh in sourceMeshes)
-		{
-			MeshInstance3D outlineMesh = new()
-			{
-				Name = $"{sourceMesh.Name}_Outline",
-				Mesh = sourceMesh.Mesh,
-				MaterialOverride = outlineMaterial,
-				Transform = Transform3D.Identity,
-				Visible = false
-			};
-
-			sourceMesh.AddChild(outlineMesh);
-			_outlineMeshes.Add(outlineMesh);
-		}
+		_sourceMeshes.AddRange(FindVisualMeshes(visualRoot));
+		_manager = GetOutlineManager();
 	}
 
 	public void SetHighlighted(bool isHighlighted)
 	{
-		foreach (MeshInstance3D outlineMesh in _outlineMeshes)
+		_manager ??= GetOutlineManager();
+		if (_manager == null)
 		{
-			outlineMesh.Visible = isHighlighted;
+			return;
 		}
+
+		if (isHighlighted)
+		{
+			_manager.ShowOutline(this, _sourceMeshes, OutlineColor, OutlinePixels);
+			return;
+		}
+
+		_manager.HideOutline(this);
 	}
 
-	private StandardMaterial3D CreateOutlineMaterial()
+	public override void _ExitTree()
 	{
-		return new StandardMaterial3D
-		{
-			AlbedoColor = OutlineColor,
-			ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
-			CullMode = BaseMaterial3D.CullModeEnum.Front,
-			Grow = true,
-			GrowAmount = OutlineWidth
-		};
+		_manager?.HideOutline(this);
+	}
+
+	private ScreenSpaceOutlineManager? GetOutlineManager()
+	{
+		return GetTree().GetFirstNodeInGroup(ScreenSpaceOutlineManager.GroupName) as ScreenSpaceOutlineManager;
 	}
 
 	private static IEnumerable<MeshInstance3D> FindVisualMeshes(Node root)
@@ -63,11 +58,6 @@ public partial class InteractionOutline : Node
 			if (child is InteractionOutline)
 			{
 				continue;
-			}
-
-			if (child is MeshInstance3D meshInstance)
-			{
-				yield return meshInstance;
 			}
 
 			foreach (MeshInstance3D nestedMesh in FindVisualMeshes(child))

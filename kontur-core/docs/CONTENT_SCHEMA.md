@@ -24,7 +24,7 @@
 ## `config.json` — один объект
 
 Все балансные числа. Разделы: `timings`, `scales`, `resolution`, `employees`,
-`zones`, `loot`, `days[]`. Полный список полей — в `src/Kontur.Core/Config/SimulationConfig.cs`
+`loot`, `days[]`. Полный список полей — в `src/Kontur.Core/Config/SimulationConfig.cs`
 (там же значения по умолчанию и ссылки на пункты ДД).
 
 Ключевое: числа из ДД (15 / 30 / 20 секунд, окно 300 с, лимиты штата 3/4/5/6,
@@ -53,17 +53,16 @@
 День 1 в поставляемом контенте использует все три: сначала простой вызов с раскрытием
 энциклопедии, затем два вызова с радио, в конце два внахлёст.
 
-## `zones.json` — массив
+## `buildings.json` — массив
 
 ```json
-{ "id": "z_center", "name": "Центральный район", "state": "Normal",
-  "baseWeight": 1.0, "mapX": 0.50, "mapY": 0.45 }
+{ "id": "building_school_14", "isDispatchTarget": true, "isHeadquarters": false }
 ```
 
-`state`: `Normal` | `Infected` | `Quarantine` | `Cleared`.
-`mapX`/`mapY` — нормализованные координаты для отрисовки метки; ядру не нужны,
-прокидываются в UI как есть.
-
+`id` связывает запись с `MapBuildingPolygon.BuildingId` в сцене карты.
+`isDispatchTarget` определяет, можно ли назначать это здание целью вызова.
+`isHeadquarters` отмечает единственный штаб: он не может быть целью вызова.
+Ядро выбирает здание при создании инцидента; координаты и форма полигона остаются в Godot-сцене.
 ## `creatures.json` — массив
 
 ```json
@@ -142,14 +141,13 @@
 `RadioTriggered` уходят только `id` и `text`. Поле нужно для баланса и автопилота.
 Подсказок в UI быть не должно (ДД, раздел 8).
 
-Прочие поля варианта: `injuryChanceMultiplier`, `appliesQuarantine` (переводит зону
 в карантин), `extraScales` (дополнительное изменение шкал именно за этот выбор).
 
 ## `missions.json` — массив
 
 ```json
 {
-  "id": "m_d1_01", "day": 1, "zoneId": "z_center", "creatureId": "cr_mimic",
+  "id": "m_d1_01", "day": 1, "creatureId": "cr_mimic",
   "title": "Вызов в школе №14", "callerName": "вахтёр",
   "briefingText": "текст на экране после ответа на звонок",
   "requirements": { "perception": 8, "composure": 5 },
@@ -171,7 +169,7 @@
 * `manifestedPropertyIds` — свойства, которые существо проявляет именно здесь.
   Раскроются, если группа выжила. Радио-вариант может добавить своё через
   `revealsPropertyId`.
-* Требования указываются «как для базового дня»: множители дня и штриховки зоны
+* Требования указываются «как для базового дня»: множитель дня
   ядро применит само.
 
 ## `shift_notes.json` — массив

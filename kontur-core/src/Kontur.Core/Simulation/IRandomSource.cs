@@ -37,7 +37,7 @@ namespace Kontur.Core.Simulation
 			return items[random.NextInt(0, items.Count)];
 		}
 
-		/// <summary>Взвешенный выбор индекса. Используется планировщиком вызовов для выбора зоны.</summary>
+		/// <summary>Взвешенный выбор индекса для систем симуляции.</summary>
 		public static int PickWeightedIndex(this IRandomSource random, IReadOnlyList<double> weights)
 		{
 			double total = 0.0;

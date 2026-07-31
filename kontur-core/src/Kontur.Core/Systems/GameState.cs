@@ -18,8 +18,6 @@ namespace Kontur.Core.Systems
 
 		public GameOverReason? GameOverReason { get; set; }
 
-		public Dictionary<string, Zone> Zones { get; } = new Dictionary<string, Zone>(StringComparer.OrdinalIgnoreCase);
-
 		public List<Employee> Roster { get; } = new List<Employee>();
 
 		public EncyclopediaState Encyclopedia { get; } = new EncyclopediaState();
@@ -49,12 +47,6 @@ namespace Kontur.Core.Systems
 			}
 
 			return null;
-		}
-
-		public Zone? FindZone(string zoneId)
-		{
-			Zone? zone;
-			return Zones.TryGetValue(zoneId, out zone) ? zone : null;
 		}
 
 		public int CountLivingEmployees()

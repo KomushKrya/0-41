@@ -26,15 +26,13 @@ namespace Kontur.Core.Api
 		string Id,
 		string MissionId,
 		string Title,
-		string ZoneId,
+		string BuildingId,
 		string CallerName,
 		IncidentPhase Phase,
 		double RemainingSeconds,
 		StatBlock Requirements,
 		IReadOnlyList<string> SquadEmployeeIds,
 		IReadOnlyList<string> EquipmentIds);
-
-	public sealed record ZoneView(string Id, string Name, ZoneState State, double MapX, double MapY);
 
 	/// <summary>
 	/// Предпросмотр отправки: что получится, если послать именно этот состав с этим снаряжением.

@@ -52,20 +52,20 @@ namespace Kontur.Harness
 
 		private static int RunShifts(ContentDatabase content, HarnessOptions options)
 		{
-			var simulation = new KonturSimulation(content, options.Seed);
+			var session = new GameSession(content, options.Seed);
 
 			double clock = 0.0;
 			var log = new ConsoleEventLog(() => clock, options.Verbose);
-			log.Attach(simulation.Events);
+			log.Attach(session.Events);
 
-			var oper = new AutoOperator(simulation, content, options.Strategy, options.Seed)
+			var oper = new AutoOperator(session, content, options.Strategy, options.Seed)
 			{
 				AnswerDelay = options.AnswerDelay,
 				DispatchDelay = options.DispatchDelay
 			};
 
 			bool gameOver = false;
-			simulation.Events.Subscribe<GameOverTriggered>(_ => gameOver = true);
+			session.Events.Subscribe<GameOverTriggered>(_ => gameOver = true);
 
 			PrintHeader(options, content);
 
@@ -73,7 +73,7 @@ namespace Kontur.Harness
 			{
 				clock = 0.0;
 
-				CommandResult start = simulation.StartShift(day);
+				CommandResult start = session.StartShift(day);
 				if (!start.IsSuccess)
 				{
 					Console.Error.WriteLine(start.Error);
@@ -81,23 +81,22 @@ namespace Kontur.Harness
 				}
 
 				double guard = 0.0;
-				while (simulation.IsShiftActive && !gameOver && guard < options.MaxShiftSeconds)
+				while (session.IsShiftActive && !gameOver && guard < options.MaxShiftSeconds)
 				{
-					simulation.Tick(options.DeltaSeconds);
+					session.Tick(options.DeltaSeconds);
 					clock += options.DeltaSeconds;
 					guard += options.DeltaSeconds;
 
 					oper.Update();
 				}
 
-				if (simulation.IsShiftActive)
+				if (session.IsShiftActive)
 				{
 					Console.WriteLine("!! Смена не завершилась за отведённое время — принудительное закрытие.");
-					simulation.ForceEndShift();
+					session.ForceEndShift();
 				}
 
-				PrintRoster(simulation);
-				PrintZones(simulation);
+				PrintRoster(session);
 
 				if (!gameOver && day < options.Days)
 				{
@@ -105,7 +104,7 @@ namespace Kontur.Harness
 				}
 			}
 
-			PrintFinal(simulation);
+			PrintFinal(session);
 			return gameOver ? 1 : 0;
 		}
 
@@ -120,17 +119,17 @@ namespace Kontur.Harness
 				options.DeltaSeconds.ToString("0.##", CultureInfo.InvariantCulture),
 				options.Strategy);
 			Console.WriteLine(
-				$"контент: зон {content.Zones.Count}, существ {content.Creatures.Count}, миссий {content.Missions.Count}, "
+				$"контент: зон {content.Buildings.Count}, существ {content.Creatures.Count}, миссий {content.Missions.Count}, "
 				+ $"радио-сцен {content.RadioEncounters.Count}, снаряжения {content.Equipment.Count}");
 			Console.WriteLine(new string('=', 78));
 		}
 
-		private static void PrintRoster(KonturSimulation simulation)
+		private static void PrintRoster(GameSession session)
 		{
 			Console.WriteLine();
 			Console.WriteLine("ШТАТ:");
 
-			IReadOnlyList<EmployeeView> roster = simulation.GetRoster();
+			IReadOnlyList<EmployeeView> roster = session.GetRoster();
 			for (int i = 0; i < roster.Count; i++)
 			{
 				EmployeeView employee = roster[i];
@@ -143,21 +142,9 @@ namespace Kontur.Harness
 			}
 		}
 
-		private static void PrintZones(KonturSimulation simulation)
+		private static void PrintFinal(GameSession session)
 		{
-			Console.WriteLine("КАРТА:");
-			IReadOnlyList<ZoneView> zones = simulation.GetZones();
-			for (int i = 0; i < zones.Count; i++)
-			{
-				Console.WriteLine($"  {zones[i].Name,-22} {zones[i].State}");
-			}
-
-			Console.WriteLine();
-		}
-
-		private static void PrintFinal(KonturSimulation simulation)
-		{
-			ShiftStatusView status = simulation.GetStatus();
+			ShiftStatusView status = session.GetStatus();
 
 			Console.WriteLine(new string('=', 78));
 			Console.WriteLine($"ИТОГ: {status.Scales}");
@@ -169,7 +156,7 @@ namespace Kontur.Harness
 
 			Console.WriteLine();
 			Console.WriteLine("ЭНЦИКЛОПЕДИЯ:");
-			IReadOnlyList<EncyclopediaEntryView> entries = simulation.GetEncyclopedia();
+			IReadOnlyList<EncyclopediaEntryView> entries = session.GetEncyclopedia();
 			if (entries.Count == 0)
 			{
 				Console.WriteLine("  (пусто)");

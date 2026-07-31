@@ -1,0 +1,29 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/interactables/DeskComputer.tscn" id="1_computer"]
+[ext_resource type="Script" path="res://scripts/debug/DeskComputerScreenPreview.cs" id="2_preview"]
+
+[sub_resource type="Environment" id="Environment_preview"]
+background_mode = 1
+background_color = Color(0.08, 0.08, 0.1, 1)
+ambient_light_source = 3
+ambient_light_color = Color(0.55, 0.58, 0.68, 1)
+ambient_light_energy = 0.8
+
+[node name="DeskComputerScreenPreview" type="Node3D"]
+script = ExtResource("2_preview")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_preview")
+
+[node name="KeyLight" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-35, -55, 0)
+light_energy = 1.2
+shadow_enabled = true
+
+[node name="DeskComputer" parent="." instance=ExtResource("1_computer")]
+
+[node name="PreviewCamera" type="Camera3D" parent="."]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 3.1, 1.75, 0)
+current = true
+fov = 42.0

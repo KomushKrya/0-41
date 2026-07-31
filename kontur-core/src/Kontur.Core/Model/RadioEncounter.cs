@@ -33,8 +33,6 @@ namespace Kontur.Core.Model
 		public double InjuryChanceMultiplier { get; set; } = 1.0;
 
 		/// <summary>Вариант «оцепить и закрыть район» — переводит зону в карантин (ДД, раздел 9).</summary>
-		public bool AppliesQuarantine { get; set; }
-
 		/// <summary>Дополнительное изменение шкал именно за этот выбор.</summary>
 		public ScaleDelta ExtraScales { get; set; } = ScaleDelta.Zero;
 

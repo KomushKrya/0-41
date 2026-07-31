@@ -16,7 +16,7 @@ namespace Kontur.Core.Content
 	public static class ContentLoader
 	{
 		public const string ConfigFile = "config.json";
-		public const string ZonesFile = "zones.json";
+		public const string BuildingsFile = "buildings.json";
 		public const string AbilitiesFile = "abilities.json";
 		public const string EquipmentFile = "equipment.json";
 		public const string CreaturesFile = "creatures.json";
@@ -36,7 +36,7 @@ namespace Kontur.Core.Content
 			if (source == null)
 			{
 				throw new ArgumentNullException(nameof(source));
-			}
+		}
 
 			var database = new ContentDatabase();
 
@@ -46,7 +46,7 @@ namespace Kontur.Core.Content
 				database.Config.Days.AddRange(SimulationConfig.CreateDefault().Days);
 			}
 
-			LoadZones(source, database);
+			LoadBuildings(source, database);
 			LoadAbilities(source, database);
 			LoadEquipment(source, database);
 			LoadCreatures(source, database);
@@ -59,22 +59,25 @@ namespace Kontur.Core.Content
 			return database;
 		}
 
-		private static void LoadZones(IContentSource source, ContentDatabase database)
+		private static void LoadBuildings(IContentSource source, ContentDatabase database)
 		{
-			List<ZoneDto> zones = ReadList<ZoneDto>(source, ZonesFile);
-			foreach (ZoneDto dto in zones)
+			List<BuildingDto> buildings = ReadList<BuildingDto>(source, BuildingsFile);
+			foreach (BuildingDto dto in buildings)
 			{
-				var zone = new Zone
+				if (string.IsNullOrWhiteSpace(dto.Id))
+				{
+					throw new ContentException($"{BuildingsFile}: у здания отсутствует id.");
+				}
+
+				if (!database.Buildings.TryAdd(dto.Id, new BuildingDefinition
 				{
 					Id = dto.Id,
-					Name = dto.Name,
-					State = ParseEnum(dto.State, ZoneState.Normal, ZonesFile, dto.Id, "state"),
-					BaseWeight = dto.BaseWeight,
-					MapX = dto.MapX,
-					MapY = dto.MapY
-				};
-
-				database.Zones[zone.Id] = zone;
+					IsDispatchTarget = dto.IsDispatchTarget,
+					IsHeadquarters = dto.IsHeadquarters
+				}))
+				{
+					throw new ContentException($"{BuildingsFile}: повторяющийся id '{dto.Id}'.");
+				}
 			}
 		}
 
@@ -187,7 +190,6 @@ namespace Kontur.Core.Content
 							RequirementMultiplier = optionDto.RequirementMultiplier,
 							DeathChanceMultiplier = optionDto.DeathChanceMultiplier,
 							InjuryChanceMultiplier = optionDto.InjuryChanceMultiplier,
-							AppliesQuarantine = optionDto.AppliesQuarantine,
 							ExtraScales = optionDto.ExtraScales == null ? ScaleDelta.Zero : optionDto.ExtraScales.ToModel(),
 							RevealsPropertyId = optionDto.RevealsPropertyId,
 							Quality = ParseEnum(optionDto.Quality, RadioOptionQuality.Good, RadioFile, optionDto.Id, "quality")
@@ -208,7 +210,6 @@ namespace Kontur.Core.Content
 				{
 					Id = dto.Id,
 					Day = dto.Day,
-					ZoneId = dto.ZoneId,
 					CreatureId = dto.CreatureId,
 					Title = dto.Title,
 					CallerName = dto.CallerName,
@@ -257,14 +258,38 @@ namespace Kontur.Core.Content
 		{
 			var errors = new List<string>();
 
+			bool hasDispatchTarget = false;
+			int headquartersCount = 0;
+			foreach (KeyValuePair<string, BuildingDefinition> pair in database.Buildings)
+			{
+				if (pair.Value.IsHeadquarters)
+				{
+					headquartersCount++;
+					if (pair.Value.IsDispatchTarget)
+					{
+						errors.Add($"{BuildingsFile}: штаб '{pair.Value.Id}' не может быть целью вызова.");
+					}
+				}
+
+				if (pair.Value.IsDispatchTarget)
+				{
+					hasDispatchTarget = true;
+				}
+		}
+
+			if (!hasDispatchTarget)
+			{
+				errors.Add($"{BuildingsFile}: нет зданий, доступных для отправки.");
+			}
+
+			if (headquartersCount != 1)
+			{
+				errors.Add($"{BuildingsFile}: должен быть отмечен ровно один штаб.");
+			}
+
 			foreach (KeyValuePair<string, MissionDefinition> pair in database.Missions)
 			{
 				MissionDefinition mission = pair.Value;
-
-				if (!database.Zones.ContainsKey(mission.ZoneId))
-				{
-					errors.Add($"Миссия '{mission.Id}': неизвестная зона '{mission.ZoneId}'.");
-				}
 
 				CreatureDefinition? creature = database.FindCreature(mission.CreatureId);
 				if (creature == null)

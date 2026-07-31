@@ -13,7 +13,7 @@ namespace Kontur.Core.Systems
 	/// свои правила (абзац существа, а не свободное имя).
 	///
 	/// Ядро само флаги не выставляет — их ставит игровой код и UI через
-	/// <c>KonturSimulation.SetFlag</c>. Регистр имени не важен.
+	/// <c>GameSession.SetFlag</c>. Регистр имени не важен.
 	/// </summary>
 	public sealed class FlagSet
 	{

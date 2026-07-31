@@ -10,7 +10,7 @@ namespace Kontur.Core.Systems
 	/// <summary>
 	/// Механика успеха миссии (ДД, раздел 7).
 	///
-	/// 1. Требования миссии масштабируются: множитель дня × множитель зоны × множитель радио-варианта.
+	/// 1. Требования миссии масштабируются: множитель дня × множитель радио-варианта.
 	/// 2. Считается сумма характеристик всей группы + бонусы снаряжения + сработавшие спецспособности.
 	/// 3. Покрыл требования полностью — автоматический успех без броска.
 	/// 4. Не покрыл — бросок: шанс = покрытие^Exponent (согласованная кривая), потолок 95 %.
@@ -31,17 +31,10 @@ namespace Kontur.Core.Systems
 
 		public StatBlock ComputeEffectiveRequirements(
 			MissionDefinition mission,
-			Zone? zone,
-			ZoneSystem zoneSystem,
 			RadioOption? chosenOption,
 			int day)
 		{
 			double multiplier = _config.GetDay(day).RequirementMultiplier;
-
-			if (zone != null)
-			{
-				multiplier *= zoneSystem.GetRequirementMultiplier(zone);
-			}
 
 			if (chosenOption != null)
 			{
@@ -151,7 +144,7 @@ namespace Kontur.Core.Systems
 			{
 				IncidentId = request.IncidentId,
 				MissionId = request.Mission.Id,
-				ZoneId = request.Mission.ZoneId,
+				BuildingId = request.BuildingId,
 				CreatureId = request.Mission.CreatureId,
 				RadioWasTriggered = request.RadioWasTriggered,
 				RadioWasMissed = request.RadioWasMissed,
@@ -252,6 +245,8 @@ namespace Kontur.Core.Systems
 	public sealed class ResolutionRequest
 	{
 		public string IncidentId { get; set; } = string.Empty;
+
+		public string BuildingId { get; set; } = string.Empty;
 
 		public MissionDefinition Mission { get; set; } = new MissionDefinition();
 

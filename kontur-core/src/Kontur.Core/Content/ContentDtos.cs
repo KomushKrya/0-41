@@ -41,19 +41,13 @@ namespace Kontur.Core.Content
 		}
 	}
 
-	public sealed class ZoneDto
+	public sealed class BuildingDto
 	{
 		public string Id { get; set; } = string.Empty;
 
-		public string Name { get; set; } = string.Empty;
+		public bool IsDispatchTarget { get; set; }
 
-		public string State { get; set; } = "Normal";
-
-		public double BaseWeight { get; set; } = 1.0;
-
-		public double MapX { get; set; }
-
-		public double MapY { get; set; }
+		public bool IsHeadquarters { get; set; }
 	}
 
 	public sealed class AbilityDto
@@ -143,8 +137,6 @@ namespace Kontur.Core.Content
 
 		public double InjuryChanceMultiplier { get; set; } = 1.0;
 
-		public bool AppliesQuarantine { get; set; }
-
 		public ScaleDeltaDto? ExtraScales { get; set; }
 
 		public string? RevealsPropertyId { get; set; }
@@ -166,8 +158,6 @@ namespace Kontur.Core.Content
 		public string Id { get; set; } = string.Empty;
 
 		public int Day { get; set; } = 1;
-
-		public string ZoneId { get; set; } = string.Empty;
 
 		public string CreatureId { get; set; } = string.Empty;
 

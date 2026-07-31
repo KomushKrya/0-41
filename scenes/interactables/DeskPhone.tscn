@@ -1,16 +1,34 @@
 [gd_scene format=3]
 
+[ext_resource type="Script" path="res://scripts/interaction/InteractionOutline.cs" id="1_outline"]
+[ext_resource type="Script" path="res://scripts/interaction/OutlineOnlyInteractable.cs" id="2_interactable"]
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_phone"]
 albedo_color = Color(1, 0, 0, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_phone"]
 size = Vector3(0.3, 0.15, 0.25)
 
-[node name="DeskPhone" type="Node3D"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_phone"]
+size = Vector3(0.3, 0.15, 0.25)
+
+[node name="DeskPhone" type="Node3D" groups=["interactive"]]
 
 [node name="VisualRoot" type="Node3D" parent="."]
 
 [node name="PhoneBody" type="MeshInstance3D" parent="VisualRoot"]
-transform = Transform3D(-0.514673, 0, -0.8573866, 0, 1, 0, 0.8573866, 0, -0.514673, 2.2010708, 0.90322566, 1.8605828)
 material_override = SubResource("StandardMaterial3D_phone")
 mesh = SubResource("BoxMesh_phone")
+
+[node name="InteractionOutline" type="Node" parent="."]
+script = ExtResource("1_outline")
+VisualRootPath = NodePath("../VisualRoot")
+
+[node name="InteractionArea" type="Area3D" parent="."]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("2_interactable")
+Label = "Phone"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionArea"]
+shape = SubResource("BoxShape3D_phone")

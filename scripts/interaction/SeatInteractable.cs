@@ -2,11 +2,11 @@ using Godot;
 
 public partial class SeatInteractable : Area3D, IInteractable
 {
-	[Export] public NodePath SeatCameraPosePath { get; set; } = new("../SeatCameraPose");
+	[Export] public NodePath FocusCameraPosePath { get; set; } = new("../FocusCameraPose");
 	[Export] public NodePath StandUpPointPath { get; set; } = new("../StandUpPoint");
 	[Export] public NodePath OutlinePath { get; set; } = new("../InteractionOutline");
 
-	private Node3D _seatCameraPose = null!;
+	private Camera3D _focusCameraPose = null!;
 	private Node3D _standUpPoint = null!;
 	private InteractionOutline _outline = null!;
 
@@ -14,7 +14,7 @@ public partial class SeatInteractable : Area3D, IInteractable
 
 	public override void _Ready()
 	{
-		_seatCameraPose = GetNode<Node3D>(SeatCameraPosePath);
+		_focusCameraPose = GetNode<Camera3D>(FocusCameraPosePath);
 		_standUpPoint = GetNode<Node3D>(StandUpPointPath);
 		_outline = GetNode<InteractionOutline>(OutlinePath);
 	}
@@ -31,7 +31,7 @@ public partial class SeatInteractable : Area3D, IInteractable
 			return;
 		}
 
-		player.SitAt(_seatCameraPose.GlobalTransform, _standUpPoint.GlobalTransform);
+		player.SitAt(_focusCameraPose.GlobalTransform, _standUpPoint.GlobalTransform);
 	}
 
 	public void SetHovered(bool isHovered)

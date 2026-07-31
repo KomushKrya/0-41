@@ -1,0 +1,119 @@
+[
+  {
+    "id": "building_block_r01_c02",
+    "isDispatchTarget": true
+  },
+  {
+    "id": "building_block_r01_c03",
+    "isDispatchTarget": true
+  },
+  {
+    "id": "building_block_r01_c04",
+    "isDispatchTarget": true
+  },
+  {
+    "id": "building_block_r01_c05",
+    "isDispatchTarget": true
+  },
+  {
+    "id": "building_block_r02_c01",
+    "isDispatchTarget": true
+  },
+  {
+    "id": "building_block_r02_c02",
+    "isDispatchTarget": true
+  },
+  {
+    "id": "building_block_r02_c03",
+    "isDispatchTarget": true
+  },
+  {
+    "id": "building_block_r02_c04",
+    "isDispatchTarget": true
+  },
+  {
+    "id": "building_block_r02_c05",
+    "isDispatchTarget": true
+  },
+  {
+    "id": "building_block_r03_c01",
+    "isDispatchTarget": true
+  },
+  {
+    "id": "building_block_r03_c02",
+    "isDispatchTarget": true
+  },
+  {
+    "id": "building_block_r03_c03",
+    "isDispatchTarget": false,
+    "isHeadquarters": true
+  },
+  {
+    "id": "building_block_r03_c04",
+    "isDispatchTarget": true
+  },
+  {
+    "id": "building_block_r03_c05",
+    "isDispatchTarget": true
+  },
+  {
+    "id": "building_block_r04_c01",
+    "isDispatchTarget": true
+  },
+  {
+    "id": "building_block_r04_c02",
+    "isDispatchTarget": true
+  },
+  {
+    "id": "building_block_r04_c03",
+    "isDispatchTarget": true
+  },
+  {
+    "id": "building_block_r04_c04",
+    "isDispatchTarget": true
+  },
+  {
+    "id": "building_block_r04_c05",
+    "isDispatchTarget": true
+  },
+  {
+    "id": "building_block_r05_c01",
+    "isDispatchTarget": true
+  },
+  {
+    "id": "building_block_r05_c02",
+    "isDispatchTarget": true
+  },
+  {
+    "id": "building_block_r05_c03",
+    "isDispatchTarget": true
+  },
+  {
+    "id": "building_block_r05_c04",
+    "isDispatchTarget": true
+  },
+  {
+    "id": "building_block_r05_c05",
+    "isDispatchTarget": true
+  },
+  {
+    "id": "building_block_r06_c01",
+    "isDispatchTarget": true
+  },
+  {
+    "id": "building_block_r06_c02",
+    "isDispatchTarget": true
+  },
+  {
+    "id": "building_block_r06_c03",
+    "isDispatchTarget": true
+  },
+  {
+    "id": "building_block_r06_c04",
+    "isDispatchTarget": true
+  },
+  {
+    "id": "building_block_r06_c05",
+    "isDispatchTarget": true
+  }
+]
