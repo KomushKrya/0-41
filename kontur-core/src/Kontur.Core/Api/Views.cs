@@ -50,10 +50,12 @@ namespace Kontur.Core.Api
 		double SuccessChance,
 		bool IsAutoSuccess);
 
+	/// <summary>
+	/// Что лежит на складе смены. Название и описание интерфейс берёт из текстового
+	/// движка по <c>Id</c> — ядро прозу не хранит, как и для существ.
+	/// </summary>
 	public sealed record EquipmentSlotView(
 		string Id,
-		string Name,
-		string Description,
 		EquipmentKind Kind,
 		int Quantity,
 		bool IsShiftOnly);

@@ -317,8 +317,6 @@ namespace Kontur.Core.Api
 
 				result.Add(new EquipmentSlotView(
 					definition.Id,
-					definition.Name,
-					definition.Description,
 					definition.Kind,
 					pair.Value.Quantity,
 					pair.Value.IsShiftOnly));

@@ -54,19 +54,26 @@ public partial class KonturDebugOverlay : CanvasLayer
 		if (_runtime == null)
 		{
 			AppendLog("Автозагрузка 'GameRuntime' не найдена. Project → Project Settings → Autoload.");
-			return;
 		}
-
-		if (!_runtime.IsReady)
+		else if (!_runtime.IsReady)
 		{
 			AppendLog("Ядро не загрузилось: " + _runtime.LoadError);
-			return;
+		}
+		else
+		{
+			_logSubscription = _runtime.Session.Events.SubscribeAll(OnCoreEvent);
+			_radioSubscription = _runtime.Session.Events.Subscribe<RadioTriggered>(OnRadioTriggered);
+
+			AppendLog("Ядро подключено. Нажмите «Смена 1».");
 		}
 
-		_logSubscription = _runtime.Session.Events.SubscribeAll(OnCoreEvent);
-		_radioSubscription = _runtime.Session.Events.Subscribe<RadioTriggered>(OnRadioTriggered);
-
-		AppendLog("Ядро подключено. Нажмите «Смена 1».");
+		// Запущена сцена KonturDebug и больше в ней ничего нет: прятаться не от кого,
+		// а пустой серый экран читается как «не работает». Поверх игры (main.tscn)
+		// оверлей по-прежнему стартует скрытым и ждёт F6.
+		if (GetTree().CurrentScene == this)
+		{
+			SetOpen(true);
+		}
 	}
 
 	public override void _Input(InputEvent @event)
@@ -365,7 +372,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 	{
 		var check = new CheckBox
 		{
-			Text = $"{slot.Name}  ({KindName(slot.Kind)}, x{slot.Quantity})",
+			Text = $"{TextName(slot.Id)}  ({KindName(slot.Kind)}, x{slot.Quantity})",
 			ButtonPressed = _pickedEquipment.Contains(slot.Id)
 		};
 
@@ -490,15 +497,14 @@ public partial class KonturDebugOverlay : CanvasLayer
 		}
 	}
 
+	/// <summary>
+	/// Подпись вида снаряжения. Лежит в текстовом движке
+	/// (content/raw/UI/hover_footnote/equipment_kinds) под id вида в нижнем регистре —
+	/// здесь её не дублируем, чтобы «расходник» не расходился с тем, что видит игрок.
+	/// </summary>
 	private static string KindName(EquipmentKind kind)
 	{
-		switch (kind)
-		{
-			case EquipmentKind.Consumable: return "расходник";
-			case EquipmentKind.Standard: return "обычное";
-			case EquipmentKind.Story: return "сюжетное";
-			default: return kind.ToString();
-		}
+		return TextName(kind.ToString().ToLowerInvariant());
 	}
 
 	private static void AddSectionLabel(Control parent, string text)
@@ -509,17 +515,22 @@ public partial class KonturDebugOverlay : CanvasLayer
 	}
 
 	/// <summary>
-	/// Ядро отдаёт только id перков — названия лежат в текстовом движке
-	/// (content/raw/UI/perks). Если текста нет, показываем сам id: для отладочного
-	/// оверлея это полезнее пустого места.
+	/// Ядро отдаёт только id — названия лежат в текстовом движке (перки в
+	/// content/raw/UI/hover_footnote/perks, снаряжение в content/raw/equipment). Если текста нет,
+	/// показываем сам id: для отладочного оверлея это полезнее пустого места.
 	/// </summary>
+	private static string TextName(string id)
+	{
+		ContentEntry entry = Content.Instance?.GetEntry(id);
+		return entry != null && entry.Name.Length > 0 ? entry.Name : id;
+	}
+
 	private static List<string> PerkNames(IReadOnlyList<string> abilityIds)
 	{
 		var names = new List<string>();
 		for (int i = 0; i < abilityIds.Count; i++)
 		{
-			ContentEntry entry = Content.Instance?.GetEntry(abilityIds[i]);
-			names.Add(entry != null && entry.Name.Length > 0 ? entry.Name : abilityIds[i]);
+			names.Add(TextName(abilityIds[i]));
 		}
 
 		return names;
@@ -991,7 +1002,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 
 		for (int i = 0; i < stock.Count; i++)
 		{
-			builder.Append("  ").Append(stock[i].Name)
+			builder.Append("  ").Append(TextName(stock[i].Id))
 				.Append(" x").Append(stock[i].Quantity)
 				.Append("  (").Append(stock[i].Kind).Append(")\n");
 		}

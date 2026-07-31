@@ -19,9 +19,8 @@ import re
 import sys
 from pathlib import Path
 
-# Папка контента -> значение поля type во фронтматтере. Ключ — путь от content/raw,
-# так что тип может лежать и во вложенной папке (UI/perks); промежуточные папки
-# (UI) сами контент не держат.
+# Папка контента -> поле type. Ключ — путь от content/raw, так что тип может лежать
+# и глубоко; промежуточные папки сами контент не держат.
 FOLDER_TYPES = {
     "calls": "call",
     "cutscenes": "cutscene",
@@ -29,8 +28,11 @@ FOLDER_TYPES = {
     "creatures": "creature",
     "shift_notes": "shift_note",
     "reports": "report",
-    "UI/perks": "perk",
-    "UI/characteristics": "characteristic",
+    "equipment": "equipment",
+    "UI/hover_footnote/perks": "perk",
+    "UI/hover_footnote/characteristics": "characteristic",
+    "UI/hover_footnote/equipment_kinds": "equipment_kind",
+    "UI/hover_footnote/scales": "scale",
 }
 
 # Поля, которые есть только у своего типа: имя -> значение по умолчанию.
@@ -42,16 +44,16 @@ TYPE_FIELDS = {
     "report": {"outcome": ""},
     "perk": {"name": ""},
     "characteristic": {"name": ""},
+    "equipment": {"name": ""},
+    "equipment_kind": {"name": ""},
+    "scale": {"name": ""},
 }
 
-# Чем заканчивается вызов: радийный требует вмешательства игрока (есть запись radio
-# с вариантами решений), филерный решается одной проверкой характеристик группы.
-# Пустое значение не допускается: тип вызова определяет, ждать ли под него текст radio.
+# radio — вызов с вмешательством игрока, filler — одна проверка характеристик.
 CALL_MISSION_TYPES = ("radio", "filler")
 
-# Типы, которые показываются виджетом нижнего текста: у них кусок должен влезать
-# примерно в две строки. Остальные (энциклопедия, отчёты) рендерятся на своих
-# экранах, где места больше, и под это ограничение не попадают.
+# Виджет нижнего текста: кусок должен влезать примерно в две строки. Энциклопедия
+# и отчёты рендерятся на своих экранах и под ограничение не попадают.
 BOTTOM_TEXT_TYPES = ("call", "cutscene")
 DEFAULT_MAX_CHUNK_CHARS = 150
 
@@ -66,29 +68,22 @@ DEV_BLOCK_RE = re.compile(r"%%\s*dev\s*%%.*?%%\s*/\s*dev\s*%%", re.DOTALL)
 DEV_INLINE_RE = re.compile(r"[ \t]*%%\s*dev:[^\n]*?%%")
 DEV_TAG_RE = re.compile(r"%%\s*(/?)\s*dev\s*%%")
 DEV_LEFTOVER_RE = re.compile(r"%%\s*/?\s*dev\b")
-# Служебная шапка звонка — [ЗВОНОК ПЕРЕНАПРАВЛЕН ...], [НА ЛИНИИ СТАРИК] и т.п.
-# В куски попадает отдельным kind, чтобы виджет рендерил её не как реплику.
+# Шапка звонка. Едет отдельным kind, чтобы виджет рендерил её не как реплику.
 CALL_META_RE = re.compile(r"^%%\s*call_meta:\s*(.+?)\s*%%$")
 REVEAL_OPEN_RE = re.compile(r"^%%\s*reveal:\s*([^\s%]+)\s*%%$")
 REVEAL_CLOSE_RE = re.compile(r"^%%\s*/\s*reveal\s*%%$")
 OPTION_RE = re.compile(r"^##\s*Вариант:\s*(.+?)\s*$")
 OPTION_META_RE = re.compile(r"^(requirement_modifier)\s*:\s*(.*)$")
 LINK_RE = re.compile(r"\[\[([a-z_]+):([a-z0-9_]+)\]\]")
-# Подстановка числа из геймплейных данных: «+{{bonus.strength}} к силе».
-# Намеренно не %%: Обсидиан прячет %%...%% в режиме чтения, а плейсхолдер должен
-# оставаться видимым автору. Конвертер значение не подставляет — оно живёт на
-# стороне Godot (data/abilities.json и т.п.), движок только помечает место.
+# Подстановка числа из геймплейных данных: «+{{bonus.strength}} к силе». Не %%,
+# потому что Обсидиан прячет %%...%%, а плейсхолдер должен быть виден автору.
 VARIABLE_RE = re.compile(r"\{\{([^{}]*)\}\}")
 VARIABLE_NAME_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$")
 VARIABLE_LEFTOVER_RE = re.compile(r"\{\{|\}\}")
-# Ключевое слово в реплике: ==дочка маленькая==. Тег только красит — какую характеристику
-# слово подсказывает, в тексте не написано и игроку не показывается: это ему и предстоит
-# сообразить. Соответствие слов характеристикам — договорённость авторов, живёт в
-# _system/Keywords.md и в сборку не едет.
-# Синтаксис совпадает с обсидиановской подсветкой ==...==: в режиме чтения автор видит
-# подсвеченным ровно то, что увидит игрок.
-KEYWORD_RE = re.compile(r"==\s*([^=]+?)\s*==")
-KEYWORD_LEFTOVER_RE = re.compile(r"==")
+# Разметка абзаца: ==ключевое слово== красится, **слово** идёт жирным. Обе формы —
+# обычный markdown, Обсидиан показывает их так же, как увидит игрок. Вложенности нет.
+INLINE_RE = re.compile(r"==\s*([^=]+?)\s*==|\*\*\s*([^*]+?)\s*\*\*")
+INLINE_LEFTOVER_RE = re.compile(r"==|\*\*")
 LIST_ITEM_RE = re.compile(r"^\s+-\s*(.*)$")
 SCALAR_RE = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)\s*:\s*(.*)$")
 
@@ -98,11 +93,7 @@ class BuildFailed(Exception):
 
 
 def check_layout(raw_root: Path) -> tuple[list[str], list[str]]:
-    """Ловит контент, который лежит не там, где конвертер его ищет.
-
-    Без этой проверки папка с опечаткой (creature вместо creatures) просто
-    не обходится: сборка проходит, а текстов в игре нет.
-    """
+    """Ловит контент не в той папке: иначе папка с опечаткой молча выпадет из сборки."""
     errors: list[str] = []
     warnings: list[str] = []
     check_directory(raw_root, raw_root, errors, warnings)
@@ -170,11 +161,10 @@ def parse_frontmatter(text: str, source: Path) -> tuple[dict, list[str]]:
 
 
 def strip_dev_notes(text: str, source: Path) -> str:
-    """Выкидывает dev-заметки до разбора кусков, чтобы они не дошли до JSON.
+    """Выкидывает dev-заметки до разбора кусков.
 
-    Парность тегов проверяется до подстановки: DEV_BLOCK_RE работает по DOTALL и
-    при пропущенном %% /dev %% дотянулся бы до закрывающего тега следующего блока,
-    молча съев реплики между ними.
+    Парность проверяется отдельно и заранее: DEV_BLOCK_RE работает по DOTALL и при
+    пропущенном %% /dev %% молча съел бы реплики до следующего закрывающего тега.
     """
     depth = 0
     for match in DEV_TAG_RE.finditer(text):
@@ -201,51 +191,48 @@ def strip_dev_notes(text: str, source: Path) -> str:
 
 
 def make_chunk(text: str, kind: str, reveal: str | None, source: Path) -> dict:
-    """Кусок с разобранной подсветкой ключевых слов.
+    """Кусок с разобранной разметкой: текст чистый, разметка — отдельным списком отрезков.
 
-    Текст в JSON лежит уже чистым, без ==стат:...==, а разметка едет отдельным списком
-    отрезков — не смещениями. Рантайм подставляет {{имя}} прямо в текст, и любые позиции
-    после первой же подстановки уехали бы; отрезки же подставляются каждый сам по себе.
+    Отрезки, а не смещения: рантайм подставляет {{имя}} прямо в текст, и позиции уехали бы.
     """
-    spans, clean = parse_keywords(text, source)
+    spans, clean = parse_spans(text, source)
     chunk = {"text": clean, "kind": kind, "reveal": reveal}
     if spans:
         chunk["spans"] = spans
     return chunk
 
 
-def parse_keywords(text: str, source: Path) -> tuple[list[dict], str]:
-    """Отрезки подсветки и текст без тегов.
-
-    Отрезки покрывают кусок целиком и идут по порядку: у обычного текста `highlight`
-    ложный, у ключевого слова истинный. Склей их подряд — получишь текст обратно.
-    """
+def parse_spans(text: str, source: Path) -> tuple[list[dict], str]:
+    """Отрезки разметки и текст без тегов. Склей отрезки подряд — получишь текст обратно."""
     spans: list[dict] = []
     clean: list[str] = []
     cursor = 0
 
-    def add(part: str, highlight: bool) -> None:
+    def add(part: str, highlight: bool = False, bold: bool = False) -> None:
         if part:
-            spans.append({"text": part, "highlight": highlight})
+            spans.append({"text": part, "highlight": highlight, "bold": bold})
             clean.append(part)
 
-    for match in KEYWORD_RE.finditer(text):
-        add(text[cursor : match.start()], False)
-        add(match.group(1), True)
+    for match in INLINE_RE.finditer(text):
+        add(text[cursor : match.start()])
+        if match.group(1) is not None:
+            add(match.group(1), highlight=True)
+        else:
+            add(match.group(2), bold=True)
         cursor = match.end()
 
     tail = text[cursor:]
     if spans:
-        add(tail, False)
+        add(tail)
     else:
         clean.append(tail)
 
     result = "".join(clean)
 
-    if KEYWORD_LEFTOVER_RE.search(result):
+    if INLINE_LEFTOVER_RE.search(result):
         raise BuildFailed(
-            f"{source}: непарная подсветка == в {text!r} — "
-            "нужно ==слово== целиком в одну строку"
+            f"{source}: непарная разметка == или ** в {text!r} — "
+            "нужно ==слово== либо **слово** целиком в одну строку"
         )
 
     return spans, result
@@ -349,11 +336,10 @@ def parse_options(lines: list[str], source: Path) -> tuple[list[str], list[dict]
 
 
 def collect_variables(entry: dict, source: Path) -> list[str]:
-    """Имена подстановок из всех кусков записи — чтобы игра знала, что заполнять.
+    """Имена подстановок из всех кусков — чтобы игра знала, что заполнять.
 
-    Значения конвертер не знает и знать не должен: числа живут в геймплейных
-    данных. Проверяется только форма имени — иначе опечатка вроде {{ bonus.strength}}
-    молча доехала бы до игрока как есть.
+    Проверяется только форма имени: иначе опечатка вроде {{ bonus.strength}} доехала
+    бы до игрока как есть.
     """
     names: set[str] = set()
 

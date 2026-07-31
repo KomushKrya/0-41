@@ -25,7 +25,6 @@ requirement_modifier — надбавка к сложности проверки
 
 ## Вариант: Пройти мимо
 requirement_modifier: 0
-canon: correct
 
 %% dev: проверка на наблюдательность %%
 
@@ -33,7 +32,6 @@ canon: correct
 
 ## Вариант: Забрать на исследование
 requirement_modifier: 2
-canon: wrong
 
 %% dev: проверка на силу %%
 
@@ -41,7 +39,6 @@ canon: wrong
 
 ## Вариант: Поворот налево
 requirement_modifier: 1
-canon: correct
 
 %% dev: проверка на выносливость %%
 

@@ -107,8 +107,6 @@ namespace Kontur.Core.Content
 				var equipment = new EquipmentDefinition
 				{
 					Id = dto.Id,
-					Name = dto.Name,
-					Description = dto.Description,
 					Kind = ParseEnum(dto.Kind, EquipmentKind.Consumable, EquipmentFile, dto.Id, "kind"),
 					Bonus = dto.Bonus == null ? StatBlock.Zero : dto.Bonus.ToModel(),
 					AllStatsBonus = dto.AllStatsBonus,
@@ -289,10 +287,19 @@ namespace Kontur.Core.Content
 			{
 				MissionDefinition mission = pair.Value;
 
-				CreatureDefinition? creature = database.FindCreature(mission.CreatureId);
-				if (creature == null)
+				// Пустой creatureId допустим: на филерных вызовах существа нет вообще
+				// (утечка в подвале, паника во дворе), и энциклопедии открывать нечего.
+				CreatureDefinition? creature = string.IsNullOrEmpty(mission.CreatureId)
+					? null
+					: database.FindCreature(mission.CreatureId);
+
+				if (creature == null && !string.IsNullOrEmpty(mission.CreatureId))
 				{
 					errors.Add($"Миссия '{mission.Id}': неизвестное существо '{mission.CreatureId}'.");
+				}
+				else if (creature == null && mission.ManifestedPropertyIds.Count > 0)
+				{
+					errors.Add($"Миссия '{mission.Id}': свойства объявлены, а существо не указано.");
 				}
 				else
 				{
@@ -339,6 +346,19 @@ namespace Kontur.Core.Content
 						errors.Add(
 							$"Существо '{creature.Id}': в статье нет блока " +
 							$"%% reveal: {propertyId} %% под объявленное свойство.");
+					}
+				}
+			}
+
+			// Название и описание снаряжения тоже живут в текстовом движке (content/raw/equipment)
+			// под тем же id — сверяем по той же схеме, что и статьи существ.
+			if (textCatalog != null)
+			{
+				foreach (KeyValuePair<string, EquipmentDefinition> pair in database.Equipment)
+				{
+					if (!textCatalog.HasEntry(pair.Value.Id))
+					{
+						errors.Add($"Снаряжение '{pair.Value.Id}': нет текста с таким id.");
 					}
 				}
 			}

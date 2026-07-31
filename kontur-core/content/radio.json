@@ -186,5 +186,183 @@
 				}
 			}
 		]
+	},
+	{
+		"id": "radio_workshop_intro",
+		"situationText": "",
+		"options": [
+			{
+				"id": "papers",
+				"text": "Оформить по бумагам",
+				"requirementMultiplier": 1.0,
+				"quality": "Good"
+			},
+			{
+				"id": "peace",
+				"text": "Разойтись миром",
+				"requirementMultiplier": 1.0,
+				"quality": "Good"
+			}
+		]
+	},
+	{
+		"id": "radio_workshop_truck",
+		"situationText": "",
+		"options": [
+			{
+				"id": "write_off",
+				"text": "Списать по браку",
+				"requirementMultiplier": 1.0,
+				"quality": "Good"
+			},
+			{
+				"id": "seize",
+				"text": "Изъять по протоколу",
+				"requirementMultiplier": 1.3,
+				"quality": "Best"
+			}
+		]
+	},
+	{
+		"id": "radio_workshop_site",
+		"situationText": "",
+		"options": [
+			{
+				"id": "cut",
+				"text": "Развести кладку",
+				"requirementMultiplier": 1.15,
+				"quality": "Best"
+			},
+			{
+				"id": "lead_out",
+				"text": "Вывести бригаду",
+				"requirementMultiplier": 1.3,
+				"quality": "Good"
+			},
+			{
+				"id": "cordon",
+				"text": "Оцепить до утра",
+				"requirementMultiplier": 1.0,
+				"quality": "Bad"
+			}
+		]
+	},
+	{
+		"id": "radio_workshop_empty",
+		"situationText": "",
+		"options": [
+			{
+				"id": "search",
+				"text": "Осмотреть до конца",
+				"requirementMultiplier": 1.15,
+				"quality": "Bad"
+			},
+			{
+				"id": "abort",
+				"text": "Свернуть выезд",
+				"requirementMultiplier": 1.0,
+				"quality": "Best"
+			}
+		]
+	},
+	{
+		"id": "radio_tram_last_run",
+		"situationText": "",
+		"options": [
+			{
+				"id": "route",
+				"text": "Увести по маршруту",
+				"requirementMultiplier": 1.15,
+				"quality": "Best",
+				"revealsPropertyId": "property_mimic_routine"
+			},
+			{
+				"id": "driver",
+				"text": "Вытащить водителя",
+				"requirementMultiplier": 1.0,
+				"quality": "Bad"
+			},
+			{
+				"id": "power",
+				"text": "Обесточить участок",
+				"requirementMultiplier": 1.3,
+				"quality": "Bad"
+			}
+		]
+	},
+	{
+		"id": "radio_room_34",
+		"situationText": "",
+		"options": [
+			{
+				"id": "lists",
+				"text": "Сверить по спискам",
+				"requirementMultiplier": 1.0,
+				"quality": "Good"
+			},
+			{
+				"id": "routine",
+				"text": "Сорвать рутину",
+				"requirementMultiplier": 1.3,
+				"quality": "Best",
+				"revealsPropertyId": "property_mimic_routine"
+			},
+			{
+				"id": "evacuate",
+				"text": "Вывести этаж",
+				"requirementMultiplier": 1.15,
+				"quality": "Good"
+			}
+		]
+	},
+	{
+		"id": "radio_night_pharmacy",
+		"situationText": "",
+		"options": [
+			{
+				"id": "closed",
+				"text": "Закрыть на переучёт",
+				"requirementMultiplier": 1.0,
+				"quality": "Good"
+			},
+			{
+				"id": "placebo",
+				"text": "Выдать пустышку",
+				"requirementMultiplier": 1.15,
+				"quality": "Best",
+				"revealsPropertyId": "property_mimic_speech"
+			},
+			{
+				"id": "militia",
+				"text": "Вызвать милицию",
+				"requirementMultiplier": 1.0,
+				"quality": "Bad"
+			}
+		]
+	},
+	{
+		"id": "radio_dense_flock",
+		"situationText": "",
+		"options": [
+			{
+				"id": "perimeter",
+				"text": "Закрыть двор",
+				"requirementMultiplier": 1.15,
+				"quality": "Good"
+			},
+			{
+				"id": "disperse",
+				"text": "Разбить стаю",
+				"requirementMultiplier": 1.3,
+				"quality": "Best",
+				"revealsPropertyId": "property_simulacre_unpredictable"
+			},
+			{
+				"id": "cordon",
+				"text": "Оцепить квартал",
+				"requirementMultiplier": 1.0,
+				"quality": "Bad"
+			}
+		]
 	}
 ]

@@ -2,7 +2,6 @@
 	{
 		"id": "m_d1_01",
 		"day": 1,
-		"zoneId": "z_industrial",
 		"creatureId": "creature_kanalotvar",
 		"title": "Вызов в котельной №2",
 		"callerName": "вахтёр",
@@ -46,7 +45,6 @@
 	{
 		"id": "m_d1_02",
 		"day": 1,
-		"zoneId": "z_sleep",
 		"creatureId": "creature_mimic",
 		"title": "Вызов в детском саду №9",
 		"callerName": "диспетчер",
@@ -91,7 +89,6 @@
 	{
 		"id": "m_d1_03",
 		"day": 1,
-		"zoneId": "z_station",
 		"creatureId": "creature_perekozhnik",
 		"title": "Вызов в привокзальной гостинице",
 		"callerName": "участковый",
@@ -134,7 +131,6 @@
 	{
 		"id": "m_d1_04",
 		"day": 1,
-		"zoneId": "z_outskirts",
 		"creatureId": "creature_kanalotvar",
 		"title": "Вызов в гаражном кооперативе",
 		"callerName": "сторож",
@@ -179,7 +175,6 @@
 	{
 		"id": "m_d1_05",
 		"day": 1,
-		"zoneId": "z_center",
 		"creatureId": "creature_mimic",
 		"title": "Вызов в школе №14",
 		"callerName": "директор объекта",
@@ -223,7 +218,6 @@
 	{
 		"id": "m_d1_06",
 		"day": 1,
-		"zoneId": "z_industrial",
 		"creatureId": "creature_perekozhnik",
 		"title": "Вызов в складском корпусе",
 		"callerName": "бригадир смены",
@@ -268,7 +262,6 @@
 	{
 		"id": "m_d1_07",
 		"day": 1,
-		"zoneId": "z_sleep",
 		"creatureId": "creature_kanalotvar",
 		"title": "Вызов в подвале дома 12",
 		"callerName": "дежурный по райотделу",
@@ -311,7 +304,6 @@
 	{
 		"id": "m_d1_08",
 		"day": 1,
-		"zoneId": "z_station",
 		"creatureId": "creature_mimic",
 		"title": "Вызов в депо",
 		"callerName": "вахтёр",
@@ -356,7 +348,6 @@
 	{
 		"id": "m_d2_01",
 		"day": 2,
-		"zoneId": "z_sleep",
 		"creatureId": "creature_perekozhnik",
 		"title": "Вызов в девятиэтажке по Лесной",
 		"callerName": "диспетчер",
@@ -400,7 +391,6 @@
 	{
 		"id": "m_d2_02",
 		"day": 2,
-		"zoneId": "z_station",
 		"creatureId": "creature_kanalotvar",
 		"title": "Вызов в путевом посту",
 		"callerName": "участковый",
@@ -445,7 +435,6 @@
 	{
 		"id": "m_d2_03",
 		"day": 2,
-		"zoneId": "z_outskirts",
 		"creatureId": "creature_mimic",
 		"title": "Вызов в коллекторе за кольцевой",
 		"callerName": "сторож",
@@ -488,7 +477,6 @@
 	{
 		"id": "m_d2_04",
 		"day": 2,
-		"zoneId": "z_center",
 		"creatureId": "creature_perekozhnik",
 		"title": "Вызов в архиве горсовета",
 		"callerName": "директор объекта",
@@ -533,7 +521,6 @@
 	{
 		"id": "m_d2_05",
 		"day": 2,
-		"zoneId": "z_industrial",
 		"creatureId": "creature_kanalotvar",
 		"title": "Вызов в котельной №2",
 		"callerName": "бригадир смены",
@@ -577,7 +564,6 @@
 	{
 		"id": "m_d2_06",
 		"day": 2,
-		"zoneId": "z_sleep",
 		"creatureId": "creature_mimic",
 		"title": "Вызов в детском саду №9",
 		"callerName": "дежурный по райотделу",
@@ -622,7 +608,6 @@
 	{
 		"id": "m_d2_07",
 		"day": 2,
-		"zoneId": "z_station",
 		"creatureId": "creature_perekozhnik",
 		"title": "Вызов в привокзальной гостинице",
 		"callerName": "вахтёр",
@@ -665,7 +650,6 @@
 	{
 		"id": "m_d2_08",
 		"day": 2,
-		"zoneId": "z_outskirts",
 		"creatureId": "creature_kanalotvar",
 		"title": "Вызов в гаражном кооперативе",
 		"callerName": "диспетчер",
@@ -710,7 +694,6 @@
 	{
 		"id": "m_d2_09",
 		"day": 2,
-		"zoneId": "z_center",
 		"creatureId": "creature_mimic",
 		"title": "Вызов в школе №14",
 		"callerName": "участковый",
@@ -754,7 +737,6 @@
 	{
 		"id": "m_d3_01",
 		"day": 3,
-		"zoneId": "z_station",
 		"creatureId": "creature_mimic",
 		"title": "Вызов в багажном отделении",
 		"callerName": "участковый",
@@ -798,7 +780,6 @@
 	{
 		"id": "m_d3_02",
 		"day": 3,
-		"zoneId": "z_outskirts",
 		"creatureId": "creature_perekozhnik",
 		"title": "Вызов в старой водокачке",
 		"callerName": "сторож",
@@ -843,7 +824,6 @@
 	{
 		"id": "m_d3_03",
 		"day": 3,
-		"zoneId": "z_center",
 		"creatureId": "creature_kanalotvar",
 		"title": "Вызов в доме культуры",
 		"callerName": "директор объекта",
@@ -886,7 +866,6 @@
 	{
 		"id": "m_d3_04",
 		"day": 3,
-		"zoneId": "z_industrial",
 		"creatureId": "creature_mimic",
 		"title": "Вызов в насосной станции",
 		"callerName": "бригадир смены",
@@ -931,7 +910,6 @@
 	{
 		"id": "m_d3_05",
 		"day": 3,
-		"zoneId": "z_sleep",
 		"creatureId": "creature_perekozhnik",
 		"title": "Вызов в девятиэтажке по Лесной",
 		"callerName": "дежурный по райотделу",
@@ -975,7 +953,6 @@
 	{
 		"id": "m_d3_06",
 		"day": 3,
-		"zoneId": "z_station",
 		"creatureId": "creature_kanalotvar",
 		"title": "Вызов в путевом посту",
 		"callerName": "вахтёр",
@@ -1020,7 +997,6 @@
 	{
 		"id": "m_d3_07",
 		"day": 3,
-		"zoneId": "z_outskirts",
 		"creatureId": "creature_mimic",
 		"title": "Вызов в коллекторе за кольцевой",
 		"callerName": "диспетчер",
@@ -1063,7 +1039,6 @@
 	{
 		"id": "m_d3_08",
 		"day": 3,
-		"zoneId": "z_center",
 		"creatureId": "creature_perekozhnik",
 		"title": "Вызов в архиве горсовета",
 		"callerName": "участковый",
@@ -1108,7 +1083,6 @@
 	{
 		"id": "m_d3_09",
 		"day": 3,
-		"zoneId": "z_industrial",
 		"creatureId": "creature_kanalotvar",
 		"title": "Вызов в котельной №2",
 		"callerName": "сторож",
@@ -1152,7 +1126,6 @@
 	{
 		"id": "m_d3_10",
 		"day": 3,
-		"zoneId": "z_sleep",
 		"creatureId": "creature_mimic",
 		"title": "Вызов в детском саду №9",
 		"callerName": "директор объекта",
@@ -1197,7 +1170,6 @@
 	{
 		"id": "m_d3_11",
 		"day": 3,
-		"zoneId": "z_station",
 		"creatureId": "creature_perekozhnik",
 		"title": "Вызов в привокзальной гостинице",
 		"callerName": "бригадир смены",
@@ -1240,7 +1212,6 @@
 	{
 		"id": "m_d4_01",
 		"day": 4,
-		"zoneId": "z_outskirts",
 		"creatureId": "creature_kanalotvar",
 		"title": "Вызов в дачном массиве",
 		"callerName": "сторож",
@@ -1284,7 +1255,6 @@
 	{
 		"id": "m_d4_02",
 		"day": 4,
-		"zoneId": "z_center",
 		"creatureId": "creature_mimic",
 		"title": "Вызов в поликлинике №3",
 		"callerName": "директор объекта",
@@ -1329,7 +1299,6 @@
 	{
 		"id": "m_d4_03",
 		"day": 4,
-		"zoneId": "z_industrial",
 		"creatureId": "creature_perekozhnik",
 		"title": "Вызов в цехе сборки",
 		"callerName": "бригадир смены",
@@ -1372,7 +1341,6 @@
 	{
 		"id": "m_d4_04",
 		"day": 4,
-		"zoneId": "z_sleep",
 		"creatureId": "creature_kanalotvar",
 		"title": "Вызов в дворовой котельной",
 		"callerName": "дежурный по райотделу",
@@ -1417,7 +1385,6 @@
 	{
 		"id": "m_d4_05",
 		"day": 4,
-		"zoneId": "z_station",
 		"creatureId": "creature_mimic",
 		"title": "Вызов в багажном отделении",
 		"callerName": "вахтёр",
@@ -1461,7 +1428,6 @@
 	{
 		"id": "m_d4_06",
 		"day": 4,
-		"zoneId": "z_outskirts",
 		"creatureId": "creature_perekozhnik",
 		"title": "Вызов в старой водокачке",
 		"callerName": "диспетчер",
@@ -1506,7 +1472,6 @@
 	{
 		"id": "m_d4_07",
 		"day": 4,
-		"zoneId": "z_center",
 		"creatureId": "creature_kanalotvar",
 		"title": "Вызов в доме культуры",
 		"callerName": "участковый",
@@ -1549,7 +1514,6 @@
 	{
 		"id": "m_d4_08",
 		"day": 4,
-		"zoneId": "z_industrial",
 		"creatureId": "creature_mimic",
 		"title": "Вызов в насосной станции",
 		"callerName": "сторож",
@@ -1594,7 +1558,6 @@
 	{
 		"id": "m_d4_09",
 		"day": 4,
-		"zoneId": "z_sleep",
 		"creatureId": "creature_perekozhnik",
 		"title": "Вызов в девятиэтажке по Лесной",
 		"callerName": "директор объекта",
@@ -1638,7 +1601,6 @@
 	{
 		"id": "m_d4_10",
 		"day": 4,
-		"zoneId": "z_station",
 		"creatureId": "creature_kanalotvar",
 		"title": "Вызов в путевом посту",
 		"callerName": "бригадир смены",
@@ -1683,7 +1645,6 @@
 	{
 		"id": "m_d4_11",
 		"day": 4,
-		"zoneId": "z_outskirts",
 		"creatureId": "creature_mimic",
 		"title": "Вызов в коллекторе за кольцевой",
 		"callerName": "дежурный по райотделу",
@@ -1726,7 +1687,6 @@
 	{
 		"id": "m_d4_12",
 		"day": 4,
-		"zoneId": "z_center",
 		"creatureId": "creature_perekozhnik",
 		"title": "Вызов в архиве горсовета",
 		"callerName": "вахтёр",
@@ -1767,5 +1727,569 @@
 		"manifestedPropertyIds": [
 			"property_perekozhnik_heartbeat"
 		]
+	},
+	{
+		"id": "m_workshop_intro",
+		"day": 1,
+		"creatureId": "",
+		"title": "Вызов на стройбазу №2",
+		"callerName": "кладовщик",
+		"briefingText": "",
+		"requirements": {
+			"perception": 4,
+			"charisma": 4
+		},
+		"manifestedPropertyIds": [],
+		"travelSeconds": 10.0,
+		"onSiteSeconds": 6.0,
+		"returnSeconds": 9.0,
+		"experienceOnSuccess": 100,
+		"experienceOnFailure": 25,
+		"injuryChance": 0.2,
+		"deathChance": 0.05,
+		"scalesOnSuccess": {
+			"infection": -2.0,
+			"publicity": -1.0,
+			"loyalty": 2.0
+		},
+		"scalesOnFailure": {
+			"infection": 5.0,
+			"publicity": 4.0,
+			"loyalty": -4.0
+		},
+		"scalesOnMissedCall": {
+			"infection": 6.0,
+			"publicity": 6.0,
+			"loyalty": -6.0
+		},
+		"scalesOnExpiredMarker": {
+			"infection": 5.0,
+			"publicity": 5.0,
+			"loyalty": -5.0
+		},
+		"reportSuccessText": "",
+		"reportFailureText": "",
+		"radioEncounterId": "radio_workshop_intro"
+	},
+	{
+		"id": "m_workshop_truck",
+		"day": 2,
+		"creatureId": "",
+		"title": "Вызов на штрафстоянку",
+		"callerName": "знакомый голос",
+		"briefingText": "",
+		"requirements": {
+			"charisma": 5,
+			"strength": 6
+		},
+		"manifestedPropertyIds": [],
+		"travelSeconds": 10.0,
+		"onSiteSeconds": 6.0,
+		"returnSeconds": 9.0,
+		"experienceOnSuccess": 100,
+		"experienceOnFailure": 25,
+		"injuryChance": 0.2,
+		"deathChance": 0.05,
+		"scalesOnSuccess": {
+			"infection": -2.0,
+			"publicity": -1.0,
+			"loyalty": 2.0
+		},
+		"scalesOnFailure": {
+			"infection": 5.0,
+			"publicity": 4.0,
+			"loyalty": -4.0
+		},
+		"scalesOnMissedCall": {
+			"infection": 6.0,
+			"publicity": 6.0,
+			"loyalty": -6.0
+		},
+		"scalesOnExpiredMarker": {
+			"infection": 5.0,
+			"publicity": 5.0,
+			"loyalty": -5.0
+		},
+		"reportSuccessText": "",
+		"reportFailureText": "",
+		"radioEncounterId": "radio_workshop_truck"
+	},
+	{
+		"id": "m_workshop_site",
+		"day": 3,
+		"creatureId": "",
+		"title": "Вызов на стройплощадку",
+		"callerName": "знакомый голос",
+		"briefingText": "",
+		"requirements": {
+			"perception": 6,
+			"charisma": 5
+		},
+		"manifestedPropertyIds": [],
+		"travelSeconds": 10.0,
+		"onSiteSeconds": 6.0,
+		"returnSeconds": 9.0,
+		"experienceOnSuccess": 100,
+		"experienceOnFailure": 25,
+		"injuryChance": 0.2,
+		"deathChance": 0.05,
+		"scalesOnSuccess": {
+			"infection": -2.0,
+			"publicity": -1.0,
+			"loyalty": 2.0
+		},
+		"scalesOnFailure": {
+			"infection": 5.0,
+			"publicity": 4.0,
+			"loyalty": -4.0
+		},
+		"scalesOnMissedCall": {
+			"infection": 6.0,
+			"publicity": 6.0,
+			"loyalty": -6.0
+		},
+		"scalesOnExpiredMarker": {
+			"infection": 5.0,
+			"publicity": 5.0,
+			"loyalty": -5.0
+		},
+		"reportSuccessText": "",
+		"reportFailureText": "",
+		"radioEncounterId": "radio_workshop_site"
+	},
+	{
+		"id": "m_workshop_empty",
+		"day": 3,
+		"creatureId": "",
+		"title": "Вызов в подвал гастронома",
+		"callerName": "неизвестный",
+		"briefingText": "",
+		"requirements": {
+			"perception": 5,
+			"endurance": 4
+		},
+		"manifestedPropertyIds": [],
+		"travelSeconds": 10.0,
+		"onSiteSeconds": 6.0,
+		"returnSeconds": 9.0,
+		"experienceOnSuccess": 100,
+		"experienceOnFailure": 25,
+		"injuryChance": 0.2,
+		"deathChance": 0.05,
+		"scalesOnSuccess": {
+			"infection": -2.0,
+			"publicity": -1.0,
+			"loyalty": 2.0
+		},
+		"scalesOnFailure": {
+			"infection": 5.0,
+			"publicity": 4.0,
+			"loyalty": -4.0
+		},
+		"scalesOnMissedCall": {
+			"infection": 6.0,
+			"publicity": 6.0,
+			"loyalty": -6.0
+		},
+		"scalesOnExpiredMarker": {
+			"infection": 5.0,
+			"publicity": 5.0,
+			"loyalty": -5.0
+		},
+		"reportSuccessText": "",
+		"reportFailureText": "",
+		"radioEncounterId": "radio_workshop_empty"
+	},
+	{
+		"id": "m_tram_last_run",
+		"day": 3,
+		"creatureId": "creature_mimic",
+		"title": "Вызов в трамвайный парк",
+		"callerName": "диспетчер парка",
+		"briefingText": "",
+		"requirements": {
+			"composure": 7,
+			"strength": 5
+		},
+		"manifestedPropertyIds": [
+			"property_mimic_routine"
+		],
+		"travelSeconds": 10.0,
+		"onSiteSeconds": 6.0,
+		"returnSeconds": 9.0,
+		"experienceOnSuccess": 100,
+		"experienceOnFailure": 25,
+		"injuryChance": 0.2,
+		"deathChance": 0.05,
+		"scalesOnSuccess": {
+			"infection": -2.0,
+			"publicity": -1.0,
+			"loyalty": 2.0
+		},
+		"scalesOnFailure": {
+			"infection": 5.0,
+			"publicity": 4.0,
+			"loyalty": -4.0
+		},
+		"scalesOnMissedCall": {
+			"infection": 6.0,
+			"publicity": 6.0,
+			"loyalty": -6.0
+		},
+		"scalesOnExpiredMarker": {
+			"infection": 5.0,
+			"publicity": 5.0,
+			"loyalty": -5.0
+		},
+		"reportSuccessText": "",
+		"reportFailureText": "",
+		"radioEncounterId": "radio_tram_last_run"
+	},
+	{
+		"id": "m_room_34",
+		"day": 3,
+		"creatureId": "creature_mimic",
+		"title": "Вызов в общежитие №6",
+		"callerName": "комендант",
+		"briefingText": "",
+		"requirements": {
+			"perception": 7,
+			"charisma": 4
+		},
+		"manifestedPropertyIds": [
+			"property_mimic_routine"
+		],
+		"travelSeconds": 10.0,
+		"onSiteSeconds": 6.0,
+		"returnSeconds": 9.0,
+		"experienceOnSuccess": 100,
+		"experienceOnFailure": 25,
+		"injuryChance": 0.2,
+		"deathChance": 0.05,
+		"scalesOnSuccess": {
+			"infection": -2.0,
+			"publicity": -1.0,
+			"loyalty": 2.0
+		},
+		"scalesOnFailure": {
+			"infection": 5.0,
+			"publicity": 4.0,
+			"loyalty": -4.0
+		},
+		"scalesOnMissedCall": {
+			"infection": 6.0,
+			"publicity": 6.0,
+			"loyalty": -6.0
+		},
+		"scalesOnExpiredMarker": {
+			"infection": 5.0,
+			"publicity": 5.0,
+			"loyalty": -5.0
+		},
+		"reportSuccessText": "",
+		"reportFailureText": "",
+		"radioEncounterId": "radio_room_34"
+	},
+	{
+		"id": "m_night_pharmacy",
+		"day": 3,
+		"creatureId": "creature_mimic",
+		"title": "Вызов в ночную аптеку",
+		"callerName": "фармацевт",
+		"briefingText": "",
+		"requirements": {
+			"charisma": 7,
+			"composure": 5
+		},
+		"manifestedPropertyIds": [
+			"property_mimic_speech"
+		],
+		"travelSeconds": 10.0,
+		"onSiteSeconds": 6.0,
+		"returnSeconds": 9.0,
+		"experienceOnSuccess": 100,
+		"experienceOnFailure": 25,
+		"injuryChance": 0.2,
+		"deathChance": 0.05,
+		"scalesOnSuccess": {
+			"infection": -2.0,
+			"publicity": -1.0,
+			"loyalty": 2.0
+		},
+		"scalesOnFailure": {
+			"infection": 5.0,
+			"publicity": 4.0,
+			"loyalty": -4.0
+		},
+		"scalesOnMissedCall": {
+			"infection": 6.0,
+			"publicity": 6.0,
+			"loyalty": -6.0
+		},
+		"scalesOnExpiredMarker": {
+			"infection": 5.0,
+			"publicity": 5.0,
+			"loyalty": -5.0
+		},
+		"reportSuccessText": "",
+		"reportFailureText": "",
+		"radioEncounterId": "radio_night_pharmacy"
+	},
+	{
+		"id": "m_dense_flock",
+		"day": 3,
+		"creatureId": "creature_simulacre",
+		"title": "Вызов на автобазу №3",
+		"callerName": "сторож",
+		"briefingText": "",
+		"requirements": {
+			"endurance": 6,
+			"composure": 6
+		},
+		"manifestedPropertyIds": [
+			"property_simulacre_unpredictable"
+		],
+		"travelSeconds": 10.0,
+		"onSiteSeconds": 6.0,
+		"returnSeconds": 9.0,
+		"experienceOnSuccess": 100,
+		"experienceOnFailure": 25,
+		"injuryChance": 0.2,
+		"deathChance": 0.05,
+		"scalesOnSuccess": {
+			"infection": -2.0,
+			"publicity": -1.0,
+			"loyalty": 2.0
+		},
+		"scalesOnFailure": {
+			"infection": 5.0,
+			"publicity": 4.0,
+			"loyalty": -4.0
+		},
+		"scalesOnMissedCall": {
+			"infection": 6.0,
+			"publicity": 6.0,
+			"loyalty": -6.0
+		},
+		"scalesOnExpiredMarker": {
+			"infection": 5.0,
+			"publicity": 5.0,
+			"loyalty": -5.0
+		},
+		"reportSuccessText": "",
+		"reportFailureText": "",
+		"radioEncounterId": "radio_dense_flock"
+	},
+	{
+		"id": "m_shelter_basement",
+		"day": 3,
+		"creatureId": "",
+		"title": "Вызов в бомбоубежище ЖЭК-4",
+		"callerName": "слесарь",
+		"briefingText": "",
+		"requirements": {
+			"endurance": 6
+		},
+		"manifestedPropertyIds": [],
+		"travelSeconds": 10.0,
+		"onSiteSeconds": 6.0,
+		"returnSeconds": 9.0,
+		"experienceOnSuccess": 100,
+		"experienceOnFailure": 25,
+		"injuryChance": 0.2,
+		"deathChance": 0.05,
+		"scalesOnSuccess": {
+			"infection": -2.0,
+			"publicity": -1.0,
+			"loyalty": 2.0
+		},
+		"scalesOnFailure": {
+			"infection": 5.0,
+			"publicity": 4.0,
+			"loyalty": -4.0
+		},
+		"scalesOnMissedCall": {
+			"infection": 6.0,
+			"publicity": 6.0,
+			"loyalty": -6.0
+		},
+		"scalesOnExpiredMarker": {
+			"infection": 5.0,
+			"publicity": 5.0,
+			"loyalty": -5.0
+		},
+		"reportSuccessText": "",
+		"reportFailureText": "",
+		"radioEncounterId": null
+	},
+	{
+		"id": "m_dosimeter_yard",
+		"day": 3,
+		"creatureId": "",
+		"title": "Вызов во двор на Гагарина",
+		"callerName": "жилец",
+		"briefingText": "",
+		"requirements": {
+			"charisma": 6
+		},
+		"manifestedPropertyIds": [],
+		"travelSeconds": 10.0,
+		"onSiteSeconds": 6.0,
+		"returnSeconds": 9.0,
+		"experienceOnSuccess": 100,
+		"experienceOnFailure": 25,
+		"injuryChance": 0.2,
+		"deathChance": 0.05,
+		"scalesOnSuccess": {
+			"infection": -2.0,
+			"publicity": -1.0,
+			"loyalty": 2.0
+		},
+		"scalesOnFailure": {
+			"infection": 5.0,
+			"publicity": 4.0,
+			"loyalty": -4.0
+		},
+		"scalesOnMissedCall": {
+			"infection": 6.0,
+			"publicity": 6.0,
+			"loyalty": -6.0
+		},
+		"scalesOnExpiredMarker": {
+			"infection": 5.0,
+			"publicity": 5.0,
+			"loyalty": -5.0
+		},
+		"reportSuccessText": "",
+		"reportFailureText": "",
+		"radioEncounterId": null
+	},
+	{
+		"id": "m_cement_night_shift",
+		"day": 3,
+		"creatureId": "",
+		"title": "Вызов на цементный завод",
+		"callerName": "мастер смены",
+		"briefingText": "",
+		"requirements": {
+			"endurance": 5,
+			"perception": 4
+		},
+		"manifestedPropertyIds": [],
+		"travelSeconds": 10.0,
+		"onSiteSeconds": 6.0,
+		"returnSeconds": 9.0,
+		"experienceOnSuccess": 100,
+		"experienceOnFailure": 25,
+		"injuryChance": 0.2,
+		"deathChance": 0.05,
+		"scalesOnSuccess": {
+			"infection": -2.0,
+			"publicity": -1.0,
+			"loyalty": 2.0
+		},
+		"scalesOnFailure": {
+			"infection": 5.0,
+			"publicity": 4.0,
+			"loyalty": -4.0
+		},
+		"scalesOnMissedCall": {
+			"infection": 6.0,
+			"publicity": 6.0,
+			"loyalty": -6.0
+		},
+		"scalesOnExpiredMarker": {
+			"infection": 5.0,
+			"publicity": 5.0,
+			"loyalty": -5.0
+		},
+		"reportSuccessText": "",
+		"reportFailureText": "",
+		"radioEncounterId": null
+	},
+	{
+		"id": "m_dogs_at_grate",
+		"day": 3,
+		"creatureId": "",
+		"title": "Вызов на Лесную",
+		"callerName": "дворник",
+		"briefingText": "",
+		"requirements": {
+			"perception": 5
+		},
+		"manifestedPropertyIds": [],
+		"travelSeconds": 10.0,
+		"onSiteSeconds": 6.0,
+		"returnSeconds": 9.0,
+		"experienceOnSuccess": 100,
+		"experienceOnFailure": 25,
+		"injuryChance": 0.2,
+		"deathChance": 0.05,
+		"scalesOnSuccess": {
+			"infection": -2.0,
+			"publicity": -1.0,
+			"loyalty": 2.0
+		},
+		"scalesOnFailure": {
+			"infection": 5.0,
+			"publicity": 4.0,
+			"loyalty": -4.0
+		},
+		"scalesOnMissedCall": {
+			"infection": 6.0,
+			"publicity": 6.0,
+			"loyalty": -6.0
+		},
+		"scalesOnExpiredMarker": {
+			"infection": 5.0,
+			"publicity": 5.0,
+			"loyalty": -5.0
+		},
+		"reportSuccessText": "",
+		"reportFailureText": "",
+		"radioEncounterId": null
+	},
+	{
+		"id": "m_ninth_silence",
+		"day": 3,
+		"creatureId": "",
+		"title": "Проверка девятого микрорайона",
+		"callerName": "узел связи",
+		"briefingText": "",
+		"requirements": {
+			"perception": 6,
+			"composure": 4
+		},
+		"manifestedPropertyIds": [],
+		"travelSeconds": 10.0,
+		"onSiteSeconds": 6.0,
+		"returnSeconds": 9.0,
+		"experienceOnSuccess": 100,
+		"experienceOnFailure": 25,
+		"injuryChance": 0.2,
+		"deathChance": 0.05,
+		"scalesOnSuccess": {
+			"infection": -2.0,
+			"publicity": -1.0,
+			"loyalty": 2.0
+		},
+		"scalesOnFailure": {
+			"infection": 5.0,
+			"publicity": 4.0,
+			"loyalty": -4.0
+		},
+		"scalesOnMissedCall": {
+			"infection": 6.0,
+			"publicity": 6.0,
+			"loyalty": -6.0
+		},
+		"scalesOnExpiredMarker": {
+			"infection": 5.0,
+			"publicity": 5.0,
+			"loyalty": -5.0
+		},
+		"reportSuccessText": "",
+		"reportFailureText": "",
+		"radioEncounterId": null
 	}
 ]

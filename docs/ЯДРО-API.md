@@ -98,7 +98,7 @@ using Kontur.Core.Model;    // StatBlock, IncidentPhase, EmployeeStatus, ScaleVa
 3. **Все команды принимают `IncidentId`,** а не «текущий вызов». Текущего вызова не бывает:
    одновременно могут звонить телефон по одному инциденту, висеть метка по второму
    и трещать радио по третьему.
-4. **Не читайте `Simulation.DebugState`.** Это внутренности для отладочного оверлея.
+4. **Не читайте `Session.DebugState`.** Это внутренности для отладочного оверлея.
    Для интерфейса есть `Get*`.
 5. **Длительность таймера `0` означает «без ограничения».** В обучающей смене таймеры
    игрока отключены — не рисуйте обратный отсчёт, если в событии пришёл ноль.
@@ -150,7 +150,7 @@ using Kontur.Core.Model;    // StatBlock, IncidentPhase, EmployeeStatus, ScaleVa
 ### `EstimateDispatch` — предпросмотр для экрана отправки
 
 ```csharp
-DispatchEstimateView estimate = simulation.EstimateDispatch(incidentId, employeeIds, equipmentIds);
+DispatchEstimateView estimate = session.EstimateDispatch(incidentId, employeeIds, equipmentIds);
 // estimate.Requirements  — требования с учётом дня и выбранного радио-варианта
 // estimate.SquadStats    — сумма группы со снаряжением и сработавшими перками
 // estimate.Coverage      — 0..1
@@ -244,9 +244,9 @@ DispatchEstimateView estimate = simulation.EstimateDispatch(incidentId, employee
 |---|---|
 | `MissionResolved` | `Outcome` — полный разбор миссии, см. ниже |
 | `IncidentClosed` | `IncidentId`, `WasSuccess` |
-| `EquipmentConsumed` | `EquipmentId`, `EquipmentName`, `RemainingQuantity` |
-| `EquipmentAcquired` | `EquipmentId`, `EquipmentName`, `IsShiftOnly` |
-| `EquipmentLost` | `EquipmentId`, `EquipmentName`, `Reason` |
+| `EquipmentConsumed` | `EquipmentId`, `RemainingQuantity` |
+| `EquipmentAcquired` | `EquipmentId`, `IsShiftOnly` |
+| `EquipmentLost` | `EquipmentId`, `Reason` |
 
 **Порядок при разрешении миссии фиксирован** — на него можно опираться:
 
@@ -286,7 +286,7 @@ EmployeeView(Id, Name, RankTitle, Level, Stats, Experience, ExperienceToNextLeve
 IncidentView(Id, MissionId, Title, BuildingId, CallerName, Phase, RemainingSeconds,
              Requirements, SquadEmployeeIds, EquipmentIds)
 
-EquipmentSlotView(Id, Name, Description, Kind, Quantity, IsShiftOnly)
+EquipmentSlotView(Id, Kind, Quantity, IsShiftOnly)   // название и описание — в тексте по Id
 EncyclopediaEntryView(CreatureId, IllustrationId, RevealedPropertyIds, TotalProperties)
 HireCandidateView(Id, Name, RankTitle, Level, Stats)
 DispatchEstimateView(Requirements, SquadStats, Coverage, SuccessChance, IsAutoSuccess)
@@ -299,7 +299,7 @@ ShiftStatusView(Day, IsShiftActive, ShiftTime, IsCallWindowClosed, OpenIncidents
 `0..1` координаты района на карте.
 
 `AbilityIds` — именно id, а не названия: текст перков лежит в текстовом движке
-(`content/raw/UI/perks`), и достаёт его слой Godot — `Content.Instance.GetEntry(id).Name`
+(`content/raw/UI/hover_footnote/perks`), и достаёт его слой Godot — `Content.Instance.GetEntry(id).Name`
 плюс `Content.Fill(...)` для чисел в описании. Ядро на GodotSharp не ссылается и текста
 не носит.
 
@@ -320,7 +320,7 @@ string id    = StatKinds.GetId(StatKind.Composure);           // «composure»
 `StatKind`: `Strength`, `Perception`, `Endurance`, `Charisma`, `Composure`.
 
 **Названий характеристик ядро не знает.** `GetId` отдаёт только id — он же id записи
-контента в `content/raw/UI/characteristics/`, откуда интерфейс берёт подпись (`Name`)
+контента в `content/raw/UI/hover_footnote/characteristics/`, откуда интерфейс берёт подпись (`Name`)
 и описание (`Chunks`):
 
 ```csharp
@@ -340,7 +340,7 @@ label.Text = stat.Name;   // «Хладнокровие»
 **`EmployeeStatus`** — `Available`, `OnMission`, `Dead`. Погибшие остаются в списке
 со статусом `Dead`, не удаляются.
 
-**`EquipmentKind`** — `Consumable` (тратится всегда), `Standard` (возвращается после успеха),
+**`EquipmentKind`** — `Consumable` (тратится всегда), `Standard` (многоразовое, теряется только вместе с группой),
 `Story` (теряется только при гибели всей группы).
 
 

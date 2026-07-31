@@ -99,7 +99,7 @@
 `bonus` — точечные прибавки, `allStatsBonus` — ко всем сразу. Можно вместе.
 
 Названия и описания перков здесь не хранятся: они лежат в текстовом движке
-(`content/raw/UI/perks`) и достаются по тому же `id`. Ядро отдаёт наружу
+(`content/raw/UI/hover_footnote/perks`) и достаются по тому же `id`. Ядро отдаёт наружу
 `EmployeeView.AbilityIds`, названия резолвит слой Godot. Числа в описании
 подставляются из полей отсюда тегом `{{bonus.strength}}`, так что правка
 баланса не требует правки текста.
@@ -107,13 +107,14 @@
 ## `equipment.json` — массив
 
 ```json
-{ "id": "eq_armor", "name": "Бронежилет 6Б", "kind": "Standard",
+{ "id": "eq_armor", "kind": "Standard",
   "bonus": { "endurance": 3 }, "deathChanceMultiplier": 0.5 }
 ```
 
-`kind`: `Consumable` (тратится всегда) | `Standard` (возвращается после успеха) |
+`kind`: `Consumable` (тратится всегда) | `Standard` (многоразовое, теряется только вместе с группой) |
 `Story` (теряется только при гибели всей группы).
 `successChanceBonus` — прямая прибавка к шансу при броске, `0..1`.
+Название и описание снаряжения лежат в текстовом движке (`content/raw/equipment`) под тем же id.
 
 ## `employees.json` — один объект
 

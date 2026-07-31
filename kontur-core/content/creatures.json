@@ -34,5 +34,17 @@
 			"property_hum_plugs",
 			"property_hum_channel"
 		]
+	},
+	{
+		"id": "creature_simulacre",
+		"tags": [
+			"симулякр"
+		],
+		"illustrationId": "",
+		"properties": [
+			"property_simulacre_speech",
+			"property_simulacre_unpredictable",
+			"property_simulacre_survival"
+		]
 	}
 ]

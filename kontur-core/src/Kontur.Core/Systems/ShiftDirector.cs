@@ -613,7 +613,7 @@ namespace Kontur.Core.Systems
 			EquipmentDefinition found = _random.Pick(pool);
 
 			_state.Inventory.Add(found.Id, 1, true);
-			_bus.Publish(new EquipmentAcquired(found.Id, found.Name, true));
+			_bus.Publish(new EquipmentAcquired(found.Id, true));
 		}
 
 		private void ReturnOrConsumeEquipment(
@@ -631,19 +631,18 @@ namespace Kontur.Core.Systems
 						// Расходник тратится всегда при использовании на вызове.
 						_bus.Publish(new EquipmentConsumed(
 							definition.Id,
-							definition.Name,
 							_state.Inventory.GetQuantity(definition.Id)));
 						break;
 
 					case EquipmentKind.Standard:
-						// Не тратится после успешно завершённого вызова.
-						if (outcome.IsSuccess)
+						// Многоразовое: списывается, только если группа не вернулась.
+						if (outcome.SquadWiped)
 						{
-							_state.Inventory.Return(definition.Id);
+							_bus.Publish(new EquipmentLost(definition.Id, "группа погибла"));
 						}
 						else
 						{
-							_bus.Publish(new EquipmentLost(definition.Id, definition.Name, "провал вызова"));
+							_state.Inventory.Return(definition.Id);
 						}
 
 						break;
@@ -652,7 +651,7 @@ namespace Kontur.Core.Systems
 						// Теряется, только если вся отправленная группа погибла.
 						if (outcome.SquadWiped)
 						{
-							_bus.Publish(new EquipmentLost(definition.Id, definition.Name, "группа погибла"));
+							_bus.Publish(new EquipmentLost(definition.Id, "группа погибла"));
 						}
 						else
 						{
@@ -989,7 +988,7 @@ namespace Kontur.Core.Systems
 					}
 
 					taken.Clear();
-					return CommandResult.Fail($"{validated[i].Name}: нет на складе.");
+					return CommandResult.Fail($"{validated[i].Id}: нет на складе.");
 				}
 
 				taken.Add(validated[i].Id);

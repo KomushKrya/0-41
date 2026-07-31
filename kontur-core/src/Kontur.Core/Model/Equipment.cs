@@ -13,13 +13,13 @@ namespace Kontur.Core.Model
 		Story = 2
 	}
 
+	/// <summary>
+	/// Числовая часть снаряжения. Название и описание живут в текстовом движке
+	/// (content/raw/equipment) под тем же id — ядро прозу не хранит.
+	/// </summary>
 	public sealed class EquipmentDefinition
 	{
 		public string Id { get; set; } = string.Empty;
-
-		public string Name { get; set; } = string.Empty;
-
-		public string Description { get; set; } = string.Empty;
 
 		public EquipmentKind Kind { get; set; } = EquipmentKind.Consumable;
 

@@ -22,7 +22,6 @@ properties:
 
 ## Вариант: <название>
 requirement_modifier: 0
-canon: correct
 
 %% dev: какая характеристика проверяется %%
 
@@ -30,6 +29,5 @@ canon: correct
 
 ## Вариант: <название>
 requirement_modifier: 0
-canon: wrong
 
 <!-- Текст варианта -->

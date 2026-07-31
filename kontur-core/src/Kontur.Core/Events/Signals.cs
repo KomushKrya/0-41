@@ -77,11 +77,11 @@ namespace Kontur.Core.Events
 	/// <summary>Существо опознано и добавлено в энциклопедию впервые.</summary>
 	public sealed record CreatureIdentified(string CreatureId) : IGameEvent;
 
-	public sealed record EquipmentConsumed(string EquipmentId, string EquipmentName, int RemainingQuantity) : IGameEvent;
+	public sealed record EquipmentConsumed(string EquipmentId, int RemainingQuantity) : IGameEvent;
 
-	public sealed record EquipmentAcquired(string EquipmentId, string EquipmentName, bool IsShiftOnly) : IGameEvent;
+	public sealed record EquipmentAcquired(string EquipmentId, bool IsShiftOnly) : IGameEvent;
 
-	public sealed record EquipmentLost(string EquipmentId, string EquipmentName, string Reason) : IGameEvent;
+	public sealed record EquipmentLost(string EquipmentId, string Reason) : IGameEvent;
 
 	public sealed record IncidentClosed(string IncidentId, bool WasSuccess) : IGameEvent;
 

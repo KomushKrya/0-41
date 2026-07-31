@@ -39,7 +39,7 @@ namespace Kontur.Core.Model
 
 		/// <summary>
 		/// Id характеристики — он же id записи контента с её названием и описанием
-		/// (content/raw/UI/characteristics). Названий ядро не знает: показывать
+		/// (content/raw/UI/hover_footnote/characteristics). Названий ядро не знает: показывать
 		/// «Наблюдательность» или «Perception» — дело интерфейса и локали.
 		/// </summary>
 		public static string GetId(StatKind kind)

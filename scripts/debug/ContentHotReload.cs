@@ -1,24 +1,15 @@
 using Godot;
 
 /// <summary>
-/// Горячая перезагрузка текста. Автозагрузка, работает только в отладочной сборке.
-///
-/// Две двери в одно и то же:
-///   — следит за content/localisation и сам перечитывает JSON, как только он изменился;
-///   — по клавише (по умолчанию F9) сначала гоняет конвертер, потом перечитывает.
-///
-/// Первое нужно тому, кто держит открытым терминал с build.py, второе — тому, кто правит
-/// .md в Обсидиане и не хочет уходить из игры вообще. Сцены и C# так не обновляются,
-/// геймплейные числа из data/*.json тоже: ядро читает их один раз на старте.
+/// Горячая перезагрузка текста, только в отладочной сборке. Следит за
+/// content/localisation и перечитывает JSON сама; по F9 сначала гоняет конвертер.
+/// Сцены, C# и числа из data/*.json так не обновляются.
 /// </summary>
 public partial class ContentHotReload : Node
 {
 	private const string ConverterPath = "res://content/engine/converter/build.py";
 
-	/// <summary>
-	/// Собрать текст на старте игры. Благодаря этому content/localisation не нужно держать
-	/// в гите: JSON появляется сам при первом запуске.
-	/// </summary>
+	/// <summary>Собрать текст на старте: поэтому content/localisation и не лежит в гите.</summary>
 	[Export] public bool BuildOnStart { get; set; } = true;
 
 	/// <summary>Следить за папкой локализации и перечитывать без нажатий.</summary>
@@ -48,9 +39,8 @@ public partial class ContentHotReload : Node
 
 		if (BuildOnStart)
 		{
-			// Автозагрузка стоит в списке раньше Content — конвертер успевает переписать JSON
-			// до того, как движок его прочитает. Поэтому здесь только сборка, без Reload():
-			// Content.Instance сейчас ещё null, а его _Ready прочитает уже свежие файлы.
+			// Автозагрузка идёт раньше Content, поэтому здесь только сборка: его _Ready
+			// прочитает уже свежие файлы.
 			RunConverter();
 		}
 
@@ -80,9 +70,8 @@ public partial class ContentHotReload : Node
 			return;
 		}
 
-		// Конвертер пишет семь файлов подряд, и поймать его на полуслове — значит прочитать
-		// обрезанный JSON. Поэтому перечитываем не на первой замеченной правке, а когда
-		// время правки перестало меняться между двумя проверками.
+		// Конвертер пишет файлы подряд: ждём, пока время правки перестанет меняться,
+		// иначе прочитаем обрезанный JSON.
 		if (current != _pendingStamp)
 		{
 			_pendingStamp = current;
@@ -144,8 +133,7 @@ public partial class ContentHotReload : Node
 
 		content.Load(content.Locale);
 
-		// Боксы держат ссылку на прежний ContentEntry — Refresh() перерисовал бы старое.
-		// Open() достаёт запись из словаря заново, поэтому переоткрываем.
+		// Боксы держат ссылку на прежний ContentEntry, поэтому переоткрываем, а не Refresh().
 		int boxes = 0;
 		foreach (Node node in GetTree().GetNodesInGroup(ContentTextBox.GroupName))
 		{

@@ -6,40 +6,9 @@ using Kontur.Core.Events;
 using Kontur.Core.Model;
 
 /// <summary>
-/// Базовый текстовый бокс: берёт запись контента по id, отбрасывает условные абзацы,
-/// которые игра ещё не открыла, и отдаёт наследнику готовый список кусков.
-///
-/// Сам ничего не рисует и не листает — это дело наследника. Нижний текст, энциклопедия,
-/// отчёты на компьютере выглядят по-разному, общее у них только две вещи: откуда берётся
-/// текст и какие куски сейчас видны. Наследнику достаточно переопределить Render().
-///
-/// <example>
-/// <code>
-/// public partial class ReportBox : ContentTextBox
-/// {
-///     [Export] public NodePath LabelPath { get; set; } = new("Label");
-///
-///     private RichTextLabel _label = null!;
-///
-///     public override void _Ready()
-///     {
-///         _label = GetNode&lt;RichTextLabel&gt;(LabelPath);
-///         base._Ready();
-///     }
-///
-///     protected override void Render()
-///     {
-///         var text = new System.Text.StringBuilder();
-///         foreach (ContentChunk chunk in Chunks)
-///         {
-///             text.AppendLine(chunk.Text);
-///         }
-///
-///         _label.Text = text.ToString();
-///     }
-/// }
-/// </code>
-/// </example>
+/// Базовый текстовый бокс: берёт запись по id, отбрасывает условные абзацы, которые игра
+/// ещё не открыла, и отдаёт наследнику готовый список кусков. Сам не рисует и не листает —
+/// наследнику достаточно переопределить Render(). Пример — docs/ТЕКСТОВЫЕ-БОКСЫ.md.
 /// </summary>
 public abstract partial class ContentTextBox : Control
 {
@@ -138,19 +107,15 @@ public abstract partial class ContentTextBox : Control
 		Rebuild();
 	}
 
-	/// <summary>
-	/// Перечитать флаги и перерисовать, ничего не перезагружая. Звать, когда игра
-	/// открыла новое свойство, а запись осталась та же.
-	/// </summary>
+	/// <summary>Перечитать флаги и перерисовать, ничего не перезагружая.</summary>
 	public void Refresh()
 	{
 		Rebuild();
 	}
 
 	/// <summary>
-	/// Достать запись из Content заново и перерисовать. Нужно после перезагрузки текста:
-	/// бокс держит ссылку на прежний ContentEntry, и одного Refresh() мало — он покажет
-	/// то же самое. Ставит на место и переименованный, и пропавший id.
+	/// Достать запись из Content заново. Нужно после перезагрузки текста: бокс держит
+	/// ссылку на прежний ContentEntry, и одного Refresh() мало.
 	/// </summary>
 	public void Reload()
 	{
@@ -161,11 +126,9 @@ public abstract partial class ContentTextBox : Control
 	protected abstract void Render();
 
 	/// <summary>
-	/// Открыт ли условный абзац. По умолчанию спрашивает ядро в два шага: сначала пак
-	/// сюжетных флагов (id свойства = имя флага), затем раскрытия энциклопедии, где то же
-	/// свойство может быть открыто отчётом с выезда. Id записи и id существа в
-	/// геймплейных данных — один и тот же, поэтому переводить ничего не нужно.
-	/// Если флаги живут где-то ещё — переопределяй здесь, это единственная точка.
+	/// Открыт ли условный абзац: сюжетный флаг с именем свойства либо раскрытие
+	/// энциклопедии. Единственная точка про условность — если флаги живут не в ядре,
+	/// переопределяй здесь.
 	/// </summary>
 	protected virtual bool IsRevealed(string propertyId)
 	{
@@ -180,9 +143,8 @@ public abstract partial class ContentTextBox : Control
 	}
 
 	/// <summary>
-	/// Виден ли кусок сейчас. Тот же вопрос, по которому собран <see cref="Chunks"/>, —
-	/// нужен наследникам, которые идут по <c>Entry.Chunks</c> сами, чтобы поставить на
-	/// месте скрытого абзаца заглушку.
+	/// Виден ли кусок. Тот же вопрос, по которому собран <see cref="Chunks"/>, — для
+	/// наследников, которые идут по <c>Entry.Chunks</c> сами и ставят заглушки.
 	/// </summary>
 	protected bool IsChunkVisible(ContentChunk chunk)
 	{
@@ -190,12 +152,9 @@ public abstract partial class ContentTextBox : Control
 	}
 
 	/// <summary>
-	/// Значение для подстановки {{имя}}. Пара к <see cref="IsRevealed"/>: тот решает, показывать
-	/// ли абзац, этот — чем заполнить дырку в нём. По умолчанию ищет число в геймплейных данных
-	/// записи с тем же id — сейчас это перки, где {{bonus.strength}} и {{allStatsBonus}} берутся
-	/// из data/abilities.json, поэтому правка баланса меняет текст сама, без правки текста.
-	/// Пустая строка значит «не знаю»: подстановка останется видимой в тексте.
-	/// Числа других типов появятся здесь же — это единственная точка.
+	/// Значение для {{имя}}. Ищет число в геймплейных данных записи с тем же id — перки
+	/// в data/abilities.json, снаряжение в data/equipment.json, — поэтому правка баланса
+	/// меняет текст сама. Пустая строка значит «не знаю»: подстановка останется видимой.
 	/// </summary>
 	protected virtual string ResolveValue(string name)
 	{
@@ -205,32 +164,38 @@ public abstract partial class ContentTextBox : Control
 			return string.Empty;
 		}
 
-		return runtime.Session.Content.Abilities.TryGetValue(ContentId, out Ability ability)
-			? AbilityValue(ability, name)
+		if (runtime.Session.Content.Abilities.TryGetValue(ContentId, out Ability ability))
+		{
+			return BonusValue(ability.Bonus, ability.AllStatsBonus, name);
+		}
+
+		EquipmentDefinition equipment = runtime.Session.Content.FindEquipment(ContentId);
+		return equipment != null
+			? BonusValue(equipment.Bonus, equipment.AllStatsBonus, name)
 			: string.Empty;
 	}
 
-	private static string AbilityValue(Ability ability, string name)
+	/// <summary>{{allStatsBonus}} и {{bonus.<характеристика>}} — общая форма у перков и снаряжения.</summary>
+	private static string BonusValue(StatBlock bonus, int allStatsBonus, string name)
 	{
 		if (name.Equals("allStatsBonus", StringComparison.OrdinalIgnoreCase))
 		{
-			return ability.AllStatsBonus.ToString(CultureInfo.InvariantCulture);
+			return allStatsBonus.ToString(CultureInfo.InvariantCulture);
 		}
 
 		const string bonusPrefix = "bonus.";
 		if (name.StartsWith(bonusPrefix, StringComparison.OrdinalIgnoreCase)
 			&& StatKinds.TryParse(name.Substring(bonusPrefix.Length), out StatKind kind))
 		{
-			return ability.Bonus[kind].ToString(CultureInfo.InvariantCulture);
+			return bonus[kind].ToString(CultureInfo.InvariantCulture);
 		}
 
 		return string.Empty;
 	}
 
 	/// <summary>
-	/// Разворачивает {{имя}} в куске. Кусок лежит в кэше <see cref="Content"/> и общий для всех
-	/// боксов, поэтому подстановка идёт в копию: иначе первый показ переписал бы текст всем
-	/// остальным, а при смене значения подставлять было бы уже некуда.
+	/// Разворачивает {{имя}} в копию куска: оригинал лежит в кэше <see cref="Content"/> и
+	/// общий для всех боксов, первый же показ переписал бы текст остальным.
 	/// </summary>
 	private ContentChunk Substitute(ContentChunk chunk)
 	{
@@ -250,12 +215,17 @@ public abstract partial class ContentTextBox : Control
 			return value;
 		}
 
-		// Отрезки подсветки подставляются каждый сам по себе: поэтому конвертер и отдаёт
-		// их отрезками, а не позициями в тексте — те после подстановки уехали бы.
+		// Каждый отрезок подставляется сам по себе — потому конвертер и отдаёт отрезки,
+		// а не позиции: позиции после подстановки уехали бы.
 		List<ContentSpan> spans = new(chunk.Spans.Count);
 		foreach (ContentSpan span in chunk.Spans)
 		{
-			spans.Add(new ContentSpan { Text = Content.Fill(span.Text, Resolve), Highlight = span.Highlight });
+			spans.Add(new ContentSpan
+			{
+				Text = Content.Fill(span.Text, Resolve),
+				Highlight = span.Highlight,
+				Bold = span.Bold
+			});
 		}
 
 		return new ContentChunk

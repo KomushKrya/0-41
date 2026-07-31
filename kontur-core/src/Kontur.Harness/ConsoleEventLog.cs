@@ -129,13 +129,13 @@ namespace Kontur.Harness
 					return $"ЭНЦИКЛОПЕДИЯ: {s.CreatureId} — открыто свойство {s.PropertyId}";
 
 				case EquipmentConsumed s:
-					return _verbose ? $"Расход: {s.EquipmentName}, осталось {s.RemainingQuantity}" : null;
+					return _verbose ? $"Расход: {s.EquipmentId}, осталось {s.RemainingQuantity}" : null;
 
 				case EquipmentAcquired s:
-					return $"Найдено снаряжение: {s.EquipmentName}{(s.IsShiftOnly ? " (только на эту смену)" : string.Empty)}";
+					return $"Найдено снаряжение: {s.EquipmentId}{(s.IsShiftOnly ? " (только на эту смену)" : string.Empty)}";
 
 				case EquipmentLost s:
-					return $"Утрачено снаряжение: {s.EquipmentName} ({s.Reason})";
+					return $"Утрачено снаряжение: {s.EquipmentId} ({s.Reason})";
 
 				case IncidentClosed s:
 					return _verbose ? $"Вызов закрыт — {s.IncidentId}" : null;
