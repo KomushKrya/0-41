@@ -17,8 +17,6 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-; ContentHotReload идёт первым намеренно: в отладочной сборке он пересобирает
-; content/localisation до того, как Content прочитает эту папку.
 ContentHotReload="*res://scripts/debug/ContentHotReload.cs"
 Content="*res://content/engine/content/Content.cs"
 GameRuntime="*res://scripts/kontur/GameRuntime.cs"
