@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 public partial class DashedRouteRenderer : Control
 {
-	[Export] public float DashLength { get; set; } = 18.0f;
-	[Export] public float GapLength { get; set; } = 10.5f;
-	[Export] public int VisibleDashCount { get; set; } = 8;
-	[Export] public float LineWidth { get; set; } = 6.0f;
-	[Export] public float ShadowWidth { get; set; } = 10.5f;
+	[Export] public float DashLength { get; set; } = 12.0f;
+	[Export] public float GapLength { get; set; } = 7.0f;
+	[Export] public int VisibleDashCount { get; set; } = 5;
+	[Export] public float LineWidth { get; set; } = 4.0f;
+	[Export] public float ShadowWidth { get; set; } = 7.0f;
 	[Export] public Color RouteColor { get; set; } = new(0.1f, 0.12f, 0.14f, 0.92f);
 	[Export] public Color ShadowColor { get; set; } = new(0.12f, 0.08f, 0.04f, 0.18f);
 
