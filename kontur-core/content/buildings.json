@@ -45,8 +45,7 @@
   },
   {
     "id": "building_block_r03_c03",
-    "isDispatchTarget": false,
-    "isHeadquarters": true
+    "isDispatchTarget": true
   },
   {
     "id": "building_block_r03_c04",
@@ -66,7 +65,8 @@
   },
   {
     "id": "building_block_r04_c03",
-    "isDispatchTarget": true
+    "isDispatchTarget": false,
+    "isHeadquarters": true
   },
   {
     "id": "building_block_r04_c04",

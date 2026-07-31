@@ -15,6 +15,7 @@ public partial class MapBuildingEditor : Control
 	[Export] public NodePath BuildRouteButtonPath { get; set; } = new("OverlayLayer/EditorPanel/MarginContainer/VBoxContainer/RouteButtonRow/BuildRouteButton");
 	[Export] public NodePath RouteRendererPath { get; set; } = new("MapLayers/RouteLayer/RouteDashRenderer");
 	[Export] public NodePath MovingMarkerPath { get; set; } = new("MapLayers/RouteLayer/MovingMarker");
+	[Export] public NodePath HeadquartersMarkerPath { get; set; } = new("MapLayers/MarkerLayer/HeadquartersMarker");
 	[Export] public float MarkerSpeed { get; set; } = 120.0f;
 
 	private const string StartAttachmentNode = "route_start";
@@ -35,6 +36,7 @@ public partial class MapBuildingEditor : Control
 	private Label _routeStatusLabel = null!;
 	private DashedRouteRenderer _routeRenderer = null!;
 	private Polygon2D _movingMarker = null!;
+	private Label _headquartersMarker = null!;
 	private Control _roadLayer = null!;
 	private Polygon2D _selectedBuilding = null!;
 	private float _routeLength;
@@ -53,6 +55,7 @@ public partial class MapBuildingEditor : Control
 		_routeStatusLabel = GetNode<Label>(RouteStatusLabelPath);
 		_routeRenderer = GetNode<DashedRouteRenderer>(RouteRendererPath);
 		_movingMarker = GetNode<Polygon2D>(MovingMarkerPath);
+		_headquartersMarker = GetNode<Label>(HeadquartersMarkerPath);
 
 		BuildRoadGraph();
 		RegisterBuildings();
@@ -60,7 +63,7 @@ public partial class MapBuildingEditor : Control
 
 		GetNode<Button>(ClearButtonPath).Pressed += () => AssignSelectedRole(MapBuildingRole.Empty);
 		GetNode<Button>(HeadquartersButtonPath).Pressed += () => AssignSelectedRole(MapBuildingRole.Headquarters);
-		GetNode<Button>(ObjectButtonPath).Pressed += () => AssignSelectedRole(MapBuildingRole.Object);
+		GetNode<Button>(ObjectButtonPath).Pressed += GenerateRandomObject;
 		GetNode<Button>(BuildRouteButtonPath).Pressed += BuildRouteFromHeadquartersToObject;
 
 		_routeRenderer.ClearRoute();
@@ -141,14 +144,18 @@ public partial class MapBuildingEditor : Control
 			_roles[building] = role;
 			building.Color = GetRoleColor(building, role);
 		}
+
+		UpdateHeadquartersMarker();
 	}
 
-	private void AssignRandomObject()
+	private Polygon2D AssignRandomObject(Polygon2D excludedBuilding = null)
 	{
 		var candidates = new List<Polygon2D>();
 		foreach ((Polygon2D building, MapBuildingRole role) in _roles)
 		{
-			if (role != MapBuildingRole.Empty || building is not MapBuildingPolygon { IsDispatchTarget: true })
+			if (role != MapBuildingRole.Empty
+				|| building == excludedBuilding
+				|| building is not MapBuildingPolygon { IsDispatchTarget: true })
 			{
 				continue;
 			}
@@ -158,12 +165,36 @@ public partial class MapBuildingEditor : Control
 
 		if (candidates.Count == 0)
 		{
-			return;
+			return null;
 		}
 
 		Polygon2D selectedObject = candidates[GD.RandRange(0, candidates.Count - 1)];
 		_roles[selectedObject] = MapBuildingRole.Object;
 		selectedObject.Color = GetRoleColor(selectedObject, MapBuildingRole.Object);
+		return selectedObject;
+	}
+
+	private void GenerateRandomObject()
+	{
+		Polygon2D previousObject = FindBuildingByRole(MapBuildingRole.Object);
+		ClearRole(MapBuildingRole.Object);
+
+		Polygon2D generatedObject = AssignRandomObject(previousObject);
+		if (generatedObject == null)
+		{
+			generatedObject = AssignRandomObject();
+		}
+
+		ClearRoute();
+		if (generatedObject == null)
+		{
+			UpdateRouteStatus("МАРШРУТ: нет доступных зданий");
+			return;
+		}
+
+		_selectedBuilding = generatedObject;
+		UpdateSelectionUi();
+		UpdateRouteStatus("МАРШРУТ: назначен новый случайный объект");
 	}
 
 	private void BuildRoadGraph()
@@ -350,6 +381,7 @@ public partial class MapBuildingEditor : Control
 
 		_roles[_selectedBuilding] = role;
 		_selectedBuilding.Color = GetRoleColor(_selectedBuilding, role);
+		UpdateHeadquartersMarker();
 		ClearRoute();
 		UpdateSelectionUi();
 		UpdateRouteStatus("МАРШРУТ: готов к построению");
@@ -367,6 +399,8 @@ public partial class MapBuildingEditor : Control
 			_roles[building] = MapBuildingRole.Empty;
 			building.Color = GetRoleColor(building, MapBuildingRole.Empty);
 		}
+
+		UpdateHeadquartersMarker();
 	}
 
 	private void BuildRouteFromHeadquartersToObject()
@@ -724,10 +758,34 @@ public partial class MapBuildingEditor : Control
 	{
 		return role switch
 		{
-			MapBuildingRole.Headquarters => new Color(0.42f, 0.58f, 0.58f, 1.0f),
+			MapBuildingRole.Headquarters => new Color(0.22f, 0.48f, 0.52f, 1.0f),
 			MapBuildingRole.Object => new Color(0.66f, 0.38f, 0.31f, 1.0f),
 			_ => _baseColors[building]
 		};
+	}
+
+	private void UpdateHeadquartersMarker()
+	{
+		Polygon2D headquarters = FindBuildingByRole(MapBuildingRole.Headquarters);
+		if (headquarters == null || headquarters.Polygon.Length == 0)
+		{
+			_headquartersMarker.Visible = false;
+			return;
+		}
+
+		Vector2 polygonCenter = Vector2.Zero;
+		foreach (Vector2 point in headquarters.Polygon)
+		{
+			polygonCenter += point;
+		}
+
+		polygonCenter /= headquarters.Polygon.Length;
+		Vector2 globalCenter = headquarters.GetGlobalTransform() * polygonCenter;
+		Control markerLayer = _headquartersMarker.GetParent<Control>();
+		Vector2 markerCenter = markerLayer.GetGlobalTransform().AffineInverse() * globalCenter;
+
+		_headquartersMarker.Position = markerCenter - (_headquartersMarker.Size * 0.5f);
+		_headquartersMarker.Visible = true;
 	}
 
 	private void UpdateSelectionUi()

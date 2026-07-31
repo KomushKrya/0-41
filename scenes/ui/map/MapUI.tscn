@@ -65,206 +65,206 @@ mouse_filter = 2
 color = Color(0.61, 0.56, 0.43, 1)
 polygon = PackedVector2Array(230, 40, 360, 40, 360, 105, 230, 105)
 script = ExtResource("3_map_building")
-building_id = "building_block_r01_c02"
-is_dispatch_target = true
+BuildingId = "building_block_r01_c02"
+IsDispatchTarget = true
 
 [node name="Building_Row1_Column3" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=598129771]
 color = Color(0.51, 0.47, 0.36, 1)
 polygon = PackedVector2Array(405, 40, 535, 40, 535, 105, 405, 105)
 script = ExtResource("3_map_building")
-building_id = "building_block_r01_c03"
-is_dispatch_target = true
+BuildingId = "building_block_r01_c03"
+IsDispatchTarget = true
 
 [node name="Building_Row1_Column4" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1676503705]
 color = Color(0.58, 0.53, 0.4, 1)
 polygon = PackedVector2Array(580, 40, 710, 40, 710, 105, 580, 105)
 script = ExtResource("3_map_building")
-building_id = "building_block_r01_c04"
-is_dispatch_target = true
+BuildingId = "building_block_r01_c04"
+IsDispatchTarget = true
 
 [node name="Building_Row1_Column5" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1599886774]
 color = Color(0.55, 0.5, 0.38, 1)
 polygon = PackedVector2Array(755, 40, 885, 40, 885, 105, 755, 105)
 script = ExtResource("3_map_building")
-building_id = "building_block_r01_c05"
-is_dispatch_target = true
+BuildingId = "building_block_r01_c05"
+IsDispatchTarget = true
 
 [node name="Building_Row2_Column1" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1343251384]
 color = Color(0.61, 0.56, 0.43, 1)
 polygon = PackedVector2Array(55, 140, 185, 140, 185, 205, 55, 205)
 script = ExtResource("3_map_building")
-building_id = "building_block_r02_c01"
-is_dispatch_target = true
+BuildingId = "building_block_r02_c01"
+IsDispatchTarget = true
 
 [node name="Building_Row2_Column2" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=486083804]
 color = Color(0.51, 0.47, 0.36, 1)
 polygon = PackedVector2Array(230, 140, 360, 140, 360, 205, 230, 205)
 script = ExtResource("3_map_building")
-building_id = "building_block_r02_c02"
-is_dispatch_target = true
+BuildingId = "building_block_r02_c02"
+IsDispatchTarget = true
 
 [node name="Building_Row2_Column3" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=858692092]
 color = Color(0.58, 0.53, 0.4, 1)
 polygon = PackedVector2Array(405, 140, 535, 140, 535, 205, 405, 205)
 script = ExtResource("3_map_building")
-building_id = "building_block_r02_c03"
-is_dispatch_target = true
+BuildingId = "building_block_r02_c03"
+IsDispatchTarget = true
 
 [node name="Building_Row2_Column4" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1497027964]
 color = Color(0.55, 0.5, 0.38, 1)
 polygon = PackedVector2Array(580, 140, 710, 140, 710, 205, 580, 205)
 script = ExtResource("3_map_building")
-building_id = "building_block_r02_c04"
-is_dispatch_target = true
+BuildingId = "building_block_r02_c04"
+IsDispatchTarget = true
 
 [node name="Building_Row2_Column5" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=2031402535]
 color = Color(0.61, 0.56, 0.43, 1)
 polygon = PackedVector2Array(755, 140, 885, 140, 885, 205, 755, 205)
 script = ExtResource("3_map_building")
-building_id = "building_block_r02_c05"
-is_dispatch_target = true
+BuildingId = "building_block_r02_c05"
+IsDispatchTarget = true
 
 [node name="Building_Row3_Column1" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1658113035]
 color = Color(0.51, 0.47, 0.36, 1)
 polygon = PackedVector2Array(55, 240, 185, 240, 185, 305, 55, 305)
 script = ExtResource("3_map_building")
-building_id = "building_block_r03_c01"
-is_dispatch_target = true
+BuildingId = "building_block_r03_c01"
+IsDispatchTarget = true
 
 [node name="Building_Row3_Column2" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1053056367]
 color = Color(0.58, 0.53, 0.4, 1)
 polygon = PackedVector2Array(230, 240, 313, 240, 360, 272, 360, 305, 230, 305)
 script = ExtResource("3_map_building")
-building_id = "building_block_r03_c02"
-is_dispatch_target = true
+BuildingId = "building_block_r03_c02"
+IsDispatchTarget = true
 uv = PackedVector2Array(230, 240, 360, 240, 360, 305, 230, 305)
 
 [node name="Building_Row3_Column3" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=2127929295]
 color = Color(0.55, 0.5, 0.38, 1)
 polygon = PackedVector2Array(405, 240, 535, 240, 535, 305, 405, 305)
 script = ExtResource("3_map_building")
-building_id = "building_block_r03_c03"
-is_dispatch_target = false
-is_headquarters = true
+BuildingId = "building_block_r03_c03"
+IsDispatchTarget = true
 
 [node name="Building_Row3_Column4" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1901323461]
 color = Color(0.61, 0.56, 0.43, 1)
 polygon = PackedVector2Array(580, 240, 710, 240, 710, 305, 580, 305)
 script = ExtResource("3_map_building")
-building_id = "building_block_r03_c04"
-is_dispatch_target = true
+BuildingId = "building_block_r03_c04"
+IsDispatchTarget = true
 
 [node name="Building_Row3_Column5" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1248563186]
 color = Color(0.51, 0.47, 0.36, 1)
 polygon = PackedVector2Array(755, 240, 885, 240, 885, 305, 755, 305)
 script = ExtResource("3_map_building")
-building_id = "building_block_r03_c05"
-is_dispatch_target = true
+BuildingId = "building_block_r03_c05"
+IsDispatchTarget = true
 
 [node name="Building_Row4_Column1" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1492178071]
 color = Color(0.58, 0.53, 0.4, 1)
 polygon = PackedVector2Array(55, 340, 185, 340, 185, 405, 55, 405)
 script = ExtResource("3_map_building")
-building_id = "building_block_r04_c01"
-is_dispatch_target = true
+BuildingId = "building_block_r04_c01"
+IsDispatchTarget = true
 
 [node name="Building_Row4_Column2" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=560953540]
 color = Color(0.55, 0.5, 0.38, 1)
 polygon = PackedVector2Array(230, 340, 360, 340, 360, 405, 230, 405)
 script = ExtResource("3_map_building")
-building_id = "building_block_r04_c02"
-is_dispatch_target = true
+BuildingId = "building_block_r04_c02"
+IsDispatchTarget = true
 
 [node name="Building_Row4_Column3" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=162499587]
 color = Color(0.61, 0.56, 0.43, 1)
 polygon = PackedVector2Array(405, 340, 535, 340, 535, 405, 405, 405)
 script = ExtResource("3_map_building")
-building_id = "building_block_r04_c03"
-is_dispatch_target = true
+BuildingId = "building_block_r04_c03"
+IsDispatchTarget = false
+IsHeadquarters = true
 
 [node name="Building_Row4_Column4" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1280395910]
 color = Color(0.51, 0.47, 0.36, 1)
 polygon = PackedVector2Array(580, 340, 710, 340, 710, 405, 580, 405)
 script = ExtResource("3_map_building")
-building_id = "building_block_r04_c04"
-is_dispatch_target = true
+BuildingId = "building_block_r04_c04"
+IsDispatchTarget = true
 
 [node name="Building_Row4_Column5" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1871814014]
 color = Color(0.58, 0.53, 0.4, 1)
 polygon = PackedVector2Array(755, 340, 885, 340, 885, 405, 755, 405)
 script = ExtResource("3_map_building")
-building_id = "building_block_r04_c05"
-is_dispatch_target = true
+BuildingId = "building_block_r04_c05"
+IsDispatchTarget = true
 
 [node name="Building_Row5_Column1" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1323024290]
 color = Color(0.55, 0.5, 0.38, 1)
 polygon = PackedVector2Array(55, 440, 185, 440, 185, 505, 55, 505)
 script = ExtResource("3_map_building")
-building_id = "building_block_r05_c01"
-is_dispatch_target = true
+BuildingId = "building_block_r05_c01"
+IsDispatchTarget = true
 
 [node name="Building_Row5_Column2" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1649781598]
 color = Color(0.61, 0.56, 0.43, 1)
 polygon = PackedVector2Array(230, 440, 360, 440, 360, 505, 230, 505)
 script = ExtResource("3_map_building")
-building_id = "building_block_r05_c02"
-is_dispatch_target = true
+BuildingId = "building_block_r05_c02"
+IsDispatchTarget = true
 
 [node name="Building_Row5_Column3" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1810093593]
 color = Color(0.51, 0.47, 0.36, 1)
 polygon = PackedVector2Array(405, 440, 535, 440, 535, 505, 405, 505)
 script = ExtResource("3_map_building")
-building_id = "building_block_r05_c03"
-is_dispatch_target = true
+BuildingId = "building_block_r05_c03"
+IsDispatchTarget = true
 
 [node name="Building_Row5_Column4" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1643274590]
 color = Color(0.58, 0.53, 0.4, 1)
 polygon = PackedVector2Array(580, 440, 710, 440, 710, 505, 580, 505)
 script = ExtResource("3_map_building")
-building_id = "building_block_r05_c04"
-is_dispatch_target = true
+BuildingId = "building_block_r05_c04"
+IsDispatchTarget = true
 
 [node name="Building_Row5_Column5" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=466556339]
 color = Color(0.55, 0.5, 0.38, 1)
 polygon = PackedVector2Array(755, 440, 885, 440, 885, 505, 755, 505)
 script = ExtResource("3_map_building")
-building_id = "building_block_r05_c05"
-is_dispatch_target = true
+BuildingId = "building_block_r05_c05"
+IsDispatchTarget = true
 
 [node name="Building_Row6_Column1" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=40797556]
 color = Color(0.61, 0.56, 0.43, 1)
 polygon = PackedVector2Array(55, 540, 185, 540, 185, 605, 55, 605)
 script = ExtResource("3_map_building")
-building_id = "building_block_r06_c01"
-is_dispatch_target = true
+BuildingId = "building_block_r06_c01"
+IsDispatchTarget = true
 
 [node name="Building_Row6_Column2" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1128231490]
 color = Color(0.51, 0.47, 0.36, 1)
 polygon = PackedVector2Array(230, 540, 360, 540, 360, 605, 230, 605)
 script = ExtResource("3_map_building")
-building_id = "building_block_r06_c02"
-is_dispatch_target = true
+BuildingId = "building_block_r06_c02"
+IsDispatchTarget = true
 
 [node name="Building_Row6_Column3" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=214583978]
 color = Color(0.58, 0.53, 0.4, 1)
 polygon = PackedVector2Array(405, 540, 535, 540, 535, 605, 405, 605)
 script = ExtResource("3_map_building")
-building_id = "building_block_r06_c03"
-is_dispatch_target = true
+BuildingId = "building_block_r06_c03"
+IsDispatchTarget = true
 
 [node name="Building_Row6_Column4" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=930124966]
 color = Color(0.55, 0.5, 0.38, 1)
 polygon = PackedVector2Array(580, 540, 710, 540, 710, 605, 580, 605)
 script = ExtResource("3_map_building")
-building_id = "building_block_r06_c04"
-is_dispatch_target = true
+BuildingId = "building_block_r06_c04"
+IsDispatchTarget = true
 
 [node name="Building_Row6_Column5" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1897030565]
 color = Color(0.61, 0.56, 0.43, 1)
 polygon = PackedVector2Array(755, 540, 885, 540, 885, 605, 755, 605)
 script = ExtResource("3_map_building")
-building_id = "building_block_r06_c05"
-is_dispatch_target = true
+BuildingId = "building_block_r06_c05"
+IsDispatchTarget = true
 
 [node name="RoadLayer" type="Control" parent="MapLayers" unique_id=1804035044]
 layout_mode = 1
@@ -390,6 +390,22 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+
+[node name="HeadquartersMarker" type="Label" parent="MapLayers/MarkerLayer"]
+visible = false
+z_index = 4
+custom_minimum_size = Vector2(94, 30)
+offset_right = 94.0
+offset_bottom = 30.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.96, 0.94, 0.78, 1)
+theme_override_colors/font_outline_color = Color(0.08, 0.16, 0.18, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/font = SubResource("SystemFont_map")
+theme_override_font_sizes/font_size = 18
+text = "ШТАБ"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="EffectLayer" type="Control" parent="MapLayers" unique_id=502605620]
 layout_mode = 1
