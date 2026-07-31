@@ -59,7 +59,7 @@ namespace Kontur.Harness
 						+ $"Травм {s.Summary.Injuries}, погибло {s.Summary.Deaths}. Ролик: {s.OutroCutsceneId}";
 
 				case IncidentCreated s:
-					return $"ТЕЛЕФОН звонит — {s.IncidentId} ({s.ZoneId}), звонит {s.CallerName}. {s.RingSeconds:0} с на ответ";
+					return $"ТЕЛЕФОН звонит — {s.IncidentId} ({s.BuildingId}), звонит {s.CallerName}. {s.RingSeconds:0} с на ответ";
 
 				case CallAnswered s:
 					return $"Трубка снята — {s.IncidentId}: {s.Title}";
@@ -68,7 +68,7 @@ namespace Kontur.Harness
 					return $"!! ЗВОНОК ПРОПУЩЕН — {s.IncidentId}";
 
 				case MapMarkerSpawned s:
-					return $"КАРТА: метка {s.IncidentId} в {s.ZoneId}, {s.LifetimeSeconds:0} с на отправку";
+					return $"КАРТА: метка {s.IncidentId} в {s.BuildingId}, {s.LifetimeSeconds:0} с на отправку";
 
 				case MapMarkerExpired s:
 					return $"!! МЕТКА ПРОСРОЧЕНА — {s.IncidentId}";
@@ -127,9 +127,6 @@ namespace Kontur.Harness
 
 				case CreatureRevealed s:
 					return $"ЭНЦИКЛОПЕДИЯ: {s.CreatureId} — открыто свойство {s.PropertyId}";
-
-				case ZoneStateChanged s:
-					return $"КАРТА: зона {s.ZoneId} {s.OldState} -> {s.NewState} ({s.Reason})";
 
 				case EquipmentConsumed s:
 					return _verbose ? $"Расход: {s.EquipmentName}, осталось {s.RemainingQuantity}" : null;

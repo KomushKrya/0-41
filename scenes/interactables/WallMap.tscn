@@ -1,6 +1,9 @@
 [gd_scene format=3]
 
 [ext_resource type="PackedScene" uid="uid://b5yfoidtc831t" path="res://scenes/ui/map/MapUI.tscn" id="1_map_ui"]
+[ext_resource type="Script" path="res://scripts/interaction/InteractionOutline.cs" id="2_outline"]
+[ext_resource type="Script" path="res://scripts/interaction/OutlineOnlyInteractable.cs" id="3_interactable"]
+[ext_resource type="Script" path="res://scripts/interaction/SubViewportSurfaceRenderer.cs" id="4_surface_renderer"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_map_texture"]
 albedo_color = Color(0.7019608, 0.6745098, 0.56078434, 1)
@@ -8,14 +11,36 @@ albedo_color = Color(0.7019608, 0.6745098, 0.56078434, 1)
 [sub_resource type="BoxMesh" id="BoxMesh_wall_map"]
 size = Vector3(2.5, 1.5, 0.06)
 
-[node name="WallMap" type="Node3D"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_wall_map"]
+size = Vector3(2.5, 1.5, 0.06)
+
+[sub_resource type="QuadMesh" id="QuadMesh_map_surface"]
+size = Vector2(2.38, 1.38)
+
+[node name="WallMap" type="Node3D" groups=["interactive"]]
 
 [node name="VisualRoot" type="Node3D" parent="."]
 
 [node name="Board" type="MeshInstance3D" parent="VisualRoot"]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 3.926299, 1.6739725, 1.6254405)
 material_override = SubResource("StandardMaterial3D_map_texture")
 mesh = SubResource("BoxMesh_wall_map")
+
+[node name="ViewportSurface" type="MeshInstance3D" parent="VisualRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.031)
+mesh = SubResource("QuadMesh_map_surface")
+
+[node name="InteractionOutline" type="Node" parent="."]
+script = ExtResource("2_outline")
+VisualRootPath = NodePath("../VisualRoot")
+
+[node name="InteractionArea" type="Area3D" parent="."]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("3_interactable")
+Label = "Map"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionArea"]
+shape = SubResource("BoxShape3D_wall_map")
 
 [node name="MapViewport" type="SubViewport" parent="."]
 disable_3d = true
@@ -23,3 +48,8 @@ size = Vector2i(1024, 768)
 render_target_update_mode = 4
 
 [node name="MapUI" parent="MapViewport" instance=ExtResource("1_map_ui")]
+
+[node name="MapSurfaceRenderer" type="Node" parent="."]
+script = ExtResource("4_surface_renderer")
+SurfacePath = NodePath("../VisualRoot/ViewportSurface")
+ViewportPath = NodePath("../MapViewport")

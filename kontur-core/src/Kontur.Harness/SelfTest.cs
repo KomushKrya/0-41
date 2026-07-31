@@ -127,7 +127,7 @@ namespace Kontur.Harness
 		private static void TestMissedCallIsAutoFailure(ContentDatabase content)
 		{
 			// День 2, а не 1: первый день — обучающий, таймеры игрока там отключены.
-			var simulation = new KonturSimulation(content, 7);
+			var simulation = new GameSession(content, 7);
 
 			MissionOutcome? outcome = null;
 			bool missed = false;
@@ -149,7 +149,7 @@ namespace Kontur.Harness
 
 		private static void TestExpiredMarkerIsAutoFailure(ContentDatabase content)
 		{
-			var simulation = new KonturSimulation(content, 11);
+			var simulation = new GameSession(content, 11);
 
 			string? ringingId = null;
 			bool expired = false;
@@ -184,7 +184,7 @@ namespace Kontur.Harness
 
 		private static void TestEquipmentSlotLimits(ContentDatabase content)
 		{
-			var simulation = new KonturSimulation(content, 13);
+			var simulation = new GameSession(content, 13);
 
 			string? incidentId = null;
 			simulation.Events.Subscribe<MapMarkerSpawned>(e => incidentId ??= e.IncidentId);
@@ -240,7 +240,7 @@ namespace Kontur.Harness
 
 		private static void TestStaffLimit(ContentDatabase content)
 		{
-			var simulation = new KonturSimulation(content, 17);
+			var simulation = new GameSession(content, 17);
 
 			IReadOnlyList<EmployeeView> roster = simulation.GetRoster();
 			Check("Стартовый состав — 3 сотрудника", roster.Count == 3);
@@ -265,7 +265,7 @@ namespace Kontur.Harness
 
 		private static void TestFlags(ContentDatabase content)
 		{
-			var simulation = new KonturSimulation(content, 41);
+			var simulation = new GameSession(content, 41);
 
 			var changes = new List<FlagChanged>();
 			simulation.Events.Subscribe<FlagChanged>(changes.Add);
@@ -309,7 +309,7 @@ namespace Kontur.Harness
 			Check("День 1 помечен как сценарный", day1.IsScripted);
 			Check("День 1 без таймеров игрока", day1.DisableTimers);
 
-			var simulation = new KonturSimulation(content, 5);
+			var simulation = new GameSession(content, 5);
 
 			var order = new List<string>();
 			int maxSimultaneous = 0;
@@ -334,7 +334,7 @@ namespace Kontur.Harness
 			Check("Первым идёт вызов из сценария", order.Count > 0 && order[0] == day1.MissionOrder[0]);
 
 			// Теперь проходим смену автопилотом и смотрим порядок и наложение.
-			var scripted = new KonturSimulation(content, 5);
+			var scripted = new GameSession(content, 5);
 			var oper = new AutoOperator(scripted, content, RadioStrategy.Best, 5);
 			var missionOrder = new List<string>();
 
@@ -377,7 +377,7 @@ namespace Kontur.Harness
 		/// </summary>
 		private static void TestEncyclopediaReveals(ContentDatabase content)
 		{
-			var simulation = new KonturSimulation(content, 41);
+			var simulation = new GameSession(content, 41);
 			var oper = new AutoOperator(simulation, content, RadioStrategy.Best, 41);
 
 			int revealEvents = 0;
@@ -425,7 +425,7 @@ namespace Kontur.Harness
 
 		private static void TestFullShiftCompletes(ContentDatabase content)
 		{
-			var simulation = new KonturSimulation(content, 41);
+			var simulation = new GameSession(content, 41);
 			var oper = new AutoOperator(simulation, content, RadioStrategy.Best, 41);
 
 			bool ended = false;
@@ -465,7 +465,7 @@ namespace Kontur.Harness
 
 		private static string RunSignature(ContentDatabase content, int seed)
 		{
-			var simulation = new KonturSimulation(content, seed);
+			var simulation = new GameSession(content, seed);
 			var oper = new AutoOperator(simulation, content, RadioStrategy.Random, seed);
 			var signature = new System.Text.StringBuilder();
 
@@ -495,7 +495,7 @@ namespace Kontur.Harness
 			return signature.ToString();
 		}
 
-		private static void RunSeconds(KonturSimulation simulation, double seconds, double delta)
+		private static void RunSeconds(GameSession simulation, double seconds, double delta)
 		{
 			double elapsed = 0.0;
 			while (elapsed < seconds)

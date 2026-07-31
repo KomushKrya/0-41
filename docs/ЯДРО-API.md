@@ -14,7 +14,7 @@
 
 ```
    команды игрока  ──┐
-   Tick(delta)  ─────┤──►  KonturSimulation  ──►  поток событий (Event Bus)
+   Tick(delta)  ─────┤──►  GameSession  ──►  поток событий (Event Bus)
    контент (JSON) ───┘
 ```
 
@@ -35,26 +35,26 @@
 
 ## 2. Быстрый старт
 
-Ядро уже поднято автозагрузкой `Kontur` (`scripts/kontur/KonturRuntime.cs`).
+Ядро уже поднято автозагрузкой `GameRuntime` (`scripts/kontur/GameRuntime.cs`).
 Из любой сцены:
 
 ```csharp
 public partial class DeskPhone : Node3D
 {
-    private KonturRuntime _kontur;
+    private GameRuntime _runtime;
     private IDisposable _incidentSubscription;
     private string _activeIncidentId;
 
     public override void _Ready()
     {
-        _kontur = KonturRuntime.Get(this);
-        if (_kontur == null || !_kontur.IsReady)
+        _runtime = GameRuntime.Get(this);
+        if (_runtime == null || !_runtime.IsReady)
         {
-            GD.PushError("Ядро недоступно: " + (_kontur?.LoadError ?? "автозагрузка Kontur не найдена"));
+            GD.PushError("Ядро недоступно: " + (_runtime?.LoadError ?? "автозагрузка GameRuntime не найдена"));
             return;
         }
 
-        _incidentSubscription = _kontur.Simulation.Events.Subscribe<IncidentCreated>(OnIncidentCreated);
+        _incidentSubscription = _runtime.Session.Events.Subscribe<IncidentCreated>(OnIncidentCreated);
     }
 
     public override void _ExitTree()
@@ -71,7 +71,7 @@ public partial class DeskPhone : Node3D
 
     private void OnHandsetPickedUp()
     {
-        CommandResult result = _kontur.Simulation.AnswerCall(_activeIncidentId);
+        CommandResult result = _runtime.Session.AnswerCall(_activeIncidentId);
         if (!result.IsSuccess)
         {
             GD.Print("Отказ: " + result.Error);
@@ -83,7 +83,7 @@ public partial class DeskPhone : Node3D
 Нужные `using`:
 
 ```csharp
-using Kontur.Core.Api;      // KonturSimulation, CommandResult, все View-типы
+using Kontur.Core.Api;      // GameSession, CommandResult, все View-типы
 using Kontur.Core.Events;   // сигналы и IEventBus
 using Kontur.Core.Model;    // StatBlock, IncidentPhase, EmployeeStatus, ScaleValues …
 ```
@@ -129,7 +129,7 @@ using Kontur.Core.Model;    // StatBlock, IncidentPhase, EmployeeStatus, ScaleVa
 Обрывает текущую смену **без** события `ShiftEnded`: смена не доработана, а отменена,
 и интерфейс не должен принимать это за окончание дня и включать ролик. Затем чистится
 всё состояние: штат заново клонируется из контента, шкалы возвращаются к стартовым,
-энциклопедия и склад опустошаются, зоны сбрасываются к исходной штриховке.
+энциклопедия и склад опустошаются.
 
 События при этом почти не публикуются — перерисуйте интерфейс по `Get*`-снимкам сами.
 
@@ -151,7 +151,7 @@ using Kontur.Core.Model;    // StatBlock, IncidentPhase, EmployeeStatus, ScaleVa
 
 ```csharp
 DispatchEstimateView estimate = simulation.EstimateDispatch(incidentId, employeeIds, equipmentIds);
-// estimate.Requirements  — требования с учётом дня, штриховки зоны и выбранного радио-варианта
+// estimate.Requirements  — требования с учётом дня и выбранного радио-варианта
 // estimate.SquadStats    — сумма группы со снаряжением и сработавшими перками
 // estimate.Coverage      — 0..1
 // estimate.SuccessChance — 0..1
@@ -184,7 +184,7 @@ DispatchEstimateView estimate = simulation.EstimateDispatch(incidentId, employee
 
 | Событие | Поля | Что делает интерфейс |
 |---|---|---|
-| `IncidentCreated` | `IncidentId`, `MissionId`, `ZoneId`, `CallerName`, `RingSeconds` | начать звонок, запустить индикатор |
+| `IncidentCreated` | `IncidentId`, `MissionId`, `BuildingId`, `CallerName`, `RingSeconds` | начать звонок, запустить индикатор |
 | `CallAnswered` | `IncidentId`, `MissionId`, `Title`, `BriefingText` | показать бланк задания |
 | `CallMissed` | `IncidentId`, `MissionId` | оборвать звонок |
 
@@ -192,12 +192,11 @@ DispatchEstimateView estimate = simulation.EstimateDispatch(incidentId, employee
 
 | Событие | Поля | Что делает интерфейс |
 |---|---|---|
-| `MapMarkerSpawned` | `IncidentId`, `ZoneId`, `LifetimeSeconds` | поставить метку, индикатор |
-| `MapMarkerExpired` | `IncidentId`, `ZoneId` | снять метку |
+| `MapMarkerSpawned` | `IncidentId`, `BuildingId`, `LifetimeSeconds` | поставить метку, индикатор |
+| `MapMarkerExpired` | `IncidentId`, `BuildingId` | снять метку |
 | `SquadDispatched` | `IncidentId`, `EmployeeIds`, `EquipmentIds`, `TravelSeconds` | пунктирная линия к точке |
-| `SquadArrived` | `IncidentId`, `ZoneId` | линия дошла |
+| `SquadArrived` | `IncidentId`, `BuildingId` | линия дошла |
 | `SquadReturned` | `IncidentId`, `EmployeeIds` | линия обратно, убрать метку |
-| `ZoneStateChanged` | `ZoneId`, `OldState`, `NewState`, `Reason` | переключить слой штриховки |
 
 Прогресса маршрута ядро не отдаёт: берите `TravelSeconds` из события и интерполируйте
 у себя, либо `IncidentView.RemainingSeconds` в фазе `Travelling`.
@@ -256,7 +255,6 @@ MissionResolved
   → EmployeeKilled / EmployeeInjured
   → EquipmentConsumed / EquipmentLost
   → ScalesChanged  (и, если порог достигнут, GameOverTriggered)
-  → ZoneStateChanged
   → EmployeeExperienceGained / EmployeeLeveledUp
   → CreatureIdentified / CreatureRevealed
   → SquadReturned → MissionReportReady → IncidentClosed
@@ -274,7 +272,6 @@ MissionResolved
 | `GetStatus()` | `ShiftStatusView` | шапка, отладка |
 | `GetRoster()` | `EmployeeView[]` | открытие досье, экран отправки |
 | `GetActiveIncidents()` | `IncidentView[]` | перерисовка карты, индикаторы |
-| `GetZones()` | `ZoneView[]` | построение карты |
 | `GetAvailableEquipment()` | `EquipmentSlotView[]` | экран отправки |
 | `GetEncyclopedia()` | `EncyclopediaEntryView[]` | раздел энциклопедии |
 | `GetHireCandidates(day)` | `HireCandidateView[]` | экран найма между сменами |
@@ -286,10 +283,9 @@ MissionResolved
 EmployeeView(Id, Name, RankTitle, Level, Stats, Experience, ExperienceToNextLevel,
              UnspentSkillPoints, Status, IsInjured, CurrentIncidentId, AbilityIds, PortraitId)
 
-IncidentView(Id, MissionId, Title, ZoneId, CallerName, Phase, RemainingSeconds,
+IncidentView(Id, MissionId, Title, BuildingId, CallerName, Phase, RemainingSeconds,
              Requirements, SquadEmployeeIds, EquipmentIds)
 
-ZoneView(Id, Name, State, MapX, MapY)
 EquipmentSlotView(Id, Name, Description, Kind, Quantity, IsShiftOnly)
 EncyclopediaEntryView(CreatureId, IllustrationId, RevealedPropertyIds, TotalProperties)
 HireCandidateView(Id, Name, RankTitle, Level, Stats)
@@ -338,14 +334,13 @@ string label = StatKinds.GetDisplayName(StatKind.Composure);  // «Хладно�
 **`EquipmentKind`** — `Consumable` (тратится всегда), `Standard` (возвращается после успеха),
 `Story` (теряется только при гибели всей группы).
 
-**`ZoneState`** — `Normal`, `Infected`, `Quarantine`, `Cleared`.
 
 **`GameOverReason`** — `InfectionMaxed`, `PublicityMaxed`, `LoyaltyDepleted`.
 
 **`MissionOutcome`** (в событии `MissionResolved`):
 
 ```
-IncidentId, MissionId, ZoneId, CreatureId
+IncidentId, MissionId, BuildingId, CreatureId
 Kind                      Success | Failure
 Reason                    StatsCovered | DiceSuccess | DiceFailure | CallMissed | MarkerExpired
 EffectiveRequirements     требования с учётом всех множителей
@@ -377,7 +372,7 @@ public override void _Process(double delta)
 {
     if (!_hasTimer) return;
 
-    foreach (IncidentView incident in _kontur.Simulation.GetActiveIncidents())
+    foreach (IncidentView incident in _runtime.Session.GetActiveIncidents())
     {
         if (incident.Id == _incidentId && incident.Phase == IncidentPhase.Ringing)
         {
@@ -394,7 +389,7 @@ public override void _Process(double delta)
 private void OnMarkerClicked(string incidentId)
 {
     // Ядро само опубликует DispatchScreenRequested — компьютер поймает и откроется.
-    _kontur.Simulation.OpenDispatchScreen(incidentId);
+    _runtime.Session.OpenDispatchScreen(incidentId);
 }
 ```
 
@@ -403,7 +398,7 @@ private void OnMarkerClicked(string incidentId)
 ```csharp
 private void RefreshEstimate()
 {
-    DispatchEstimateView estimate = _kontur.Simulation.EstimateDispatch(
+    DispatchEstimateView estimate = _runtime.Session.EstimateDispatch(
         _incidentId, _pickedEmployees, _pickedEquipment);
 
     _requirementsLabel.Text = estimate.Requirements.ToString();
@@ -413,7 +408,7 @@ private void RefreshEstimate()
 
 private void OnSendPressed()
 {
-    CommandResult result = _kontur.Simulation.DispatchSquad(
+    CommandResult result = _runtime.Session.DispatchSquad(
         _incidentId, _pickedEmployees, _pickedEquipment);
 
     if (!result.IsSuccess)
@@ -437,7 +432,7 @@ private void OnRadioTriggered(RadioTriggered e)
     {
         string optionId = e.Options[i].Id;
         _buttons[i].Text = e.Options[i].Text;
-        _buttons[i].Pressed += () => _kontur.Simulation.ChooseRadioOption(_incidentId, optionId);
+        _buttons[i].Pressed += () => _runtime.Session.ChooseRadioOption(_incidentId, optionId);
     }
 }
 ```
@@ -493,18 +488,21 @@ _hasCountdown = e.RingSeconds > 0.0;
 
 Подробности полей — `kontur-core/docs/CONTENT_SCHEMA.md`, раздел «Сценарные и обучающие смены».
 
-## 10. Соседство с `scripts/gameplay`
+## 10. Единый игровой сеанс
 
-В проекте есть второй слой — автозагрузки `EventBus` и `GameSession` из
-`scripts/gameplay/`. Это отдельная работа, к ядру она не подключена.
+Старые автозагрузки из `scripts/gameplay` удалены. Единственный источник состояния
+игры — `Kontur.Core.Api.GameSession`.
 
-Пересечение существенное: день, состояние смены и отсчёт времени считаются **в двух
-местах независимо**. `GameSession.CurrentDay` и `KonturSimulation.Day` — разные числа,
-и они разойдутся, как только одна из сторон начнёт менять своё состояние.
+В Godot сеанс доступен через мост:
 
-Пока предметы стола подключаются к ядру, берите день, фазы и время из
-`KonturSimulation.GetStatus()`, а не из `GameSession`. Свести два слоя в один источник
-истины стоит отдельной задачей и вместе с автором `scripts/gameplay`.
+```csharp
+GameSession session = GameRuntime.Get(this).Session;
+ShiftStatusView status = session.GetStatus();
+```
+
+Команды игрока вызываются у `session`, а изменения приходят через типизированную
+шину `session.Events`. Не храните параллельные копии дня, времени смены или фаз
+происшествий внутри сцен.
 
 ## 11. Грабли
 
@@ -533,8 +531,8 @@ _hasCountdown = e.RingSeconds > 0.0;
 
 - Не рисует, не проигрывает звук, не знает о сценах.
 - Не сохраняет и не загружает партию — всё в памяти, закрытие игры обнуляет прогресс.
-- Не хранит координаты конкретной точки вызова: у миссии есть только район (`ZoneId`),
-  координаты берутся у зоны (`ZoneView.MapX/MapY`).
+- Не хранит координаты конкретной точки вызова: у миссии есть только здание (`BuildingId`),
+  координаты берутся из `MapBuildingPolygon` на стороне Godot.
 - Не отдаёт прогресс движения группы по маршруту — считайте по `TravelSeconds`.
 - Не выдаёт сюжетное снаряжение: правила расхода описаны, механизма получения нет.
 - Не генерирует тексты. Всё приходит из `res://data/*.json`; схема — в

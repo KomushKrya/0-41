@@ -13,8 +13,6 @@ namespace Kontur.Core.Model
 		/// <summary>День демо (1..4), для которого миссия доступна.</summary>
 		public int Day { get; set; } = 1;
 
-		public string ZoneId { get; set; } = string.Empty;
-
 		public string CreatureId { get; set; } = string.Empty;
 
 		public string Title { get; set; } = string.Empty;

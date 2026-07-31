@@ -17,6 +17,7 @@ offset_left = -411.811
 offset_top = -181.10608
 offset_right = 1889.4495
 offset_bottom = 2174.8286
+color = Color(0.75, 0.75, 0.75, 1)
 
 [node name="BuildingLayer" type="Control" parent="." unique_id=465485076]
 anchors_preset = 0

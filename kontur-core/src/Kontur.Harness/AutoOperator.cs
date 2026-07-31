@@ -30,13 +30,13 @@ namespace Kontur.Harness
 	/// </summary>
 	public sealed class AutoOperator
 	{
-		private readonly KonturSimulation _sim;
+		private readonly GameSession _session;
 		private readonly ContentDatabase _content;
 		private readonly Random _random;
 
-		public AutoOperator(KonturSimulation sim, ContentDatabase content, RadioStrategy strategy, int seed)
+		public AutoOperator(GameSession session, ContentDatabase content, RadioStrategy strategy, int seed)
 		{
-			_sim = sim;
+			_session = session;
 			_content = content;
 			Strategy = strategy;
 			_random = new Random(seed);
@@ -57,7 +57,7 @@ namespace Kontur.Harness
 
 		public void Update()
 		{
-			IReadOnlyList<IncidentView> incidents = _sim.GetActiveIncidents();
+			IReadOnlyList<IncidentView> incidents = _session.GetActiveIncidents();
 
 			for (int i = 0; i < incidents.Count; i++)
 			{
@@ -66,19 +66,19 @@ namespace Kontur.Harness
 				switch (incident.Phase)
 				{
 					case IncidentPhase.Ringing:
-						if (Elapsed(_sim.Config.Timings.PhoneRingSeconds, incident.RemainingSeconds) >= AnswerDelay)
+						if (Elapsed(_session.Config.Timings.PhoneRingSeconds, incident.RemainingSeconds) >= AnswerDelay)
 						{
-							_sim.AnswerCall(incident.Id);
+							_session.AnswerCall(incident.Id);
 						}
 
 						break;
 
 					case IncidentPhase.Briefing:
-						_sim.ConfirmBriefing(incident.Id);
+						_session.ConfirmBriefing(incident.Id);
 						break;
 
 					case IncidentPhase.MarkerActive:
-						if (Elapsed(_sim.Config.Timings.MapMarkerSeconds, incident.RemainingSeconds) >= DispatchDelay)
+						if (Elapsed(_session.Config.Timings.MapMarkerSeconds, incident.RemainingSeconds) >= DispatchDelay)
 						{
 							TryDispatch(incident);
 						}
@@ -87,7 +87,7 @@ namespace Kontur.Harness
 
 					case IncidentPhase.RadioPending:
 						if (Strategy != RadioStrategy.Ignore
-							&& Elapsed(_sim.Config.Timings.RadioSeconds, incident.RemainingSeconds) >= RadioDelay)
+							&& Elapsed(_session.Config.Timings.RadioSeconds, incident.RemainingSeconds) >= RadioDelay)
 						{
 							ChooseRadio(incident);
 						}
@@ -100,19 +100,19 @@ namespace Kontur.Harness
 		/// <summary>Межсменные действия: раздать очки навыков и добрать штат до лимита.</summary>
 		public void BetweenShifts(int nextDay)
 		{
-			IReadOnlyList<EmployeeView> roster = _sim.GetRoster();
+			IReadOnlyList<EmployeeView> roster = _session.GetRoster();
 			for (int i = 0; i < roster.Count; i++)
 			{
 				EmployeeView employee = roster[i];
 				for (int point = 0; point < employee.UnspentSkillPoints; point++)
 				{
 					StatKind weakest = FindWeakestStat(employee.Stats);
-					_sim.SpendSkillPoint(employee.Id, weakest);
+					_session.SpendSkillPoint(employee.Id, weakest);
 				}
 			}
 
 			int living = 0;
-			roster = _sim.GetRoster();
+			roster = _session.GetRoster();
 			for (int i = 0; i < roster.Count; i++)
 			{
 				if (roster[i].Status != EmployeeStatus.Dead)
@@ -122,11 +122,11 @@ namespace Kontur.Harness
 			}
 
 			int limit = _content.Config.GetDay(nextDay).StaffLimit;
-			IReadOnlyList<HireCandidateView> candidates = _sim.GetHireCandidates(nextDay);
+			IReadOnlyList<HireCandidateView> candidates = _session.GetHireCandidates(nextDay);
 
 			for (int i = 0; i < candidates.Count && living < limit; i++)
 			{
-				CommandResult result = _sim.HireEmployee(candidates[i].Id, nextDay);
+				CommandResult result = _session.HireEmployee(candidates[i].Id, nextDay);
 				if (result.IsSuccess)
 				{
 					living++;
@@ -141,7 +141,7 @@ namespace Kontur.Harness
 
 		private void TryDispatch(IncidentView incident)
 		{
-			_sim.OpenDispatchScreen(incident.Id);
+			_session.OpenDispatchScreen(incident.Id);
 
 			List<string> squad = PickSquad(incident.Requirements);
 			if (squad.Count == 0)
@@ -150,19 +150,19 @@ namespace Kontur.Harness
 			}
 
 			List<string> equipment = PickEquipment();
-			CommandResult result = _sim.DispatchSquad(incident.Id, squad, equipment);
+			CommandResult result = _session.DispatchSquad(incident.Id, squad, equipment);
 
 			if (!result.IsSuccess && equipment.Count > 0)
 			{
 				// Снаряжение мог занять параллельный вызов — пробуем без него.
-				_sim.DispatchSquad(incident.Id, squad, Array.Empty<string>());
+				_session.DispatchSquad(incident.Id, squad, Array.Empty<string>());
 			}
 		}
 
 		private List<string> PickSquad(StatBlock requirements)
 		{
 			var available = new List<EmployeeView>();
-			IReadOnlyList<EmployeeView> roster = _sim.GetRoster();
+			IReadOnlyList<EmployeeView> roster = _session.GetRoster();
 
 			for (int i = 0; i < roster.Count; i++)
 			{
@@ -213,7 +213,7 @@ namespace Kontur.Harness
 			int heavy = 0;
 			int consumables = 0;
 
-			IReadOnlyList<EquipmentSlotView> available = _sim.GetAvailableEquipment();
+			IReadOnlyList<EquipmentSlotView> available = _session.GetAvailableEquipment();
 			for (int i = 0; i < available.Count; i++)
 			{
 				EquipmentSlotView slot = available[i];
@@ -271,7 +271,7 @@ namespace Kontur.Harness
 					break;
 			}
 
-			_sim.ChooseRadioOption(incident.Id, option.Id);
+			_session.ChooseRadioOption(incident.Id, option.Id);
 		}
 
 		private static RadioOption FindByQuality(RadioEncounter encounter, RadioOptionQuality quality)

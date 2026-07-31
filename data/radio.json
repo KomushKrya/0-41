@@ -58,7 +58,6 @@
 				"text": "Вывести обеих на лестницу, изолировать площадку.",
 				"requirementMultiplier": 0.8,
 				"quality": "Good",
-				"appliesQuarantine": true,
 				"extraScales": {
 					"publicity": 2.0,
 					"infection": -3.0
@@ -181,7 +180,6 @@
 				"text": "Закрыть квартал и вывести жильцов.",
 				"requirementMultiplier": 0.9,
 				"quality": "Good",
-				"appliesQuarantine": true,
 				"extraScales": {
 					"publicity": 6.0,
 					"infection": -5.0

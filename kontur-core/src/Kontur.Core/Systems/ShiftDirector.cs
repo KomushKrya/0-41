@@ -21,7 +21,6 @@ namespace Kontur.Core.Systems
 		private readonly IEventBus _bus;
 		private readonly IRandomSource _random;
 		private readonly ScalesSystem _scales;
-		private readonly ZoneSystem _zones;
 		private readonly RosterSystem _roster;
 		private readonly EncyclopediaSystem _encyclopedia;
 		private readonly MissionResolver _resolver;
@@ -41,7 +40,6 @@ namespace Kontur.Core.Systems
 			IEventBus bus,
 			IRandomSource random,
 			ScalesSystem scales,
-			ZoneSystem zones,
 			RosterSystem roster,
 			EncyclopediaSystem encyclopedia,
 			MissionResolver resolver,
@@ -52,7 +50,6 @@ namespace Kontur.Core.Systems
 			_bus = bus;
 			_random = random;
 			_scales = scales;
-			_zones = zones;
 			_roster = roster;
 			_encyclopedia = encyclopedia;
 			_resolver = resolver;
@@ -176,7 +173,7 @@ namespace Kontur.Core.Systems
 				_bus.Publish(new IncidentCreated(
 					incident.Id,
 					incident.Mission.Id,
-					incident.Mission.ZoneId,
+					incident.BuildingId,
 					incident.Mission.CallerName,
 					ringSeconds));
 
@@ -325,13 +322,13 @@ namespace Kontur.Core.Systems
 		private void HandleMarkerExpired(IncidentRuntime incident)
 		{
 			_counters.ExpiredMarkers++;
-			_bus.Publish(new MapMarkerExpired(incident.Id, incident.Mission.ZoneId));
+			_bus.Publish(new MapMarkerExpired(incident.Id, incident.BuildingId));
 			ResolveAutoFailure(incident, MissionResolutionReason.MarkerExpired, incident.Mission.ScalesOnExpiredMarker, "группа не отправлена");
 		}
 
 		private void HandleSquadArrived(IncidentRuntime incident)
 		{
-			_bus.Publish(new SquadArrived(incident.Id, incident.Mission.ZoneId));
+			_bus.Publish(new SquadArrived(incident.Id, incident.BuildingId));
 
 			RadioEncounter? encounter = incident.Mission.RadioEncounterId == null
 				? null
@@ -400,7 +397,7 @@ namespace Kontur.Core.Systems
 			{
 				IncidentId = incident.Id,
 				MissionId = incident.Mission.Id,
-				ZoneId = incident.Mission.ZoneId,
+				BuildingId = incident.BuildingId,
 				CreatureId = incident.Mission.CreatureId,
 				Kind = MissionResultKind.Failure,
 				Reason = reason,
@@ -417,19 +414,12 @@ namespace Kontur.Core.Systems
 			_bus.Publish(new MissionResolved(outcome));
 			_scales.Apply(scaleDelta, reasonText);
 
-			Zone? zone = _state.FindZone(incident.Mission.ZoneId);
-			if (zone != null)
-			{
-				_zones.ApplyMissionResult(zone, false);
-			}
-
 			CloseIncident(incident, false);
 		}
 
 		private void ResolveMission(IncidentRuntime incident)
 		{
 			MissionDefinition mission = incident.Mission;
-			Zone? zone = _state.FindZone(mission.ZoneId);
 
 			List<Employee> squad = ResolveSquad(incident);
 			List<EquipmentDefinition> equipment = ResolveEquipment(incident);
@@ -437,8 +427,6 @@ namespace Kontur.Core.Systems
 
 			StatBlock requirements = _resolver.ComputeEffectiveRequirements(
 				mission,
-				zone,
-				_zones,
 				incident.ChosenOption,
 				_state.Day);
 
@@ -447,6 +435,7 @@ namespace Kontur.Core.Systems
 			var request = new ResolutionRequest
 			{
 				IncidentId = incident.Id,
+				BuildingId = incident.BuildingId,
 				Mission = mission,
 				Squad = squad,
 				Equipment = equipment,
@@ -482,16 +471,6 @@ namespace Kontur.Core.Systems
 			ApplyCasualties(incident, outcome);
 			ReturnOrConsumeEquipment(incident, equipment, outcome);
 			_scales.Apply(delta, outcome.IsSuccess ? "успешный вызов" : "провал вызова");
-
-			if (zone != null)
-			{
-				_zones.ApplyMissionResult(zone, outcome.IsSuccess);
-
-				if (incident.ChosenOption != null && incident.ChosenOption.AppliesQuarantine)
-				{
-					_zones.ApplyQuarantine(zone);
-				}
-			}
 
 			_roster.GrantExperience(
 				outcome.EmployeeIds,
@@ -730,11 +709,10 @@ namespace Kontur.Core.Systems
 			return null;
 		}
 
-		/// <summary>Требования миссии с учётом дня, штриховки зоны и уже выбранного радио-варианта — для экрана отправки.</summary>
+		/// <summary>Требования миссии с учётом дня и уже выбранного радио-варианта — для экрана отправки.</summary>
 		public StatBlock GetCurrentRequirements(IncidentRuntime incident)
 		{
-			Zone? zone = _state.FindZone(incident.Mission.ZoneId);
-			return _resolver.ComputeEffectiveRequirements(incident.Mission, zone, _zones, incident.ChosenOption, _state.Day);
+			return _resolver.ComputeEffectiveRequirements(incident.Mission, incident.ChosenOption, _state.Day);
 		}
 
 		/// <summary>
@@ -827,7 +805,7 @@ namespace Kontur.Core.Systems
 				_content.Config.Timings.MapMarkerSeconds);
 
 			incident.SetPhase(IncidentPhase.MarkerActive, markerSeconds > 0.0 ? markerSeconds : (double?)null);
-			_bus.Publish(new MapMarkerSpawned(incident.Id, incident.Mission.ZoneId, markerSeconds));
+			_bus.Publish(new MapMarkerSpawned(incident.Id, incident.BuildingId, markerSeconds));
 
 			return CommandResult.Ok();
 		}

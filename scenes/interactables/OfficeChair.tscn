@@ -18,7 +18,7 @@ size = Vector3(0.68, 0.82, 0.72)
 [sub_resource type="BoxShape3D" id="BoxShape3D_chair_interaction"]
 size = Vector3(1.35, 1.25, 1.35)
 
-[node name="Chair" type="Node3D"]
+[node name="Chair" type="Node3D" groups=["interactive"]]
 
 [node name="VisualRoot" type="Node3D" parent="."]
 
@@ -38,7 +38,7 @@ mesh = SubResource("BoxMesh_chair_back")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.84, 1.22)
 shape = SubResource("BoxShape3D_chair_collision")
 
-[node name="SeatCameraPose" type="Node3D" parent="."]
+[node name="FocusCameraPose" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.45, 1.18)
 
 [node name="StandUpPoint" type="Node3D" parent="."]

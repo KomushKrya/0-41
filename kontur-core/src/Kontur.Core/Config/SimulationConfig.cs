@@ -17,8 +17,6 @@ namespace Kontur.Core.Config
 
 		public EmployeeConfig Employees { get; set; } = new EmployeeConfig();
 
-		public ZoneConfig Zones { get; set; } = new ZoneConfig();
-
 		public LootConfig Loot { get; set; } = new LootConfig();
 
 		public List<DayConfig> Days { get; set; } = new List<DayConfig>();
@@ -130,29 +128,6 @@ namespace Kontur.Core.Config
 		public int ExperiencePerLevelStep { get; set; } = 100;
 
 		public int MaxStatValue { get; set; } = 20;
-	}
-
-	public sealed class ZoneConfig
-	{
-		public double WeightNormal { get; set; } = 1.0;
-
-		/// <summary>Заражённые зоны — вызовы оттуда чаще (ДД, раздел 9).</summary>
-		public double WeightInfected { get; set; } = 2.2;
-
-		/// <summary>Карантин — реже.</summary>
-		public double WeightQuarantine { get; set; } = 0.4;
-
-		/// <summary>Очищено — почти нет.</summary>
-		public double WeightCleared { get; set; } = 0.1;
-
-		/// <summary>И сложнее: требования миссии в заражённой зоне умножаются.</summary>
-		public double InfectedRequirementMultiplier { get; set; } = 1.2;
-
-		public double ClearedRequirementMultiplier { get; set; } = 0.9;
-
-		public int FailStreakToInfect { get; set; } = 2;
-
-		public int SuccessStreakToClear { get; set; } = 3;
 	}
 
 	public sealed class LootConfig

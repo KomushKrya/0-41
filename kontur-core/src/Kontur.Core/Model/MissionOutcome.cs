@@ -33,7 +33,7 @@ namespace Kontur.Core.Model
 
 		public string MissionId { get; set; } = string.Empty;
 
-		public string ZoneId { get; set; } = string.Empty;
+		public string BuildingId { get; set; } = string.Empty;
 
 		public string CreatureId { get; set; } = string.Empty;
 

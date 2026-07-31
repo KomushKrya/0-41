@@ -1,0 +1,75 @@
+[gd_scene load_steps=2 format=3]
+
+[sub_resource type="SystemFont" id="SystemFont_terminal"]
+font_names = PackedStringArray("Cascadia Mono", "Consolas", "Courier New")
+subpixel_positioning = 0
+
+[node name="ShiftNoteUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Paper" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.58, 0.53, 0.4, 1)
+
+[node name="Header" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 0
+anchor_left = 0.08
+anchor_top = 0.07
+anchor_right = 0.92
+anchor_bottom = 0.14
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.13, 0.11, 0.07, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 28
+text = "SHIFT HANDOVER"
+
+[node name="Line" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 0
+anchor_left = 0.08
+anchor_top = 0.17
+anchor_right = 0.92
+anchor_bottom = 0.176
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.22, 0.18, 0.1, 1)
+
+[node name="Body" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 0
+anchor_left = 0.09
+anchor_top = 0.23
+anchor_right = 0.91
+anchor_bottom = 0.79
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.16, 0.14, 0.09, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 22
+text = "CHECK THE RADIO\nREPORT NEW CALLS\nKEEP THE MAP UPDATED"
+
+[node name="Signature" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 0
+anchor_left = 0.09
+anchor_top = 0.86
+anchor_right = 0.91
+anchor_bottom = 0.93
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.25, 0.2, 0.12, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 18
+text = "-- PREVIOUS SHIFT"

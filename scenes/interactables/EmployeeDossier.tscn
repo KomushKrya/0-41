@@ -1,25 +1,55 @@
 [gd_scene format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/ui/dossier/DossierUI.tscn" id="1_dossier_ui"]
+[ext_resource type="Script" path="res://scripts/interaction/InteractionOutline.cs" id="2_outline"]
+[ext_resource type="Script" path="res://scripts/interaction/OutlineOnlyInteractable.cs" id="3_interactable"]
+[ext_resource type="Script" path="res://scripts/interaction/SubViewportSurfaceRenderer.cs" id="4_surface_renderer"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_folder_card"]
 albedo_color = Color(0.42, 0.31, 0.16, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_dossier_folder"]
-size = Vector3(0.62, 0.035, 0.42)
+size = Vector3(0.21, 0.016, 0.297)
 
-[node name="EmployeeDossierFolder" type="Node3D"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_dossier_folder"]
+size = Vector3(0.21, 0.016, 0.297)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_dossier_surface"]
+size = Vector2(0.194, 0.281)
+
+[node name="EmployeeDossierFolder" type="Node3D" groups=["interactive"]]
 
 [node name="VisualRoot" type="Node3D" parent="."]
 
 [node name="FolderCover" type="MeshInstance3D" parent="VisualRoot"]
-transform = Transform3D(0.9837147, 0, 0.17973675, 0, 1, 0, -0.17973675, 0, 0.9837147, 1.9445349, 0.83142173, 1.4554679)
 material_override = SubResource("StandardMaterial3D_folder_card")
 mesh = SubResource("BoxMesh_dossier_folder")
 
+[node name="ViewportSurface" type="MeshInstance3D" parent="VisualRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0085, 0)
+mesh = SubResource("PlaneMesh_dossier_surface")
+
+[node name="InteractionOutline" type="Node" parent="."]
+script = ExtResource("2_outline")
+VisualRootPath = NodePath("../VisualRoot")
+
+[node name="InteractionArea" type="Area3D" parent="."]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("3_interactable")
+Label = "Dossier"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionArea"]
+shape = SubResource("BoxShape3D_dossier_folder")
+
 [node name="DossierViewport" type="SubViewport" parent="."]
 disable_3d = true
-size = Vector2i(1024, 768)
+size = Vector2i(700, 990)
 render_target_update_mode = 4
 
 [node name="DossierUI" parent="DossierViewport" instance=ExtResource("1_dossier_ui")]
+
+[node name="DossierSurfaceRenderer" type="Node" parent="."]
+script = ExtResource("4_surface_renderer")
+SurfacePath = NodePath("../VisualRoot/ViewportSurface")
+ViewportPath = NodePath("../DossierViewport")

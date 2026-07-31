@@ -84,11 +84,11 @@ public abstract partial class ContentTextBox : Control
 
 		if (RefreshOnReveal)
 		{
-			KonturRuntime runtime = KonturRuntime.Get(this);
+			GameRuntime runtime = GameRuntime.Get(this);
 			if (runtime != null && runtime.IsReady)
 			{
-				_revealSubscription = runtime.Simulation.Events.Subscribe<CreatureRevealed>(_ => Refresh());
-				_flagSubscription = runtime.Simulation.Events.Subscribe<FlagChanged>(_ => Refresh());
+				_revealSubscription = runtime.Session.Events.Subscribe<CreatureRevealed>(_ => Refresh());
+				_flagSubscription = runtime.Session.Events.Subscribe<FlagChanged>(_ => Refresh());
 			}
 		}
 
@@ -169,14 +169,14 @@ public abstract partial class ContentTextBox : Control
 	/// </summary>
 	protected virtual bool IsRevealed(string propertyId)
 	{
-		KonturRuntime runtime = KonturRuntime.Get(this);
+		GameRuntime runtime = GameRuntime.Get(this);
 		if (runtime == null || !runtime.IsReady)
 		{
 			return false;
 		}
 
-		return runtime.Simulation.IsFlagSet(propertyId)
-			|| runtime.Simulation.IsPropertyRevealed(ContentId, propertyId);
+		return runtime.Session.IsFlagSet(propertyId)
+			|| runtime.Session.IsPropertyRevealed(ContentId, propertyId);
 	}
 
 	/// <summary>

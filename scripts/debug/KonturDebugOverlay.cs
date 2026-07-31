@@ -12,13 +12,15 @@ using Kontur.Core.Model;
 ///
 /// Позволяет прогнать смену прямо в движке до того, как телефон, карта и компьютер
 /// научатся реагировать на события: слева состояние ядра, справа поток сигналов,
-/// снизу кнопки команд и ускорение времени.
+/// снизу кнопки команд и ускорение времени. Открывается и закрывается по F6.
 /// </summary>
 public partial class KonturDebugOverlay : CanvasLayer
 {
 	private const int MaxLogLines = 200;
 
-	private KonturRuntime _runtime;
+	[Export] public Key ToggleKey { get; set; } = Key.F6;
+
+	private GameRuntime _runtime;
 	private RichTextLabel _status;
 	private RichTextLabel _log;
 	private Label _hint;
@@ -28,6 +30,8 @@ public partial class KonturDebugOverlay : CanvasLayer
 	private IDisposable _logSubscription;
 	private IDisposable _radioSubscription;
 	private double _refreshAccumulator;
+	private bool _isOpen;
+	private Input.MouseModeEnum _previousMouseMode;
 
 	// --- экран отправки ---
 	private VBoxContainer _dispatchList;
@@ -42,12 +46,14 @@ public partial class KonturDebugOverlay : CanvasLayer
 		Layer = 100;
 
 		BuildUi();
+		Hide();
+		SetProcess(false);
 
-		_runtime = KonturRuntime.Get(this);
+		_runtime = GameRuntime.Get(this);
 
 		if (_runtime == null)
 		{
-			AppendLog("Автозагрузка 'Kontur' не найдена. Project → Project Settings → Autoload.");
+			AppendLog("Автозагрузка 'GameRuntime' не найдена. Project → Project Settings → Autoload.");
 			return;
 		}
 
@@ -57,10 +63,24 @@ public partial class KonturDebugOverlay : CanvasLayer
 			return;
 		}
 
-		_logSubscription = _runtime.Simulation.Events.SubscribeAll(OnCoreEvent);
-		_radioSubscription = _runtime.Simulation.Events.Subscribe<RadioTriggered>(OnRadioTriggered);
+		_logSubscription = _runtime.Session.Events.SubscribeAll(OnCoreEvent);
+		_radioSubscription = _runtime.Session.Events.Subscribe<RadioTriggered>(OnRadioTriggered);
 
 		AppendLog("Ядро подключено. Нажмите «Смена 1».");
+	}
+
+	public override void _Input(InputEvent @event)
+	{
+		if (@event is not InputEventKey keyEvent
+			|| !keyEvent.Pressed
+			|| keyEvent.Echo
+			|| keyEvent.Keycode != ToggleKey)
+		{
+			return;
+		}
+
+		SetOpen(!_isOpen);
+		GetViewport().SetInputAsHandled();
 	}
 
 	public override void _Process(double delta)
@@ -74,6 +94,25 @@ public partial class KonturDebugOverlay : CanvasLayer
 		_refreshAccumulator = 0.0;
 		RefreshStatus();
 		RefreshDispatch();
+	}
+
+	private void SetOpen(bool isOpen)
+	{
+		_isOpen = isOpen;
+		SetProcess(isOpen);
+
+		if (isOpen)
+		{
+			_previousMouseMode = Input.MouseMode;
+			Input.MouseMode = Input.MouseModeEnum.Visible;
+			Show();
+			RefreshStatus();
+			RefreshDispatch();
+			return;
+		}
+
+		Hide();
+		Input.MouseMode = _previousMouseMode;
 	}
 
 	// ------------------------------------------------------------------ экран отправки
@@ -90,7 +129,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 			return;
 		}
 
-		KonturSimulation simulation = _runtime.Simulation;
+		GameSession simulation = _runtime.Session;
 
 		var markers = new List<IncidentView>();
 		IReadOnlyList<IncidentView> incidents = simulation.GetActiveIncidents();
@@ -231,7 +270,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 			AutowrapMode = TextServer.AutowrapMode.WordSmart
 		});
 
-		AddDimLabel(_dispatchList, $"{selected.Id}   район: {selected.ZoneId}");
+		AddDimLabel(_dispatchList, $"{selected.Id}   район: {selected.BuildingId}");
 		AddSectionLabel(_dispatchList, "ОПЕРАТИВНИКИ");
 
 		int available = 0;
@@ -346,7 +385,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 		_dispatchList.AddChild(check);
 	}
 
-	private void UpdateDispatchSummary(KonturSimulation simulation, IReadOnlyList<EquipmentSlotView> stock)
+	private void UpdateDispatchSummary(GameSession simulation, IReadOnlyList<EquipmentSlotView> stock)
 	{
 		if (_dispatchSummary == null || _dispatchIncidentId == null)
 		{
@@ -434,9 +473,9 @@ public partial class KonturDebugOverlay : CanvasLayer
 		}
 
 		string incidentId = _dispatchIncidentId;
-		_runtime.Simulation.OpenDispatchScreen(incidentId);
+		_runtime.Session.OpenDispatchScreen(incidentId);
 
-		CommandResult result = _runtime.Simulation.DispatchSquad(
+		CommandResult result = _runtime.Session.DispatchSquad(
 			incidentId,
 			new List<string>(_pickedEmployees),
 			new List<string>(_pickedEquipment));
@@ -545,7 +584,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 
 		_hint = new Label
 		{
-			Text = "Оверлей отладки. Ядро не знает о сценах — команды идут через KonturSimulation."
+			Text = "F6 — закрыть. Ядро не знает о сценах — команды идут через GameSession."
 		};
 		_hint.AddThemeColorOverride("font_color", new Color(0.55f, 0.62f, 0.55f));
 		column.AddChild(_hint);
@@ -689,7 +728,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 			return;
 		}
 
-		Report($"Смена {day}", _runtime.Simulation.StartShift(day));
+		Report($"Смена {day}", _runtime.Session.StartShift(day));
 	}
 
 	private void ResetGame()
@@ -700,7 +739,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 		}
 
 		_radioOptions.Clear();
-		_runtime.Simulation.ResetToNewGame();
+		_runtime.Session.ResetToNewGame();
 		AppendLog("Партия сброшена.");
 	}
 
@@ -711,7 +750,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 			return;
 		}
 
-		_runtime.Simulation.ForceEndShift();
+		_runtime.Session.ForceEndShift();
 	}
 
 	private void AnswerFirstCall()
@@ -723,7 +762,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 			return;
 		}
 
-		Report("Ответить", _runtime.Simulation.AnswerCall(incident.Id));
+		Report("Ответить", _runtime.Session.AnswerCall(incident.Id));
 	}
 
 	private void ConfirmFirstBriefing()
@@ -735,7 +774,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 			return;
 		}
 
-		Report("ОК", _runtime.Simulation.ConfirmBriefing(incident.Id));
+		Report("ОК", _runtime.Session.ConfirmBriefing(incident.Id));
 	}
 
 	private void DispatchFirstMarker()
@@ -747,10 +786,10 @@ public partial class KonturDebugOverlay : CanvasLayer
 			return;
 		}
 
-		_runtime.Simulation.OpenDispatchScreen(incident.Id);
+		_runtime.Session.OpenDispatchScreen(incident.Id);
 
 		var squad = new List<string>();
-		IReadOnlyList<EmployeeView> roster = _runtime.Simulation.GetRoster();
+		IReadOnlyList<EmployeeView> roster = _runtime.Session.GetRoster();
 		for (int i = 0; i < roster.Count && squad.Count < 3; i++)
 		{
 			if (roster[i].Status == EmployeeStatus.Available)
@@ -765,7 +804,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 			return;
 		}
 
-		Report("Отправка", _runtime.Simulation.DispatchSquad(incident.Id, squad, PickEquipment()));
+		Report("Отправка", _runtime.Session.DispatchSquad(incident.Id, squad, PickEquipment()));
 	}
 
 	private List<string> PickEquipment()
@@ -774,12 +813,12 @@ public partial class KonturDebugOverlay : CanvasLayer
 		int heavy = 0;
 		int consumables = 0;
 
-		IReadOnlyList<EquipmentSlotView> stock = _runtime.Simulation.GetAvailableEquipment();
+		IReadOnlyList<EquipmentSlotView> stock = _runtime.Session.GetAvailableEquipment();
 		for (int i = 0; i < stock.Count; i++)
 		{
 			if (stock[i].Kind == EquipmentKind.Consumable)
 			{
-				if (consumables >= _runtime.Simulation.Config.Loot.ConsumableSlots)
+				if (consumables >= _runtime.Session.Config.Loot.ConsumableSlots)
 				{
 					continue;
 				}
@@ -788,7 +827,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 			}
 			else
 			{
-				if (heavy >= _runtime.Simulation.Config.Loot.StandardOrStorySlots)
+				if (heavy >= _runtime.Session.Config.Loot.StandardOrStorySlots)
 				{
 					continue;
 				}
@@ -818,7 +857,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 			return;
 		}
 
-		Report($"Радио {optionIndex + 1}", _runtime.Simulation.ChooseRadioOption(incident.Id, options[optionIndex].Id));
+		Report($"Радио {optionIndex + 1}", _runtime.Session.ChooseRadioOption(incident.Id, options[optionIndex].Id));
 	}
 
 	private void SetTimeScale(float scale)
@@ -853,7 +892,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 			return;
 		}
 
-		KonturSimulation simulation = _runtime.Simulation;
+		GameSession simulation = _runtime.Session;
 		ShiftStatusView status = simulation.GetStatus();
 		var builder = new StringBuilder();
 
@@ -969,7 +1008,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 	/// Запись появляется после первого успешного опознания, абзацы 1–3 открываются,
 	/// когда соответствующее свойство проявилось на вызове и группа выжила.
 	/// </summary>
-	private void AppendEncyclopedia(StringBuilder builder, KonturSimulation simulation)
+	private void AppendEncyclopedia(StringBuilder builder, GameSession simulation)
 	{
 		builder.Append("\n[color=#9fd6a6]ЭНЦИКЛОПЕДИЯ[/color]\n");
 
@@ -1034,7 +1073,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 	}
 
 	/// <summary>Отчёты, которые в игре появляются на компьютере после возвращения группы.</summary>
-	private void AppendReports(StringBuilder builder, KonturSimulation simulation)
+	private void AppendReports(StringBuilder builder, GameSession simulation)
 	{
 		builder.Append("\n[color=#9fd6a6]ОТЧЁТЫ[/color]\n");
 
@@ -1155,7 +1194,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 			return null;
 		}
 
-		IReadOnlyList<IncidentView> incidents = _runtime.Simulation.GetActiveIncidents();
+		IReadOnlyList<IncidentView> incidents = _runtime.Session.GetActiveIncidents();
 		for (int i = 0; i < incidents.Count; i++)
 		{
 			if (incidents[i].Phase == phase)

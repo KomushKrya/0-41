@@ -10,15 +10,18 @@ namespace Kontur.Core.Systems
 	/// </summary>
 	public sealed class IncidentRuntime
 	{
-		public IncidentRuntime(string id, MissionDefinition mission)
+		public IncidentRuntime(string id, MissionDefinition mission, string buildingId)
 		{
 			Id = id;
 			Mission = mission;
+			BuildingId = buildingId;
 		}
 
 		public string Id { get; }
 
 		public MissionDefinition Mission { get; }
+
+		public string BuildingId { get; }
 
 		public IncidentPhase Phase { get; set; } = IncidentPhase.Scheduled;
 

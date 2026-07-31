@@ -13,15 +13,15 @@ namespace Kontur.Core.Events
 
 	public sealed record ShiftEnded(int Day, string OutroCutsceneId, ShiftSummary Summary) : IGameEvent;
 
-	public sealed record IncidentCreated(string IncidentId, string MissionId, string ZoneId, string CallerName, double RingSeconds) : IGameEvent;
+	public sealed record IncidentCreated(string IncidentId, string MissionId, string BuildingId, string CallerName, double RingSeconds) : IGameEvent;
 
 	public sealed record CallAnswered(string IncidentId, string MissionId, string Title, string BriefingText) : IGameEvent;
 
 	public sealed record CallMissed(string IncidentId, string MissionId) : IGameEvent;
 
-	public sealed record MapMarkerSpawned(string IncidentId, string ZoneId, double LifetimeSeconds) : IGameEvent;
+	public sealed record MapMarkerSpawned(string IncidentId, string BuildingId, double LifetimeSeconds) : IGameEvent;
 
-	public sealed record MapMarkerExpired(string IncidentId, string ZoneId) : IGameEvent;
+	public sealed record MapMarkerExpired(string IncidentId, string BuildingId) : IGameEvent;
 
 	/// <summary>Игрок нажал на метку — компьютер должен открыть экран отправки.</summary>
 	public sealed record DispatchScreenRequested(string IncidentId, string MissionId) : IGameEvent;
@@ -32,7 +32,7 @@ namespace Kontur.Core.Events
 		IReadOnlyList<string> EquipmentIds,
 		double TravelSeconds) : IGameEvent;
 
-	public sealed record SquadArrived(string IncidentId, string ZoneId) : IGameEvent;
+	public sealed record SquadArrived(string IncidentId, string BuildingId) : IGameEvent;
 
 	public sealed record RadioTriggered(
 		string IncidentId,
@@ -76,8 +76,6 @@ namespace Kontur.Core.Events
 
 	/// <summary>Существо опознано и добавлено в энциклопедию впервые.</summary>
 	public sealed record CreatureIdentified(string CreatureId) : IGameEvent;
-
-	public sealed record ZoneStateChanged(string ZoneId, ZoneState OldState, ZoneState NewState, string Reason) : IGameEvent;
 
 	public sealed record EquipmentConsumed(string EquipmentId, string EquipmentName, int RemainingQuantity) : IGameEvent;
 
