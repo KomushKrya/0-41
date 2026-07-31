@@ -1,0 +1,38 @@
+[
+	{
+		"id": "creature_mimic",
+		"tags": [
+			"мимик"
+		],
+		"illustrationId": "art_mimic",
+		"properties": [
+			"property_mimic_routine",
+			"property_mimic_speech",
+			"property_mimic_break"
+		]
+	},
+	{
+		"id": "creature_perekozhnik",
+		"tags": [
+			"перекожник"
+		],
+		"illustrationId": "art_skinwalker",
+		"properties": [
+			"property_perekozhnik_eye_contact",
+			"property_perekozhnik_distance",
+			"property_perekozhnik_heartbeat"
+		]
+	},
+	{
+		"id": "creature_kanalotvar",
+		"tags": [
+			"каналотварь"
+		],
+		"illustrationId": "",
+		"properties": [
+			"property_kanalotvar_water",
+			"property_kanalotvar_lure",
+			"property_kanalotvar_sound"
+		]
+	}
+]

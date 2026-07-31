@@ -1,0 +1,11 @@
+bin/
+obj/
+.vs/
+.idea/
+.vscode/
+*.user
+*.log
+artifacts/
+
+# Godot успел создать .uid для .cs до появления .gdignore — ядру они не нужны
+*.uid

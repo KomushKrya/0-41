@@ -15,7 +15,11 @@ public partial class MapBuildingEditor : Control
 	[Export] public NodePath BuildRouteButtonPath { get; set; } = new("OverlayLayer/EditorPanel/MarginContainer/VBoxContainer/RouteButtonRow/BuildRouteButton");
 	[Export] public NodePath RouteRendererPath { get; set; } = new("MapLayers/RouteLayer/RouteDashRenderer");
 	[Export] public NodePath MovingMarkerPath { get; set; } = new("MapLayers/RouteLayer/MovingMarker");
-	[Export] public float MarkerSpeed { get; set; } = 120.0f;
+	[Export] public NodePath HeadquartersMarkerPath { get; set; } = new("MapLayers/MarkerLayer/HeadquartersMarker");
+	[Export] public NodePath PaperFramePath { get; set; } = new("OverlayLayer/PaperFrame");
+	[Export] public string HeadquartersBuildingName { get; set; } = string.Empty;
+	[Export] public bool ShowHeadquartersLabel { get; set; } = true;
+	[Export] public float MarkerSpeed { get; set; } = 30.0f;
 
 	private const string StartAttachmentNode = "route_start";
 	private const string TargetAttachmentNode = "route_target";
@@ -35,10 +39,15 @@ public partial class MapBuildingEditor : Control
 	private Label _routeStatusLabel = null!;
 	private DashedRouteRenderer _routeRenderer = null!;
 	private Polygon2D _movingMarker = null!;
+	private Label _headquartersMarker = null!;
 	private Control _roadLayer = null!;
+	private Control _mapLayers = null!;
+	private Control _mapGeometry = null!;
+	private Line2D _paperFrame = null!;
 	private Polygon2D _selectedBuilding = null!;
 	private float _routeLength;
 	private float _markerTravelDistance;
+	private int _lastDisplayedEtaSeconds = -1;
 	private bool _isMarkerMoving;
 	private bool _isRouteFading;
 	private bool _isLayoutDebugEnabled;
@@ -53,18 +62,24 @@ public partial class MapBuildingEditor : Control
 		_routeStatusLabel = GetNode<Label>(RouteStatusLabelPath);
 		_routeRenderer = GetNode<DashedRouteRenderer>(RouteRendererPath);
 		_movingMarker = GetNode<Polygon2D>(MovingMarkerPath);
+		_headquartersMarker = GetNode<Label>(HeadquartersMarkerPath);
+		_mapGeometry = _buildingLayer.GetParent<Control>();
+		_mapLayers = _mapGeometry.GetParent<Control>();
+		_paperFrame = GetNode<Line2D>(PaperFramePath);
 
+		FitMapViewportToPaperFrame();
 		BuildRoadGraph();
 		RegisterBuildings();
+		AssignRandomObject();
 
 		GetNode<Button>(ClearButtonPath).Pressed += () => AssignSelectedRole(MapBuildingRole.Empty);
 		GetNode<Button>(HeadquartersButtonPath).Pressed += () => AssignSelectedRole(MapBuildingRole.Headquarters);
-		GetNode<Button>(ObjectButtonPath).Pressed += () => AssignSelectedRole(MapBuildingRole.Object);
+		GetNode<Button>(ObjectButtonPath).Pressed += GenerateRandomObject;
 		GetNode<Button>(BuildRouteButtonPath).Pressed += BuildRouteFromHeadquartersToObject;
 
 		_routeRenderer.ClearRoute();
 		_movingMarker.Visible = false;
-		SetLayoutDebugEnabled(false);
+		SetLayoutDebugEnabled(true);
 		UpdateSelectionUi();
 		UpdateRouteStatus("МАРШРУТ: назначь штаб и объект");
 	}
@@ -75,6 +90,82 @@ public partial class MapBuildingEditor : Control
 		_buildingLayer.Visible = isEnabled;
 		_roadLayer.Visible = isEnabled;
 		_selectionOutline.Visible = isEnabled && _selectedBuilding != null;
+	}
+
+	private void FitMapViewportToPaperFrame()
+	{
+		if (!TryGetBoundsInTargetSpace(_paperFrame, _paperFrame.Points, this, out Rect2 frameBounds)
+			|| !TryGetMapGeometryBounds(out Rect2 geometryBounds))
+		{
+			return;
+		}
+
+		_mapLayers.AnchorLeft = 0.0f;
+		_mapLayers.AnchorTop = 0.0f;
+		_mapLayers.AnchorRight = 0.0f;
+		_mapLayers.AnchorBottom = 0.0f;
+		_mapLayers.Position = frameBounds.Position;
+		_mapLayers.Size = frameBounds.Size;
+
+		float scale = Mathf.Min(
+			frameBounds.Size.X / geometryBounds.Size.X,
+			frameBounds.Size.Y / geometryBounds.Size.Y);
+		Vector2 scaledGeometrySize = geometryBounds.Size * scale;
+		_mapGeometry.Scale = Vector2.One * scale;
+		_mapGeometry.Position = ((frameBounds.Size - scaledGeometrySize) * 0.5f)
+			- (geometryBounds.Position * scale);
+	}
+
+	private bool TryGetMapGeometryBounds(out Rect2 bounds)
+	{
+		Vector2 minimum = new(float.MaxValue, float.MaxValue);
+		Vector2 maximum = new(float.MinValue, float.MinValue);
+		bool hasPoints = false;
+
+		foreach (Polygon2D building in FindNodesOfType<Polygon2D>(_buildingLayer))
+		{
+			ExpandBoundsInTargetSpace(building, building.Polygon, _mapGeometry, ref minimum, ref maximum, ref hasPoints);
+		}
+
+		foreach (Line2D road in FindNodesOfType<Line2D>(_roadLayer))
+		{
+			ExpandBoundsInTargetSpace(road, road.Points, _mapGeometry, ref minimum, ref maximum, ref hasPoints);
+		}
+
+		bounds = hasPoints ? new Rect2(minimum, maximum - minimum) : default;
+		return hasPoints && bounds.Size.X > 0.0f && bounds.Size.Y > 0.0f;
+	}
+
+	private static bool TryGetBoundsInTargetSpace(
+		CanvasItem source,
+		IEnumerable<Vector2> points,
+		CanvasItem target,
+		out Rect2 bounds)
+	{
+		Vector2 minimum = new(float.MaxValue, float.MaxValue);
+		Vector2 maximum = new(float.MinValue, float.MinValue);
+		bool hasPoints = false;
+		ExpandBoundsInTargetSpace(source, points, target, ref minimum, ref maximum, ref hasPoints);
+		bounds = hasPoints ? new Rect2(minimum, maximum - minimum) : default;
+		return hasPoints && bounds.Size.X > 0.0f && bounds.Size.Y > 0.0f;
+	}
+
+	private static void ExpandBoundsInTargetSpace(
+		CanvasItem source,
+		IEnumerable<Vector2> points,
+		CanvasItem target,
+		ref Vector2 minimum,
+		ref Vector2 maximum,
+		ref bool hasPoints)
+	{
+		Transform2D sourceToTarget = target.GetGlobalTransform().AffineInverse() * source.GetGlobalTransform();
+		foreach (Vector2 point in points)
+		{
+			Vector2 targetPoint = sourceToTarget * point;
+			minimum = new Vector2(Mathf.Min(minimum.X, targetPoint.X), Mathf.Min(minimum.Y, targetPoint.Y));
+			maximum = new Vector2(Mathf.Max(maximum.X, targetPoint.X), Mathf.Max(maximum.Y, targetPoint.Y));
+			hasPoints = true;
+		}
 	}
 
 	public override void _Process(double delta)
@@ -109,6 +200,7 @@ public partial class MapBuildingEditor : Control
 
 		_movingMarker.Position = GetRoutePointAtDistance(_markerTravelDistance);
 		_routeRenderer.SetHeadDistance(_markerTravelDistance);
+		UpdateRouteEta();
 	}
 
 	public override void _GuiInput(InputEvent @event)
@@ -133,9 +225,131 @@ public partial class MapBuildingEditor : Control
 	{
 		foreach (Polygon2D building in FindNodesOfType<Polygon2D>(_buildingLayer))
 		{
-			_roles[building] = MapBuildingRole.Empty;
 			_baseColors[building] = building.Color;
+			MapBuildingRole role = IsConfiguredHeadquarters(building)
+				|| building is MapBuildingPolygon { IsHeadquarters: true }
+				? MapBuildingRole.Headquarters
+				: MapBuildingRole.Empty;
+			_roles[building] = role;
+			building.Color = GetRoleColor(building, role);
 		}
+
+		AssignDefaultHeadquarters();
+		UpdateHeadquartersMarker();
+	}
+
+	private bool IsConfiguredHeadquarters(Polygon2D building)
+	{
+		return !string.IsNullOrWhiteSpace(HeadquartersBuildingName)
+			&& building.Name.ToString() == HeadquartersBuildingName;
+	}
+
+	private void AssignDefaultHeadquarters()
+	{
+		if (FindBuildingByRole(MapBuildingRole.Headquarters) != null || _roles.Count == 0)
+		{
+			return;
+		}
+
+		Vector2 minimum = new(float.MaxValue, float.MaxValue);
+		Vector2 maximum = new(float.MinValue, float.MinValue);
+		var centers = new Dictionary<Polygon2D, Vector2>();
+		Transform2D layerTransformInverse = _buildingLayer.GetGlobalTransform().AffineInverse();
+
+		foreach (Polygon2D building in _roles.Keys)
+		{
+			if (building.Polygon.Length == 0)
+			{
+				continue;
+			}
+
+			Vector2 center = Vector2.Zero;
+			Transform2D buildingTransform = building.GetGlobalTransform();
+			foreach (Vector2 point in building.Polygon)
+			{
+				Vector2 layerPoint = layerTransformInverse * (buildingTransform * point);
+				minimum = new Vector2(Mathf.Min(minimum.X, layerPoint.X), Mathf.Min(minimum.Y, layerPoint.Y));
+				maximum = new Vector2(Mathf.Max(maximum.X, layerPoint.X), Mathf.Max(maximum.Y, layerPoint.Y));
+				center += layerPoint;
+			}
+
+			centers[building] = center / building.Polygon.Length;
+		}
+
+		if (centers.Count == 0)
+		{
+			return;
+		}
+
+		Vector2 mapCenter = (minimum + maximum) * 0.5f;
+		Polygon2D headquarters = null;
+		float bestDistanceSquared = float.MaxValue;
+		foreach ((Polygon2D building, Vector2 center) in centers)
+		{
+			float distanceSquared = center.DistanceSquaredTo(mapCenter);
+			if (distanceSquared >= bestDistanceSquared)
+			{
+				continue;
+			}
+
+			headquarters = building;
+			bestDistanceSquared = distanceSquared;
+		}
+
+		if (headquarters != null)
+		{
+			_roles[headquarters] = MapBuildingRole.Headquarters;
+			headquarters.Color = GetRoleColor(headquarters, MapBuildingRole.Headquarters);
+		}
+	}
+
+	private Polygon2D AssignRandomObject(Polygon2D excludedBuilding = null)
+	{
+		var candidates = new List<Polygon2D>();
+		foreach ((Polygon2D building, MapBuildingRole role) in _roles)
+		{
+			if (role != MapBuildingRole.Empty
+				|| building == excludedBuilding
+				|| building is MapBuildingPolygon { IsDispatchTarget: false })
+			{
+				continue;
+			}
+
+			candidates.Add(building);
+		}
+
+		if (candidates.Count == 0)
+		{
+			return null;
+		}
+
+		Polygon2D selectedObject = candidates[GD.RandRange(0, candidates.Count - 1)];
+		_roles[selectedObject] = MapBuildingRole.Object;
+		selectedObject.Color = GetRoleColor(selectedObject, MapBuildingRole.Object);
+		return selectedObject;
+	}
+
+	private void GenerateRandomObject()
+	{
+		Polygon2D previousObject = FindBuildingByRole(MapBuildingRole.Object);
+		ClearRole(MapBuildingRole.Object);
+
+		Polygon2D generatedObject = AssignRandomObject(previousObject);
+		if (generatedObject == null)
+		{
+			generatedObject = AssignRandomObject();
+		}
+
+		ClearRoute();
+		if (generatedObject == null)
+		{
+			UpdateRouteStatus("МАРШРУТ: нет доступных зданий");
+			return;
+		}
+
+		_selectedBuilding = generatedObject;
+		UpdateSelectionUi();
+		UpdateRouteStatus("МАРШРУТ: назначен новый случайный объект");
 	}
 
 	private void BuildRoadGraph()
@@ -322,6 +536,7 @@ public partial class MapBuildingEditor : Control
 
 		_roles[_selectedBuilding] = role;
 		_selectedBuilding.Color = GetRoleColor(_selectedBuilding, role);
+		UpdateHeadquartersMarker();
 		ClearRoute();
 		UpdateSelectionUi();
 		UpdateRouteStatus("МАРШРУТ: готов к построению");
@@ -339,6 +554,8 @@ public partial class MapBuildingEditor : Control
 			_roles[building] = MapBuildingRole.Empty;
 			building.Color = GetRoleColor(building, MapBuildingRole.Empty);
 		}
+
+		UpdateHeadquartersMarker();
 	}
 
 	private void BuildRouteFromHeadquartersToObject()
@@ -353,11 +570,9 @@ public partial class MapBuildingEditor : Control
 			return;
 		}
 
-		Vector2 startBuildingCenter = GetBuildingCenter(headquarters);
-		Vector2 targetBuildingCenter = GetBuildingCenter(targetObject);
-		RoadAttachment startAttachment = FindRoadAttachment(startBuildingCenter, targetBuildingCenter);
-		RoadAttachment targetAttachment = FindRoadAttachment(targetBuildingCenter, startBuildingCenter);
-		List<string> nodePath = FindRoadPath(startAttachment, targetAttachment);
+		BuildingRoadAnchor startAnchor = FindClosestRoadAnchor(headquarters, targetObject);
+		BuildingRoadAnchor targetAnchor = FindClosestRoadAnchor(targetObject, headquarters);
+		List<string> nodePath = FindRoadPath(startAnchor.Attachment, targetAnchor.Attachment);
 
 		if (nodePath.Count == 0)
 		{
@@ -367,12 +582,14 @@ public partial class MapBuildingEditor : Control
 		}
 
 		_routePoints.Clear();
+		_routePoints.Add(startAnchor.BuildingPosition);
 
 		foreach (string nodeId in nodePath)
 		{
-			_routePoints.Add(GetRouteNodePosition(nodeId, startAttachment, targetAttachment));
+			_routePoints.Add(GetRouteNodePosition(nodeId, startAnchor.Attachment, targetAnchor.Attachment));
 		}
 
+		_routePoints.Add(targetAnchor.BuildingPosition);
 		ShowRoute();
 	}
 
@@ -389,109 +606,112 @@ public partial class MapBuildingEditor : Control
 		return null;
 	}
 
-	private Vector2 GetBuildingCenter(Polygon2D building)
-	{
-		Vector2 sum = Vector2.Zero;
-		Vector2[] polygon = building.Polygon;
-
-		foreach (Vector2 point in polygon)
-		{
-			sum += building.GetGlobalTransform() * point;
-		}
-
-		Vector2 globalCenter = sum / polygon.Length;
-		return GetRouteLayer().GetGlobalTransform().AffineInverse() * globalCenter;
-	}
-
 	private Control GetRouteLayer()
 	{
 		return _routeRenderer.GetParent<Control>();
 	}
 
-	private RoadAttachment FindRoadAttachment(Vector2 buildingCenter, Vector2 otherBuildingCenter)
+	private BuildingRoadAnchor FindClosestRoadAnchor(Polygon2D building, Polygon2D otherBuilding)
 	{
-		RoadAttachment bestRayAttachment = default;
-		float bestRayDistance = float.MaxValue;
-		float bestFallbackDistance = float.MaxValue;
-		RoadAttachment bestFallbackAttachment = default;
-		Vector2 directionToTarget = otherBuildingCenter - buildingCenter;
+		Vector2[] buildingPoints = GetBuildingPointsInRouteSpace(building);
+		Vector2[] otherBuildingPoints = GetBuildingPointsInRouteSpace(otherBuilding);
+		Vector2 facingPosition = FindPerimeterPointFacingBuilding(buildingPoints, otherBuildingPoints);
+		return FindClosestRoadAnchor(facingPosition);
+	}
 
-		if (directionToTarget.LengthSquared() <= 0.001f)
-		{
-			directionToTarget = Vector2.Right;
-		}
-
-		directionToTarget = directionToTarget.Normalized();
+	private BuildingRoadAnchor FindClosestRoadAnchor(Vector2 buildingPosition)
+	{
+		BuildingRoadAnchor bestAnchor = default;
+		float bestDistanceSquared = float.MaxValue;
 
 		foreach (RoadSegment segment in _roadSegments)
 		{
-			Vector2 projectedPoint = ProjectPointOnSegment(buildingCenter, segment.FromPosition, segment.ToPosition);
-			float distanceToRoad = buildingCenter.DistanceTo(projectedPoint);
-
-			if (distanceToRoad < bestFallbackDistance)
-			{
-				float fallbackDistanceFromFrom = segment.FromPosition.DistanceTo(projectedPoint);
-				float fallbackDistanceFromTo = segment.ToPosition.DistanceTo(projectedPoint);
-				bestFallbackAttachment = new RoadAttachment(projectedPoint, segment, fallbackDistanceFromFrom, fallbackDistanceFromTo);
-				bestFallbackDistance = distanceToRoad;
-			}
-
-			if (!TryGetRaySegmentIntersection(
-				buildingCenter,
-				directionToTarget,
+			Vector2 roadPosition = ProjectPointOnSegment(
+				buildingPosition,
 				segment.FromPosition,
-				segment.ToPosition,
-				out Vector2 rayIntersection,
-				out float rayDistance))
-			{
-				continue;
-			}
-
-			if (rayDistance >= bestRayDistance)
-			{
-				continue;
-			}
-
-			float distanceFromFrom = segment.FromPosition.DistanceTo(rayIntersection);
-			float distanceFromTo = segment.ToPosition.DistanceTo(rayIntersection);
-			bestRayAttachment = new RoadAttachment(rayIntersection, segment, distanceFromFrom, distanceFromTo);
-			bestRayDistance = rayDistance;
+				segment.ToPosition);
+			ConsiderRoadAnchor(
+				buildingPosition,
+				roadPosition,
+				segment,
+				ref bestAnchor,
+				ref bestDistanceSquared);
 		}
 
-		return bestRayDistance < float.MaxValue ? bestRayAttachment : bestFallbackAttachment;
+		return bestAnchor;
 	}
 
-	private static bool TryGetRaySegmentIntersection(
-		Vector2 rayOrigin,
-		Vector2 rayDirection,
-		Vector2 segmentStart,
-		Vector2 segmentEnd,
-		out Vector2 intersection,
-		out float rayDistance)
+	private static Vector2 FindPerimeterPointFacingBuilding(Vector2[] buildingPoints, Vector2[] otherBuildingPoints)
 	{
-		intersection = Vector2.Zero;
-		rayDistance = 0.0f;
+		Vector2 bestPoint = buildingPoints[0];
+		float bestDistanceSquared = float.MaxValue;
 
-		Vector2 segment = segmentEnd - segmentStart;
-		float denominator = Cross(rayDirection, segment);
-
-		if (Mathf.Abs(denominator) <= 0.001f)
+		for (int buildingIndex = 0; buildingIndex < buildingPoints.Length; buildingIndex++)
 		{
-			return false;
+			Vector2 buildingFrom = buildingPoints[buildingIndex];
+			Vector2 buildingTo = buildingPoints[(buildingIndex + 1) % buildingPoints.Length];
+
+			for (int otherIndex = 0; otherIndex < otherBuildingPoints.Length; otherIndex++)
+			{
+				Vector2 otherFrom = otherBuildingPoints[otherIndex];
+				Vector2 otherTo = otherBuildingPoints[(otherIndex + 1) % otherBuildingPoints.Length];
+
+				ConsiderFacingPoint(buildingFrom, ProjectPointOnSegment(buildingFrom, otherFrom, otherTo), ref bestPoint, ref bestDistanceSquared);
+				ConsiderFacingPoint(buildingTo, ProjectPointOnSegment(buildingTo, otherFrom, otherTo), ref bestPoint, ref bestDistanceSquared);
+				ConsiderFacingPoint(ProjectPointOnSegment(otherFrom, buildingFrom, buildingTo), otherFrom, ref bestPoint, ref bestDistanceSquared);
+				ConsiderFacingPoint(ProjectPointOnSegment(otherTo, buildingFrom, buildingTo), otherTo, ref bestPoint, ref bestDistanceSquared);
+			}
 		}
 
-		Vector2 originToSegmentStart = segmentStart - rayOrigin;
-		float rayT = Cross(originToSegmentStart, segment) / denominator;
-		float segmentT = Cross(originToSegmentStart, rayDirection) / denominator;
+		return bestPoint;
+	}
 
-		if (rayT <= 0.001f || segmentT < 0.0f || segmentT > 1.0f)
+	private static void ConsiderFacingPoint(
+		Vector2 buildingPosition,
+		Vector2 otherBuildingPosition,
+		ref Vector2 bestPoint,
+		ref float bestDistanceSquared)
+	{
+		float distanceSquared = buildingPosition.DistanceSquaredTo(otherBuildingPosition);
+		if (distanceSquared < bestDistanceSquared)
 		{
-			return false;
+			bestPoint = buildingPosition;
+			bestDistanceSquared = distanceSquared;
+		}
+	}
+
+	private Vector2[] GetBuildingPointsInRouteSpace(Polygon2D building)
+	{
+		var points = new Vector2[building.Polygon.Length];
+		Transform2D buildingTransform = building.GetGlobalTransform();
+		Transform2D routeTransformInverse = GetRouteLayer().GetGlobalTransform().AffineInverse();
+		for (int index = 0; index < building.Polygon.Length; index++)
+		{
+			points[index] = routeTransformInverse * (buildingTransform * building.Polygon[index]);
 		}
 
-		intersection = rayOrigin + (rayDirection * rayT);
-		rayDistance = rayT;
-		return true;
+		return points;
+	}
+
+	private static void ConsiderRoadAnchor(
+		Vector2 buildingPosition,
+		Vector2 roadPosition,
+		RoadSegment segment,
+		ref BuildingRoadAnchor bestAnchor,
+		ref float bestDistanceSquared)
+	{
+		float distanceSquared = buildingPosition.DistanceSquaredTo(roadPosition);
+		if (distanceSquared >= bestDistanceSquared)
+		{
+			return;
+		}
+
+		float distanceFromFrom = segment.FromPosition.DistanceTo(roadPosition);
+		float distanceFromTo = segment.ToPosition.DistanceTo(roadPosition);
+		bestAnchor = new BuildingRoadAnchor(
+			buildingPosition,
+			new RoadAttachment(roadPosition, segment, distanceFromFrom, distanceFromTo));
+		bestDistanceSquared = distanceSquared;
 	}
 
 	private static Vector2 ProjectPointOnSegment(Vector2 point, Vector2 segmentStart, Vector2 segmentEnd)
@@ -627,7 +847,26 @@ public partial class MapBuildingEditor : Control
 			return;
 		}
 
-		UpdateRouteStatus("МАРШРУТ: движение");
+		UpdateRouteEta();
+	}
+
+	private void UpdateRouteEta()
+	{
+		if (MarkerSpeed <= 0.0f)
+		{
+			UpdateRouteStatus("МАРШРУТ: группа ожидает отправки");
+			return;
+		}
+
+		float remainingDistance = Mathf.Max(_routeLength - _markerTravelDistance, 0.0f);
+		int remainingSeconds = Mathf.CeilToInt(remainingDistance / MarkerSpeed);
+		if (remainingSeconds == _lastDisplayedEtaSeconds)
+		{
+			return;
+		}
+
+		_lastDisplayedEtaSeconds = remainingSeconds;
+		UpdateRouteStatus($"МАРШРУТ: прибытие через {remainingSeconds} с");
 	}
 
 	private float CalculateRouteLength()
@@ -678,6 +917,7 @@ public partial class MapBuildingEditor : Control
 		_isMarkerMoving = false;
 		_isRouteFading = false;
 		_markerTravelDistance = 0.0f;
+		_lastDisplayedEtaSeconds = -1;
 		_routeLength = 0.0f;
 	}
 
@@ -693,10 +933,40 @@ public partial class MapBuildingEditor : Control
 	{
 		return role switch
 		{
-			MapBuildingRole.Headquarters => new Color(0.42f, 0.58f, 0.58f, 1.0f),
+			MapBuildingRole.Headquarters => new Color(0.22f, 0.48f, 0.52f, 1.0f),
 			MapBuildingRole.Object => new Color(0.66f, 0.38f, 0.31f, 1.0f),
 			_ => _baseColors[building]
 		};
+	}
+
+	private void UpdateHeadquartersMarker()
+	{
+		if (!ShowHeadquartersLabel)
+		{
+			_headquartersMarker.Visible = false;
+			return;
+		}
+
+		Polygon2D headquarters = FindBuildingByRole(MapBuildingRole.Headquarters);
+		if (headquarters == null || headquarters.Polygon.Length == 0)
+		{
+			_headquartersMarker.Visible = false;
+			return;
+		}
+
+		Vector2 polygonCenter = Vector2.Zero;
+		foreach (Vector2 point in headquarters.Polygon)
+		{
+			polygonCenter += point;
+		}
+
+		polygonCenter /= headquarters.Polygon.Length;
+		Vector2 globalCenter = headquarters.GetGlobalTransform() * polygonCenter;
+		Control markerLayer = _headquartersMarker.GetParent<Control>();
+		Vector2 markerCenter = markerLayer.GetGlobalTransform().AffineInverse() * globalCenter;
+
+		_headquartersMarker.Position = markerCenter - (_headquartersMarker.Size * 0.5f);
+		_headquartersMarker.Visible = true;
 	}
 
 	private void UpdateSelectionUi()
@@ -772,6 +1042,10 @@ public partial class MapBuildingEditor : Control
 		RoadSegment Segment,
 		float DistanceFromFrom,
 		float DistanceFromTo);
+
+	private readonly record struct BuildingRoadAnchor(
+		Vector2 BuildingPosition,
+		RoadAttachment Attachment);
 
 	private readonly record struct RoadSourceSegment(
 		string RoadName,

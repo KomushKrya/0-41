@@ -8,10 +8,15 @@ public partial class FlyPlayer : CharacterBody3D
 	[Export] public float VerticalSpeed { get; set; } = 2.5f;
 	[Export] public float MouseSensitivity { get; set; } = 0.0025f;
 	[Export] public float CameraTransitionDuration { get; set; } = 0.45f;
+	[Export] public float CharacterHeight { get; set; } = 1.75f;
+	[Export] public float FloorHeight { get; set; } = 0.0f;
 	[Export] public NodePath HeadPath { get; set; } = new("Head");
 	[Export] public NodePath InteractionRayPath { get; set; } = new("Head/Camera3D/InteractionRay");
 
 	public bool IsSeated => _isSeated;
+	public bool IsViewFocused => _isViewFocused;
+	public bool IsCameraTransitioning => _transitionKind != CameraTransitionKind.None;
+	public bool IsNoclipEnabled => _isNoclipEnabled;
 	public bool MovementEnabled { get; private set; } = true;
 
 	private Node3D _head = null!;
@@ -29,6 +34,8 @@ public partial class FlyPlayer : CharacterBody3D
 	private Vector3 _transitionEndHeadRotation;
 	private float _transitionElapsed;
 	private float _transitionDuration;
+	private uint _defaultCollisionMask;
+	private bool _isNoclipEnabled;
 
 	private enum CameraTransitionKind
 	{
@@ -43,6 +50,7 @@ public partial class FlyPlayer : CharacterBody3D
 	{
 		_head = GetNode<Node3D>(HeadPath);
 		_interactionRay = GetNode<RayCast3D>(InteractionRayPath);
+		_defaultCollisionMask = CollisionMask;
 		Input.MouseMode = Input.MouseModeEnum.Captured;
 	}
 
@@ -50,6 +58,13 @@ public partial class FlyPlayer : CharacterBody3D
 	{
 		if (_transitionKind != CameraTransitionKind.None)
 		{
+			GetViewport().SetInputAsHandled();
+			return;
+		}
+
+		if (@event is InputEventKey keyEvent && keyEvent.Pressed && !keyEvent.Echo && keyEvent.Keycode == Key.F12)
+		{
+			SetNoclipEnabled(!_isNoclipEnabled);
 			GetViewport().SetInputAsHandled();
 			return;
 		}
@@ -143,6 +158,10 @@ public partial class FlyPlayer : CharacterBody3D
 		Velocity = velocity;
 
 		MoveAndSlide();
+		if (!_isNoclipEnabled)
+		{
+			ClampFlightHeight();
+		}
 	}
 
 	public void SitAt(Transform3D cameraTransform, Transform3D standUpTransform)
@@ -177,6 +196,13 @@ public partial class FlyPlayer : CharacterBody3D
 		{
 			Velocity = Vector3.Zero;
 		}
+	}
+
+	private void SetNoclipEnabled(bool enabled)
+	{
+		_isNoclipEnabled = enabled;
+		CollisionMask = enabled ? 0u : _defaultCollisionMask;
+		GD.Print($"[KONTUR] Noclip: {(enabled ? "ON" : "OFF")}");
 	}
 
 	public void ExitFocusedView()
@@ -233,6 +259,21 @@ public partial class FlyPlayer : CharacterBody3D
 	{
 		_hoveredInteractable?.SetHovered(false);
 		_hoveredInteractable = null;
+	}
+
+	private void ClampFlightHeight()
+	{
+		float minimumCenterHeight = FloorHeight + (CharacterHeight * 0.5f);
+		if (GlobalPosition.Y >= minimumCenterHeight)
+		{
+			return;
+		}
+
+		GlobalPosition = new Vector3(GlobalPosition.X, minimumCenterHeight, GlobalPosition.Z);
+		if (Velocity.Y < 0.0f)
+		{
+			Velocity = new Vector3(Velocity.X, 0.0f, Velocity.Z);
+		}
 	}
 
 	private static IInteractable? FindInteractable(Node node)

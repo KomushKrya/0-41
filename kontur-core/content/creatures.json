@@ -1,0 +1,38 @@
+[
+	{
+		"id": "creature_mimic",
+		"tags": [
+			"мимик"
+		],
+		"illustrationId": "art_mimic",
+		"properties": [
+			"property_mimic_routine",
+			"property_mimic_speech",
+			"property_mimic_break"
+		]
+	},
+	{
+		"id": "creature_perekozhnik",
+		"tags": [
+			"перекожник"
+		],
+		"illustrationId": "art_skinwalker",
+		"properties": [
+			"property_perekozhnik_eye_contact",
+			"property_perekozhnik_distance",
+			"property_perekozhnik_heartbeat"
+		]
+	},
+	{
+		"id": "creature_hum",
+		"tags": [
+			"гул"
+		],
+		"illustrationId": "art_hum",
+		"properties": [
+			"property_hum_crowd",
+			"property_hum_plugs",
+			"property_hum_channel"
+		]
+	}
+]

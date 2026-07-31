@@ -1,0 +1,190 @@
+[
+	{
+		"id": "radio_mimic_school",
+		"situationText": "Группа на месте. Докладывают: в кабинете на втором этаже стоит вторая такая же парта, за ней — фигура в форме ученика. Не двигается. Часы на стене стоят.",
+		"options": [
+			{
+				"id": "opt_attack",
+				"text": "Работать по объекту на поражение, немедленно.",
+				"requirementMultiplier": 1.6,
+				"deathChanceMultiplier": 2.0,
+				"injuryChanceMultiplier": 1.5,
+				"quality": "Bad",
+				"extraScales": {
+					"publicity": 4.0
+				},
+				"revealsPropertyId": "property_mimic_break"
+			},
+			{
+				"id": "opt_blend",
+				"text": "Смешаться с потоком, пройти мимо и вывести людей из корпуса.",
+				"requirementMultiplier": 0.75,
+				"quality": "Good",
+				"revealsPropertyId": "property_mimic_routine"
+			},
+			{
+				"id": "opt_wait",
+				"text": "Всем замереть в подсобке и не двигаться пятнадцать минут.",
+				"requirementMultiplier": 0.4,
+				"deathChanceMultiplier": 0.3,
+				"quality": "Best",
+				"extraScales": {
+					"infection": -2.0
+				},
+				"revealsPropertyId": "property_mimic_speech"
+			}
+		]
+	},
+	{
+		"id": "radio_mimic_flat",
+		"situationText": "Квартира. Хозяйка на кухне и хозяйка в коридоре. Обе спокойны, обе называют одно имя. Настенные часы стоят на 6:40.",
+		"options": [
+			{
+				"id": "opt_separate",
+				"text": "Развести обеих по разным комнатам и работать по одной.",
+				"requirementMultiplier": 1.4,
+				"deathChanceMultiplier": 1.8,
+				"quality": "Bad"
+			},
+			{
+				"id": "opt_clock",
+				"text": "Сверить часы: которая из двух не заметит, что время стоит.",
+				"requirementMultiplier": 0.5,
+				"quality": "Best",
+				"revealsPropertyId": "property_mimic_routine"
+			},
+			{
+				"id": "opt_evacuate",
+				"text": "Вывести обеих на лестницу, изолировать площадку.",
+				"requirementMultiplier": 0.8,
+				"quality": "Good",
+				"extraScales": {
+					"publicity": 2.0,
+					"infection": -3.0
+				}
+			}
+		]
+	},
+	{
+		"id": "radio_skin_yard",
+		"situationText": "Двор, темно. Объект крупный, держится вдоль стены, на открытое место не выходит. Рядом заведённая техника.",
+		"options": [
+			{
+				"id": "opt_engine",
+				"text": "Заглушить двигатели и отвести технику со двора.",
+				"requirementMultiplier": 0.5,
+				"quality": "Best",
+				"revealsPropertyId": "property_perekozhnik_heartbeat"
+			},
+			{
+				"id": "opt_flare",
+				"text": "Работать ракетой в упор, заставить сбросить покров.",
+				"requirementMultiplier": 0.75,
+				"injuryChanceMultiplier": 1.3,
+				"quality": "Good",
+				"revealsPropertyId": "property_perekozhnik_eye_contact"
+			},
+			{
+				"id": "opt_chase",
+				"text": "Гнать объект в открытую часть двора и брать на прострел.",
+				"requirementMultiplier": 1.5,
+				"deathChanceMultiplier": 2.2,
+				"quality": "Bad",
+				"extraScales": {
+					"publicity": 5.0
+				}
+			}
+		]
+	},
+	{
+		"id": "radio_skin_depot",
+		"situationText": "Складской корпус. Объект внутри, ход один. Группа стоит в проёме.",
+		"options": [
+			{
+				"id": "opt_block",
+				"text": "Перекрыть проём и держать. Внутрь не входить.",
+				"requirementMultiplier": 0.45,
+				"deathChanceMultiplier": 0.4,
+				"quality": "Best",
+				"revealsPropertyId": "property_perekozhnik_distance"
+			},
+			{
+				"id": "opt_enter",
+				"text": "Заходить парами, работать по секторам.",
+				"requirementMultiplier": 1.3,
+				"deathChanceMultiplier": 1.7,
+				"quality": "Bad"
+			},
+			{
+				"id": "opt_smoke",
+				"text": "Выкурить объект наружу и брать на выходе.",
+				"requirementMultiplier": 0.85,
+				"quality": "Good",
+				"extraScales": {
+					"publicity": 2.0
+				}
+			}
+		]
+	},
+	{
+		"id": "radio_kanalotvar_boiler",
+		"situationText": "Котельная. Подвал затоплен, в трубе слышно движение. У решётки собрались собаки.",
+		"options": [
+			{
+				"id": "opt_all_in",
+				"text": "Заводить всю группу вниз и работать быстро.",
+				"requirementMultiplier": 1.5,
+				"injuryChanceMultiplier": 2.0,
+				"quality": "Bad",
+				"revealsPropertyId": "property_kanalotvar_lure"
+			},
+			{
+				"id": "opt_two",
+				"text": "Оставить снаружи всех, кроме двоих: работать молча, связь только светом.",
+				"requirementMultiplier": 0.5,
+				"injuryChanceMultiplier": 0.5,
+				"quality": "Best",
+				"revealsPropertyId": "property_kanalotvar_sound"
+			},
+			{
+				"id": "opt_vent",
+				"text": "Откачать воду насосом и ждать, пока сойдёт уровень.",
+				"requirementMultiplier": 0.8,
+				"quality": "Good"
+			}
+		]
+	},
+	{
+		"id": "radio_kanalotvar_tunnel",
+		"situationText": "Коллектор. Движение в трубе смещается в сторону жилых домов.",
+		"options": [
+			{
+				"id": "opt_follow",
+				"text": "Идти следом по коллектору, не отставать.",
+				"requirementMultiplier": 1.45,
+				"injuryChanceMultiplier": 1.6,
+				"quality": "Bad"
+			},
+			{
+				"id": "opt_seal",
+				"text": "Перекрыть сток впереди и остановить смещение.",
+				"requirementMultiplier": 0.45,
+				"quality": "Best",
+				"revealsPropertyId": "property_kanalotvar_water",
+				"extraScales": {
+					"infection": -3.0
+				}
+			},
+			{
+				"id": "opt_quarantine",
+				"text": "Закрыть квартал и вывести жильцов.",
+				"requirementMultiplier": 0.9,
+				"quality": "Good",
+				"extraScales": {
+					"publicity": 6.0,
+					"infection": -5.0
+				}
+			}
+		]
+	}
+]

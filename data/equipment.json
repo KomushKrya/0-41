@@ -1,0 +1,55 @@
+[
+  {
+	"id": "eq_filters",
+	"name": "Новые фильтры",
+	"description": "Комплект свежих фильтров к респираторам. Расходуется за выезд.",
+	"kind": "Consumable",
+	"bonus": { "endurance": 1 }
+  },
+  {
+	"id": "eq_flare",
+	"name": "Сигнальные ракеты",
+	"description": "Освещают объект и сбивают ориентацию аномалии.",
+	"kind": "Consumable",
+	"bonus": { "perception": 2 }
+  },
+  {
+	"id": "eq_sedative",
+	"name": "Ампулы Т-14",
+	"description": "Транквилизатор для крупных особей.",
+	"kind": "Consumable",
+	"bonus": { "strength": 2 }
+  },
+  {
+	"id": "eq_earplugs",
+	"name": "Заглушки СЛ-2",
+	"description": "Гасят низкочастотный фон. Спасают на звуковых аномалиях.",
+	"kind": "Consumable",
+	"bonus": { "composure": 2 }
+  },
+  {
+	"id": "eq_armor",
+	"name": "Бронежилет 6Б",
+	"description": "Тяжёлый, но заметно снижает риск потерь.",
+	"kind": "Standard",
+	"bonus": { "endurance": 3 },
+	"deathChanceMultiplier": 0.5
+  },
+  {
+	"id": "eq_antenna",
+	"name": "Направленная антенна",
+	"description": "Устойчивая связь с управлением на всём выезде.",
+	"kind": "Standard",
+	"bonus": { "composure": 2 },
+	"successChanceBonus": 0.05
+  },
+  {
+	"id": "eq_container",
+	"name": "Контейнер К-7",
+	"description": "Сюжетный образец. Позволяет изъять аномалию целиком.",
+	"kind": "Story",
+	"allStatsBonus": 2,
+	"successChanceBonus": 0.10,
+	"deathChanceMultiplier": 0.6
+  }
+]

@@ -1,0 +1,37 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="res://assets/models/environment/import/PCNew.glb" id="1_model"]
+[ext_resource type="PackedScene" path="res://scenes/ui/computer/ComputerUI.tscn" id="2_ui"]
+[ext_resource type="Script" path="res://scripts/debug/NewComputerScreenPreview.cs" id="3_preview"]
+
+[sub_resource type="Environment" id="Environment_preview"]
+background_mode = 1
+background_color = Color(0.06, 0.06, 0.075, 1)
+ambient_light_source = 3
+ambient_light_color = Color(0.62, 0.66, 0.75, 1)
+ambient_light_energy = 0.9
+
+[node name="NewComputerScreenPreview" type="Node3D"]
+script = ExtResource("3_preview")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_preview")
+
+[node name="KeyLight" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-35, -45, 0)
+light_energy = 1.4
+shadow_enabled = true
+
+[node name="ComputerViewport" type="SubViewport" parent="."]
+disable_3d = true
+size = Vector2i(900, 600)
+render_target_update_mode = 4
+
+[node name="ComputerUI" parent="ComputerViewport" instance=ExtResource("2_ui")]
+
+[node name="ComputerModel" parent="." instance=ExtResource("1_model")]
+
+[node name="PreviewCamera" type="Camera3D" parent="."]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 5.5, 1.4, 0)
+current = true
+fov = 42.0
