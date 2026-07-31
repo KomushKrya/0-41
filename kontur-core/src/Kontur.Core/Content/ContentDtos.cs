@@ -17,13 +17,13 @@ namespace Kontur.Core.Content
 
 		public int Endurance { get; set; }
 
-		public int Agility { get; set; }
+		public int Charisma { get; set; }
 
 		public int Composure { get; set; }
 
 		public StatBlock ToModel()
 		{
-			return new StatBlock(Strength, Perception, Endurance, Agility, Composure);
+			return new StatBlock(Strength, Perception, Endurance, Charisma, Composure);
 		}
 	}
 

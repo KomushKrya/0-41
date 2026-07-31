@@ -199,13 +199,13 @@ public abstract partial class ContentTextBox : Control
 	/// </summary>
 	protected virtual string ResolveValue(string name)
 	{
-		KonturRuntime runtime = KonturRuntime.Get(this);
+		GameRuntime runtime = GameRuntime.Get(this);
 		if (runtime == null || !runtime.IsReady)
 		{
 			return string.Empty;
 		}
 
-		return runtime.Simulation.Content.Abilities.TryGetValue(ContentId, out Ability ability)
+		return runtime.Session.Content.Abilities.TryGetValue(ContentId, out Ability ability)
 			? AbilityValue(ability, name)
 			: string.Empty;
 	}
@@ -239,7 +239,7 @@ public abstract partial class ContentTextBox : Control
 			return chunk;
 		}
 
-		string filled = Content.Fill(chunk.Text, name =>
+		string Resolve(string name)
 		{
 			string value = ResolveValue(name);
 			if (string.IsNullOrEmpty(value) && _reportedMissingValues.Add(name))
@@ -248,9 +248,23 @@ public abstract partial class ContentTextBox : Control
 			}
 
 			return value;
-		});
+		}
 
-		return new ContentChunk { Text = filled, Kind = chunk.Kind, Reveal = chunk.Reveal };
+		// Отрезки подсветки подставляются каждый сам по себе: поэтому конвертер и отдаёт
+		// их отрезками, а не позициями в тексте — те после подстановки уехали бы.
+		List<ContentSpan> spans = new(chunk.Spans.Count);
+		foreach (ContentSpan span in chunk.Spans)
+		{
+			spans.Add(new ContentSpan { Text = Content.Fill(span.Text, Resolve), Highlight = span.Highlight });
+		}
+
+		return new ContentChunk
+		{
+			Text = Content.Fill(chunk.Text, Resolve),
+			Kind = chunk.Kind,
+			Reveal = chunk.Reveal,
+			Spans = spans
+		};
 	}
 
 	/// <summary>Записи с таким id нет. По умолчанию предупреждение в Output.</summary>

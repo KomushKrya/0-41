@@ -9,12 +9,12 @@ namespace Kontur.Core.Model
 	/// </summary>
 	public readonly struct StatBlock : IEquatable<StatBlock>
 	{
-		public StatBlock(int strength, int perception, int endurance, int agility, int composure)
+		public StatBlock(int strength, int perception, int endurance, int charisma, int composure)
 		{
 			Strength = strength;
 			Perception = perception;
 			Endurance = endurance;
-			Agility = agility;
+			Charisma = charisma;
 			Composure = composure;
 		}
 
@@ -24,7 +24,7 @@ namespace Kontur.Core.Model
 
 		public int Endurance { get; }
 
-		public int Agility { get; }
+		public int Charisma { get; }
 
 		public int Composure { get; }
 
@@ -42,7 +42,7 @@ namespace Kontur.Core.Model
 					case StatKind.Strength: return Strength;
 					case StatKind.Perception: return Perception;
 					case StatKind.Endurance: return Endurance;
-					case StatKind.Agility: return Agility;
+					case StatKind.Charisma: return Charisma;
 					case StatKind.Composure: return Composure;
 					default: return 0;
 				}
@@ -51,7 +51,7 @@ namespace Kontur.Core.Model
 
 		public int Total
 		{
-			get { return Strength + Perception + Endurance + Agility + Composure; }
+			get { return Strength + Perception + Endurance + Charisma + Composure; }
 		}
 
 		public static StatBlock Uniform(int value)
@@ -63,11 +63,11 @@ namespace Kontur.Core.Model
 		{
 			switch (kind)
 			{
-				case StatKind.Strength: return new StatBlock(value, Perception, Endurance, Agility, Composure);
-				case StatKind.Perception: return new StatBlock(Strength, value, Endurance, Agility, Composure);
-				case StatKind.Endurance: return new StatBlock(Strength, Perception, value, Agility, Composure);
-				case StatKind.Agility: return new StatBlock(Strength, Perception, Endurance, value, Composure);
-				case StatKind.Composure: return new StatBlock(Strength, Perception, Endurance, Agility, value);
+				case StatKind.Strength: return new StatBlock(value, Perception, Endurance, Charisma, Composure);
+				case StatKind.Perception: return new StatBlock(Strength, value, Endurance, Charisma, Composure);
+				case StatKind.Endurance: return new StatBlock(Strength, Perception, value, Charisma, Composure);
+				case StatKind.Charisma: return new StatBlock(Strength, Perception, Endurance, value, Composure);
+				case StatKind.Composure: return new StatBlock(Strength, Perception, Endurance, Charisma, value);
 				default: return this;
 			}
 		}
@@ -83,7 +83,7 @@ namespace Kontur.Core.Model
 				Strength + other.Strength,
 				Perception + other.Perception,
 				Endurance + other.Endurance,
-				Agility + other.Agility,
+				Charisma + other.Charisma,
 				Composure + other.Composure);
 		}
 
@@ -94,7 +94,7 @@ namespace Kontur.Core.Model
 				ScaleValue(Strength, factor),
 				ScaleValue(Perception, factor),
 				ScaleValue(Endurance, factor),
-				ScaleValue(Agility, factor),
+				ScaleValue(Charisma, factor),
 				ScaleValue(Composure, factor));
 		}
 
@@ -104,7 +104,7 @@ namespace Kontur.Core.Model
 				Math.Max(minValue, Strength),
 				Math.Max(minValue, Perception),
 				Math.Max(minValue, Endurance),
-				Math.Max(minValue, Agility),
+				Math.Max(minValue, Charisma),
 				Math.Max(minValue, Composure));
 		}
 
@@ -118,7 +118,7 @@ namespace Kontur.Core.Model
 			return Strength == other.Strength
 				&& Perception == other.Perception
 				&& Endurance == other.Endurance
-				&& Agility == other.Agility
+				&& Charisma == other.Charisma
 				&& Composure == other.Composure;
 		}
 
@@ -129,7 +129,7 @@ namespace Kontur.Core.Model
 
 		public override int GetHashCode()
 		{
-			return HashCode.Combine(Strength, Perception, Endurance, Agility, Composure);
+			return HashCode.Combine(Strength, Perception, Endurance, Charisma, Composure);
 		}
 
 		public override string ToString()
@@ -150,7 +150,7 @@ namespace Kontur.Core.Model
 					builder.Append(' ');
 				}
 
-				builder.Append(StatKinds.GetDisplayName(kind)).Append(' ').Append(value);
+				builder.Append(StatKinds.GetId(kind)).Append(' ').Append(value);
 				first = false;
 			}
 

@@ -159,10 +159,12 @@ public partial class Content : Node
 			Type = ReadString(source, "type"),
 			Name = ReadString(source, "name"),
 			Outcome = ReadString(source, "outcome"),
+			MissionType = ReadString(source, "mission_type"),
 			Day = source.TryGetValue("day", out Variant day) ? day.AsInt32() : 0,
 			Requirements = ReadStringList(source, "requirements"),
 			Properties = ReadStringList(source, "properties"),
 			Variables = ReadStringList(source, "variables"),
+			Stats = ReadStringList(source, "stats"),
 			Chunks = ReadChunks(source, "chunks")
 		};
 
@@ -178,7 +180,6 @@ public partial class Content : Node
 			parsedOptions.Add(new ContentOption
 			{
 				Name = ReadString(optionData, "name"),
-				Canon = ReadString(optionData, "canon"),
 				RequirementModifier = optionData.TryGetValue("requirement_modifier", out Variant modifier)
 					? modifier.AsInt32()
 					: 0,
@@ -208,11 +209,34 @@ public partial class Content : Node
 			{
 				Text = ReadString(chunkData, "text"),
 				Kind = kind.Length > 0 ? kind : ContentChunk.KindText,
-				Reveal = reveal.VariantType == Variant.Type.String ? reveal.AsString() : string.Empty
+				Reveal = reveal.VariantType == Variant.Type.String ? reveal.AsString() : string.Empty,
+				Spans = ReadSpans(chunkData)
 			});
 		}
 
 		return chunks;
+	}
+
+	/// <summary>Отрезки подсветки куска. Пустой список — подсвечивать в нём нечего.</summary>
+	private static List<ContentSpan> ReadSpans(Godot.Collections.Dictionary chunkData)
+	{
+		List<ContentSpan> spans = new();
+		if (!chunkData.TryGetValue("spans", out Variant value))
+		{
+			return spans;
+		}
+
+		foreach (Variant item in value.AsGodotArray())
+		{
+			Godot.Collections.Dictionary spanData = item.AsGodotDictionary();
+			spans.Add(new ContentSpan
+			{
+				Text = ReadString(spanData, "text"),
+				Highlight = spanData.TryGetValue("highlight", out Variant highlight) && highlight.AsBool()
+			});
+		}
+
+		return spans;
 	}
 
 	private static List<string> ReadStringList(Godot.Collections.Dictionary source, string key)

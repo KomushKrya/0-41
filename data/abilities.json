@@ -19,7 +19,7 @@
 		"conditionValue": "eq_filters",
 		"bonus": {
 			"endurance": 2,
-			"agility": 2
+			"composure": 2
 		}
 	},
 	{

@@ -15,7 +15,7 @@
     "id": "ab_filter_master",
     "condition": "WithEquipment",
     "conditionValue": "eq_filters",
-    "bonus": { "endurance": 2, "agility": 2 }
+    "bonus": { "endurance": 2, "composure": 2 }
   },
   {
     "id": "ab_calm",

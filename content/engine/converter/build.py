@@ -25,21 +25,29 @@ from pathlib import Path
 FOLDER_TYPES = {
     "calls": "call",
     "cutscenes": "cutscene",
-    "mission_events": "mission_event",
+    "radio": "radio",
     "creatures": "creature",
     "shift_notes": "shift_note",
     "reports": "report",
     "UI/perks": "perk",
+    "UI/characteristics": "characteristic",
 }
 
 # Поля, которые есть только у своего типа: имя -> значение по умолчанию.
 # Тип значения задаёт и проверку: int по умолчанию требует целого во фронтматтере.
 TYPE_FIELDS = {
+    "call": {"mission_type": ""},
     "creature": {"name": ""},
     "shift_note": {"day": 0},
     "report": {"outcome": ""},
     "perk": {"name": ""},
+    "characteristic": {"name": ""},
 }
+
+# Чем заканчивается вызов: радийный требует вмешательства игрока (есть запись radio
+# с вариантами решений), филерный решается одной проверкой характеристик группы.
+# Пустое значение не допускается: тип вызова определяет, ждать ли под него текст radio.
+CALL_MISSION_TYPES = ("radio", "filler")
 
 # Типы, которые показываются виджетом нижнего текста: у них кусок должен влезать
 # примерно в две строки. Остальные (энциклопедия, отчёты) рендерятся на своих
@@ -64,7 +72,7 @@ CALL_META_RE = re.compile(r"^%%\s*call_meta:\s*(.+?)\s*%%$")
 REVEAL_OPEN_RE = re.compile(r"^%%\s*reveal:\s*([^\s%]+)\s*%%$")
 REVEAL_CLOSE_RE = re.compile(r"^%%\s*/\s*reveal\s*%%$")
 OPTION_RE = re.compile(r"^##\s*Вариант:\s*(.+?)\s*$")
-OPTION_META_RE = re.compile(r"^(requirement_modifier|canon)\s*:\s*(.*)$")
+OPTION_META_RE = re.compile(r"^(requirement_modifier)\s*:\s*(.*)$")
 LINK_RE = re.compile(r"\[\[([a-z_]+):([a-z0-9_]+)\]\]")
 # Подстановка числа из геймплейных данных: «+{{bonus.strength}} к силе».
 # Намеренно не %%: Обсидиан прячет %%...%% в режиме чтения, а плейсхолдер должен
@@ -73,6 +81,14 @@ LINK_RE = re.compile(r"\[\[([a-z_]+):([a-z0-9_]+)\]\]")
 VARIABLE_RE = re.compile(r"\{\{([^{}]*)\}\}")
 VARIABLE_NAME_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$")
 VARIABLE_LEFTOVER_RE = re.compile(r"\{\{|\}\}")
+# Ключевое слово в реплике: ==дочка маленькая==. Тег только красит — какую характеристику
+# слово подсказывает, в тексте не написано и игроку не показывается: это ему и предстоит
+# сообразить. Соответствие слов характеристикам — договорённость авторов, живёт в
+# _system/Keywords.md и в сборку не едет.
+# Синтаксис совпадает с обсидиановской подсветкой ==...==: в режиме чтения автор видит
+# подсвеченным ровно то, что увидит игрок.
+KEYWORD_RE = re.compile(r"==\s*([^=]+?)\s*==")
+KEYWORD_LEFTOVER_RE = re.compile(r"==")
 LIST_ITEM_RE = re.compile(r"^\s+-\s*(.*)$")
 SCALAR_RE = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)\s*:\s*(.*)$")
 
@@ -184,6 +200,57 @@ def strip_dev_notes(text: str, source: Path) -> str:
     return text
 
 
+def make_chunk(text: str, kind: str, reveal: str | None, source: Path) -> dict:
+    """Кусок с разобранной подсветкой ключевых слов.
+
+    Текст в JSON лежит уже чистым, без ==стат:...==, а разметка едет отдельным списком
+    отрезков — не смещениями. Рантайм подставляет {{имя}} прямо в текст, и любые позиции
+    после первой же подстановки уехали бы; отрезки же подставляются каждый сам по себе.
+    """
+    spans, clean = parse_keywords(text, source)
+    chunk = {"text": clean, "kind": kind, "reveal": reveal}
+    if spans:
+        chunk["spans"] = spans
+    return chunk
+
+
+def parse_keywords(text: str, source: Path) -> tuple[list[dict], str]:
+    """Отрезки подсветки и текст без тегов.
+
+    Отрезки покрывают кусок целиком и идут по порядку: у обычного текста `highlight`
+    ложный, у ключевого слова истинный. Склей их подряд — получишь текст обратно.
+    """
+    spans: list[dict] = []
+    clean: list[str] = []
+    cursor = 0
+
+    def add(part: str, highlight: bool) -> None:
+        if part:
+            spans.append({"text": part, "highlight": highlight})
+            clean.append(part)
+
+    for match in KEYWORD_RE.finditer(text):
+        add(text[cursor : match.start()], False)
+        add(match.group(1), True)
+        cursor = match.end()
+
+    tail = text[cursor:]
+    if spans:
+        add(tail, False)
+    else:
+        clean.append(tail)
+
+    result = "".join(clean)
+
+    if KEYWORD_LEFTOVER_RE.search(result):
+        raise BuildFailed(
+            f"{source}: непарная подсветка == в {text!r} — "
+            "нужно ==слово== целиком в одну строку"
+        )
+
+    return spans, result
+
+
 def parse_chunks(lines: list[str], source: Path) -> list[dict]:
     """Абзац = один кусок текста (клик). %% reveal %% помечает кусок условным."""
     chunks: list[dict] = []
@@ -194,7 +261,7 @@ def parse_chunks(lines: list[str], source: Path) -> list[dict]:
         nonlocal buffer
         text = " ".join(part.strip() for part in buffer).strip()
         if text:
-            chunks.append({"text": text, "kind": CHUNK_KIND_TEXT, "reveal": reveal})
+            chunks.append(make_chunk(text, CHUNK_KIND_TEXT, reveal, source))
         buffer = []
 
     for raw_line in lines:
@@ -203,7 +270,7 @@ def parse_chunks(lines: list[str], source: Path) -> list[dict]:
         meta = CALL_META_RE.match(line)
         if meta:
             flush()
-            chunks.append({"text": meta.group(1), "kind": CHUNK_KIND_CALL_META, "reveal": reveal})
+            chunks.append(make_chunk(meta.group(1), CHUNK_KIND_CALL_META, reveal, source))
             continue
 
         open_match = REVEAL_OPEN_RE.match(line)
@@ -248,9 +315,6 @@ def parse_option(name: str, lines: list[str], source: Path) -> dict:
             meta[match.group(1)] = match.group(2).strip()
         start = index + 1
 
-    if "canon" not in meta:
-        raise BuildFailed(f"{source}: у варианта {name!r} нет поля canon")
-
     modifier_text = meta.get("requirement_modifier", "0")
     try:
         modifier = int(modifier_text)
@@ -263,7 +327,6 @@ def parse_option(name: str, lines: list[str], source: Path) -> dict:
     return {
         "name": name,
         "requirement_modifier": modifier,
-        "canon": meta["canon"],
         "chunks": parse_chunks(lines[start:], source),
     }
 
@@ -313,7 +376,7 @@ def collect_variables(entry: dict, source: Path) -> list[str]:
 
 
 def all_chunks(entry: dict):
-    """Куски вводной плюс куски всех вариантов — у mission_event текст есть и там."""
+    """Куски вводной плюс куски всех вариантов — у radio текст есть и там."""
     yield from entry["chunks"]
     for option in entry.get("options", []):
         yield from option["chunks"]
@@ -352,11 +415,11 @@ def parse_file(path: Path, expected_type: str, repo_root: Path) -> dict:
         "properties": frontmatter.get("properties", []),
     }
 
-    if expected_type == "mission_event":
+    if expected_type == "radio":
         intro_lines, entry["options"] = parse_options(body_lines, path)
         entry["chunks"] = parse_chunks(intro_lines, path)
         if not entry["options"]:
-            raise BuildFailed(f"{path}: у mission_event должен быть хотя бы один вариант решения")
+            raise BuildFailed(f"{path}: у radio должен быть хотя бы один вариант решения")
     else:
         entry["chunks"] = parse_chunks(body_lines, path)
 
@@ -370,6 +433,13 @@ def parse_file(path: Path, expected_type: str, repo_root: Path) -> dict:
             except (TypeError, ValueError):
                 raise BuildFailed(f"{path}: {field} должно быть целым, а не {value!r}") from None
         entry[field] = value
+
+    if expected_type == "call" and entry["mission_type"] not in CALL_MISSION_TYPES:
+        raise BuildFailed(
+            f"{path}: mission_type={entry['mission_type']!r}, допустимы только "
+            f"{' и '.join(CALL_MISSION_TYPES)} (radio — вызов с вмешательством по рации, "
+            "filler — вызов, который решается одной проверкой характеристик)"
+        )
 
     if expected_type not in BOTTOM_TEXT_TYPES:
         for chunk in all_chunks(entry):

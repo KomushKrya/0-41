@@ -313,11 +313,20 @@ ShiftStatusView(Day, IsShiftActive, ShiftTime, IsCallWindowClosed, OpenIncidents
 int strength = stats[StatKind.Strength];
 int total    = stats.Total;
 StatBlock sum = a + b;                 // поэлементно
-string text  = stats.ToString();       // «Сила 5 Восприятие 3» — нулевые опущены
-string label = StatKinds.GetDisplayName(StatKind.Composure);  // «Хладнокровие»
+string text  = stats.ToString();       // «strength 5 perception 3» — нулевые опущены
+string id    = StatKinds.GetId(StatKind.Composure);           // «composure»
 ```
 
-`StatKind`: `Strength`, `Perception`, `Endurance`, `Agility`, `Composure`.
+`StatKind`: `Strength`, `Perception`, `Endurance`, `Charisma`, `Composure`.
+
+**Названий характеристик ядро не знает.** `GetId` отдаёт только id — он же id записи
+контента в `content/raw/UI/characteristics/`, откуда интерфейс берёт подпись (`Name`)
+и описание (`Chunks`):
+
+```csharp
+ContentEntry stat = Content.Instance.GetEntry(StatKinds.GetId(kind));
+label.Text = stat.Name;   // «Хладнокровие»
+```
 
 **`ScaleValues`** — `Infection`, `Publicity`, `Loyalty`, диапазон `0..100`.
 **`ScaleDelta`** — изменение; положительное значение = рост шкалы.
