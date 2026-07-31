@@ -347,8 +347,8 @@ public partial class KonturDebugOverlay : CanvasLayer
 
 		box.AddChild(check);
 
-		string perks = employee.AbilityNames.Count > 0
-			? "   перки: " + string.Join(", ", employee.AbilityNames)
+		string perks = employee.AbilityIds.Count > 0
+			? "   перки: " + string.Join(", ", PerkNames(employee.AbilityIds))
 			: string.Empty;
 
 		AddDimLabel(box, $"   [{employee.Stats}]{(employee.IsInjured ? "  ТРАВМА −1 ко всему" : string.Empty)}");
@@ -506,6 +506,23 @@ public partial class KonturDebugOverlay : CanvasLayer
 		var label = new Label { Text = text };
 		label.AddThemeColorOverride("font_color", new Color(0.62f, 0.85f, 0.66f));
 		parent.AddChild(label);
+	}
+
+	/// <summary>
+	/// Ядро отдаёт только id перков — названия лежат в текстовом движке
+	/// (content/raw/UI/perks). Если текста нет, показываем сам id: для отладочного
+	/// оверлея это полезнее пустого места.
+	/// </summary>
+	private static List<string> PerkNames(IReadOnlyList<string> abilityIds)
+	{
+		var names = new List<string>();
+		for (int i = 0; i < abilityIds.Count; i++)
+		{
+			ContentEntry entry = Content.Instance?.GetEntry(abilityIds[i]);
+			names.Add(entry != null && entry.Name.Length > 0 ? entry.Name : abilityIds[i]);
+		}
+
+		return names;
 	}
 
 	private static void AddDimLabel(Control parent, string text)
@@ -958,9 +975,10 @@ public partial class KonturDebugOverlay : CanvasLayer
 
 			builder.Append('\n');
 
-			if (employee.AbilityNames.Count > 0)
+			if (employee.AbilityIds.Count > 0)
 			{
-				builder.Append("    перки: ").Append(string.Join(", ", employee.AbilityNames)).Append('\n');
+				builder.Append("    перки: ")
+					.Append(string.Join(", ", PerkNames(employee.AbilityIds))).Append('\n');
 			}
 		}
 

@@ -24,15 +24,15 @@
 		]
 	},
 	{
-		"id": "creature_hum",
+		"id": "creature_kanalotvar",
 		"tags": [
-			"гул"
+			"каналотварь"
 		],
-		"illustrationId": "art_hum",
+		"illustrationId": "",
 		"properties": [
-			"property_hum_crowd",
-			"property_hum_plugs",
-			"property_hum_channel"
+			"property_kanalotvar_water",
+			"property_kanalotvar_lure",
+			"property_kanalotvar_sound"
 		]
 	}
 ]

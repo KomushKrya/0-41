@@ -15,13 +15,13 @@ namespace Kontur.Core.Model
 		WithEquipment = 2
 	}
 
+	/// <summary>
+	/// Только механика способности. Название и описание живут в текстовом движке
+	/// (content/raw/UI/perks) и достаются по этому же Id — ядро текста не носит.
+	/// </summary>
 	public sealed class Ability
 	{
 		public string Id { get; set; } = string.Empty;
-
-		public string Name { get; set; } = string.Empty;
-
-		public string Description { get; set; } = string.Empty;
 
 		public AbilityConditionKind Condition { get; set; } = AbilityConditionKind.Always;
 

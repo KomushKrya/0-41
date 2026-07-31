@@ -127,36 +127,36 @@
 		]
 	},
 	{
-		"id": "radio_hum_boiler",
-		"situationText": "Котельная. Фон растёт, у двоих уже течёт из носа. Заглушки взяли не все.",
+		"id": "radio_kanalotvar_boiler",
+		"situationText": "Котельная. Подвал затоплен, в трубе слышно движение. У решётки собрались собаки.",
 		"options": [
 			{
 				"id": "opt_all_in",
-				"text": "Заводить всю группу внутрь и работать быстро.",
+				"text": "Заводить всю группу вниз и работать быстро.",
 				"requirementMultiplier": 1.5,
 				"injuryChanceMultiplier": 2.0,
 				"quality": "Bad",
-				"revealsPropertyId": "property_hum_crowd"
+				"revealsPropertyId": "property_kanalotvar_lure"
 			},
 			{
 				"id": "opt_two",
-				"text": "Оставить снаружи всех, кроме двоих в заглушках.",
+				"text": "Оставить снаружи всех, кроме двоих: работать молча, связь только светом.",
 				"requirementMultiplier": 0.5,
 				"injuryChanceMultiplier": 0.5,
 				"quality": "Best",
-				"revealsPropertyId": "property_hum_plugs"
+				"revealsPropertyId": "property_kanalotvar_sound"
 			},
 			{
 				"id": "opt_vent",
-				"text": "Сбросить давление через вентиляцию и ждать спада фона.",
+				"text": "Откачать воду насосом и ждать, пока сойдёт уровень.",
 				"requirementMultiplier": 0.8,
 				"quality": "Good"
 			}
 		]
 	},
 	{
-		"id": "radio_hum_tunnel",
-		"situationText": "Коллектор. Фон смещается вдоль трубы в сторону жилых домов.",
+		"id": "radio_kanalotvar_tunnel",
+		"situationText": "Коллектор. Движение в трубе смещается в сторону жилых домов.",
 		"options": [
 			{
 				"id": "opt_follow",
@@ -167,10 +167,10 @@
 			},
 			{
 				"id": "opt_seal",
-				"text": "Перекрыть канал впереди и остановить смещение.",
+				"text": "Перекрыть сток впереди и остановить смещение.",
 				"requirementMultiplier": 0.45,
 				"quality": "Best",
-				"revealsPropertyId": "property_hum_channel",
+				"revealsPropertyId": "property_kanalotvar_water",
 				"extraScales": {
 					"infection": -3.0
 				}

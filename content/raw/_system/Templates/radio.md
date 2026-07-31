@@ -1,6 +1,6 @@
 ---
-id: mission_event_
-type: mission_event
+id: radio_
+type: radio
 status: draft
 requirements:
   -

@@ -19,7 +19,8 @@ namespace Kontur.Core.Api
 		EmployeeStatus Status,
 		bool IsInjured,
 		string? CurrentIncidentId,
-		IReadOnlyList<string> AbilityNames,
+		/// <summary>Id перков. Названия достаёт слой Godot из текстового движка по этим id.</summary>
+		IReadOnlyList<string> AbilityIds,
 		string PortraitId);
 
 	public sealed record IncidentView(

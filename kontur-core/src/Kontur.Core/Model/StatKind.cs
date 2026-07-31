@@ -11,7 +11,7 @@ namespace Kontur.Core.Model
 		Strength = 0,
 		Perception = 1,
 		Endurance = 2,
-		Agility = 3,
+		Charisma = 3,
 		Composure = 4
 	}
 
@@ -24,24 +24,28 @@ namespace Kontur.Core.Model
 			StatKind.Strength,
 			StatKind.Perception,
 			StatKind.Endurance,
-			StatKind.Agility,
+			StatKind.Charisma,
 			StatKind.Composure
 		};
 
-		private static readonly Dictionary<StatKind, string> RussianNames = new Dictionary<StatKind, string>
+		private static readonly Dictionary<StatKind, string> Ids = new Dictionary<StatKind, string>
 		{
-			{ StatKind.Strength, "Сила" },
-			{ StatKind.Perception, "Восприятие" },
-			{ StatKind.Endurance, "Выносливость" },
-			{ StatKind.Agility, "Ловкость" },
-			{ StatKind.Composure, "Хладнокровие" }
+			{ StatKind.Strength, "strength" },
+			{ StatKind.Perception, "perception" },
+			{ StatKind.Endurance, "endurance" },
+			{ StatKind.Charisma, "charisma" },
+			{ StatKind.Composure, "composure" }
 		};
 
-		/// <summary>Отображаемое имя. В финальной игре заменяется ключом локализации.</summary>
-		public static string GetDisplayName(StatKind kind)
+		/// <summary>
+		/// Id характеристики — он же id записи контента с её названием и описанием
+		/// (content/raw/UI/characteristics). Названий ядро не знает: показывать
+		/// «Наблюдательность» или «Perception» — дело интерфейса и локали.
+		/// </summary>
+		public static string GetId(StatKind kind)
 		{
-			string name;
-			return RussianNames.TryGetValue(kind, out name) ? name : kind.ToString();
+			string id;
+			return Ids.TryGetValue(kind, out id) ? id : kind.ToString().ToLowerInvariant();
 		}
 
 		public static bool TryParse(string value, out StatKind kind)

@@ -17,10 +17,12 @@
 |---|---|---|
 | `calls/` | `call` — входящие звонки по телефону | `Templates/call.md` |
 | `cutscenes/` | `cutscene` — переходы между сменами, интро, финалы | `Templates/cutscene.md` |
-| `mission_events/` | `mission_event` — события и варианты решений на выездах | `Templates/mission_event.md` |
+| `radio/` | `radio` — вмешательства по рации: вводная и варианты решений на выезде | `Templates/radio.md` |
 | `creatures/` | `creature` — энциклопедия существ | `Templates/creature.md` |
 | `shift_notes/` | `shift_note` — записки сменщика | `Templates/shift_note.md` |
 | `reports/` | `report` — отчёты на компьютере по итогам миссии | `Templates/report.md` |
+| `UI/perks/` | `perk` — спецспособности сотрудников | `Templates/perk.md` |
+| `UI/characteristics/` | `characteristic` — названия и описания характеристик | `Templates/characteristic.md` |
 
 `call` и `cutscene` — разные типы с полем `requirements` (список условий/флагов, при
 которых контент должен появиться), но оба показываются одним и тем же виджетом

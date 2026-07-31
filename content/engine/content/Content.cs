@@ -1,11 +1,17 @@
+using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Godot;
 
 public partial class Content : Node
 {
 	[Export] public string Locale { get; set; } = "ru";
 
-	private const string LocalisationRoot = "res://content/localisation";
+	/// <summary>Корень собранного текста. Публичный: на него смотрит и горячая перезагрузка.</summary>
+	public const string LocalisationRoot = "res://content/localisation";
+
+	/// <summary>Должно совпадать с VARIABLE_RE в content/engine/converter/build.py.</summary>
+	private static readonly Regex VariablePattern = new(@"\{\{([^{}]*)\}\}");
 
 	private readonly Dictionary<string, ContentEntry> _entries = new();
 
@@ -31,22 +37,40 @@ public partial class Content : Node
 			return;
 		}
 
-		LoadDirectory(localeRoot);
+		foreach (string path in EnumerateJsonFiles(localeRoot))
+		{
+			LoadFile(path);
+		}
 	}
 
-	private void LoadDirectory(string path)
+	/// <summary>
+	/// Все .json под указанной папкой, вложенные тоже (UI/perks лежит на два уровня вниз).
+	///
+	/// Единственное место, где решается, что считать файлом собранного текста: на нём сидят
+	/// и загрузка, и слежение горячей перезагрузки. Иначе правило пришлось бы менять в двух
+	/// местах, и второе однажды забыли бы.
+	/// </summary>
+	public static IEnumerable<string> EnumerateJsonFiles(string root)
 	{
-		foreach (string fileName in DirAccess.GetFilesAt(path))
+		if (!DirAccess.DirExistsAbsolute(root))
+		{
+			yield break;
+		}
+
+		foreach (string fileName in DirAccess.GetFilesAt(root))
 		{
 			if (fileName.EndsWith(".json"))
 			{
-				LoadFile($"{path}/{fileName}");
+				yield return $"{root}/{fileName}";
 			}
 		}
 
-		foreach (string directoryName in DirAccess.GetDirectoriesAt(path))
+		foreach (string directoryName in DirAccess.GetDirectoriesAt(root))
 		{
-			LoadDirectory($"{path}/{directoryName}");
+			foreach (string nested in EnumerateJsonFiles($"{root}/{directoryName}"))
+			{
+				yield return nested;
+			}
 		}
 	}
 
@@ -64,6 +88,38 @@ public partial class Content : Node
 	{
 		ContentEntry entry = GetEntry(id);
 		return entry != null ? entry.Chunks : new List<ContentChunk>();
+	}
+
+	/// <summary>
+	/// Подставляет значения вместо {{имя}}. Чистая функция: движок значений не знает —
+	/// числа живут в геймплейных данных (data/abilities.json и т.п.) и приходят через
+	/// resolve. Неразрешённая подстановка остаётся в тексте как есть — пустое место
+	/// прочиталось бы как опечатка автора, а видимое {{имя}} сразу называет причину.
+	/// Ругаться на пропажу — дело вызывающего: только он знает, из какой записи текст.
+	/// </summary>
+	public static string Fill(string text, Func<string, string> resolve)
+	{
+		if (string.IsNullOrEmpty(text) || !HasVariables(text))
+		{
+			return text;
+		}
+
+		return VariablePattern.Replace(text, match =>
+		{
+			string value = resolve != null ? resolve(match.Groups[1].Value) : null;
+			return string.IsNullOrEmpty(value) ? match.Value : value;
+		});
+	}
+
+	public static string Fill(string text, IReadOnlyDictionary<string, string> values)
+	{
+		return Fill(text, name => values != null && values.TryGetValue(name, out string value) ? value : null);
+	}
+
+	/// <summary>Есть ли в тексте {{имя}} — дешёвая проверка перед регуляркой.</summary>
+	public static bool HasVariables(string text)
+	{
+		return !string.IsNullOrEmpty(text) && text.Contains("{{");
 	}
 
 	private void LoadFile(string path)
@@ -103,9 +159,12 @@ public partial class Content : Node
 			Type = ReadString(source, "type"),
 			Name = ReadString(source, "name"),
 			Outcome = ReadString(source, "outcome"),
+			MissionType = ReadString(source, "mission_type"),
 			Day = source.TryGetValue("day", out Variant day) ? day.AsInt32() : 0,
 			Requirements = ReadStringList(source, "requirements"),
 			Properties = ReadStringList(source, "properties"),
+			Variables = ReadStringList(source, "variables"),
+			Stats = ReadStringList(source, "stats"),
 			Chunks = ReadChunks(source, "chunks")
 		};
 
@@ -121,7 +180,6 @@ public partial class Content : Node
 			parsedOptions.Add(new ContentOption
 			{
 				Name = ReadString(optionData, "name"),
-				Canon = ReadString(optionData, "canon"),
 				RequirementModifier = optionData.TryGetValue("requirement_modifier", out Variant modifier)
 					? modifier.AsInt32()
 					: 0,
@@ -151,11 +209,34 @@ public partial class Content : Node
 			{
 				Text = ReadString(chunkData, "text"),
 				Kind = kind.Length > 0 ? kind : ContentChunk.KindText,
-				Reveal = reveal.VariantType == Variant.Type.String ? reveal.AsString() : string.Empty
+				Reveal = reveal.VariantType == Variant.Type.String ? reveal.AsString() : string.Empty,
+				Spans = ReadSpans(chunkData)
 			});
 		}
 
 		return chunks;
+	}
+
+	/// <summary>Отрезки подсветки куска. Пустой список — подсвечивать в нём нечего.</summary>
+	private static List<ContentSpan> ReadSpans(Godot.Collections.Dictionary chunkData)
+	{
+		List<ContentSpan> spans = new();
+		if (!chunkData.TryGetValue("spans", out Variant value))
+		{
+			return spans;
+		}
+
+		foreach (Variant item in value.AsGodotArray())
+		{
+			Godot.Collections.Dictionary spanData = item.AsGodotDictionary();
+			spans.Add(new ContentSpan
+			{
+				Text = ReadString(spanData, "text"),
+				Highlight = spanData.TryGetValue("highlight", out Variant highlight) && highlight.AsBool()
+			});
+		}
+
+		return spans;
 	}
 
 	private static List<string> ReadStringList(Godot.Collections.Dictionary source, string key)

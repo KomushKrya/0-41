@@ -17,10 +17,8 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-EventBus="*res://scripts/gameplay/EventBus.cs"
-GameSession="*res://scripts/gameplay/GameSession.cs"
+ContentHotReload="*res://scripts/debug/ContentHotReload.cs"
 Content="*res://content/engine/content/Content.cs"
-Kontur="*res://scripts/kontur/KonturRuntime.cs"
 GameRuntime="*res://scripts/kontur/GameRuntime.cs"
 
 [display]

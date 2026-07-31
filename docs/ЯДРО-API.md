@@ -281,7 +281,7 @@ MissionResolved
 
 ```csharp
 EmployeeView(Id, Name, RankTitle, Level, Stats, Experience, ExperienceToNextLevel,
-             UnspentSkillPoints, Status, IsInjured, CurrentIncidentId, AbilityNames, PortraitId)
+             UnspentSkillPoints, Status, IsInjured, CurrentIncidentId, AbilityIds, PortraitId)
 
 IncidentView(Id, MissionId, Title, BuildingId, CallerName, Phase, RemainingSeconds,
              Requirements, SquadEmployeeIds, EquipmentIds)
@@ -298,6 +298,11 @@ ShiftStatusView(Day, IsShiftActive, ShiftTime, IsCallWindowClosed, OpenIncidents
 `GetActiveIncidents()` возвращает только незакрытые вызовы. `MapX`/`MapY` — нормализованные
 `0..1` координаты района на карте.
 
+`AbilityIds` — именно id, а не названия: текст перков лежит в текстовом движке
+(`content/raw/UI/perks`), и достаёт его слой Godot — `Content.Instance.GetEntry(id).Name`
+плюс `Content.Fill(...)` для чисел в описании. Ядро на GodotSharp не ссылается и текста
+не носит.
+
 ---
 
 ## 7. Типы и перечисления
@@ -308,11 +313,20 @@ ShiftStatusView(Day, IsShiftActive, ShiftTime, IsCallWindowClosed, OpenIncidents
 int strength = stats[StatKind.Strength];
 int total    = stats.Total;
 StatBlock sum = a + b;                 // поэлементно
-string text  = stats.ToString();       // «Сила 5 Восприятие 3» — нулевые опущены
-string label = StatKinds.GetDisplayName(StatKind.Composure);  // «Хладнокровие»
+string text  = stats.ToString();       // «strength 5 perception 3» — нулевые опущены
+string id    = StatKinds.GetId(StatKind.Composure);           // «composure»
 ```
 
-`StatKind`: `Strength`, `Perception`, `Endurance`, `Agility`, `Composure`.
+`StatKind`: `Strength`, `Perception`, `Endurance`, `Charisma`, `Composure`.
+
+**Названий характеристик ядро не знает.** `GetId` отдаёт только id — он же id записи
+контента в `content/raw/UI/characteristics/`, откуда интерфейс берёт подпись (`Name`)
+и описание (`Chunks`):
+
+```csharp
+ContentEntry stat = Content.Instance.GetEntry(StatKinds.GetId(kind));
+label.Text = stat.Name;   // «Хладнокровие»
+```
 
 **`ScaleValues`** — `Infection`, `Publicity`, `Loyalty`, диапазон `0..100`.
 **`ScaleDelta`** — изменение; положительное значение = рост шкалы.

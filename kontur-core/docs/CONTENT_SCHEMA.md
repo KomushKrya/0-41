@@ -10,7 +10,7 @@
 * перечисления пишутся строками (`"Consumable"`, `"Infected"`, `"AgainstCreatureTag"`);
 * пропущенное поле = значение по умолчанию, `null` для необязательных ссылок;
 * блок характеристик — объект с любым подмножеством из пяти ключей:
-  `strength`, `perception`, `endurance`, `agility`, `composure`;
+  `strength`, `perception`, `endurance`, `charisma`, `composure`;
 * блок изменения шкал — объект с любым подмножеством: `infection`, `publicity`, `loyalty`
   (положительное = рост шкалы; для лояльности рост — это хорошо, для остальных — плохо);
 * комментарии `//` и висящие запятые допускаются.
@@ -90,13 +90,19 @@
 ## `abilities.json` — массив
 
 ```json
-{ "id": "ab_mimic_hunter", "name": "Насмотренность",
+{ "id": "ab_mimic_hunter",
   "condition": "AgainstCreatureTag", "conditionValue": "мимик", "allStatsBonus": 1 }
 ```
 
 `condition`: `Always` | `AgainstCreatureTag` | `WithEquipment`.
 `conditionValue` — тег существа или id снаряжения.
 `bonus` — точечные прибавки, `allStatsBonus` — ко всем сразу. Можно вместе.
+
+Названия и описания перков здесь не хранятся: они лежат в текстовом движке
+(`content/raw/UI/perks`) и достаются по тому же `id`. Ядро отдаёт наружу
+`EmployeeView.AbilityIds`, названия резолвит слой Godot. Числа в описании
+подставляются из полей отсюда тегом `{{bonus.strength}}`, так что правка
+баланса не требует правки текста.
 
 ## `equipment.json` — массив
 
