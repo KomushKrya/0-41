@@ -24,7 +24,7 @@ namespace Kontur.Harness
 
 			var options = HarnessOptions.Parse(args);
 
-			string contentPath = options.ContentPath ?? FindContentDirectory();
+			string? contentPath = options.ContentPath ?? FindContentDirectory();
 			if (contentPath == null)
 			{
 				Console.Error.WriteLine("Не найдена папка content. Укажите путь: --content <путь>");
