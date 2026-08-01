@@ -16,7 +16,11 @@
     Ничего не коммитит. git merge --abort вернёт всё назад.
 #>
 
-$ErrorActionPreference = 'Stop'
+# Continue, а не Stop, и это важно: git пишет в поток ошибок совершенно обычные
+# сообщения — «Automatic merge went well; stopped before committing as requested».
+# При Stop PowerShell считает такую строку исключением и обрывает скрипт на
+# успешной команде. Об успехе здесь судим по коду возврата, а не по потокам.
+$ErrorActionPreference = 'Continue'
 
 try {
     [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
@@ -92,7 +96,7 @@ $доСлияния = @(& git ls-tree -r --name-only HEAD)
 # Конфликтов при этом не бывает вовсе: сравнивать содержимое git не пытается.
 Скажи ''
 Скажи 'Сливаю историю апстрима (дерево остаётся нашим)...'
-& git merge --no-commit --no-ff -s ours upstream/main 2>&1 | Out-Null
+& git merge --no-commit --no-ff -s ours upstream/main
 
 if (-not (Test-Path (Join-Path $корень '.git\MERGE_HEAD'))) {
     Скажи '[ОШИБКА] Слияние не началось. Смотрите вывод git выше.' 'Red'
@@ -102,7 +106,7 @@ if (-not (Test-Path (Join-Path $корень '.git\MERGE_HEAD'))) {
 # --- Накладываем их прозу и ассеты --------------------------
 Скажи ''
 foreach ($путь in $изАпстрима) {
-    & git checkout upstream/main -- $путь 2>$null
+    & git checkout upstream/main -- $путь
     if ($LASTEXITCODE -eq 0) {
         Скажи "Взято из апстрима: $путь" 'Cyan'
     }
@@ -111,7 +115,7 @@ foreach ($путь in $изАпстрима) {
     }
 }
 
-& git add -A 2>$null
+& git add -A
 
 # --- Сверка: ничего не пропало ------------------------------
 Скажи ''
