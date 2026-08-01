@@ -13,7 +13,7 @@ properties:
 
 %% dev %%
 Статья открывается по итогам миссии «Собаки уходят вниз» (четвёртая смена),
-любым исходом — как мимик открывается через [[mission_event:mission_event_pensioner_door]].
+любым исходом — как мимик открывается через [[radio:radio_pensioner_door]].
 
 Иллюстрации (`illustrationId`) и теги в data/creatures.json пока нет.
 %% /dev %%
