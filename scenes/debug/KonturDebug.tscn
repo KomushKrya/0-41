@@ -1,7 +1,9 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/debug/KonturDebugOverlay.cs" id="1_kontur_debug"]
+[ext_resource type="PackedScene" path="res://scenes/ui/radio/RadioDecisionUI.tscn" id="2_radio_decision"]
 
 [node name="KonturDebug" type="CanvasLayer"]
 layer = 100
 script = ExtResource("1_kontur_debug")
+RadioDecisionScene = ExtResource("2_radio_decision")

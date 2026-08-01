@@ -114,7 +114,7 @@ namespace Kontur.Harness
 		private static void TestTimings(ContentDatabase content)
 		{
 			Check("Звонок 15 с", Math.Abs(content.Config.Timings.PhoneRingSeconds - 15.0) < 1e-9);
-			Check("Метка 30 с", Math.Abs(content.Config.Timings.MapMarkerSeconds - 30.0) < 1e-9);
+			Check("Метка 20 с", Math.Abs(content.Config.Timings.MapMarkerSeconds - 20.0) < 1e-9);
 			Check("Радио 20 с", Math.Abs(content.Config.Timings.RadioSeconds - 20.0) < 1e-9);
 			Check("Окно вызовов 5 минут", Math.Abs(content.Config.Timings.ShiftCallWindowSeconds - 300.0) < 1e-9);
 			Check("Лимиты штата 3/4/5/6",
@@ -172,13 +172,12 @@ namespace Kontur.Harness
 
 			if (ringingId != null)
 			{
-				Check("Ответ на звонок принят", simulation.AnswerCall(ringingId).IsSuccess);
-				Check("Кнопка ОК ставит метку", simulation.ConfirmBriefing(ringingId).IsSuccess);
+			Check("Ответ на звонок ставит метку", simulation.AnswerCall(ringingId).IsSuccess);
 			}
 
-			RunSeconds(simulation, 35.0, 0.25);
+			RunSeconds(simulation, 25.0, 0.25);
 
-			Check("Метка истекает через 30 с", expired);
+			Check("Метка истекает через 20 с", expired);
 			Check("Истечение метки = автопровал", outcome != null && outcome.Reason == MissionResolutionReason.MarkerExpired);
 		}
 
@@ -188,11 +187,7 @@ namespace Kontur.Harness
 
 			string? incidentId = null;
 			simulation.Events.Subscribe<MapMarkerSpawned>(e => incidentId ??= e.IncidentId);
-			simulation.Events.Subscribe<IncidentCreated>(e =>
-			{
-				simulation.AnswerCall(e.IncidentId);
-				simulation.ConfirmBriefing(e.IncidentId);
-			});
+			simulation.Events.Subscribe<IncidentCreated>(e => simulation.AnswerCall(e.IncidentId));
 
 			simulation.StartShift(1);
 			for (int i = 0; i < 400 && incidentId == null; i++)

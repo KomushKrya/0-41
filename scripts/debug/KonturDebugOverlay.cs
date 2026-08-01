@@ -19,6 +19,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 	private const int MaxLogLines = 200;
 
 	[Export] public Key ToggleKey { get; set; } = Key.F6;
+	[Export] public PackedScene RadioDecisionScene { get; set; } = null!;
 
 	private GameRuntime _runtime;
 	private RichTextLabel _status;
@@ -32,6 +33,8 @@ public partial class KonturDebugOverlay : CanvasLayer
 	private double _refreshAccumulator;
 	private bool _isOpen;
 	private Input.MouseModeEnum _previousMouseMode;
+	private Control _debugRoot = null!;
+	private Control _radioDecisionPreview = null!;
 
 	// --- экран отправки ---
 	private VBoxContainer _dispatchList;
@@ -79,6 +82,17 @@ public partial class KonturDebugOverlay : CanvasLayer
 			return;
 		}
 
+		if (_radioDecisionPreview != null && _radioDecisionPreview.Visible)
+		{
+			if (keyEvent.Keycode == Key.Escape)
+			{
+				CloseRadioDecisionPreview();
+				GetViewport().SetInputAsHandled();
+			}
+
+			return;
+		}
+
 		SetOpen(!_isOpen);
 		GetViewport().SetInputAsHandled();
 	}
@@ -111,6 +125,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 			return;
 		}
 
+		CloseRadioDecisionPreview();
 		Hide();
 		Input.MouseMode = _previousMouseMode;
 	}
@@ -218,7 +233,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 		{
 			_dispatchList.AddChild(new Label
 			{
-				Text = "Нет активной метки.\nОтветьте на звонок и нажмите «ОК (метка)».",
+				Text = "Нет активной метки.\nОтветьте на звонок через телефон.",
 				AutowrapMode = TextServer.AutowrapMode.WordSmart
 			});
 
@@ -475,7 +490,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 		string incidentId = _dispatchIncidentId;
 		_runtime.Session.OpenDispatchScreen(incidentId);
 
-		CommandResult result = _runtime.Session.DispatchSquad(
+		CommandResult result = DispatchUsingMapRoute(
 			incidentId,
 			new List<string>(_pickedEmployees),
 			new List<string>(_pickedEquipment));
@@ -550,6 +565,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 	private void BuildUi()
 	{
 		var root = new Control();
+		_debugRoot = root;
 		root.SetAnchorsPreset(Control.LayoutPreset.FullRect);
 		root.MouseFilter = Control.MouseFilterEnum.Ignore;
 		AddChild(root);
@@ -685,7 +701,6 @@ public partial class KonturDebugOverlay : CanvasLayer
 
 		row.AddChild(new Label { Text = "Команды:" });
 		row.AddChild(CreateButton("Ответить", AnswerFirstCall));
-		row.AddChild(CreateButton("ОК (метка)", ConfirmFirstBriefing));
 		row.AddChild(CreateButton("Отправить всех", DispatchFirstMarker));
 
 		for (int index = 0; index < 3; index++)
@@ -694,7 +709,52 @@ public partial class KonturDebugOverlay : CanvasLayer
 			row.AddChild(CreateButton($"Радио {index + 1}", () => ChooseRadio(captured)));
 		}
 
+		row.AddChild(CreateButton("Экран рации", ShowRadioDecisionPreview));
+
 		return row;
+	}
+
+	private void ShowRadioDecisionPreview()
+	{
+		if (RadioDecisionScene == null)
+		{
+			AppendLog("Не назначена сцена RadioDecisionUI.");
+			return;
+		}
+
+		if (_radioDecisionPreview == null)
+		{
+			_radioDecisionPreview = RadioDecisionScene.Instantiate<Control>();
+			AddChild(_radioDecisionPreview);
+		}
+
+		_debugRoot.Hide();
+		if (_radioDecisionPreview is RadioDecisionUI radioDecisionUi)
+		{
+			radioDecisionUi.ShowWithTransition();
+			return;
+		}
+
+		_radioDecisionPreview.Show();
+	}
+
+	private void CloseRadioDecisionPreview()
+	{
+		if (_radioDecisionPreview == null || !_radioDecisionPreview.Visible)
+		{
+			return;
+		}
+
+		if (_radioDecisionPreview is RadioDecisionUI radioDecisionUi)
+		{
+			radioDecisionUi.StopTransition();
+		}
+
+		_radioDecisionPreview.Hide();
+		if (_isOpen)
+		{
+			_debugRoot.Show();
+		}
 	}
 
 	private HBoxContainer BuildTimeButtons()
@@ -765,18 +825,6 @@ public partial class KonturDebugOverlay : CanvasLayer
 		Report("Ответить", _runtime.Session.AnswerCall(incident.Id));
 	}
 
-	private void ConfirmFirstBriefing()
-	{
-		IncidentView incident = FindFirst(IncidentPhase.Briefing);
-		if (incident == null)
-		{
-			AppendLog("Нет открытого экрана задания.");
-			return;
-		}
-
-		Report("ОК", _runtime.Session.ConfirmBriefing(incident.Id));
-	}
-
 	private void DispatchFirstMarker()
 	{
 		IncidentView incident = FindFirst(IncidentPhase.MarkerActive);
@@ -804,7 +852,18 @@ public partial class KonturDebugOverlay : CanvasLayer
 			return;
 		}
 
-		Report("Отправка", _runtime.Session.DispatchSquad(incident.Id, squad, PickEquipment()));
+		Report("Отправка", DispatchUsingMapRoute(incident.Id, squad, PickEquipment()));
+	}
+
+	private CommandResult DispatchUsingMapRoute(
+		string incidentId,
+		IReadOnlyList<string> employeeIds,
+		IReadOnlyList<string> equipmentIds)
+	{
+		MapMarkerController mapController = GetNodeOrNull<MapMarkerController>("../WallMap/MapMarkerController");
+		return mapController == null
+			? CommandResult.Fail("Контроллер маршрута карты не найден.")
+			: mapController.TryDispatchSquad(incidentId, employeeIds, equipmentIds);
 	}
 
 	private List<string> PickEquipment()

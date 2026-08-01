@@ -1,7 +1,7 @@
 {
   "timings": {
     "phoneRingSeconds": 15.0,
-    "mapMarkerSeconds": 30.0,
+    "mapMarkerSeconds": 20.0,
     "radioSeconds": 20.0,
     "shiftCallWindowSeconds": 300.0,
     "minSecondsBetweenCalls": 12.0,

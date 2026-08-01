@@ -1,0 +1,324 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/radio/RadioDecisionUI.cs" id="1_radio_ui"]
+[ext_resource type="VideoStream" path="res://assets/video/transition_masks/Экран-выбора-маска.ogv" id="2_transition_video"]
+[ext_resource type="Shader" path="res://assets/shaders/RadioLumaMask.gdshader" id="3_luma_mask"]
+[ext_resource type="Shader" path="res://assets/shaders/VideoMaskSource.gdshader" id="4_video_source"]
+[ext_resource type="Shader" path="res://assets/shaders/RadioPreviousScreenBlur.gdshader" id="5_previous_blur"]
+
+[sub_resource type="SystemFont" id="SystemFont_terminal"]
+font_names = PackedStringArray("Cascadia Mono", "Consolas", "Courier New")
+subpixel_positioning = 0
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_frame"]
+bg_color = Color(0.025, 0.055, 0.04, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.28, 0.7, 0.42, 0.8)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_illustration"]
+bg_color = Color(0.015, 0.032, 0.024, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.18, 0.45, 0.28, 0.8)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_option"]
+bg_color = Color(0.05, 0.16, 0.09, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.33, 0.74, 0.42, 0.85)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+content_margin_left = 18.0
+content_margin_top = 8.0
+content_margin_right = 18.0
+content_margin_bottom = 8.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_luma_mask"]
+shader = ExtResource("3_luma_mask")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_video_source"]
+shader = ExtResource("4_video_source")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_previous_blur"]
+shader = ExtResource("5_previous_blur")
+
+[node name="RadioDecisionUI" type="Control"]
+custom_minimum_size = Vector2(960, 540)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+script = ExtResource("1_radio_ui")
+
+[node name="TransitionGroup" type="CanvasGroup" parent="."]
+material = SubResource("ShaderMaterial_luma_mask")
+fit_margin = 0.0
+clear_margin = 0.0
+
+[node name="ScreenContent" type="Control" parent="TransitionGroup"]
+layout_mode = 0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="ColorRect" parent="TransitionGroup/ScreenContent"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.004, 0.012, 0.008, 1)
+
+[node name="TransitionPlayer" type="VideoStreamPlayer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+z_index = -1
+material = SubResource("ShaderMaterial_video_source")
+stream = ExtResource("2_transition_video")
+expand = true
+loop = false
+
+[node name="Header" type="Label" parent="TransitionGroup/ScreenContent"]
+layout_mode = 1
+anchors_preset = 0
+anchor_left = 0.07
+anchor_top = 0.055
+anchor_right = 0.93
+anchor_bottom = 0.105
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.65, 1, 0.72, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 27
+text = "К.О.Н.Т.У.Р.-Д  /  ВХОДЯЩАЯ РАДИОСВЯЗЬ"
+
+[node name="SignalStatus" type="Label" parent="TransitionGroup/ScreenContent"]
+layout_mode = 1
+anchors_preset = 0
+anchor_left = 0.07
+anchor_top = 0.11
+anchor_right = 0.93
+anchor_bottom = 0.14
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.38, 0.74, 0.48, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 15
+text = "КАНАЛ ГРУППЫ: АКТИВЕН  //  РЕШЕНИЕ ТРЕБУЕТСЯ"
+
+[node name="ContentFrame" type="Panel" parent="TransitionGroup/ScreenContent"]
+layout_mode = 1
+anchors_preset = 0
+anchor_left = 0.07
+anchor_top = 0.175
+anchor_right = 0.93
+anchor_bottom = 0.89
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBox_frame")
+
+[node name="IllustrationPanel" type="Panel" parent="TransitionGroup/ScreenContent/ContentFrame"]
+layout_mode = 1
+anchors_preset = 0
+anchor_left = 0.035
+anchor_top = 0.065
+anchor_right = 0.37
+anchor_bottom = 0.92
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBox_illustration")
+
+[node name="Illustration" type="TextureRect" parent="TransitionGroup/ScreenContent/ContentFrame/IllustrationPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = 14.0
+offset_right = -14.0
+offset_bottom = -42.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+mouse_filter = 2
+
+[node name="Placeholder" type="Label" parent="TransitionGroup/ScreenContent/ContentFrame/IllustrationPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = 14.0
+offset_right = -14.0
+offset_bottom = -42.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.25, 0.52, 0.33, 0.8)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 20
+text = "[ ИЛЛЮСТРАЦИЯ\n  ОБЪЕКТА ]"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="IllustrationCaption" type="Label" parent="TransitionGroup/ScreenContent/ContentFrame/IllustrationPanel"]
+layout_mode = 1
+anchors_preset = 0
+anchor_left = 0.06
+anchor_top = 0.89
+anchor_right = 0.94
+anchor_bottom = 0.98
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.42, 0.78, 0.5, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 14
+text = "ИЗОБРАЖЕНИЕ С КАМЕРЫ ГРУППЫ"
+horizontal_alignment = 1
+
+[node name="SituationLabel" type="Label" parent="TransitionGroup/ScreenContent/ContentFrame"]
+layout_mode = 1
+anchors_preset = 0
+anchor_left = 0.415
+anchor_top = 0.07
+anchor_right = 0.955
+anchor_bottom = 0.375
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.8, 0.93, 0.81, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 22
+text = "Группа на месте. Докладывают: в кабинете на втором этаже стоит вторая такая же парта, за ней — фигура в форме ученика. Не двигается. Часы на стене стоят."
+autowrap_mode = 2
+
+[node name="Prompt" type="Label" parent="TransitionGroup/ScreenContent/ContentFrame"]
+layout_mode = 1
+anchors_preset = 0
+anchor_left = 0.415
+anchor_top = 0.405
+anchor_right = 0.955
+anchor_bottom = 0.46
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.42, 0.8, 0.5, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 16
+text = "ПЕРЕДАЙТЕ УКАЗАНИЕ ГРУППЕ:"
+
+[node name="OptionOneButton" type="Button" parent="TransitionGroup/ScreenContent/ContentFrame"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 1
+anchors_preset = 0
+anchor_left = 0.415
+anchor_top = 0.49
+anchor_right = 0.955
+anchor_bottom = 0.625
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.78, 1, 0.8, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBox_option")
+text = "[ 1 ] РАБОТАТЬ ПО ОБЪЕКТУ НЕМЕДЛЕННО"
+alignment = 0
+autowrap_mode = 2
+
+[node name="OptionTwoButton" type="Button" parent="TransitionGroup/ScreenContent/ContentFrame"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 1
+anchors_preset = 0
+anchor_left = 0.415
+anchor_top = 0.645
+anchor_right = 0.955
+anchor_bottom = 0.78
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.78, 1, 0.8, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBox_option")
+text = "[ 2 ] ПРОЙТИ МИМО И ВЫВЕСТИ ЛЮДЕЙ"
+alignment = 0
+autowrap_mode = 2
+
+[node name="OptionThreeButton" type="Button" parent="TransitionGroup/ScreenContent/ContentFrame"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 1
+anchors_preset = 0
+anchor_left = 0.415
+anchor_top = 0.8
+anchor_right = 0.955
+anchor_bottom = 0.935
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.78, 1, 0.8, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBox_option")
+text = "[ 3 ] ЗАМЕРЕТЬ И НЕ ПРИВЛЕКАТЬ ВНИМАНИЯ"
+alignment = 0
+autowrap_mode = 2
+
+[node name="Footer" type="Label" parent="TransitionGroup/ScreenContent"]
+layout_mode = 1
+anchors_preset = 0
+anchor_left = 0.07
+anchor_top = 0.915
+anchor_right = 0.93
+anchor_bottom = 0.96
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.36, 0.62, 0.42, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 14
+text = "СИМУЛЯЦИЯ ПРИОСТАНОВЛЕНА  •  ВЫБЕРИТЕ ОДНО УКАЗАНИЕ"
+horizontal_alignment = 1
+
+[node name="InputBlocker" type="ColorRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0, 0, 0, 0)
+
+[node name="PreviousScreenBlur" type="ColorRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+z_index = -2
+material = SubResource("ShaderMaterial_previous_blur")
+color = Color(1, 1, 1, 1)

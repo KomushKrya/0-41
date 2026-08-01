@@ -34,6 +34,8 @@ namespace Kontur.Core.Events
 
 	public sealed record SquadArrived(string IncidentId, string BuildingId) : IGameEvent;
 
+	public sealed record MissionExecutionStarted(string IncidentId, string BuildingId, double DurationSeconds) : IGameEvent;
+
 	public sealed record RadioTriggered(
 		string IncidentId,
 		string SituationText,
@@ -45,6 +47,8 @@ namespace Kontur.Core.Events
 	public sealed record RadioOptionChosen(string IncidentId, string OptionId, string OptionText) : IGameEvent;
 
 	public sealed record MissionResolved(MissionOutcome Outcome) : IGameEvent;
+
+	public sealed record SquadReturning(string IncidentId, string BuildingId, double ReturnSeconds) : IGameEvent;
 
 	public sealed record ScalesChanged(ScaleValues Values, ScaleDelta Delta, string Reason) : IGameEvent;
 

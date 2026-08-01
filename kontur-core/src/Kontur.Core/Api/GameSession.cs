@@ -154,11 +154,6 @@ namespace Kontur.Core.Api
 			return _director.AnswerCall(incidentId);
 		}
 
-		public CommandResult ConfirmBriefing(string incidentId)
-		{
-			return _director.ConfirmBriefing(incidentId);
-		}
-
 		public CommandResult OpenDispatchScreen(string incidentId)
 		{
 			return _director.OpenDispatchScreen(incidentId);
@@ -170,6 +165,19 @@ namespace Kontur.Core.Api
 			IReadOnlyList<string> equipmentIds)
 		{
 			return _director.DispatchSquad(incidentId, employeeIds, equipmentIds);
+		}
+
+	/// <summary>
+	/// Отправляет группу с длительностью пути, рассчитанной внешним слоем
+	/// представления (например, длиной маршрута на карте).
+	/// </summary>
+		public CommandResult DispatchSquad(
+			string incidentId,
+			IReadOnlyList<string> employeeIds,
+			IReadOnlyList<string> equipmentIds,
+			double travelSeconds)
+		{
+			return _director.DispatchSquad(incidentId, employeeIds, equipmentIds, travelSeconds);
 		}
 
 		public CommandResult ChooseRadioOption(string incidentId, string optionId)

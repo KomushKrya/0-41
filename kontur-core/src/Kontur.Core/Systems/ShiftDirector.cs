@@ -336,7 +336,7 @@ namespace Kontur.Core.Systems
 
 			if (encounter == null)
 			{
-				incident.SetPhase(IncidentPhase.OnSite, incident.Mission.OnSiteSeconds);
+				BeginMissionExecution(incident);
 				return;
 			}
 
@@ -362,7 +362,13 @@ namespace Kontur.Core.Systems
 			// ДД, раздел 4: не автопровал — бросок с повышенным шансом провала.
 			incident.RadioWasMissed = true;
 			_bus.Publish(new RadioMissed(incident.Id));
+			BeginMissionExecution(incident);
+		}
+
+		private void BeginMissionExecution(IncidentRuntime incident)
+		{
 			incident.SetPhase(IncidentPhase.OnSite, incident.Mission.OnSiteSeconds);
+			_bus.Publish(new MissionExecutionStarted(incident.Id, incident.BuildingId, incident.Mission.OnSiteSeconds));
 		}
 
 		private void HandleSquadReturned(IncidentRuntime incident)
@@ -498,7 +504,11 @@ namespace Kontur.Core.Systems
 				return;
 			}
 
-			incident.SetPhase(IncidentPhase.Returning, mission.ReturnSeconds);
+			double returnSeconds = incident.OutboundTravelSeconds > 0.0
+				? incident.OutboundTravelSeconds
+				: mission.ReturnSeconds;
+			incident.SetPhase(IncidentPhase.Returning, returnSeconds);
+			_bus.Publish(new SquadReturning(incident.Id, incident.BuildingId, returnSeconds));
 		}
 
 		private void ApplyCasualties(IncidentRuntime incident, MissionOutcome outcome)
@@ -776,35 +786,16 @@ namespace Kontur.Core.Systems
 				return CommandResult.Fail("Телефон по этому вызову не звонит.");
 			}
 
-			incident.SetPhase(IncidentPhase.Briefing, null);
-			_bus.Publish(new CallAnswered(
-				incident.Id,
-				incident.Mission.Id,
-				incident.Mission.Title,
-				incident.Mission.BriefingText));
-
-			return CommandResult.Ok();
-		}
-
-		/// <summary>Кнопка ОК на экране задания: закрывает экран и ставит метку на карте (ДД, раздел 2).</summary>
-		public CommandResult ConfirmBriefing(string incidentId)
-		{
-			IncidentRuntime? incident = FindIncident(incidentId);
-			if (incident == null)
-			{
-				return CommandResult.Fail("Вызов не найден.");
-			}
-
-			if (incident.Phase != IncidentPhase.Briefing)
-			{
-				return CommandResult.Fail("Экран задания не открыт.");
-			}
-
 			double markerSeconds = GetTimer(
 				_content.Config.GetDay(_state.Day),
 				_content.Config.Timings.MapMarkerSeconds);
 
 			incident.SetPhase(IncidentPhase.MarkerActive, markerSeconds > 0.0 ? markerSeconds : (double?)null);
+			_bus.Publish(new CallAnswered(
+				incident.Id,
+				incident.Mission.Id,
+				incident.Mission.Title,
+				incident.Mission.BriefingText));
 			_bus.Publish(new MapMarkerSpawned(incident.Id, incident.BuildingId, markerSeconds));
 
 			return CommandResult.Ok();
@@ -832,6 +823,29 @@ namespace Kontur.Core.Systems
 			string incidentId,
 			IReadOnlyList<string> employeeIds,
 			IReadOnlyList<string> equipmentIds)
+		{
+			return DispatchSquadInternal(incidentId, employeeIds, equipmentIds, null);
+		}
+
+		public CommandResult DispatchSquad(
+			string incidentId,
+			IReadOnlyList<string> employeeIds,
+			IReadOnlyList<string> equipmentIds,
+			double travelSeconds)
+		{
+			if (double.IsNaN(travelSeconds) || double.IsInfinity(travelSeconds) || travelSeconds < 0.0)
+			{
+				return CommandResult.Fail("Время пути должно быть неотрицательным числом.");
+			}
+
+			return DispatchSquadInternal(incidentId, employeeIds, equipmentIds, travelSeconds);
+		}
+
+		private CommandResult DispatchSquadInternal(
+			string incidentId,
+			IReadOnlyList<string> employeeIds,
+			IReadOnlyList<string> equipmentIds,
+			double? travelSecondsOverride)
 		{
 			IncidentRuntime? incident = FindIncident(incidentId);
 			if (incident == null)
@@ -895,13 +909,15 @@ namespace Kontur.Core.Systems
 			incident.EquipmentIds.AddRange(takenEquipment);
 
 			_roster.MarkOnMission(squad, incident.Id);
-			incident.SetPhase(IncidentPhase.Travelling, incident.Mission.TravelSeconds);
+			double travelSeconds = travelSecondsOverride ?? incident.Mission.TravelSeconds;
+			incident.OutboundTravelSeconds = travelSeconds;
+			incident.SetPhase(IncidentPhase.Travelling, travelSeconds);
 
 			_bus.Publish(new SquadDispatched(
 				incident.Id,
 				incident.SquadEmployeeIds.ToArray(),
 				incident.EquipmentIds.ToArray(),
-				incident.Mission.TravelSeconds));
+				travelSeconds));
 
 			return CommandResult.Ok();
 		}
@@ -928,7 +944,7 @@ namespace Kontur.Core.Systems
 			incident.ChosenOption = option;
 			_bus.Publish(new RadioOptionChosen(incident.Id, option.Id, option.Text));
 
-			incident.SetPhase(IncidentPhase.OnSite, incident.Mission.OnSiteSeconds);
+			BeginMissionExecution(incident);
 			return CommandResult.Ok();
 		}
 

@@ -73,11 +73,7 @@ namespace Kontur.Harness
 
 						break;
 
-					case IncidentPhase.Briefing:
-						_session.ConfirmBriefing(incident.Id);
-						break;
-
-					case IncidentPhase.MarkerActive:
+				case IncidentPhase.MarkerActive:
 						if (Elapsed(_session.Config.Timings.MapMarkerSeconds, incident.RemainingSeconds) >= DispatchDelay)
 						{
 							TryDispatch(incident);

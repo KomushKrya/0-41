@@ -51,7 +51,7 @@ namespace Kontur.Core.Config
 		public double PhoneRingSeconds { get; set; } = 15.0;
 
 		/// <summary>ДД, раздел 4: метка держится 30 секунд.</summary>
-		public double MapMarkerSeconds { get; set; } = 30.0;
+		public double MapMarkerSeconds { get; set; } = 20.0;
 
 		/// <summary>ДД, раздел 4: 20 секунд на реакцию по радио.</summary>
 		public double RadioSeconds { get; set; } = 20.0;

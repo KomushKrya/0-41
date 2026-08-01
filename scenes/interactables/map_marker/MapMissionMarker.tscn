@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/interactables/map_marker/MapMissionMarker.cs" id="1_marker"]
+[ext_resource type="PackedScene" path="res://scenes/interactables/map_marker/MapPin.tscn" id="2_pin"]
+
+[node name="MapMissionMarker" type="Node3D"]
+script = ExtResource("1_marker")
+
+[node name="MapPin" parent="." instance=ExtResource("2_pin")]
+
+[node name="MissionRing" type="MeshInstance3D" parent="."]

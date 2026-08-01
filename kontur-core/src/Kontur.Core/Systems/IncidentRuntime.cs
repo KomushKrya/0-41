@@ -32,6 +32,10 @@ namespace Kontur.Core.Systems
 
 		public List<string> EquipmentIds { get; } = new List<string>();
 
+		/// <summary>Фактическая длительность пути, рассчитанная картой при отправке группы.</summary>
+		public double OutboundTravelSeconds { get; set; }
+
+		/// <summary>Фактическая длительность пути, рассчитанная картой при отправке группы.</summary>
 		public RadioEncounter? Radio { get; set; }
 
 		public RadioOption? ChosenOption { get; set; }

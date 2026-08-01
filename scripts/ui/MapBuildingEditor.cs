@@ -6,20 +6,21 @@ public partial class MapBuildingEditor : Control
 	[Export] public NodePath BuildingLayerPath { get; set; } = new("MapLayers/BuildingLayer");
 	[Export] public NodePath RoadLayerPath { get; set; } = new("MapLayers/RoadLayer");
 	[Export] public NodePath SelectionOutlinePath { get; set; } = new("OverlayLayer/SelectionOutline");
-	[Export] public NodePath SelectedLabelPath { get; set; } = new("OverlayLayer/EditorPanel/MarginContainer/VBoxContainer/SelectedLabel");
-	[Export] public NodePath RoleLabelPath { get; set; } = new("OverlayLayer/EditorPanel/MarginContainer/VBoxContainer/RoleLabel");
-	[Export] public NodePath RouteStatusLabelPath { get; set; } = new("OverlayLayer/EditorPanel/MarginContainer/VBoxContainer/RouteStatusLabel");
-	[Export] public NodePath ClearButtonPath { get; set; } = new("OverlayLayer/EditorPanel/MarginContainer/VBoxContainer/RoleButtonRow/ClearButton");
-	[Export] public NodePath HeadquartersButtonPath { get; set; } = new("OverlayLayer/EditorPanel/MarginContainer/VBoxContainer/RoleButtonRow/HeadquartersButton");
-	[Export] public NodePath ObjectButtonPath { get; set; } = new("OverlayLayer/EditorPanel/MarginContainer/VBoxContainer/RoleButtonRow/ObjectButton");
-	[Export] public NodePath BuildRouteButtonPath { get; set; } = new("OverlayLayer/EditorPanel/MarginContainer/VBoxContainer/RouteButtonRow/BuildRouteButton");
 	[Export] public NodePath RouteRendererPath { get; set; } = new("MapLayers/RouteLayer/RouteDashRenderer");
 	[Export] public NodePath MovingMarkerPath { get; set; } = new("MapLayers/RouteLayer/MovingMarker");
 	[Export] public NodePath HeadquartersMarkerPath { get; set; } = new("MapLayers/MarkerLayer/HeadquartersMarker");
+	[Export] public NodePath EffectLayerPath { get; set; } = new("MapLayers/EffectLayer");
+	[Export] public PackedScene DispatchRouteScene { get; set; } = null!;
 	[Export] public NodePath PaperFramePath { get; set; } = new("OverlayLayer/PaperFrame");
 	[Export] public string HeadquartersBuildingName { get; set; } = string.Empty;
+	[Export] public string HeadquartersBuildingId { get; set; } = string.Empty;
 	[Export] public bool ShowHeadquartersLabel { get; set; } = true;
 	[Export] public float MarkerSpeed { get; set; } = 30.0f;
+	[Export] public float MissionCountdownRingRadius { get; set; } = 15.0f;
+	[Export] public float MissionCountdownRingLineWidth { get; set; } = 10.0f;
+	[Export] public Color MissionCountdownRingTrackColor { get; set; } = new(0.0f, 0.0f, 0.0f, 0.0f);
+	[Export] public Color MissionCountdownRingProgressColor { get; set; } = new(0.38f, 0.38f, 0.38f, 1.0f);
+	[Export] public Color MissionTravellingRingColor { get; set; } = new(0.36f, 0.68f, 0.44f, 1.0f);
 
 	private const string StartAttachmentNode = "route_start";
 	private const string TargetAttachmentNode = "route_target";
@@ -32,21 +33,28 @@ public partial class MapBuildingEditor : Control
 	private readonly List<RoadSegment> _roadSegments = new();
 	private readonly List<Vector2> _routePoints = new();
 	private readonly List<float> _routeSegmentLengths = new();
+	private readonly Dictionary<string, MapMarkerCountdownRing> _missionCountdowns = new();
+	private readonly Dictionary<string, MapDispatchRoute> _dispatchRoutes = new();
 	private Control _buildingLayer = null!;
 	private Line2D _selectionOutline = null!;
-	private Label _selectedLabel = null!;
-	private Label _roleLabel = null!;
-	private Label _routeStatusLabel = null!;
+	private readonly Label _selectedLabel = new();
+	private readonly Label _roleLabel = new();
+	private readonly Label _routeStatusLabel = new();
 	private DashedRouteRenderer _routeRenderer = null!;
+	private Control _routeLayer = null!;
 	private Polygon2D _movingMarker = null!;
 	private Label _headquartersMarker = null!;
+	private Control _effectLayer = null!;
 	private Control _roadLayer = null!;
 	private Control _mapLayers = null!;
 	private Control _mapGeometry = null!;
 	private Line2D _paperFrame = null!;
 	private Polygon2D _selectedBuilding = null!;
 	private float _routeLength;
+	private float _activeMarkerSpeed;
 	private float _markerTravelDistance;
+	private string _coreRouteIncidentId = string.Empty;
+	private double _coreRouteTravelSeconds;
 	private int _lastDisplayedEtaSeconds = -1;
 	private bool _isMarkerMoving;
 	private bool _isRouteFading;
@@ -57,12 +65,11 @@ public partial class MapBuildingEditor : Control
 		_buildingLayer = GetNode<Control>(BuildingLayerPath);
 		_roadLayer = GetNode<Control>(RoadLayerPath);
 		_selectionOutline = GetNode<Line2D>(SelectionOutlinePath);
-		_selectedLabel = GetNode<Label>(SelectedLabelPath);
-		_roleLabel = GetNode<Label>(RoleLabelPath);
-		_routeStatusLabel = GetNode<Label>(RouteStatusLabelPath);
 		_routeRenderer = GetNode<DashedRouteRenderer>(RouteRendererPath);
+		_routeLayer = _routeRenderer.GetParent<Control>();
 		_movingMarker = GetNode<Polygon2D>(MovingMarkerPath);
 		_headquartersMarker = GetNode<Label>(HeadquartersMarkerPath);
+		_effectLayer = GetNode<Control>(EffectLayerPath);
 		_mapGeometry = _buildingLayer.GetParent<Control>();
 		_mapLayers = _mapGeometry.GetParent<Control>();
 		_paperFrame = GetNode<Line2D>(PaperFramePath);
@@ -70,12 +77,7 @@ public partial class MapBuildingEditor : Control
 		FitMapViewportToPaperFrame();
 		BuildRoadGraph();
 		RegisterBuildings();
-		AssignRandomObject();
 
-		GetNode<Button>(ClearButtonPath).Pressed += () => AssignSelectedRole(MapBuildingRole.Empty);
-		GetNode<Button>(HeadquartersButtonPath).Pressed += () => AssignSelectedRole(MapBuildingRole.Headquarters);
-		GetNode<Button>(ObjectButtonPath).Pressed += GenerateRandomObject;
-		GetNode<Button>(BuildRouteButtonPath).Pressed += BuildRouteFromHeadquartersToObject;
 
 		_routeRenderer.ClearRoute();
 		_movingMarker.Visible = false;
@@ -90,6 +92,358 @@ public partial class MapBuildingEditor : Control
 		_buildingLayer.Visible = isEnabled;
 		_roadLayer.Visible = isEnabled;
 		_selectionOutline.Visible = isEnabled && _selectedBuilding != null;
+	}
+
+	/// <summary>
+	/// Возвращает центр здания в координатах корневого MapUI. Явные привязки
+	/// MapBuildingPolygon имеют приоритет; остальные служебные building_block ID
+	/// стабильно раскладываются по сетке реальной геометрии карты.
+	/// </summary>
+	public bool TryGetBuildingCenter(string buildingId, out Vector2 center)
+	{
+		center = default;
+		if (string.IsNullOrWhiteSpace(buildingId))
+		{
+			return false;
+		}
+
+		foreach (MapBuildingPolygon building in FindNodesOfType<MapBuildingPolygon>(_buildingLayer))
+		{
+			if (string.Equals(building.BuildingId, buildingId, System.StringComparison.OrdinalIgnoreCase))
+			{
+				return TryGetBuildingCenterInMapSpace(building, out center);
+			}
+		}
+
+		if (!string.IsNullOrWhiteSpace(HeadquartersBuildingId)
+			&& string.Equals(HeadquartersBuildingId, buildingId, System.StringComparison.OrdinalIgnoreCase))
+		{
+			Polygon2D headquarters = _buildingLayer.GetNodeOrNull<Polygon2D>(HeadquartersBuildingName);
+			if (headquarters != null)
+			{
+				return TryGetBuildingCenterInMapSpace(headquarters, out center);
+			}
+		}
+
+		return TryGetGridBuildingCenter(buildingId, out center);
+	}
+
+	/// <summary>
+	/// Помечает контур, соответствующий инциденту core, как объект задания.
+	/// </summary>
+	public bool MarkMissionBuilding(string buildingId)
+	{
+		if (!TryFindBuildingForId(buildingId, out Polygon2D building)
+			|| !_roles.TryGetValue(building, out MapBuildingRole role)
+			|| role == MapBuildingRole.Headquarters)
+		{
+			return false;
+		}
+
+		_roles[building] = MapBuildingRole.Object;
+		building.Color = GetRoleColor(building, MapBuildingRole.Object);
+		if (_selectedBuilding == building)
+		{
+			UpdateSelectionUi();
+		}
+
+		return true;
+	}
+
+	/// <summary>
+	/// Возвращает объект задания к базовому цвету после исчезновения метки.
+	/// </summary>
+	public void ClearMissionBuilding(string buildingId)
+	{
+		if (!TryFindBuildingForId(buildingId, out Polygon2D building)
+			|| !_roles.TryGetValue(building, out MapBuildingRole role)
+			|| role != MapBuildingRole.Object)
+		{
+			return;
+		}
+
+		_roles[building] = MapBuildingRole.Empty;
+		building.Color = GetRoleColor(building, MapBuildingRole.Empty);
+		if (_selectedBuilding == building)
+		{
+			UpdateSelectionUi();
+		}
+	}
+
+	/// <summary>Показывает обратный отсчёт, пока группу ещё можно отправить.</summary>
+
+	/// <summary>Показывает обратный отсчёт, пока группу ещё можно отправить.</summary>
+	public void StartMissionCountdown(string incidentId, string buildingId, double lifetimeSeconds)
+	{
+		StopMissionCountdown(incidentId);
+		if (lifetimeSeconds <= 0.0 || !TryGetBuildingCenter(buildingId, out Vector2 mapPosition))
+		{
+			return;
+		}
+
+		const float diameter = 56.0f;
+		Transform2D mapToEffect = _effectLayer.GetGlobalTransform().AffineInverse() * GetGlobalTransform();
+		Vector2 effectPosition = mapToEffect * mapPosition;
+		var ring = new MapMarkerCountdownRing
+		{
+			Position = effectPosition - new Vector2(diameter, diameter) * 0.5f,
+			Size = new Vector2(diameter, diameter),
+			MouseFilter = MouseFilterEnum.Ignore,
+			ZIndex = 5,
+			Radius = MissionCountdownRingRadius,
+			LineWidth = MissionCountdownRingLineWidth,
+			TrackColor = MissionCountdownRingTrackColor,
+			ProgressColor = MissionCountdownRingProgressColor,
+		};
+
+		_effectLayer.AddChild(ring);
+		ring.Start(lifetimeSeconds);
+		_missionCountdowns[incidentId] = ring;
+	}
+
+	public void StopMissionCountdown(string incidentId)
+	{
+		if (!_missionCountdowns.Remove(incidentId, out MapMarkerCountdownRing ring))
+		{
+			return;
+		}
+
+		if (IsInstanceValid(ring))
+		{
+			ring.QueueFree();
+		}
+	}
+
+	/// <summary>Время пути равно длительности движения маркера по дорожному маршруту.</summary>
+	/// <summary>Синхронизирует кольцо с оставшимся временем инцидента из core.</summary>
+	public void UpdateMissionCountdown(string incidentId, double remainingSeconds)
+	{
+		if (_missionCountdowns.TryGetValue(incidentId, out MapMarkerCountdownRing ring)
+			&& IsInstanceValid(ring))
+		{
+			ring.SetRemaining(remainingSeconds);
+		}
+	}
+
+	public void ShowTravellingMissionRing(string incidentId, string buildingId)
+	{
+		if (!_missionCountdowns.TryGetValue(incidentId, out MapMarkerCountdownRing ring)
+			|| !IsInstanceValid(ring))
+		{
+			StartMissionCountdown(incidentId, buildingId, 1.0);
+			if (!_missionCountdowns.TryGetValue(incidentId, out ring) || !IsInstanceValid(ring))
+			{
+				return;
+			}
+		}
+
+		ring.ShowFull(MissionTravellingRingColor);
+	}
+
+	public bool TryGetTravelSeconds(string buildingId, out double travelSeconds)
+	{
+		travelSeconds = 0.0;
+		if (MarkerSpeed <= 0.0f
+			|| !TryFindBuildingForId(buildingId, out Polygon2D targetBuilding)
+			|| !TryBuildRoute(targetBuilding, out List<Vector2> routePoints))
+		{
+			return false;
+		}
+
+		travelSeconds = CalculateRouteLength(routePoints) / MarkerSpeed;
+		return travelSeconds > 0.0;
+	}
+
+	/// <summary>Запускает движение маркера с длительностью, переданной в core при отправке группы.</summary>
+	public bool StartDispatchRoute(string incidentId, string buildingId, double travelSeconds)
+	{
+		if (travelSeconds <= 0.0
+			|| !TryFindBuildingForId(buildingId, out Polygon2D targetBuilding)
+			|| !TryBuildRoute(targetBuilding, out List<Vector2> routePoints))
+		{
+			return false;
+		}
+
+		RemoveDispatchRoute(incidentId);
+		if (DispatchRouteScene == null)
+		{
+			return false;
+		}
+
+		MapDispatchRoute route = DispatchRouteScene.Instantiate<MapDispatchRoute>();
+		_routeLayer.AddChild(route);
+		route.Initialize(routePoints, travelSeconds);
+		_dispatchRoutes[incidentId] = route;
+		return true;
+	}
+
+	public bool StartReturnRoute(string incidentId, string buildingId, double returnSeconds)
+	{
+		if (returnSeconds <= 0.0
+			|| !TryFindBuildingForId(buildingId, out Polygon2D targetBuilding)
+			|| !TryBuildRoute(targetBuilding, out List<Vector2> routePoints))
+		{
+			return false;
+		}
+
+		routePoints.Reverse();
+		RemoveDispatchRoute(incidentId);
+		if (DispatchRouteScene == null)
+		{
+			return false;
+		}
+
+		MapDispatchRoute route = DispatchRouteScene.Instantiate<MapDispatchRoute>();
+		_routeLayer.AddChild(route);
+		route.Initialize(routePoints, returnSeconds);
+		_dispatchRoutes[incidentId] = route;
+		return true;
+	}
+
+	public void UpdateDispatchRoute(string incidentId, double remainingSeconds)
+	{
+		if (!_dispatchRoutes.TryGetValue(incidentId, out MapDispatchRoute route)
+			|| !IsInstanceValid(route))
+		{
+			return;
+		}
+
+		route.UpdateFromCore(remainingSeconds);
+	}
+
+	public void FinishDispatchRoute(string incidentId)
+	{
+		if (!_dispatchRoutes.Remove(incidentId, out MapDispatchRoute route)
+			|| !IsInstanceValid(route))
+		{
+			return;
+		}
+
+		route.Complete();
+	}
+
+	private void RemoveDispatchRoute(string incidentId)
+	{
+		if (_dispatchRoutes.Remove(incidentId, out MapDispatchRoute route) && IsInstanceValid(route))
+		{
+			route.QueueFree();
+		}
+	}
+
+	private bool TryFindBuildingForId(string buildingId, out Polygon2D resolvedBuilding)
+	{
+		resolvedBuilding = null!;
+		if (!TryGetBuildingCenter(buildingId, out Vector2 targetCenter))
+		{
+			return false;
+		}
+
+		float bestDistanceSquared = float.MaxValue;
+		foreach (Polygon2D building in FindNodesOfType<Polygon2D>(_buildingLayer))
+		{
+			if (!TryGetBuildingCenterInMapSpace(building, out Vector2 buildingCenter))
+			{
+				continue;
+			}
+
+			float distanceSquared = buildingCenter.DistanceSquaredTo(targetCenter);
+			if (distanceSquared < bestDistanceSquared)
+			{
+				bestDistanceSquared = distanceSquared;
+				resolvedBuilding = building;
+			}
+		}
+
+		return resolvedBuilding != null;
+	}
+
+	private bool TryGetGridBuildingCenter(string buildingId, out Vector2 center)
+	{
+		center = default;
+		if (!TryParseBlockCoordinates(buildingId, out int row, out int column))
+		{
+			return false;
+		}
+
+		var buildingCenters = new List<Vector2>();
+		foreach (Polygon2D building in FindNodesOfType<Polygon2D>(_buildingLayer))
+		{
+			if (TryGetBuildingCenterInMapSpace(building, out Vector2 buildingCenter))
+			{
+				buildingCenters.Add(buildingCenter);
+			}
+		}
+
+		if (buildingCenters.Count == 0)
+		{
+			return false;
+		}
+
+		Vector2 minimum = buildingCenters[0];
+		Vector2 maximum = buildingCenters[0];
+		foreach (Vector2 buildingCenter in buildingCenters)
+		{
+			minimum = minimum.Min(buildingCenter);
+			maximum = maximum.Max(buildingCenter);
+		}
+
+		// Сетка контента состоит из шести строк и пяти столбцов. Координаты
+		// выбирают ближайший реальный контур здания, а не пустую точку на карте.
+		Vector2 desiredCenter = new(
+			Mathf.Lerp(minimum.X, maximum.X, (column - 0.5f) / 5.0f),
+			Mathf.Lerp(minimum.Y, maximum.Y, (row - 0.5f) / 6.0f));
+
+		float bestDistanceSquared = float.MaxValue;
+		foreach (Vector2 buildingCenter in buildingCenters)
+		{
+			float distanceSquared = buildingCenter.DistanceSquaredTo(desiredCenter);
+			if (distanceSquared < bestDistanceSquared)
+			{
+				bestDistanceSquared = distanceSquared;
+				center = buildingCenter;
+			}
+		}
+
+		return true;
+	}
+
+	private bool TryGetBuildingCenterInMapSpace(Polygon2D building, out Vector2 center)
+	{
+		center = default;
+		if (building.Polygon.Length == 0)
+		{
+			return false;
+		}
+
+		Transform2D buildingToMap = GetGlobalTransform().AffineInverse() * building.GetGlobalTransform();
+		foreach (Vector2 point in building.Polygon)
+		{
+			center += buildingToMap * point;
+		}
+
+		center /= building.Polygon.Length;
+		return true;
+	}
+
+	private static bool TryParseBlockCoordinates(string buildingId, out int row, out int column)
+	{
+		row = 0;
+		column = 0;
+		const string prefix = "building_block_r";
+		if (!buildingId.StartsWith(prefix, System.StringComparison.OrdinalIgnoreCase))
+		{
+			return false;
+		}
+
+		int columnMarker = buildingId.IndexOf("_c", prefix.Length, System.StringComparison.OrdinalIgnoreCase);
+		if (columnMarker < 0
+			|| !int.TryParse(buildingId.Substring(prefix.Length, columnMarker - prefix.Length), out row)
+			|| !int.TryParse(buildingId.Substring(columnMarker + 2), out column))
+		{
+			return false;
+		}
+
+		return row is >= 1 and <= 6 && column is >= 1 and <= 5;
 	}
 
 	private void FitMapViewportToPaperFrame()
@@ -172,7 +526,7 @@ public partial class MapBuildingEditor : Control
 	{
 		if (_isRouteFading)
 		{
-			_markerTravelDistance += MarkerSpeed * (float)delta;
+			_markerTravelDistance += _activeMarkerSpeed * (float)delta;
 			_routeRenderer.SetHeadDistance(_markerTravelDistance);
 
 			if (_markerTravelDistance >= _routeLength + _routeRenderer.TailLength)
@@ -183,12 +537,17 @@ public partial class MapBuildingEditor : Control
 			return;
 		}
 
+		if (!string.IsNullOrEmpty(_coreRouteIncidentId))
+		{
+			return;
+		}
+
 		if (!_isMarkerMoving || _routePoints.Count < 2)
 		{
 			return;
 		}
 
-		_markerTravelDistance += MarkerSpeed * (float)delta;
+		_markerTravelDistance += _activeMarkerSpeed * (float)delta;
 		if (_markerTravelDistance >= _routeLength)
 		{
 			_markerTravelDistance = _routeLength;
@@ -590,7 +949,34 @@ public partial class MapBuildingEditor : Control
 		}
 
 		_routePoints.Add(targetAnchor.BuildingPosition);
-		ShowRoute();
+		ShowRoute(new List<Vector2>(_routePoints), null);
+	}
+
+	private bool TryBuildRoute(Polygon2D targetObject, out List<Vector2> routePoints)
+	{
+		routePoints = new List<Vector2>();
+		Polygon2D headquarters = FindBuildingByRole(MapBuildingRole.Headquarters);
+		if (headquarters == null || targetObject == null)
+		{
+			return false;
+		}
+
+		BuildingRoadAnchor startAnchor = FindClosestRoadAnchor(headquarters, targetObject);
+		BuildingRoadAnchor targetAnchor = FindClosestRoadAnchor(targetObject, headquarters);
+		List<string> nodePath = FindRoadPath(startAnchor.Attachment, targetAnchor.Attachment);
+		if (nodePath.Count == 0)
+		{
+			return false;
+		}
+
+		routePoints.Add(startAnchor.BuildingPosition);
+		foreach (string nodeId in nodePath)
+		{
+			routePoints.Add(GetRouteNodePosition(nodeId, startAnchor.Attachment, targetAnchor.Attachment));
+		}
+
+		routePoints.Add(targetAnchor.BuildingPosition);
+		return true;
 	}
 
 	private Polygon2D FindBuildingByRole(MapBuildingRole role)
@@ -830,13 +1216,24 @@ public partial class MapBuildingEditor : Control
 		};
 	}
 
-	private void ShowRoute()
+	private void ShowRoute(IReadOnlyList<Vector2> routePoints, double? travelSeconds)
 	{
+		_coreRouteIncidentId = string.Empty;
+		_coreRouteTravelSeconds = 0.0;
+		_routePoints.Clear();
+		foreach (Vector2 routePoint in routePoints)
+		{
+			_routePoints.Add(routePoint);
+		}
+
 		_routeRenderer.SetRoute(_routePoints);
 		_routeRenderer.SetHeadDistance(0.0f);
 		_movingMarker.Visible = true;
 		_markerTravelDistance = 0.0f;
 		_routeLength = CalculateRouteLength();
+		_activeMarkerSpeed = travelSeconds is > 0.0
+			? _routeLength / (float)travelSeconds.Value
+			: MarkerSpeed;
 		_movingMarker.Position = _routePoints[0];
 		_isMarkerMoving = _routeLength > 0.0f;
 		_isRouteFading = false;
@@ -852,14 +1249,14 @@ public partial class MapBuildingEditor : Control
 
 	private void UpdateRouteEta()
 	{
-		if (MarkerSpeed <= 0.0f)
+		if (_activeMarkerSpeed <= 0.0f)
 		{
 			UpdateRouteStatus("МАРШРУТ: группа ожидает отправки");
 			return;
 		}
 
 		float remainingDistance = Mathf.Max(_routeLength - _markerTravelDistance, 0.0f);
-		int remainingSeconds = Mathf.CeilToInt(remainingDistance / MarkerSpeed);
+		int remainingSeconds = Mathf.CeilToInt(remainingDistance / _activeMarkerSpeed);
 		if (remainingSeconds == _lastDisplayedEtaSeconds)
 		{
 			return;
@@ -879,6 +1276,17 @@ public partial class MapBuildingEditor : Control
 			float segmentLength = _routePoints[i].DistanceTo(_routePoints[i + 1]);
 			_routeSegmentLengths.Add(segmentLength);
 			totalLength += segmentLength;
+		}
+
+		return totalLength;
+	}
+
+	private static float CalculateRouteLength(IReadOnlyList<Vector2> routePoints)
+	{
+		float totalLength = 0.0f;
+		for (int i = 0; i < routePoints.Count - 1; i++)
+		{
+			totalLength += routePoints[i].DistanceTo(routePoints[i + 1]);
 		}
 
 		return totalLength;
@@ -919,6 +1327,9 @@ public partial class MapBuildingEditor : Control
 		_markerTravelDistance = 0.0f;
 		_lastDisplayedEtaSeconds = -1;
 		_routeLength = 0.0f;
+		_activeMarkerSpeed = 0.0f;
+		_coreRouteIncidentId = string.Empty;
+		_coreRouteTravelSeconds = 0.0;
 	}
 
 	private void CompleteRoute()
