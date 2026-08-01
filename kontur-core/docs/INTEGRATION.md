@@ -1,9 +1,9 @@
 # Интеграция в Godot-проект
 
-> **Статус: мост подключён к основной сцене.** Ядро собирается отдельной сборкой,
-> терминал запускает смены через ядро, а отладочный оверлей открывается в игре по F6.
-> Телефон, карта, радио и остальные физические объекты подключаются к событиям ядра
-> по мере реализации их игрового поведения.
+> **Статус: мост подключён, сцены не тронуты.** Ядро собирается отдельной сборкой,
+> автозагрузка поднимает симуляцию, отладочная сцена работает. Существующие сцены
+> (`main.tscn`, телефон, карта, компьютер, блокнот) не изменялись — ядро подключено,
+> но пока ни с чем в кабинете не связано. Разводка событий по предметам стола впереди.
 
 ## Что уже сделано
 
@@ -13,33 +13,41 @@
 | Исключение исходников ядра из сборки игры | `kontur_prototype.csproj` → `Compile Remove="kontur-core\**\*.cs"` |
 | Контент игры | `data/*.json` (9 файлов) |
 | Чтение `res://` | `scripts/kontur/GodotContentSource.cs` |
-| Мост-автозагрузка | `scripts/kontur/GameRuntime.cs`, зарегистрирован как `GameRuntime` в `project.godot` |
+| Мост-автозагрузка | `scripts/kontur/KonturRuntime.cs`, зарегистрирован как `Kontur` в `project.godot` |
 | Отладочный оверлей | `scripts/debug/KonturDebugOverlay.cs` + `scenes/debug/KonturDebug.tscn` |
 
-Связанные с ядром автозагрузки идут в `project.godot` в таком порядке:
+Автозагрузок в проекте три, порядок в `project.godot` такой:
 
 ```ini
 [autoload]
 
-Content="*res://content/engine/content/Content.cs"
-GameRuntime="*res://scripts/kontur/GameRuntime.cs"
+EventBus="*res://scripts/gameplay/EventBus.cs"
+GameSession="*res://scripts/gameplay/GameSession.cs"
+Kontur="*res://scripts/kontur/KonturRuntime.cs"
 ```
 
-## Единый источник истины
+## Соседство с `scripts/gameplay`
 
-Старый слой `scripts/gameplay` удалён. Состояние партии хранит только
-`Kontur.Core.Api.GameSession`, а события публикует `Kontur.Core.Events.EventBus`.
+`EventBus` и `GameSession` — отдельный слой, написанный параллельно. Он к ядру не подключён
+и ядром не используется. Трогать его при интеграции не нужно, но знать про него важно:
 
-Сцены получают сеанс через `GameRuntime.Get(this).Session`. Они вызывают команды,
-читают `Get*`-снимки и подписываются на `Session.Events`; собственные копии дня,
-таймеров и фаз смены создавать не нужно.
+**День, состояние смены и отсчёт времени считаются в двух местах независимо.**
+`GameSession.CurrentDay` и `KonturSimulation.Day` — разные числа. Пока стороны не связаны,
+ничего не ломается, но они разойдутся, как только обе начнут менять своё состояние.
+
+Пока предметы стола подключаются к ядру, берите день, фазы и время из
+`KonturSimulation.GetStatus()`. Сведение двух слоёв в один источник истины — отдельная
+задача, и делать её стоит вместе с автором `scripts/gameplay`.
+
+Имена классов не конфликтуют: в ядре шина называется `Kontur.Core.Events.EventBus`
+и лежит в своём пространстве имён, в gameplay — глобальный `EventBus`.
 
 ## Как проверить
 
 1. Закрыть запущенную игру, если она открыта: пока окно живо, DLL заблокирована
    и сборка молча не применится.
 2. Собрать проект (молоток в правом верхнем углу), посмотреть вкладку **MSBuild**.
-3. Запустить основную сцену и нажать **F6**, чтобы открыть отладчик ядра.
+3. Открыть `scenes/debug/KonturDebug.tscn`, запустить **F6** (не F5 — тот откроет `main.tscn`).
 4. Нажать «Смена 1», затем «x5».
 5. Кнопками провести вызов: «Ответить» → «ОК (метка)» → выбрать состав в панели
    «ОТПРАВКА ГРУППЫ» → «Отправить выбранных». При появлении радио — «Радио 1/2/3».
@@ -97,12 +105,12 @@ GameRuntime="*res://scripts/kontur/GameRuntime.cs"
 
 ## Шаг 3. Автозагрузка-мост (сделано)
 
-`scripts/kontur/GameRuntime.cs`, в `project.godot`:
+`scripts/kontur/KonturRuntime.cs`, в `project.godot`:
 
 ```ini
 [autoload]
 
-GameRuntime="*res://scripts/kontur/GameRuntime.cs"
+Kontur="*res://scripts/kontur/KonturRuntime.cs"
 ```
 
 Экспортируемые параметры: `ContentRoot`, `Seed`, `IsPaused`, `TimeScale`, `LogEvents`.
@@ -112,10 +120,10 @@ GameRuntime="*res://scripts/kontur/GameRuntime.cs"
 Доступ из любой сцены:
 
 ```csharp
-GameRuntime runtime = GameRuntime.Get(this);
-if (runtime != null && runtime.IsReady)
+KonturRuntime kontur = KonturRuntime.Get(this);
+if (kontur != null && kontur.IsReady)
 {
-    runtime.Session.Events.Subscribe<IncidentCreated>(OnIncidentCreated);
+    kontur.Simulation.Events.Subscribe<IncidentCreated>(OnIncidentCreated);
 }
 ```
 
@@ -134,12 +142,13 @@ if (runtime != null && runtime.IsReady)
 | `RadioTriggered` / `RadioMissed` | Радиостанция | треск, экран вариантов, индикатор 20 с |
 | `ScalesChanged` | Блокнот | анимация шкал (`NotebookDebugBars` уже умеет) |
 | `MissionReportReady` / `CreatureRevealed` | Компьютер | отчёт и новый абзац энциклопедии |
+| `ZoneStateChanged` | Карта | переключение слоя штриховки |
 | `EmployeeInjured` / `EmployeeKilled` | Досье | состояние портрета |
 | `ShiftStarted` | Записка сменщика | текст записки |
 | `ShiftEnded` | Менеджер сцен | пререндеренный ролик по `OutroCutsceneId` |
 | `GameOverTriggered` | Менеджер сцен | финальный экран по причине |
 
-Обратно от UI к ядру идут только команды `GameSession`:
+Обратно от UI к ядру идут только команды `KonturSimulation`:
 `AnswerCall`, `ConfirmBriefing`, `OpenDispatchScreen`, `DispatchSquad`,
 `ChooseRadioOption`, `SpendSkillPoint`, `HireEmployee`.
 

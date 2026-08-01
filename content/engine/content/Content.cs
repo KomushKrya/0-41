@@ -167,16 +167,44 @@ public partial class Content : Node
 			Godot.Collections.Dictionary optionData = option.AsGodotDictionary();
 			parsedOptions.Add(new ContentOption
 			{
+				// Ключ, тип диалога и пороги читает ядро: по ним оно связывает выбор
+				// игрока с последствиями и решает, открыт ли вариант этому составу.
+				// Формулировку ядро при этом не видит — её разворачивает текстовый бокс.
+				Id = ReadString(optionData, "id"),
 				Name = ReadString(optionData, "name"),
+				Quality = ReadString(optionData, "quality"),
 				RequirementModifier = optionData.TryGetValue("requirement_modifier", out Variant modifier)
 					? modifier.AsInt32()
 					: 0,
+				Requirements = ReadRequirements(optionData),
 				Chunks = ReadChunks(optionData, "chunks")
 			});
 		}
 
 		entry.Options = parsedOptions;
 		return entry;
+	}
+
+	/// <summary>
+	/// Пороги варианта: объект «характеристика: число». Отсутствует или пуст —
+	/// вариант открыт любому составу.
+	/// </summary>
+	private static Dictionary<string, int> ReadRequirements(Godot.Collections.Dictionary optionData)
+	{
+		var result = new Dictionary<string, int>();
+		if (!optionData.TryGetValue("requires", out Variant value)
+			|| value.VariantType != Variant.Type.Dictionary)
+		{
+			return result;
+		}
+
+		Godot.Collections.Dictionary requires = value.AsGodotDictionary();
+		foreach (Variant key in requires.Keys)
+		{
+			result[key.AsString()] = requires[key].AsInt32();
+		}
+
+		return result;
 	}
 
 	private static List<ContentChunk> ReadChunks(Godot.Collections.Dictionary source, string key)

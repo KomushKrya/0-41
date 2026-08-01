@@ -17,13 +17,13 @@ namespace Kontur.Core.Content
 
 		public int Endurance { get; set; }
 
-		public int Charisma { get; set; }
+		public int Agility { get; set; }
 
 		public int Composure { get; set; }
 
 		public StatBlock ToModel()
 		{
-			return new StatBlock(Strength, Perception, Endurance, Charisma, Composure);
+			return new StatBlock(Strength, Perception, Endurance, Agility, Composure);
 		}
 	}
 
@@ -48,6 +48,23 @@ namespace Kontur.Core.Content
 		public bool IsDispatchTarget { get; set; }
 
 		public bool IsHeadquarters { get; set; }
+
+		public string ZoneId { get; set; } = string.Empty;
+	}
+
+	public sealed class ZoneDto
+	{
+		public string Id { get; set; } = string.Empty;
+
+		public string Name { get; set; } = string.Empty;
+
+		public string State { get; set; } = "Normal";
+
+		public double BaseWeight { get; set; } = 1.0;
+
+		public double MapX { get; set; }
+
+		public double MapY { get; set; }
 	}
 
 	public sealed class AbilityDto
@@ -67,6 +84,10 @@ namespace Kontur.Core.Content
 	public sealed class EquipmentDto
 	{
 		public string Id { get; set; } = string.Empty;
+
+		public string Name { get; set; } = string.Empty;
+
+		public string Description { get; set; } = string.Empty;
 
 		public string Kind { get; set; } = "Consumable";
 
@@ -116,34 +137,103 @@ namespace Kontur.Core.Content
 		public List<EmployeeDto>? StartingRoster { get; set; }
 
 		public List<EmployeeDto>? HirePool { get; set; }
+
+		/// <summary>Фабрика кандидатов. Отсутствует — предлагаются только прописанные вручную.</summary>
+		public GeneratorDto? Generator { get; set; }
 	}
 
-	public sealed class RadioOptionDto
+	public sealed class GeneratorDto
+	{
+		public int CandidatesPerShift { get; set; }
+
+		public List<string>? Surnames { get; set; }
+
+		public List<string>? Initials { get; set; }
+
+		public List<string>? Portraits { get; set; }
+
+		public List<ArchetypeDto>? Archetypes { get; set; }
+
+		public List<LevelRangeDto>? LevelsByDay { get; set; }
+
+		public int MinStat { get; set; } = 2;
+
+		public int MaxStat { get; set; } = 7;
+
+		public int StatPointsBase { get; set; } = 6;
+
+		public int StatPointsPerLevel { get; set; } = 3;
+
+		public double PrimaryWeight { get; set; } = 3.0;
+
+		public double SecondaryWeight { get; set; } = 2.0;
+
+		public int AbilitiesBase { get; set; } = 1;
+
+		public int SecondAbilityFromLevel { get; set; } = 3;
+	}
+
+	public sealed class ArchetypeDto
 	{
 		public string Id { get; set; } = string.Empty;
 
-		public string Text { get; set; } = string.Empty;
+		public double Weight { get; set; } = 1.0;
 
-		public double RequirementMultiplier { get; set; } = 1.0;
+		public string RankTitle { get; set; } = string.Empty;
 
-		public double DeathChanceMultiplier { get; set; } = 1.0;
+		public List<string>? Primary { get; set; }
 
-		public double InjuryChanceMultiplier { get; set; } = 1.0;
+		public List<string>? Secondary { get; set; }
+
+		public List<string>? Abilities { get; set; }
+
+		public List<string>? Portraits { get; set; }
+	}
+
+	public sealed class LevelRangeDto
+	{
+		public int FromDay { get; set; } = 1;
+
+		public int MinLevel { get; set; } = 1;
+
+		public int MaxLevel { get; set; } = 1;
+	}
+
+	public sealed class MissionEventOptionDto
+	{
+		/// <summary>Пусто — берётся умолчание по типу диалога из config.missionEvents.</summary>
+		public double? DeathChanceMultiplier { get; set; }
+
+		public double? InjuryChanceMultiplier { get; set; }
+
+		public bool AppliesQuarantine { get; set; }
 
 		public ScaleDeltaDto? ExtraScales { get; set; }
 
 		public string? RevealsPropertyId { get; set; }
 
-		public string Quality { get; set; } = "Good";
+		/// <summary>None | Injury | Death. Только ужесточает потолок миссии.</summary>
+		public string? ConsequenceCap { get; set; }
 	}
 
-	public sealed class RadioEncounterDto
+	/// <summary>
+	/// Баланс вмешательства. Формулировки, `quality`, `requirement_modifier` и `requires` живут
+	/// в content/raw/mission_events под тем же id — здесь только то, что крутит дизайнер.
+	/// Ключи словаря options должны совпадать с id вариантов в тексте; расхождение
+	/// ловит загрузчик.
+	/// </summary>
+	public sealed class MissionEventDto
 	{
 		public string Id { get; set; } = string.Empty;
 
-		public string SituationText { get; set; } = string.Empty;
+		public Dictionary<string, MissionEventOptionDto>? Options { get; set; }
+	}
 
-		public List<RadioOptionDto>? Options { get; set; }
+	public sealed class ReportPairDto
+	{
+		public string Success { get; set; } = string.Empty;
+
+		public string Failure { get; set; } = string.Empty;
 	}
 
 	public sealed class MissionDto
@@ -152,15 +242,20 @@ namespace Kontur.Core.Content
 
 		public int Day { get; set; } = 1;
 
+		/// <summary>Story | Filler. По умолчанию Filler.</summary>
+		public string Tier { get; set; } = "Filler";
+
+		/// <summary>None | Injury | Death. Пусто — берётся от уровня миссии.</summary>
+		public string? ConsequenceCap { get; set; }
+
+		public string ZoneId { get; set; } = string.Empty;
+
 		public string CreatureId { get; set; } = string.Empty;
 
-		public string Title { get; set; } = string.Empty;
-
-		public string CallerName { get; set; } = string.Empty;
-
-		public string BriefingText { get; set; } = string.Empty;
-
 		public StatBlockDto? Requirements { get; set; }
+
+		/// <summary>Главная характеристика вызова — весит вдвое. Пусто — все равнозначны.</summary>
+		public string? PrimaryStat { get; set; }
 
 		public double TravelSeconds { get; set; } = 12.0;
 
@@ -168,7 +263,12 @@ namespace Kontur.Core.Content
 
 		public double ReturnSeconds { get; set; } = 10.0;
 
-		public string? RadioEncounterId { get; set; }
+		public string CallId { get; set; } = string.Empty;
+
+		public string MissionEventId { get; set; } = string.Empty;
+
+		/// <summary>Ключ — id варианта решения; пустая строка — исход без вмешательства.</summary>
+		public Dictionary<string, ReportPairDto>? Reports { get; set; }
 
 		public ScaleDeltaDto? ScalesOnSuccess { get; set; }
 
@@ -186,23 +286,7 @@ namespace Kontur.Core.Content
 
 		public double DeathChance { get; set; } = 0.08;
 
-		public string ReportSuccessText { get; set; } = string.Empty;
-
-		public string ReportFailureText { get; set; } = string.Empty;
-
 		public List<string>? ManifestedPropertyIds { get; set; }
 	}
 
-	public sealed class ShiftNoteDto
-	{
-		public int Day { get; set; } = 1;
-
-		public string Title { get; set; } = string.Empty;
-
-		/// <summary>Флейвор-текст от дневного сменщика (ДД, раздел 2).</summary>
-		public string Text { get; set; } = string.Empty;
-
-		/// <summary>Идентификатор пререндеренного ролика после смены.</summary>
-		public string OutroCutsceneId { get; set; } = string.Empty;
-	}
 }

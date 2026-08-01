@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using Kontur.Core.Events;
 using Kontur.Core.Model;
@@ -36,6 +37,31 @@ namespace Kontur.Harness
 			Console.WriteLine("[{0,7}] {1}", FormatTime(_clock()), line);
 		}
 
+		private static string FormatOffers(IReadOnlyList<RadioOptionOffer> offers)
+		{
+			var parts = new List<string>();
+			for (int i = 0; i < offers.Count; i++)
+			{
+				parts.Add(offers[i].IsUnlocked
+					? offers[i].Id
+					: $"{offers[i].Id} (закрыт: не хватает {offers[i].Shortfall})");
+			}
+
+			return string.Join(", ", parts);
+		}
+
+		/// <summary>Дом в скобках — только если он есть. Пустая карта не должна сорить в логе.</summary>
+		private static string FormatBuilding(string buildingId)
+		{
+			return string.IsNullOrEmpty(buildingId) ? string.Empty : ", дом " + buildingId;
+		}
+
+		/// <summary>Ноль — обучающая смена без таймеров игрока, обратного отсчёта нет.</summary>
+		private static string FormatTimer(double seconds)
+		{
+			return seconds > 0.0 ? $"{seconds:0} с" : "без таймера";
+		}
+
 		private static string FormatTime(double seconds)
 		{
 			int minutes = (int)(seconds / 60.0);
@@ -48,7 +74,7 @@ namespace Kontur.Harness
 			switch (e)
 			{
 				case ShiftStarted s:
-					return $"=== СМЕНА {s.Day} НАЧАТА. Лимит штата: {s.StaffLimit}. «{s.ShiftNoteTitle}»";
+					return $"=== СМЕНА {s.Day} НАЧАТА. Лимит штата: {s.StaffLimit}. Записка: {s.ShiftNoteId}";
 
 				case CallWindowClosed s:
 					return $"--- Окно приёма вызовов закрыто. Открытых вызовов: {s.OpenIncidents}";
@@ -59,16 +85,19 @@ namespace Kontur.Harness
 						+ $"Травм {s.Summary.Injuries}, погибло {s.Summary.Deaths}. Ролик: {s.OutroCutsceneId}";
 
 				case IncidentCreated s:
-					return $"ТЕЛЕФОН звонит — {s.IncidentId} ({s.BuildingId}), звонит {s.CallerName}. {s.RingSeconds:0} с на ответ";
+					return $"ТЕЛЕФОН звонит — {s.IncidentId} ({s.ZoneId}{FormatBuilding(s.BuildingId)}), запись {s.CallId}. {FormatTimer(s.RingSeconds)}";
+
+				case IncidentQueued s:
+					return $"Линия занята — {s.IncidentId} ждёт очереди (в очереди {s.Position})";
 
 				case CallAnswered s:
-					return $"Трубка снята — {s.IncidentId}: {s.Title}";
+					return $"Трубка снята — {s.IncidentId}: {s.CallId}";
 
 				case CallMissed s:
 					return $"!! ЗВОНОК ПРОПУЩЕН — {s.IncidentId}";
 
 				case MapMarkerSpawned s:
-					return $"КАРТА: метка {s.IncidentId} в {s.BuildingId}, {s.LifetimeSeconds:0} с на отправку";
+					return $"КАРТА: метка {s.IncidentId} в {s.ZoneId}{FormatBuilding(s.BuildingId)}, {s.LifetimeSeconds:0} с на отправку";
 
 				case MapMarkerExpired s:
 					return $"!! МЕТКА ПРОСРОЧЕНА — {s.IncidentId}";
@@ -83,16 +112,41 @@ namespace Kontur.Harness
 					return $"Группа на месте — {s.IncidentId}";
 
 				case RadioTriggered s:
-					return $"РАДИО {s.IncidentId}: {s.SituationText} | вариантов: {s.Options.Count}, {s.ResponseSeconds:0} с";
+					return $"РАДИО {s.IncidentId}: {s.MissionEventId} | варианты: {FormatOffers(s.Options)}, {FormatTimer(s.ResponseSeconds)}";
+
+				case TimeFreezeChanged s:
+					return s.IsFrozen
+						? $"|| ВРЕМЯ ОСТАНОВЛЕНО ({s.Reason})"
+						: "|> время идёт дальше";
+
+				case RadioAnswered s:
+					return $"Радио взято — {s.IncidentId}";
+
+				case DispatchScreenClosed s:
+					return _verbose ? $"Экран отправки закрыт — {s.IncidentId}" : null;
 
 				case RadioMissed s:
 					return $"!! РАДИО БЕЗ ОТВЕТА — {s.IncidentId} (бросок с повышенным риском)";
 
 				case RadioOptionChosen s:
-					return $"Выбор по радио {s.IncidentId}: {s.OptionText}";
+					return $"Выбор по радио {s.IncidentId}: {s.OptionId}";
 
 				case MissionResolved s:
 					return FormatOutcome(s.Outcome);
+
+				case MissionOutcomeReady s:
+					return "ЭКРАН ИТОГА " + s.IncidentId + ": "
+						+ (s.IsSuccess ? "ВЫПОЛНЕНО" : "ПРОВАЛЕНО")
+						+ (string.IsNullOrEmpty(s.SummaryTextId) ? " | текста нет" : " | " + s.SummaryTextId)
+						+ (s.SquadWiped
+							? " | возвращаться некому"
+							: $" | возвращаются {s.ReturningEmployeeIds.Count} чел., {s.ReturnSeconds:0.#} с")
+						+ (s.InjuredEmployeeIds.Count > 0 ? $" | ранено {s.InjuredEmployeeIds.Count}" : string.Empty)
+						+ (s.KilledEmployeeIds.Count > 0 ? $" | погибло {s.KilledEmployeeIds.Count}" : string.Empty);
+
+				case HiringOpened s:
+					return $"НАЙМ ОТКРЫТ на день {s.NextDay}: штат {s.LivingStaff}/{s.StaffLimit}, "
+						+ $"свободно мест {s.FreeSlots}, кандидатов {s.CandidateIds.Count}";
 
 				case ScalesChanged s:
 					return $"ШКАЛЫ {s.Delta} -> {s.Values} ({s.Reason})";
@@ -120,7 +174,8 @@ namespace Kontur.Harness
 
 				case MissionReportReady s:
 					return $"ОТЧЁТ {s.Report.IncidentId}: {(s.Report.IsSuccess ? "УСПЕХ" : "ПРОВАЛ")}"
-						+ (string.IsNullOrEmpty(s.Report.CreatureId) ? " | существо не опознано" : $" | существо: {s.Report.CreatureId}");
+						+ (string.IsNullOrEmpty(s.Report.ReportId) ? " | текста нет" : $" | {s.Report.ReportId}")
+						+ (string.IsNullOrEmpty(s.Report.CreatureId) ? string.Empty : $" | существо: {s.Report.CreatureId}");
 
 				case CreatureIdentified s:
 					return $"ЭНЦИКЛОПЕДИЯ: опознано существо {s.CreatureId}";
@@ -128,14 +183,17 @@ namespace Kontur.Harness
 				case CreatureRevealed s:
 					return $"ЭНЦИКЛОПЕДИЯ: {s.CreatureId} — открыто свойство {s.PropertyId}";
 
+				case ZoneStateChanged s:
+					return $"КАРТА: зона {s.ZoneId} {s.OldState} -> {s.NewState} ({s.Reason})";
+
 				case EquipmentConsumed s:
-					return _verbose ? $"Расход: {s.EquipmentId}, осталось {s.RemainingQuantity}" : null;
+					return _verbose ? $"Расход: {s.EquipmentName}, осталось {s.RemainingQuantity}" : null;
 
 				case EquipmentAcquired s:
-					return $"Найдено снаряжение: {s.EquipmentId}{(s.IsShiftOnly ? " (только на эту смену)" : string.Empty)}";
+					return $"Найдено снаряжение: {s.EquipmentName}{(s.IsShiftOnly ? " (только на эту смену)" : string.Empty)}";
 
 				case EquipmentLost s:
-					return $"Утрачено снаряжение: {s.EquipmentId} ({s.Reason})";
+					return $"Утрачено снаряжение: {s.EquipmentName} ({s.Reason})";
 
 				case IncidentClosed s:
 					return _verbose ? $"Вызов закрыт — {s.IncidentId}" : null;
@@ -155,13 +213,13 @@ namespace Kontur.Harness
 			switch (outcome.Reason)
 			{
 				case MissionResolutionReason.StatsCovered:
-					reason = "требования покрыты";
+					reason = "профиль закрыт с запасом";
 					break;
 				case MissionResolutionReason.DiceSuccess:
 				case MissionResolutionReason.DiceFailure:
 					reason = string.Format(
 						CultureInfo.InvariantCulture,
-						"бросок {0:0.000} против шанса {1:0.000}, покрытие {2:0.00}",
+						"бросок {0:0.000} против шанса {1:0.000}, совпадение профилей {2:0.00}",
 						outcome.Roll,
 						outcome.SuccessChance,
 						outcome.Coverage);
@@ -181,7 +239,11 @@ namespace Kontur.Harness
 				? string.Empty
 				: $" | требовалось [{outcome.EffectiveRequirements}] / группа [{outcome.SquadStats}]";
 
-			return $"ИТОГ {outcome.IncidentId}: {result} ({reason}){stats}";
+			string cap = outcome.AppliedCap == ConsequenceCap.Death
+				? string.Empty
+				: $" | потолок: {(outcome.AppliedCap == ConsequenceCap.None ? "без потерь" : "только травмы")}";
+
+			return $"ИТОГ {outcome.IncidentId}: {result} ({reason}){stats}{cap}";
 		}
 
 		private static string FormatGameOver(GameOverReason reason)

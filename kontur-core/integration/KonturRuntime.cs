@@ -1,6 +1,6 @@
 // ЭСКИЗ ДЛЯ ИНТЕГРАЦИИ. В Godot-проект пока не копируется — см. docs/INTEGRATION.md.
 //
-// После мержа ветки: scripts/kontur/GameRuntime.cs + autoload под именем "GameRuntime".
+// После мержа ветки: scripts/kontur/KonturRuntime.cs + autoload под именем "Kontur".
 
 using System;
 using Godot;
@@ -13,9 +13,9 @@ namespace Kontur.Integration
 	/// <summary>
 	/// Мост между симуляционным ядром и сценами. Единственное место, где движок
 	/// встречается с ядром. Сцены подписываются на события этого узла и вызывают
-	/// команды через Session — напрямую в системы ядра никто не лезет.
+	/// команды через Simulation — напрямую в системы ядра никто не лезет.
 	/// </summary>
-	public partial class GameRuntime : Node
+	public partial class KonturRuntime : Node
 	{
 		[Export] public string ContentRoot { get; set; } = "res://data/";
 
@@ -26,18 +26,18 @@ namespace Kontur.Integration
 
 		private IDisposable? _logSubscription;
 
-		public GameSession Session { get; private set; } = null!;
+		public KonturSimulation Simulation { get; private set; } = null!;
 
 		public override void _Ready()
 		{
 			ContentDatabase content = ContentLoader.Load(new GodotContentSource(ContentRoot));
-			Session = new GameSession(content, Seed);
+			Simulation = new KonturSimulation(content, Seed);
 
 			// Единый лог всех сигналов ядра в Output — первое, что стоит смотреть при отладке.
-			_logSubscription = Session.Events.SubscribeAll(e => GD.Print("[KONTUR] ", e.GetType().Name, " ", e));
+			_logSubscription = Simulation.Events.SubscribeAll(e => GD.Print("[KONTUR] ", e.GetType().Name, " ", e));
 
-			Session.Events.Subscribe<ShiftEnded>(OnShiftEnded);
-			Session.Events.Subscribe<GameOverTriggered>(OnGameOver);
+			Simulation.Events.Subscribe<ShiftEnded>(OnShiftEnded);
+			Simulation.Events.Subscribe<GameOverTriggered>(OnGameOver);
 		}
 
 		public override void _Process(double delta)
@@ -47,7 +47,7 @@ namespace Kontur.Integration
 				return;
 			}
 
-			Session.Tick(delta);
+			Simulation.Tick(delta);
 		}
 
 		public override void _ExitTree()

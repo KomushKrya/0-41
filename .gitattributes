@@ -1,2 +1,24 @@
 # Normalize EOL for all files that Git considers text files.
 * text=auto eol=lf
+
+# Бинарные ассеты: никакой нормализации переводов строк.
+#
+# Git и сам определяет бинарность по NUL-байтам и почти наверняка не тронул бы эти
+# файлы. Но «почти» здесь плохое слово: молча испорченная модель на 26 МБ обнаружится
+# не при коммите, а когда её кто-то откроет. Явное указание стоит одной строки.
+*.glb   binary
+*.fbx   binary
+*.blend binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.tga   binary
+*.psd   binary
+*.wav   binary
+*.ogg   binary
+*.mp3   binary
+*.mp4   binary
+*.ttf   binary
+*.otf   binary
+*.docx  binary
+*.pdf   binary

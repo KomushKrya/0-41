@@ -33,7 +33,7 @@ namespace Kontur.Core.Model
 
 		public string MissionId { get; set; } = string.Empty;
 
-		public string BuildingId { get; set; } = string.Empty;
+		public string ZoneId { get; set; } = string.Empty;
 
 		public string CreatureId { get; set; } = string.Empty;
 
@@ -47,8 +47,14 @@ namespace Kontur.Core.Model
 		/// <summary>Итоговая сумма характеристик группы со снаряжением и способностями.</summary>
 		public StatBlock SquadStats { get; set; } = StatBlock.Zero;
 
-		/// <summary>0..1 — насколько группа покрыла требования.</summary>
+		/// <summary>
+		/// 0..1 — насколько профиль группы совпал с профилем требований.
+		/// Главная характеристика вызова весит вдвое.
+		/// </summary>
 		public double Coverage { get; set; }
+
+		/// <summary>Разбор по характеристикам: что требовалось, кто закрывал, с какой оценкой.</summary>
+		public List<StatMatch> StatMatches { get; } = new List<StatMatch>();
 
 		public double SuccessChance { get; set; }
 
@@ -63,6 +69,9 @@ namespace Kontur.Core.Model
 		public List<string> EquipmentIds { get; } = new List<string>();
 
 		public ScaleDelta ScaleDelta { get; set; } = ScaleDelta.Zero;
+
+		/// <summary>Потолок последствий, который в итоге применился: миссия плюс ужесточение варианта.</summary>
+		public ConsequenceCap AppliedCap { get; set; } = ConsequenceCap.Death;
 
 		public bool RadioWasTriggered { get; set; }
 
@@ -79,19 +88,24 @@ namespace Kontur.Core.Model
 		}
 	}
 
-	/// <summary>Отчёт, который появляется на компьютере после возвращения группы (ДД, раздел 3, п. 12).</summary>
+	/// <summary>
+	/// Отчёт, который появляется на компьютере после возвращения группы (ДД, раздел 3, п. 12).
+	/// Текста здесь нет: интерфейс разворачивает ReportId через текстовый движок.
+	/// </summary>
 	public sealed class MissionReport
 	{
 		public string IncidentId { get; set; } = string.Empty;
 
 		public string MissionId { get; set; } = string.Empty;
 
-		public string Title { get; set; } = string.Empty;
-
-		public string Text { get; set; } = string.Empty;
+		/// <summary>Запись типа `report`. Пусто, если под такую комбинацию текста ещё нет.</summary>
+		public string ReportId { get; set; } = string.Empty;
 
 		/// <summary>Существо, с которым столкнулась группа. Пусто, если никто не вернулся.</summary>
 		public string CreatureId { get; set; } = string.Empty;
+
+		/// <summary>Выбранный вариант решения; пусто — вмешательства не было.</summary>
+		public string ChosenOptionId { get; set; } = string.Empty;
 
 		public bool IsSuccess { get; set; }
 

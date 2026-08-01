@@ -24,7 +24,7 @@ namespace Kontur.Core.Systems
 		}
 
 		/// <summary>Возвращает id свойств, открытых этой миссией.</summary>
-		public List<string> ProcessMissionResult(MissionDefinition mission, MissionOutcome outcome, RadioOption? chosenOption)
+		public List<string> ProcessMissionResult(MissionDefinition mission, MissionOutcome outcome, MissionEventOption? chosenOption)
 		{
 			var revealed = new List<string>();
 

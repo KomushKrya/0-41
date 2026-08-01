@@ -17,7 +17,13 @@ namespace Kontur.Core.Config
 
 		public EmployeeConfig Employees { get; set; } = new EmployeeConfig();
 
+		public ZoneConfig Zones { get; set; } = new ZoneConfig();
+
 		public LootConfig Loot { get; set; } = new LootConfig();
+
+		public MissionEventConfig MissionEvents { get; set; } = new MissionEventConfig();
+
+		public StatMatchConfig Match { get; set; } = new StatMatchConfig();
 
 		public List<DayConfig> Days { get; set; } = new List<DayConfig>();
 
@@ -64,6 +70,12 @@ namespace Kontur.Core.Config
 
 		/// <summary>Пауза перед появлением отчёта после возвращения группы.</summary>
 		public double ReportDelaySeconds { get; set; } = 1.0;
+
+		/// <summary>
+		/// Пауза после того, как линия освободилась, прежде чем зазвонит следующий вызов
+		/// из очереди. Без неё звонки шли бы встык и слипались в один поток.
+		/// </summary>
+		public double CallQueueGapSeconds { get; set; } = 2.0;
 	}
 
 	public sealed class ScalesConfig
@@ -86,6 +98,30 @@ namespace Kontur.Core.Config
 
 		/// <summary>Лояльность достигает минимума — game over.</summary>
 		public double LoyaltyLoseAt { get; set; } = 0.0;
+	}
+
+	/// <summary>
+	/// Как порог по характеристике превращается в проценты. Три ступени вместо плавной
+	/// кривой — потому что игрок читает их цветом и должен понимать, что именно исправить.
+	/// </summary>
+	public sealed class StatMatchConfig
+	{
+		/// <summary>Превышение на столько и больше — зелёный, полный вклад.</summary>
+		public int ExceedsMargin { get; set; } = 2;
+
+		/// <summary>Вклад жёлтого: порог закрыт, но без запаса.</summary>
+		public double MeetsScore { get; set; } = 0.8;
+
+		/// <summary>
+		/// Во сколько раз падает вклад за каждое очко недобора. 0.35 означает: не хватает
+		/// одного — вклад падает втрое, двух — вдесятеро. Красный обязан быть больно.
+		/// </summary>
+		public double BelowFalloff { get; set; } = 0.35;
+
+		/// <summary>Вес главной характеристики вызова относительно остальных.</summary>
+		public double PrimaryWeight { get; set; } = 2.0;
+
+		public double SecondaryWeight { get; set; } = 1.0;
 	}
 
 	public sealed class ResolutionConfig
@@ -130,6 +166,29 @@ namespace Kontur.Core.Config
 		public int MaxStatValue { get; set; } = 20;
 	}
 
+	public sealed class ZoneConfig
+	{
+		public double WeightNormal { get; set; } = 1.0;
+
+		/// <summary>Заражённые зоны — вызовы оттуда чаще (ДД, раздел 9).</summary>
+		public double WeightInfected { get; set; } = 2.2;
+
+		/// <summary>Карантин — реже.</summary>
+		public double WeightQuarantine { get; set; } = 0.4;
+
+		/// <summary>Очищено — почти нет.</summary>
+		public double WeightCleared { get; set; } = 0.1;
+
+		/// <summary>И сложнее: требования миссии в заражённой зоне умножаются.</summary>
+		public double InfectedRequirementMultiplier { get; set; } = 1.2;
+
+		public double ClearedRequirementMultiplier { get; set; } = 0.9;
+
+		public int FailStreakToInfect { get; set; } = 2;
+
+		public int SuccessStreakToClear { get; set; } = 3;
+	}
+
 	public sealed class LootConfig
 	{
 		/// <summary>Небольшой шанс найти расходник по итогам удачной миссии (ДД, раздел 6).</summary>
@@ -139,6 +198,40 @@ namespace Kontur.Core.Config
 		public int StandardOrStorySlots { get; set; } = 1;
 
 		public int ConsumableSlots { get; set; } = 2;
+	}
+
+	/// <summary>
+	/// Умолчания по типу диалога. Автор пишет `quality: good` и может не писать числа —
+	/// они возьмутся отсюда. Явно написанное в тексте всегда сильнее умолчания.
+	/// </summary>
+	public sealed class MissionEventConfig
+	{
+		public MissionEventQualityConfig Good { get; set; } =
+			new MissionEventQualityConfig { RequirementModifier = 0, RiskMultiplier = 1.0 };
+
+		public MissionEventQualityConfig Neutral { get; set; } =
+			new MissionEventQualityConfig { RequirementModifier = 1, RiskMultiplier = 1.0 };
+
+		public MissionEventQualityConfig Bad { get; set; } =
+			new MissionEventQualityConfig { RequirementModifier = 2, RiskMultiplier = 1.5 };
+
+		public MissionEventQualityConfig For(Kontur.Core.Model.MissionEventQuality quality)
+		{
+			switch (quality)
+			{
+				case Kontur.Core.Model.MissionEventQuality.Good: return Good;
+				case Kontur.Core.Model.MissionEventQuality.Bad: return Bad;
+				default: return Neutral;
+			}
+		}
+	}
+
+	public sealed class MissionEventQualityConfig
+	{
+		public int RequirementModifier { get; set; }
+
+		/// <summary>Множитель травм и гибели, если у варианта не заданы свои.</summary>
+		public double RiskMultiplier { get; set; } = 1.0;
 	}
 
 	public sealed class DayConfig

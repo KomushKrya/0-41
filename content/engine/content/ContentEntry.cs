@@ -102,7 +102,24 @@ public sealed class ContentSpan
 
 public sealed class ContentOption
 {
+	/// <summary>Ключ варианта: по нему геймплей связывает выбор с отчётом и эффектами.</summary>
+	public string Id = string.Empty;
+
 	public string Name = string.Empty;
+
+	/// <summary>
+	/// Тип диалога: good, neutral, bad. Игроку не показывается — он восстанавливает
+	/// его по энциклопедии. Ядру нужен, чтобы знать умолчания по сложности и рискам.
+	/// </summary>
+	public string Quality = string.Empty;
+
 	public int RequirementModifier;
+
+	/// <summary>
+	/// Порог по характеристикам, ниже которого вариант закрыт: «strength» -> 6.
+	/// Ключи латиницей, как в геймплейных данных. Пустой словарь — вариант открыт всем.
+	/// </summary>
+	public IReadOnlyDictionary<string, int> Requirements = new Dictionary<string, int>();
+
 	public IReadOnlyList<ContentChunk> Chunks = new List<ContentChunk>();
 }
