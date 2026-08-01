@@ -16,6 +16,7 @@
 [ext_resource type="PackedScene" path="res://scenes/interactables/ShiftNote.tscn" id="21_shift_note"]
 [ext_resource type="PackedScene" uid="uid://biglmufdjusj5" path="res://scenes/interactables/DeskComputer.tscn" id="22_computer"]
 [ext_resource type="PackedScene" path="res://scenes/debug/KonturDebug.tscn" id="24_kontur_debug"]
+[ext_resource type="PackedScene" path="res://scenes/ui/radio/RadioDecisionUI.tscn" id="28_radio_decision"]
 [ext_resource type="Script" uid="uid://cgktm1kb8yxqs" path="res://scripts/interaction/SeatInteractable.cs" id="25_seat"]
 [ext_resource type="Script" uid="uid://d0fbn8kr5taka" path="res://scripts/interaction/InteractionOutline.cs" id="26_outline"]
 [ext_resource type="Script" uid="uid://db0evcj3y5u80" path="res://scripts/interaction/ScreenSpaceOutlineManager.cs" id="27_screen_space_outline"]
@@ -339,6 +340,12 @@ collision_mask = 2
 collide_with_areas = true
 
 [node name="KonturDebug" parent="." unique_id=1184622803 instance=ExtResource("24_kontur_debug")]
+
+[node name="RadioDecisionLayer" type="CanvasLayer" parent="."]
+layer = 200
+
+[node name="RadioDecisionUI" parent="RadioDecisionLayer" instance=ExtResource("28_radio_decision")]
+visible = false
 
 [node name="CoatRack" parent="." unique_id=1203847236 groups=["visual_only"] instance=ExtResource("14_0ld40")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.4169858, 0.009886015, -2.4992123)
