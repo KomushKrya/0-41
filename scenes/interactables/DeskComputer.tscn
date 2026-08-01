@@ -1,0 +1,56 @@
+[gd_scene format=3 uid="uid://biglmufdjusj5"]
+
+[ext_resource type="Script" uid="uid://ddn5p1xirvbik" path="res://scripts/computer/DeskComputerInteraction.cs" id="1_computer_interaction"]
+[ext_resource type="PackedScene" path="res://scenes/ui/computer/ComputerUI.tscn" id="2_computer_ui"]
+[ext_resource type="Script" uid="uid://bjwfxhtauk3gn" path="res://scripts/computer/DeskComputerInteractable.cs" id="3_computer_interactable"]
+[ext_resource type="Script" uid="uid://cxbebiv6k1myu" path="res://scripts/interaction/SubViewportInputController.cs" id="4_viewport_input"]
+[ext_resource type="Script" uid="uid://d0fbn8kr5taka" path="res://scripts/interaction/InteractionOutline.cs" id="5_outline"]
+[ext_resource type="PackedScene" path="res://assets/models/environment/import/PCNew.glb" id="6_computer_model"]
+[ext_resource type="Script" uid="uid://ddp610k3mi5c2" path="res://scripts/computer/ComputerScreenRenderer.cs" id="7_screen_renderer"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_computer_interaction"]
+size = Vector3(2.1895263, 1.3523926, 1.8120117)
+
+[node name="DeskComputer" type="Node3D" unique_id=818038057 groups=["interactive"]]
+script = ExtResource("1_computer_interaction")
+
+[node name="ComputerViewport" type="SubViewport" parent="." unique_id=1259416126]
+disable_3d = true
+size = Vector2i(900, 600)
+render_target_update_mode = 4
+
+[node name="ComputerUI" parent="ComputerViewport" unique_id=1683288535 instance=ExtResource("2_computer_ui")]
+
+[node name="VisualRoot" type="Node3D" parent="." unique_id=730904717]
+
+[node name="ComputerModel" parent="VisualRoot" unique_id=1658683824 instance=ExtResource("6_computer_model")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76, 0)
+
+[node name="InteractionArea" type="Area3D" parent="." unique_id=365086483]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0.2)
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("3_computer_interactable")
+ComputerPath = NodePath("..")
+OutlinePath = NodePath("../InteractionOutline")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionArea" unique_id=990402082]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.76175535, 0.31140125, -0.22143556)
+shape = SubResource("BoxShape3D_computer_interaction")
+
+[node name="FocusCameraPose" type="Camera3D" parent="." unique_id=213447203]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 1.399182, 1.6710238, 0.044374406)
+
+[node name="ScreenRenderer" type="Node3D" parent="." unique_id=1121600991]
+script = ExtResource("7_screen_renderer")
+ScreenPath = NodePath("VisualRoot/ComputerModel/Plane")
+ScreenNodeName = "Plane"
+
+[node name="ViewportInput" type="Node" parent="." unique_id=397042116]
+script = ExtResource("4_viewport_input")
+ViewportPath = NodePath("../ComputerViewport")
+CursorPath = NodePath("../ComputerViewport/ComputerUI/ComputerCursor")
+
+[node name="InteractionOutline" type="Node" parent="." unique_id=1991097361]
+script = ExtResource("5_outline")
+VisualRootPath = NodePath("../VisualRoot")

@@ -23,10 +23,10 @@ namespace Kontur.Core.Systems
 			_bus = bus;
 		}
 
-		/// <summary>Возвращает индексы абзацев, открытых этой миссией.</summary>
-		public List<int> ProcessMissionResult(MissionDefinition mission, MissionOutcome outcome, RadioOption? chosenOption)
+		/// <summary>Возвращает id свойств, открытых этой миссией.</summary>
+		public List<string> ProcessMissionResult(MissionDefinition mission, MissionOutcome outcome, MissionEventOption? chosenOption)
 		{
-			var revealed = new List<int>();
+			var revealed = new List<string>();
 
 			if (outcome.SquadWiped)
 			{
@@ -42,7 +42,7 @@ namespace Kontur.Core.Systems
 
 			if (_state.Encyclopedia.Identify(creature.Id))
 			{
-				_bus.Publish(new CreatureIdentified(creature.Id, creature.Name));
+				_bus.Publish(new CreatureIdentified(creature.Id));
 			}
 
 			var propertyIds = new List<string>(mission.ManifestedPropertyIds);
@@ -53,29 +53,19 @@ namespace Kontur.Core.Systems
 
 			for (int i = 0; i < propertyIds.Count; i++)
 			{
-				CreatureProperty? property = creature.FindProperty(propertyIds[i]);
-				if (property == null)
+				string propertyId = propertyIds[i];
+				if (!creature.HasProperty(propertyId))
 				{
 					continue;
 				}
 
-				if (property.ParagraphIndex < 0 || property.ParagraphIndex >= creature.Paragraphs.Count)
+				if (!_state.Encyclopedia.RevealProperty(creature.Id, propertyId))
 				{
 					continue;
 				}
 
-				if (!_state.Encyclopedia.RevealParagraph(creature.Id, property.ParagraphIndex))
-				{
-					continue;
-				}
-
-				revealed.Add(property.ParagraphIndex);
-				_bus.Publish(new CreatureRevealed(
-					creature.Id,
-					creature.Name,
-					property.ParagraphIndex,
-					creature.Paragraphs[property.ParagraphIndex],
-					property.Id));
+				revealed.Add(propertyId);
+				_bus.Publish(new CreatureRevealed(creature.Id, propertyId));
 			}
 
 			return revealed;

@@ -24,10 +24,24 @@ namespace Kontur.Core.Systems
 
 		public EncyclopediaState Encyclopedia { get; } = new EncyclopediaState();
 
+		/// <summary>Сюжетные флаги — условные абзацы текстов, requirements, последствия выборов.</summary>
+		public FlagSet Flags { get; } = new FlagSet();
+
 		public EquipmentInventory Inventory { get; } = new EquipmentInventory();
 
 		/// <summary>Кандидаты, уже нанятые в предыдущие дни — повторно не предлагаются.</summary>
 		public HashSet<string> HiredCandidateIds { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+		/// <summary>
+		/// Кандидаты, показываемые в меню найма прямо сейчас.
+		///
+		/// Хранятся, а не пересобираются на каждый запрос: интерфейс дёргает список при каждой
+		/// перерисовке, и генерация на лету меняла бы кандидатов под курсором игрока.
+		/// </summary>
+		public List<Content.HireCandidate> HireOffers { get; } = new List<Content.HireCandidate>();
+
+		/// <summary>День, на который собран HireOffers. -1 — не собирался ни разу.</summary>
+		public int HireOffersDay { get; set; } = -1;
 
 		/// <summary>Отчёты на компьютере — накапливаются за партию.</summary>
 		public List<MissionReport> Reports { get; } = new List<MissionReport>();

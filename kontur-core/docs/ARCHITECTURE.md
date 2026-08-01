@@ -22,6 +22,7 @@
 |---|---|---|
 | `Model` | типы данных: `Employee`, `MissionDefinition`, `StatBlock`, `Zone`… | знать о правилах |
 | `Content` | читает и валидирует JSON, собирает `ContentDatabase` | меняться во время игры |
+| `Content.ITextCatalog` | порт в текстовый движок: сверка id и числа вариантов | отдавать ядру прозу |
 | `Config` | все балансные числа | быть захардкоженным в коде |
 | `Systems` | правила: `ShiftDirector`, `MissionResolver`, `ScalesSystem`, … | знать о UI |
 | `Api` | `KonturSimulation` — фасад, команды и снимки состояния | пропускать мутации мимо команд |

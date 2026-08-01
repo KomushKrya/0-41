@@ -31,10 +31,26 @@ namespace Kontur.Harness
 				return 2;
 			}
 
+			// Запоминаем найденный путь, чтобы шапка прогона показала источник контента.
+			options.ContentPath = contentPath;
+
+			// Каталог текстов: тот же собранный JSON, что читает игра. Без него прогон
+			// возможен, но опечатки в id останутся незамеченными до запуска в движке.
+			ITextCatalog? textCatalog = null;
+			string? localePath = FindLocaleDirectory(contentPath, options.Locale);
+			if (localePath != null)
+			{
+				textCatalog = JsonTextCatalog.Load(new DirectoryContentSource(localePath));
+			}
+			else
+			{
+				Console.WriteLine($"Каталог текстов не найден (локаль {options.Locale}) — сверка id пропущена.");
+			}
+
 			ContentDatabase content;
 			try
 			{
-				content = ContentLoader.Load(new DirectoryContentSource(contentPath));
+				content = ContentLoader.Load(new DirectoryContentSource(contentPath), textCatalog);
 			}
 			catch (ContentException exception)
 			{
@@ -121,7 +137,11 @@ namespace Kontur.Harness
 				options.Strategy);
 			Console.WriteLine(
 				$"контент: зон {content.Zones.Count}, существ {content.Creatures.Count}, миссий {content.Missions.Count}, "
-				+ $"радио-сцен {content.RadioEncounters.Count}, снаряжения {content.Equipment.Count}");
+				+ $"вмешательств {content.MissionEvents.Count}, снаряжения {content.Equipment.Count}");
+
+			// Путь печатается не для красоты: в дереве живёт вторая копия контента,
+			// и прогон по ней однажды уже разошёлся с игрой. Пусть источник виден сразу.
+			Console.WriteLine($"источник: {options.ContentPath}");
 			Console.WriteLine(new string('=', 78));
 		}
 
@@ -178,19 +198,65 @@ namespace Kontur.Harness
 			for (int i = 0; i < entries.Count; i++)
 			{
 				EncyclopediaEntryView entry = entries[i];
-				Console.WriteLine($"  {entry.CreatureName}: абзацев {entry.KnownParagraphs.Count} из {entry.TotalParagraphs}");
+				Console.WriteLine($"  {entry.CreatureId}: свойств {entry.RevealedPropertyIds.Count} из {entry.TotalProperties}");
 			}
 		}
 
 		/// <summary>
-		/// Ищет контент вверх по дереву. Сначала data/ в корне Godot-проекта — это
-		/// единственный источник истины после интеграции; content/ внутри ядра остаётся
-		/// запасным вариантом для автономного прогона.
+		/// content/localisation/&lt;локаль&gt; рядом с папкой данных: ищем вверх от неё же,
+		/// чтобы прогон работал и из корня проекта, и из папки ядра.
+		/// </summary>
+		private static string? FindLocaleDirectory(string contentPath, string locale)
+		{
+			var directory = new DirectoryInfo(contentPath);
+
+			for (int depth = 0; depth < 8 && directory != null; depth++)
+			{
+				string candidate = Path.Combine(directory.FullName, "content", "localisation", locale);
+				if (Directory.Exists(candidate))
+				{
+					return candidate;
+				}
+
+				directory = directory.Parent;
+			}
+
+			return null;
+		}
+
+		/// <summary>
+		/// Ищет папку контента вверх по дереву.
+		///
+		/// Сначала целиком проходим дерево в поисках корня игры — папки с project.godot —
+		/// и берём data/ оттуда. Только если корня нет (ядро выкачали отдельно от игры),
+		/// довольствуемся ближайшей папкой с config.json.
+		///
+		/// Порядок именно такой из-за грабель, на которые мы уже наступили: рядом с ядром
+		/// лежит своя копия контента (kontur-core/content), и она ближе к бинарнику, чем
+		/// корневая data/. Поиск «ближайшего подходящего» находил копию, харнесс гонял
+		/// баланс по ней, а игра — по data/. Расхождение обнаружилось только тогда,
+		/// когда в data/ появился раздел, которого в копии не было.
 		/// </summary>
 		private static string? FindContentDirectory()
 		{
-			string[] candidates = { "data", "content" };
 			var directory = new DirectoryInfo(AppContext.BaseDirectory);
+
+			for (int depth = 0; depth < 8 && directory != null; depth++)
+			{
+				if (File.Exists(Path.Combine(directory.FullName, "project.godot")))
+				{
+					string data = Path.Combine(directory.FullName, "data");
+					if (File.Exists(Path.Combine(data, ContentLoader.ConfigFile)))
+					{
+						return data;
+					}
+				}
+
+				directory = directory.Parent;
+			}
+
+			string[] candidates = { "data", "content" };
+			directory = new DirectoryInfo(AppContext.BaseDirectory);
 
 			for (int depth = 0; depth < 8 && directory != null; depth++)
 			{
@@ -232,6 +298,8 @@ namespace Kontur.Harness
 
 		public string? ContentPath { get; set; }
 
+		public string Locale { get; set; } = "ru";
+
 		public static HarnessOptions Parse(string[] args)
 		{
 			var options = new HarnessOptions();
@@ -269,6 +337,10 @@ namespace Kontur.Harness
 						break;
 					case "--content":
 						options.ContentPath = value;
+						i++;
+						break;
+					case "--locale":
+						options.Locale = value ?? options.Locale;
 						i++;
 						break;
 					case "--verbose":

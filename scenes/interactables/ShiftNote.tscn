@@ -1,0 +1,55 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/interaction/InteractionOutline.cs" id="1_outline"]
+[ext_resource type="Script" path="res://scripts/interaction/OutlineOnlyInteractable.cs" id="2_interactable"]
+[ext_resource type="PackedScene" path="res://scenes/ui/shift_note/ShiftNoteUI.tscn" id="3_shift_note_ui"]
+[ext_resource type="Script" path="res://scripts/interaction/SubViewportSurfaceRenderer.cs" id="4_surface_renderer"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_note"]
+albedo_color = Color(0.58, 0.53, 0.4, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_note"]
+size = Vector3(0.21, 0.003, 0.297)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_note"]
+size = Vector3(0.21, 0.003, 0.297)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_note_surface"]
+size = Vector2(0.194, 0.281)
+
+[node name="ShiftNote" type="Node3D" groups=["interactive"]]
+
+[node name="VisualRoot" type="Node3D" parent="."]
+
+[node name="NotePage" type="MeshInstance3D" parent="VisualRoot"]
+material_override = SubResource("StandardMaterial3D_note")
+mesh = SubResource("BoxMesh_note")
+
+[node name="ViewportSurface" type="MeshInstance3D" parent="VisualRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.002, 0)
+mesh = SubResource("PlaneMesh_note_surface")
+
+[node name="InteractionOutline" type="Node" parent="."]
+script = ExtResource("1_outline")
+VisualRootPath = NodePath("../VisualRoot")
+
+[node name="InteractionArea" type="Area3D" parent="."]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("2_interactable")
+Label = "Shift Note"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionArea"]
+shape = SubResource("BoxShape3D_note")
+
+[node name="ShiftNoteViewport" type="SubViewport" parent="."]
+disable_3d = true
+size = Vector2i(700, 990)
+render_target_update_mode = 4
+
+[node name="ShiftNoteUI" parent="ShiftNoteViewport" instance=ExtResource("3_shift_note_ui")]
+
+[node name="ShiftNoteSurfaceRenderer" type="Node" parent="."]
+script = ExtResource("4_surface_renderer")
+SurfacePath = NodePath("../VisualRoot/ViewportSurface")
+ViewportPath = NodePath("../ShiftNoteViewport")

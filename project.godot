@@ -11,12 +11,14 @@ config_version=5
 [application]
 
 config/name="kontur_prototype"
-run/main_scene="uid://b2wykjmcvsfo5"
+run/main_scene="res://scenes/debug/KonturDebug.tscn"
 config/features=PackedStringArray("4.7", "C#", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [autoload]
 
+ContentHotReload="*res://scripts/debug/ContentHotReload.cs"
+Content="*res://content/engine/content/Content.cs"
 EventBus="*res://scripts/gameplay/EventBus.cs"
 GameSession="*res://scripts/gameplay/GameSession.cs"
 Kontur="*res://scripts/kontur/KonturRuntime.cs"

@@ -20,6 +20,15 @@ namespace Kontur.Core.Systems
 
 		public MissionDefinition Mission { get; }
 
+		/// <summary>
+		/// Дом, куда едет группа. Пусто — карта без домов, и метку ставят
+		/// по координатам зоны (Mission.ZoneId).
+		///
+		/// Живёт на инциденте, а не на миссии: один и тот же вызов в разные смены
+		/// приходит из разных подъездов, иначе метка всегда падала бы в одну точку.
+		/// </summary>
+		public string BuildingId { get; set; } = string.Empty;
+
 		public IncidentPhase Phase { get; set; } = IncidentPhase.Scheduled;
 
 		/// <summary>Таймер текущей фазы. null — фаза ждёт действия игрока без ограничения времени.</summary>
@@ -29,9 +38,9 @@ namespace Kontur.Core.Systems
 
 		public List<string> EquipmentIds { get; } = new List<string>();
 
-		public RadioEncounter? Radio { get; set; }
+		public MissionEventDefinition? MissionEvent { get; set; }
 
-		public RadioOption? ChosenOption { get; set; }
+		public MissionEventOption? ChosenOption { get; set; }
 
 		public bool RadioWasTriggered { get; set; }
 

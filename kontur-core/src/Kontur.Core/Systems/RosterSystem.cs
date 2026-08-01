@@ -16,13 +16,20 @@ namespace Kontur.Core.Systems
 		private readonly ContentDatabase _content;
 		private readonly EmployeeConfig _config;
 		private readonly IEventBus _bus;
+		private readonly EmployeeFactory _factory;
 
-		public RosterSystem(GameState state, ContentDatabase content, EmployeeConfig config, IEventBus bus)
+		public RosterSystem(
+			GameState state,
+			ContentDatabase content,
+			EmployeeConfig config,
+			IEventBus bus,
+			EmployeeFactory factory)
 		{
 			_state = state;
 			_content = content;
 			_config = config;
 			_bus = bus;
+			_factory = factory;
 		}
 
 		public int GetStaffLimit(int day)
@@ -154,9 +161,43 @@ namespace Kontur.Core.Systems
 			return true;
 		}
 
+		/// <summary>
+		/// Кандидаты, доступные в этот день. Набор фиксируется на день: пока день не сменился,
+		/// повторный вызов вернёт тот же список в том же порядке — интерфейс может дёргать
+		/// его на каждую перерисовку, не боясь, что кандидат прыгнет под курсором.
+		/// </summary>
 		public IReadOnlyList<HireCandidate> GetAvailableCandidates(int day)
 		{
+			if (_state.HireOffersDay != day)
+			{
+				RefreshHireOffers(day);
+			}
+
 			var result = new List<HireCandidate>();
+			for (int i = 0; i < _state.HireOffers.Count; i++)
+			{
+				HireCandidate candidate = _state.HireOffers[i];
+				if (!_state.HiredCandidateIds.Contains(candidate.Template.Id))
+				{
+					result.Add(candidate);
+				}
+			}
+
+			return result;
+		}
+
+		/// <summary>
+		/// Пересобирает предложения найма на указанный день.
+		///
+		/// Сначала идут прописанные вручную кандидаты — это сюжетные лица, они должны
+		/// попасть в список обязательно, а не по остаточному принципу. Свободные места
+		/// добирает фабрика.
+		/// </summary>
+		public void RefreshHireOffers(int day)
+		{
+			_state.HireOffers.Clear();
+			_state.HireOffersDay = day;
+
 			for (int i = 0; i < _content.HirePool.Count; i++)
 			{
 				HireCandidate candidate = _content.HirePool[i];
@@ -170,10 +211,40 @@ namespace Kontur.Core.Systems
 					continue;
 				}
 
-				result.Add(candidate);
+				_state.HireOffers.Add(candidate);
 			}
 
-			return result;
+			int missing = _content.Generator.CandidatesPerShift - _state.HireOffers.Count;
+			if (missing <= 0)
+			{
+				return;
+			}
+
+			var takenNames = new List<string>();
+			for (int i = 0; i < _state.Roster.Count; i++)
+			{
+				takenNames.Add(_state.Roster[i].Name);
+			}
+
+			for (int i = 0; i < _state.HireOffers.Count; i++)
+			{
+				takenNames.Add(_state.HireOffers[i].Template.Name);
+			}
+
+			var takenIds = new List<string>(_state.HiredCandidateIds);
+			for (int i = 0; i < _state.Roster.Count; i++)
+			{
+				takenIds.Add(_state.Roster[i].Id);
+			}
+
+			_state.HireOffers.AddRange(_factory.Generate(day, missing, takenNames, takenIds));
+		}
+
+		/// <summary>Сколько человек можно взять в штат на этот день.</summary>
+		public int CountFreeSlots(int day)
+		{
+			int free = GetStaffLimit(day) - CountLiving();
+			return free < 0 ? 0 : free;
 		}
 
 		public bool TryHire(string candidateId, int day, out string error)

@@ -3,6 +3,12 @@ id: creature_
 type: creature
 status: draft
 name:
+requirements:
+  -
+properties:
+  - property_
+  - property_
+  - property_
 ---
 
 <!-- Базовый абзац — виден игроку с самого начала -->

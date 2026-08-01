@@ -2,9 +2,9 @@
 id: report_
 type: report
 status: draft
-incident_id: incident_
-outcome: success
-creature_id: creature_
+outcome:
+properties:
+  -
 ---
 
 <!-- Текст отчёта, показанного на компьютере по итогам миссии -->

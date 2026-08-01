@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Kontur.Core.Api;
 using Kontur.Core.Content;
+using Kontur.Core.Events;
 using Kontur.Core.Model;
 using Kontur.Core.Simulation;
 using Kontur.Core.Systems;
@@ -141,11 +142,14 @@ namespace Kontur.Harness
 
 		private void TryDispatch(IncidentView incident)
 		{
+			// Открытие экрана останавливает мир: закрыть его обязательно, иначе
+			// прогон встанет насмерть и это будет выглядеть как зависание ядра.
 			_sim.OpenDispatchScreen(incident.Id);
 
 			List<string> squad = PickSquad(incident.Requirements);
 			if (squad.Count == 0)
 			{
+				_sim.CloseDispatchScreen(incident.Id);
 				return;
 			}
 
@@ -155,10 +159,19 @@ namespace Kontur.Harness
 			if (!result.IsSuccess && equipment.Count > 0)
 			{
 				// Снаряжение мог занять параллельный вызов — пробуем без него.
-				_sim.DispatchSquad(incident.Id, squad, Array.Empty<string>());
+				result = _sim.DispatchSquad(incident.Id, squad, Array.Empty<string>());
+			}
+
+			if (!result.IsSuccess)
+			{
+				_sim.CloseDispatchScreen(incident.Id);
 			}
 		}
 
+		/// <summary>
+		/// Берёт под каждый порог того, кто его закрывает лучше всех. Сумма больше не помогает:
+		/// добирать людей имеет смысл только ради непокрытых характеристик.
+		/// </summary>
 		private List<string> PickSquad(StatBlock requirements)
 		{
 			var available = new List<EmployeeView>();
@@ -172,40 +185,56 @@ namespace Kontur.Harness
 				}
 			}
 
-			// Сначала те, кто лучше закрывает именно требуемые характеристики.
-			available.Sort((left, right) => Relevance(right.Stats, requirements).CompareTo(Relevance(left.Stats, requirements)));
-
 			var picked = new List<string>();
-			StatBlock total = StatBlock.Zero;
+			StatBlock best = StatBlock.Zero;
 
-			for (int i = 0; i < available.Count && picked.Count < MaxSquadSize; i++)
+			for (int i = 0; i < StatKinds.All.Length && picked.Count < MaxSquadSize; i++)
 			{
-				if (MissionResolver.ComputeCoverage(requirements, total) >= 1.0)
+				StatKind kind = StatKinds.All[i];
+				if (requirements[kind] <= 0 || best[kind] >= requirements[kind])
+				{
+					continue;
+				}
+
+				EmployeeView? candidate = null;
+				for (int j = 0; j < available.Count; j++)
+				{
+					if (picked.Contains(available[j].Id))
+					{
+						continue;
+					}
+
+					if (candidate == null || available[j].Stats[kind] > candidate.Stats[kind])
+					{
+						candidate = available[j];
+					}
+				}
+
+				if (candidate == null)
 				{
 					break;
 				}
 
-				picked.Add(available[i].Id);
-				total = total.Add(available[i].Stats);
+				picked.Add(candidate.Id);
+				for (int k = 0; k < StatKinds.All.Length; k++)
+				{
+					StatKind other = StatKinds.All[k];
+					if (candidate.Stats[other] > best[other])
+					{
+						best = best.With(other, candidate.Stats[other]);
+					}
+				}
+			}
+
+			// Ни одного порога не закрыть — отправляем хоть кого-то, иначе метка истечёт.
+			if (picked.Count == 0 && available.Count > 0)
+			{
+				picked.Add(available[0].Id);
 			}
 
 			return picked;
 		}
 
-		private static int Relevance(StatBlock stats, StatBlock requirements)
-		{
-			int score = 0;
-			for (int i = 0; i < StatKinds.All.Length; i++)
-			{
-				StatKind kind = StatKinds.All[i];
-				if (requirements[kind] > 0)
-				{
-					score += stats[kind];
-				}
-			}
-
-			return score;
-		}
 
 		private List<string> PickEquipment()
 		{
@@ -245,46 +274,83 @@ namespace Kontur.Harness
 
 		private void ChooseRadio(IncidentView incident)
 		{
-			MissionDefinition? mission = _content.FindMission(incident.MissionId);
-			if (mission == null || mission.RadioEncounterId == null)
+			MissionEventDefinition? missionEvent = _content.FindMissionEvent(incident.MissionEventId);
+			if (missionEvent == null || missionEvent.Options.Count == 0)
 			{
 				return;
 			}
 
-			RadioEncounter? encounter = _content.FindRadioEncounter(mission.RadioEncounterId);
-			if (encounter == null || encounter.Options.Count == 0)
+			// Мир встаёт с момента, как радио взяли, — и идёт дальше после выбора.
+			_sim.AnswerRadio(incident.Id);
+
+			// Закрытые составом варианты автопилот не рассматривает — как и игрок.
+			var available = new List<MissionEventOption>();
+			IReadOnlyList<RadioOptionOffer> offers = _sim.GetRadioOptions(incident.Id);
+			for (int i = 0; i < offers.Count; i++)
 			{
+				if (!offers[i].IsUnlocked)
+				{
+					continue;
+				}
+
+				MissionEventOption? unlocked = missionEvent.FindOption(offers[i].Id);
+				if (unlocked != null)
+				{
+					available.Add(unlocked);
+				}
+			}
+
+			if (available.Count == 0)
+			{
+				_sim.CloseRadio(incident.Id);
 				return;
 			}
 
-			RadioOption option;
+			MissionEventOption option;
 			switch (Strategy)
 			{
 				case RadioStrategy.Best:
-					option = FindByQuality(encounter, RadioOptionQuality.Best);
+					option = PickByQuality(available, MissionEventQuality.Good);
 					break;
 				case RadioStrategy.Worst:
-					option = FindByQuality(encounter, RadioOptionQuality.Bad);
+					option = PickByQuality(available, MissionEventQuality.Bad);
 					break;
 				default:
-					option = encounter.Options[_random.Next(encounter.Options.Count)];
+					option = available[_random.Next(available.Count)];
 					break;
 			}
 
 			_sim.ChooseRadioOption(incident.Id, option.Id);
 		}
 
-		private static RadioOption FindByQuality(RadioEncounter encounter, RadioOptionQuality quality)
+		/// <summary>
+		/// «Лучший» вариант для автопилота — самый уставный из наименее сложных.
+		/// Живой игрок этих чисел не видит: он сопоставляет текст с энциклопедией,
+		/// а автопилоту нужен воспроизводимый потолок и пол баланса.
+		/// </summary>
+		/// <summary>
+		/// Автопилот выбирает по типу диалога — тому самому, который игроку не показывают.
+		/// Живой игрок восстанавливает его по энциклопедии, а прогону нужен воспроизводимый
+		/// потолок и пол баланса.
+		/// </summary>
+		private static MissionEventOption PickByQuality(
+			List<MissionEventOption> options,
+			MissionEventQuality preferred)
 		{
-			for (int i = 0; i < encounter.Options.Count; i++)
+			MissionEventOption best = options[0];
+
+			for (int i = 1; i < options.Count; i++)
 			{
-				if (encounter.Options[i].Quality == quality)
+				int candidateDistance = Math.Abs((int)options[i].Quality - (int)preferred);
+				int bestDistance = Math.Abs((int)best.Quality - (int)preferred);
+
+				if (candidateDistance < bestDistance)
 				{
-					return encounter.Options[i];
+					best = options[i];
 				}
 			}
 
-			return encounter.Options[0];
+			return best;
 		}
 
 		private static StatKind FindWeakestStat(StatBlock stats)

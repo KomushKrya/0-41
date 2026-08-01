@@ -1,0 +1,56 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://cgktm1kb8yxqs" path="res://scripts/interaction/SeatInteractable.cs" id="1_seat"]
+[ext_resource type="Script" uid="uid://d0fbn8kr5taka" path="res://scripts/interaction/InteractionOutline.cs" id="2_outline"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_chair_dark"]
+albedo_color = Color(0.2, 0.17, 0.13, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_chair_seat"]
+size = Vector3(0.68, 0.1, 0.62)
+
+[sub_resource type="BoxMesh" id="BoxMesh_chair_back"]
+size = Vector3(0.68, 0.78, 0.1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_chair_collision"]
+size = Vector3(0.68, 0.82, 0.72)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_chair_interaction"]
+size = Vector3(1.35, 1.25, 1.35)
+
+[node name="Chair" type="Node3D" groups=["interactive"]]
+
+[node name="VisualRoot" type="Node3D" parent="."]
+
+[node name="Seat" type="MeshInstance3D" parent="VisualRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.48, 1.18)
+material_override = SubResource("StandardMaterial3D_chair_dark")
+mesh = SubResource("BoxMesh_chair_seat")
+
+[node name="Back" type="MeshInstance3D" parent="VisualRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.86, 1.51)
+material_override = SubResource("StandardMaterial3D_chair_dark")
+mesh = SubResource("BoxMesh_chair_back")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.84, 1.22)
+shape = SubResource("BoxShape3D_chair_collision")
+
+[node name="FocusCameraPose" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.45, 1.18)
+
+[node name="StandUpPoint" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.9062129, 0.9, 1.736866)
+
+[node name="InteractionOutline" type="Node" parent="."]
+script = ExtResource("2_outline")
+VisualRootPath = NodePath("../VisualRoot")
+
+[node name="InteractionArea" type="Area3D" parent="."]
+script = ExtResource("1_seat")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.72, 1.18)
+shape = SubResource("BoxShape3D_chair_interaction")

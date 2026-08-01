@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Kontur.Core.Config;
 using Kontur.Core.Content;
@@ -51,6 +52,7 @@ namespace Kontur.Core.Systems
 
 			List<double> times = BuildCallTimes(count, timings);
 			var usedThisShift = new HashSet<string>();
+			var usedBuildings = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
 			for (int i = 0; i < times.Count; i++)
 			{
@@ -65,8 +67,14 @@ namespace Kontur.Core.Systems
 
 				var incident = new IncidentRuntime($"INC-{day:00}-{i + 1:00}", mission)
 				{
-					ScheduledAtSeconds = times[i]
+					ScheduledAtSeconds = times[i],
+					BuildingId = PickBuilding(mission.ZoneId, usedBuildings)
 				};
+
+				if (incident.BuildingId.Length > 0)
+				{
+					usedBuildings.Add(incident.BuildingId);
+				}
 
 				schedule.Add(incident);
 			}
@@ -83,6 +91,7 @@ namespace Kontur.Core.Systems
 		{
 			var schedule = new List<IncidentRuntime>();
 			double gap = timings.MinSecondsBetweenCalls;
+			var usedBuildings = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
 			for (int i = 0; i < dayConfig.MissionOrder.Count; i++)
 			{
@@ -99,9 +108,16 @@ namespace Kontur.Core.Systems
 
 				_state.UsedMissionIds.Add(mission.Id);
 
+				string buildingId = PickBuilding(mission.ZoneId, usedBuildings);
+				if (buildingId.Length > 0)
+				{
+					usedBuildings.Add(buildingId);
+				}
+
 				schedule.Add(new IncidentRuntime($"INC-{day:00}-{i + 1:00}", mission)
 				{
-					ScheduledAtSeconds = gap * i
+					ScheduledAtSeconds = gap * i,
+					BuildingId = buildingId
 				});
 			}
 
@@ -142,6 +158,53 @@ namespace Kontur.Core.Systems
 			}
 
 			return times;
+		}
+
+		/// <summary>
+		/// Дом под вызов. Два дома под один вызов за смену не выдаются: две метки
+		/// в одном подъезде игрок прочитал бы как ошибку отрисовки.
+		///
+		/// Приоритет у домов нужного района. Если ни один дом района не подошёл — берём
+		/// любой свободный: пустая карта хуже неточной. Пока районы в buildings.json
+		/// не проставлены, работает как раз эта ветка.
+		/// </summary>
+		private string PickBuilding(string zoneId, HashSet<string> usedBuildings)
+		{
+			if (_content.Buildings.Count == 0)
+			{
+				return string.Empty;
+			}
+
+			var inZone = new List<BuildingDefinition>();
+			var anywhere = new List<BuildingDefinition>();
+
+			foreach (KeyValuePair<string, BuildingDefinition> pair in _content.Buildings)
+			{
+				BuildingDefinition building = pair.Value;
+				if (!building.IsDispatchTarget || usedBuildings.Contains(building.Id))
+				{
+					continue;
+				}
+
+				anywhere.Add(building);
+
+				if (building.ZoneId.Length > 0
+					&& string.Equals(building.ZoneId, zoneId, StringComparison.OrdinalIgnoreCase))
+				{
+					inZone.Add(building);
+				}
+			}
+
+			List<BuildingDefinition> candidates = inZone.Count > 0 ? inZone : anywhere;
+			if (candidates.Count == 0)
+			{
+				return string.Empty;
+			}
+
+			// Сортировка перед выбором — ради воспроизводимости: порядок обхода словаря
+			// не гарантирован, и без неё один и тот же сид давал бы разные дома.
+			candidates.Sort((left, right) => string.CompareOrdinal(left.Id, right.Id));
+			return _random.Pick(candidates).Id;
 		}
 
 		private MissionDefinition? PickMission(IReadOnlyList<MissionDefinition> pool, HashSet<string> usedThisShift)

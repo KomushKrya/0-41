@@ -79,5 +79,77 @@
 	  "stats": { "strength": 6, "perception": 5, "endurance": 6, "agility": 4, "composure": 6 },
 	  "abilities": ["ab_calm", "ab_signal"]
 	}
-  ]
+  ],
+
+  "generator": {
+	"candidatesPerShift": 3,
+
+	"minStat": 2,
+	"maxStat": 7,
+	"statPointsBase": 8,
+	"statPointsPerLevel": 4,
+	"primaryWeight": 3,
+	"secondaryWeight": 2,
+
+	"abilitiesBase": 1,
+	"secondAbilityFromLevel": 3,
+
+	"levelsByDay": [
+	  { "fromDay": 1, "minLevel": 1, "maxLevel": 1 },
+	  { "fromDay": 2, "minLevel": 1, "maxLevel": 2 },
+	  { "fromDay": 4, "minLevel": 2, "maxLevel": 3 },
+	  { "fromDay": 6, "minLevel": 2, "maxLevel": 4 }
+	],
+
+	"surnames": [
+	  "Аникеев", "Балуев", "Ветров", "Гусаров", "Дроздов", "Ерохин", "Жарков",
+	  "Заславский", "Ильюшин", "Кожемяко", "Лаптев", "Мещеряков", "Нестеров",
+	  "Опалев", "Пантелеев", "Рогачёв", "Сафронов", "Тихомиров", "Ушаков",
+	  "Фомичёв", "Хабаров", "Цыганков", "Чернышов", "Шаталов", "Щербаков",
+	  "Юдин", "Ямпольский"
+	],
+
+	"initials": [
+	  "А. В.", "Б. Н.", "В. С.", "Г. Т.", "Д. И.", "Е. К.", "З. Л.", "И. О.",
+	  "К. Р.", "Л. А.", "М. Е.", "Н. Ф.", "О. П.", "П. Д.", "Р. Г.", "С. М.",
+	  "Т. Б.", "Ю. Я."
+	],
+
+	"portraits": ["port_generic_1", "port_generic_2", "port_generic_3", "port_generic_4"],
+
+	"archetypes": [
+	  {
+		"id": "arch_muscle",
+		"weight": 3,
+		"rankTitle": "оперативник",
+		"primary": ["strength", "endurance"],
+		"secondary": ["composure"],
+		"abilities": ["ab_skin_breaker", "ab_calm"]
+	  },
+	  {
+		"id": "arch_scout",
+		"weight": 3,
+		"rankTitle": "оперативник",
+		"primary": ["perception", "agility"],
+		"secondary": ["composure"],
+		"abilities": ["ab_mimic_hunter", "ab_signal"]
+	  },
+	  {
+		"id": "arch_technician",
+		"weight": 2,
+		"rankTitle": "техник-оперативник",
+		"primary": ["endurance", "perception"],
+		"secondary": ["agility"],
+		"abilities": ["ab_filter_master", "ab_signal"]
+	  },
+	  {
+		"id": "arch_veteran",
+		"weight": 1,
+		"rankTitle": "старший оперативник",
+		"primary": ["composure", "strength"],
+		"secondary": ["endurance", "perception"],
+		"abilities": ["ab_calm", "ab_skin_breaker", "ab_mimic_hunter"]
+	  }
+	]
+  }
 }

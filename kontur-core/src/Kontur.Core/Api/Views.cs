@@ -19,15 +19,24 @@ namespace Kontur.Core.Api
 		EmployeeStatus Status,
 		bool IsInjured,
 		string? CurrentIncidentId,
-		IReadOnlyList<string> AbilityNames,
+		/// <summary>Id перков. Названия достаёт слой Godot из текстового движка по этим id.</summary>
+		IReadOnlyList<string> AbilityIds,
 		string PortraitId);
 
+	/// <summary>
+	/// Вызов глазами интерфейса. Прозы нет: название и реплики звонящего разворачиваются
+	/// по CallId, вводная и варианты — по MissionEventId через текстовый движок.
+	/// </summary>
 	public sealed record IncidentView(
 		string Id,
 		string MissionId,
-		string Title,
+		string CallId,
 		string ZoneId,
-		string CallerName,
+		/// <summary>Дом на карте. Пусто — домов нет, метка ставится по координатам зоны.</summary>
+		string BuildingId,
+		string MissionEventId,
+		MissionTier Tier,
+		ConsequenceCap ConsequenceCap,
 		IncidentPhase Phase,
 		double RemainingSeconds,
 		StatBlock Requirements,
@@ -47,9 +56,10 @@ namespace Kontur.Core.Api
 	public sealed record DispatchEstimateView(
 		StatBlock Requirements,
 		StatBlock SquadStats,
-		double Coverage,
+		IReadOnlyList<StatMatch> Matches,
+		double MatchScore,
 		double SuccessChance,
-		bool IsAutoSuccess);
+		bool IsPerfectMatch);
 
 	public sealed record EquipmentSlotView(
 		string Id,
@@ -59,14 +69,29 @@ namespace Kontur.Core.Api
 		int Quantity,
 		bool IsShiftOnly);
 
+	/// <summary>
+	/// Что известно об существе. Имя и абзацы берутся интерфейсом из текстового движка
+	/// по CreatureId и RevealedPropertyIds — ядро прозу не хранит.
+	/// </summary>
 	public sealed record EncyclopediaEntryView(
 		string CreatureId,
-		string CreatureName,
 		string IllustrationId,
-		IReadOnlyList<string> KnownParagraphs,
-		int TotalParagraphs);
+		IReadOnlyList<string> RevealedPropertyIds,
+		int TotalProperties);
 
-	public sealed record HireCandidateView(string Id, string Name, string RankTitle, int Level, StatBlock Stats);
+	/// <summary>
+	/// Кандидат в меню найма. Перки — то, ради чего в этом меню вообще есть выбор,
+	/// поэтому они здесь: без них два кандидата с похожими характеристиками неразличимы.
+	/// Названия перков интерфейс достаёт из текстового движка по этим id.
+	/// </summary>
+	public sealed record HireCandidateView(
+		string Id,
+		string Name,
+		string RankTitle,
+		int Level,
+		StatBlock Stats,
+		IReadOnlyList<string> AbilityIds,
+		string PortraitId);
 
 	public sealed record ShiftStatusView(
 		int Day,
@@ -75,7 +100,9 @@ namespace Kontur.Core.Api
 		bool IsCallWindowClosed,
 		int OpenIncidents,
 		int PendingCalls,
+		int QueuedCalls,
 		int StaffLimit,
+		bool IsTimeFrozen,
 		ScaleValues Scales,
 		bool IsGameOver,
 		GameOverReason? GameOverReason);

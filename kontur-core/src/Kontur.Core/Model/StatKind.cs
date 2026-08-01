@@ -40,8 +40,8 @@ namespace Kontur.Core.Model
 		/// <summary>Отображаемое имя. В финальной игре заменяется ключом локализации.</summary>
 		public static string GetDisplayName(StatKind kind)
 		{
-			string name;
-			return RussianNames.TryGetValue(kind, out name) ? name : kind.ToString();
+			string? name;
+			return RussianNames.TryGetValue(kind, out name) && name != null ? name : kind.ToString();
 		}
 
 		public static bool TryParse(string value, out StatKind kind)
