@@ -1269,6 +1269,17 @@ namespace Kontur.Core.Systems
 				return CommandResult.Fail("Не выбран ни один сотрудник.");
 			}
 
+			// Сколько человек берёт вызов — решает автор миссии, а не игрок.
+			// Характеристики отряда складываются, поэтому без этого предела
+			// на любой вызов было бы выгодно отправлять всех свободных.
+			int squadLimit = incident.Mission.SquadLimit;
+			if (employeeIds.Count > squadLimit)
+			{
+				return CommandResult.Fail(squadLimit == 1
+					? "На этот вызов едет только один оперативник."
+					: $"На этот вызов можно отправить не больше {squadLimit}.");
+			}
+
 			var squad = new List<Employee>();
 			var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 

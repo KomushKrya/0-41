@@ -130,8 +130,14 @@ def load_world(root: Path) -> dict:
 
 
 def squad_profile(members: list[dict]) -> dict:
-    """Профиль группы — ЛУЧШИЙ в отряде по каждой характеристике, а не сумма."""
-    return {stat: max((m["stats"].get(stat, 0) for m in members), default=0) for stat in STATS}
+    """Профиль группы — СУММА характеристик отряда, как в Dispatch.
+
+    Ни снаряжение, ни перки здесь не учитываются: инструмент показывает голый
+    состав, чтобы пороги подбирались по людям. В игре и то и другое прибавится
+    сверху и только облегчит проверку — значит, показанные проценты являются
+    нижней оценкой, и ошибиться можно только в сторону «слишком легко».
+    """
+    return {stat: sum(m["stats"].get(stat, 0) for m in members) for stat in STATS}
 
 
 def evaluate(requirements: dict, profile: dict, primary: str | None) -> tuple[list[dict], float, bool]:
@@ -232,11 +238,18 @@ def command_preview(args) -> int:
         event = events.get(mission.get("missionEventId", ""))
         text_options = world["entries"].get(mission.get("missionEventId", ""), {}).get("options", [])
 
+        # Составы перебираются только те, что влезают в лимит вызова. Показывать
+        # тройку на вызове для одного бессмысленно: игрок такую не соберёт,
+        # а автор решит, что порог занижен.
+        limit = max(1, int(mission.get("squadLimit", 1)))
+
         combos = [([i], roster[i]["name"]) for i in range(len(roster))]
-        if len(roster) >= 2:
+        if limit >= 2 and len(roster) >= 2:
             combos.append(([0, 1], "первый + второй"))
-        if len(roster) >= 3:
+        if limit >= 3 and len(roster) >= 3:
             combos.append((list(range(len(roster))), "весь штат"))
+
+        print(f"  на вызов едет: {limit} чел.")
 
         for indexes, label in combos:
             profile = squad_profile([roster[i] for i in indexes])
@@ -458,6 +471,25 @@ def ask(prompt: str, default: str = "", options: tuple[str, ...] | None = None) 
         print("    нужно ответить")
 
 
+def ask_int(prompt: str, default: int, minimum: int = 1) -> int:
+    while True:
+        raw = input(f"{prompt} [{default}]: ").strip()
+        if not raw:
+            return default
+
+        try:
+            value = int(raw)
+        except ValueError:
+            print("    нужно целое число")
+            continue
+
+        if value < minimum:
+            print(f"    не меньше {minimum}")
+            continue
+
+        return value
+
+
 def ask_stats(prompt: str) -> dict:
     """«восприятие 5, ловкость 4» — так же, как пишется requires в тексте."""
     while True:
@@ -511,8 +543,18 @@ def command_new(args) -> int:
     creature = ask("Существо (пусто — если статьи в энциклопедии нет)", "", creature_options)
 
     print()
+    print("Сколько оперативников можно отправить на этот вызов.")
+    print("Обычно один — как в Dispatch. Двое и больше только там, где это осмысленно:")
+    print("характеристики отряда складываются, и группа закрывает вдвое большие пороги.")
+    squad_limit = ask_int("Размер группы", 1)
+
+    print()
     print("Пороги по характеристикам. Формат: «восприятие 5, ловкость 4».")
-    print("Сравнивается ЛУЧШИЙ в группе по каждой — не сумма.")
+    if squad_limit == 1:
+        print("Едет один — порог должен закрывать специалист: 4-5 по главной.")
+    else:
+        print(f"Едут до {squad_limit} — характеристики складываются, порог считайте")
+        print("на всю группу, иначе вызов закроет один человек.")
     requirements = ask_stats("Пороги")
 
     primary = ask(
@@ -619,6 +661,7 @@ def build_mission(
         "missionEventId": f"mission_event_{slug}" if options else "",
         "requirements": requirements,
         "primaryStat": primary,
+        "squadLimit": squad_limit,
         "travelSeconds": 12.0,
         "onSiteSeconds": 6.0,
         "returnSeconds": 10.0,

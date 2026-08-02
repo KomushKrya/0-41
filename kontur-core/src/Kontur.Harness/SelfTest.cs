@@ -136,7 +136,9 @@ namespace Kontur.Harness
 
 			Check("Главная характеристика тянет процент вверх", withPrimary > withoutPrimary);
 
-			// Лучший в группе, а не сумма: трое слабых не заменяют одного сильного.
+			// Характеристики группы складываются — как в Dispatch. Двое посредственных
+			// вместе закрывают порог, который не тянет один: это и есть повод
+			// отправлять больше людей, а не идеального специалиста.
 			var weakling = new Employee { Id = "w", BaseStats = new StatBlock(3, 3, 0, 0, 0) };
 			var specialist = new Employee { Id = "s", BaseStats = new StatBlock(8, 3, 0, 0, 0) };
 			var noGear = new List<EquipmentDefinition>();
@@ -146,8 +148,24 @@ namespace Kontur.Harness
 			StatBlock alone = resolver.ComputeSquadStats(
 				new List<Employee> { specialist }, noGear, null);
 
-			Check("Трое слабых не складываются", crowd[StatKind.Strength] == 3);
-			Check("Один специалист сильнее толпы", alone[StatKind.Strength] > crowd[StatKind.Strength]);
+			Check($"Трое по 3 дают 9 силы (получилось {crowd[StatKind.Strength]})",
+				crowd[StatKind.Strength] == 9);
+			Check("Толпа перекрывает одиночку", crowd[StatKind.Strength] > alone[StatKind.Strength]);
+
+			// Снаряжение — на группу, а не на каждого: иначе четвёртый человек
+			// в отряде удваивал бы эффект бронежилета, которого он не носит.
+			var gear = new List<EquipmentDefinition>
+			{
+				new EquipmentDefinition { Id = "g", Bonus = new StatBlock(2, 0, 0, 0, 0) }
+			};
+
+			StatBlock oneWithGear = resolver.ComputeSquadStats(
+				new List<Employee> { specialist }, gear, null);
+			StatBlock twoWithGear = resolver.ComputeSquadStats(
+				new List<Employee> { specialist, weakling }, gear, null);
+
+			Check("Снаряжение прибавляется один раз",
+				twoWithGear[StatKind.Strength] - oneWithGear[StatKind.Strength] == 3);
 		}
 
 		private static void TestSuccessChanceCurve()
@@ -284,6 +302,26 @@ namespace Kontur.Harness
 
 			CommandResult empty = simulation.DispatchSquad(incidentId, new List<string>(), new List<string>());
 			Check("Пустая группа — отказ", !empty.IsSuccess);
+
+			// Сколько человек берёт вызов, решает контент. Характеристики отряда
+			// складываются, поэтому без этого предела на любой вызов было бы выгодно
+			// отправлять всех свободных, и выбор состава исчез бы.
+			IncidentView marker = FindIncident(simulation, incidentId);
+			if (marker != null && roster.Count > marker.SquadLimit)
+			{
+				var tooMany = new List<string>();
+				for (int i = 0; i <= marker.SquadLimit && i < roster.Count; i++)
+				{
+					tooMany.Add(roster[i].Id);
+				}
+
+				CommandResult overflowSquad = simulation.DispatchSquad(
+					incidentId, tooMany, new List<string>());
+
+				Check(
+					$"Сверх лимита вызова ({marker.SquadLimit}) отправить нельзя",
+					!overflowSquad.IsSuccess);
+			}
 
 			CommandResult ok = simulation.DispatchSquad(incidentId, squad, new List<string>());
 			Check("Корректная отправка принимается", ok.IsSuccess);
@@ -1293,6 +1331,20 @@ namespace Kontur.Harness
 			}
 
 			return signature.ToString();
+		}
+
+		private static IncidentView? FindIncident(KonturSimulation simulation, string incidentId)
+		{
+			IReadOnlyList<IncidentView> incidents = simulation.GetActiveIncidents();
+			for (int i = 0; i < incidents.Count; i++)
+			{
+				if (incidents[i].Id == incidentId)
+				{
+					return incidents[i];
+				}
+			}
+
+			return null;
 		}
 
 		private static void RunSeconds(KonturSimulation simulation, double seconds, double delta)

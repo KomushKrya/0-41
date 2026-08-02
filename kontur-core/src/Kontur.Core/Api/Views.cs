@@ -40,6 +40,8 @@ namespace Kontur.Core.Api
 		IncidentPhase Phase,
 		double RemainingSeconds,
 		StatBlock Requirements,
+		/// <summary>Сколько человек берёт этот вызов. Обычно один.</summary>
+		int SquadLimit,
 		IReadOnlyList<string> SquadEmployeeIds,
 		IReadOnlyList<string> EquipmentIds);
 

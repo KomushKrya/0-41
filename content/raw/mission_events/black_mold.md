@@ -40,7 +40,7 @@ quality: good
 id: resettle
 requirement_modifier: 1
 quality: neutral
-requires: хладнокровие 4
+requires: хладнокровие 5
 
 %% dev: проверка на Харизму %%
 

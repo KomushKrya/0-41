@@ -93,7 +93,13 @@ namespace Kontur.Core.Systems
 				equipmentIds.Add(equipment[i].Id);
 			}
 
-			StatBlock best = StatBlock.Zero;
+			// Характеристики группы складываются — так же, как в Dispatch: двое
+			// посредственных вместе закрывают порог, который не тянет один.
+			//
+			// Отправлять всех подряд это не делает бесплатным: оперативник занят,
+			// пока едет и работает на объекте, а вызовы накладываются. Цена решения —
+			// не арифметика, а люди, которых не останется на следующий звонок.
+			StatBlock total = StatBlock.Zero;
 
 			for (int i = 0; i < squad.Count; i++)
 			{
@@ -109,16 +115,17 @@ namespace Kontur.Core.Systems
 					}
 				}
 
-				best = i == 0 ? profile : Max(best, profile);
+				total = total.Add(profile);
 			}
 
-			// Снаряжение действует на группу целиком (ДД, раздел 6).
+			// Снаряжение действует на группу целиком, а не на каждого (ДД, раздел 6):
+			// прибавляется один раз, сколько бы человек ни поехало.
 			for (int i = 0; i < equipment.Count; i++)
 			{
-				best = best.Add(equipment[i].GetEffectiveBonus());
+				total = total.Add(equipment[i].GetEffectiveBonus());
 			}
 
-			return best;
+			return total;
 		}
 
 		private static StatBlock Max(StatBlock left, StatBlock right)

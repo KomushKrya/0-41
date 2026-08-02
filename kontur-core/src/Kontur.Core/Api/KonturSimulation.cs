@@ -382,6 +382,7 @@ namespace Kontur.Core.Api
 					incident.Phase,
 					incident.RemainingSeconds,
 					_director.GetCurrentRequirements(incident),
+					incident.Mission.SquadLimit,
 					incident.SquadEmployeeIds.ToArray(),
 					incident.EquipmentIds.ToArray()));
 			}

@@ -40,7 +40,7 @@ quality: good
 id: capture
 requirement_modifier: 2
 quality: bad
-requires: сила 5
+requires: сила 9
 
 %% dev: проверка на Боевую подготовку %%
 
@@ -50,7 +50,7 @@ requires: сила 5
 id: left_turn
 requirement_modifier: 1
 quality: neutral
-requires: восприятие 5
+requires: восприятие 8
 
 %% dev: проверка на Интеллект %%
 

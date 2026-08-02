@@ -146,7 +146,7 @@ namespace Kontur.Harness
 			// прогон встанет насмерть и это будет выглядеть как зависание ядра.
 			_sim.OpenDispatchScreen(incident.Id);
 
-			List<string> squad = PickSquad(incident.Requirements);
+			List<string> squad = PickSquad(incident.Requirements, incident.SquadLimit);
 			if (squad.Count == 0)
 			{
 				_sim.CloseDispatchScreen(incident.Id);
@@ -169,10 +169,17 @@ namespace Kontur.Harness
 		}
 
 		/// <summary>
-		/// Берёт под каждый порог того, кто его закрывает лучше всех. Сумма больше не помогает:
-		/// добирать людей имеет смысл только ради непокрытых характеристик.
+		/// Добирает людей, пока сумма отряда не покроет пороги.
+		///
+		/// На каждом шаге берётся тот, кто больше всех прибавляет к **недостающему**.
+		/// Считать общую сумму характеристик нельзя: тогда автопилот выбирал бы
+		/// крепышей на вызов про наблюдательность просто потому, что у них больше
+		/// цифр в сумме.
+		///
+		/// Остановка, как только пороги закрыты: лишний человек на этом вызове —
+		/// человек, которого не будет на следующем.
 		/// </summary>
-		private List<string> PickSquad(StatBlock requirements)
+		private List<string> PickSquad(StatBlock requirements, int squadLimit)
 		{
 			var available = new List<EmployeeView>();
 			IReadOnlyList<EmployeeView> roster = _sim.GetRoster();
@@ -186,53 +193,84 @@ namespace Kontur.Harness
 			}
 
 			var picked = new List<string>();
-			StatBlock best = StatBlock.Zero;
+			StatBlock total = StatBlock.Zero;
 
-			for (int i = 0; i < StatKinds.All.Length && picked.Count < MaxSquadSize; i++)
+			// Сколько можно взять, решает вызов, а не автопилот: MaxSquadSize — только
+			// верхняя планка на случай, если контент разрешит слишком много.
+			int limit = Math.Min(squadLimit, MaxSquadSize);
+
+			while (picked.Count < limit && !Covers(total, requirements))
 			{
-				StatKind kind = StatKinds.All[i];
-				if (requirements[kind] <= 0 || best[kind] >= requirements[kind])
-				{
-					continue;
-				}
+				EmployeeView? bestCandidate = null;
+				int bestGain = 0;
 
-				EmployeeView? candidate = null;
-				for (int j = 0; j < available.Count; j++)
+				for (int i = 0; i < available.Count; i++)
 				{
-					if (picked.Contains(available[j].Id))
+					EmployeeView candidate = available[i];
+					if (picked.Contains(candidate.Id))
 					{
 						continue;
 					}
 
-					if (candidate == null || available[j].Stats[kind] > candidate.Stats[kind])
+					int gain = MissingGain(total, requirements, candidate.Stats);
+					if (bestCandidate == null || gain > bestGain)
 					{
-						candidate = available[j];
+						bestCandidate = candidate;
+						bestGain = gain;
 					}
 				}
 
-				if (candidate == null)
+				// Никто больше не добавляет ничего полезного — дальше только тратить людей.
+				if (bestCandidate == null || bestGain <= 0)
 				{
 					break;
 				}
 
-				picked.Add(candidate.Id);
-				for (int k = 0; k < StatKinds.All.Length; k++)
-				{
-					StatKind other = StatKinds.All[k];
-					if (candidate.Stats[other] > best[other])
-					{
-						best = best.With(other, candidate.Stats[other]);
-					}
-				}
+				picked.Add(bestCandidate.Id);
+				total = total.Add(bestCandidate.Stats);
 			}
 
-			// Ни одного порога не закрыть — отправляем хоть кого-то, иначе метка истечёт.
+			// Пороги не закрыть никем — отправляем хоть кого-то, иначе метка истечёт.
 			if (picked.Count == 0 && available.Count > 0)
 			{
 				picked.Add(available[0].Id);
 			}
 
 			return picked;
+		}
+
+		private static bool Covers(StatBlock total, StatBlock requirements)
+		{
+			for (int i = 0; i < StatKinds.All.Length; i++)
+			{
+				StatKind kind = StatKinds.All[i];
+				if (requirements[kind] > 0 && total[kind] < requirements[kind])
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		/// <summary>Сколько кандидат добирает именно там, где не хватает. Излишек не считается.</summary>
+		private static int MissingGain(StatBlock total, StatBlock requirements, StatBlock candidate)
+		{
+			int gain = 0;
+
+			for (int i = 0; i < StatKinds.All.Length; i++)
+			{
+				StatKind kind = StatKinds.All[i];
+				int missing = requirements[kind] - total[kind];
+				if (missing <= 0)
+				{
+					continue;
+				}
+
+				gain += Math.Min(missing, candidate[kind]);
+			}
+
+			return gain;
 		}
 
 

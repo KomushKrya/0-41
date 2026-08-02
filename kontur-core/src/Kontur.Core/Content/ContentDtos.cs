@@ -259,6 +259,9 @@ namespace Kontur.Core.Content
 		/// <summary>Главная характеристика вызова — весит вдвое. Пусто — все равнозначны.</summary>
 		public string? PrimaryStat { get; set; }
 
+		/// <summary>Сколько человек можно отправить. По умолчанию один, как в Dispatch.</summary>
+		public int SquadLimit { get; set; } = 1;
+
 		public double TravelSeconds { get; set; } = 12.0;
 
 		public double OnSiteSeconds { get; set; } = 6.0;

@@ -175,7 +175,7 @@ using Kontur.Core.Model;    // StatBlock, IncidentPhase, EmployeeStatus, ScaleVa
 ```csharp
 DispatchEstimateView estimate = simulation.EstimateDispatch(incidentId, employeeIds, equipmentIds);
 // estimate.Requirements   — пороги с учётом дня, штриховки зоны и выбранного радио-варианта
-// estimate.SquadStats     — профиль группы: лучший по каждой характеристике
+// estimate.SquadStats     — профиль группы: сумма характеристик отряда плюс снаряжение
 // estimate.Matches        — построчно: что нужно, кто закрывает, какая ступень
 // estimate.MatchScore     — 0..1, главная характеристика весит вдвое
 // estimate.SuccessChance  — 0..1
