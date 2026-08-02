@@ -1,0 +1,2006 @@
+diff --git a/.gitignore b/.gitignore
+index 70a9343..11905a6 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -35,7 +35,7 @@ desktop.ini
+ *.old
+ *.old.*
+ 
+-# Вывод проверить.bat — локальный артефакт, в репозитории не нужен
++# Вывод tools/check-core.ps1 — локальный артефакт, в репозитории не нужен
+ проверка.log
+ 
+ # Выгрузка ветки main, из которой переносили работу. Это временная копия чужой ветки,
+@@ -65,3 +65,15 @@ content/raw/Миссии всех смен.docx
+ 
+ # Обсидиановский волт с джема: к content/raw отношения не имеет, в репозитории не нужен.
+ КОНТУР/
++
++# Старая раскладка content/raw до переезда на версию из main: те же тексты,
++# но под прежними именами характеристик. Оставлены на диске как справка,
++# в репозиторий не идут — их место занял content/raw/ru.
++content/raw/_архив_*/
++
++# Кэш Python от инструментов в content/engine
++__pycache__/
++*.pyc
++
++# Отчёт tools/compare-main.ps1 — локальный артефакт
++сверка-с-main.txt
+diff --git a/README.md b/README.md
+index 96c35fa..ef9186c 100644
+--- a/README.md
++++ b/README.md
+@@ -15,7 +15,7 @@
+ | Сущность | Назначение |
+ |---|---|
+ | **Игрок** | Перемещается по кабинету, садится на стул, взаимодействует со всеми остальными сущностями. |
+-| **Карта района** | Отображает офис, точки вызовов, движение отправленных оперативников туда и обратно. Показывает штриховку зон по итогам решений игрока. |
++| **Карта района** | Отображает офис, точки вызовов, движение отправленных оперативников туда и обратно. |
+ | **Телефон** | Источник входящих вызовов. Звонит при создании нового происшествия. При ответе — краткая информация о задании, кнопка ОК закрывает экран и ставит метку на карте. |
+ | **Радиостанция** | Связь с сотрудниками во время вызова. Трещит, если задание требует вмешательства игрока после прибытия группы на место. |
+ | **Досье сотрудников** | Информация о всех сотрудниках: имена, характеристики, способности. |
+@@ -26,7 +26,7 @@
+ ## 3. Жизненный цикл одной смены
+ 
+ 1. Игрок появляется у двери, садится на стул.
+-2. Читает записку сменщика, смотрит на шкалы, смотрит на карту (отображены последствия выборов в прошлые смены — карантин, заражение, очищенные области).
++2. Читает записку сменщика, смотрит на шкалы, смотрит на карту.
+ 3. Звонит телефон — на ответ даётся **15 секунд**.
+ 4. Игрок берёт трубку, читает описание задания, жмёт ОК.
+ 5. На карте появляется метка — она держится **30 секунд**, за это время нужно отправить группу.
+@@ -192,8 +192,13 @@
+ характеристикам**, и группа собирается под них.
+ 
+ **Пороги.** У каждого вызова прописаны требуемые характеристики с числами: например,
+-Восприятие 5 и Ловкость 4. Одна из них — **главная**, она весит вдвое: «тут главное —
+-хладнокровие». Характеристики без порога на этом вызове не нужны и в расчёт не идут.
++Интеллект 5 и Харизма 4. Одна из них — **главная**, она весит вдвое: «тут главное —
++разговорить жильца». Характеристики без порога на этом вызове не нужны и в расчёт не идут.
++
++**Сколько человек берёт вызов, решает миссия.** Поле `squadLimit` в конфиге миссии, по
++умолчанию **один** — как в Dispatch, где на вызов обычно едет один герой. Отдельные
++вызовы разрешают двоих и больше. Без этого предела выбор состава исчез бы: раз
++характеристики складываются, выгодно было бы всегда отправлять всех свободных.
+ 
+ **Сравнивается сумма характеристик группы.** Порог «Интеллект 9» закрывают и трое по
+ три, и один с девяткой: численность — такой же ресурс, как отдельный специалист. Состав
+@@ -214,9 +219,8 @@
+ кубик. Красный не запрещает отправку: иногда приходится ехать тем, кто есть, — но шанс
+ падает резко.
+ 
+-Количество групп не ограничено: можно отправить одного, можно весь штат, можно
+-распределять людей по нескольким одновременным вызовам. Но добирать людей теперь имеет
+-смысл только ради непокрытых характеристик — на закрытые лишний человек не влияет.
++Групп по-прежнему может быть несколько: людей распределяют по одновременным вызовам.
++Но в один вызов больше `squadLimit` человек не влезет, и добирать сверх лимита нельзя.
+ 
+ 
+ ## 8. Радио-механика (вмешательство)
+@@ -228,23 +232,24 @@
+ 
+ Пример: сотрудники сообщают, что видят мимика на объекте «школа». Варианты: атаковать (плохой, требования высокие, риск гибели), притвориться учениками и пройти мимо (хороший, требования ниже), спрятаться в кладовке и подождать 15 минут (лучший по лору, требования минимальны, но само знание об этом можно получить только вне игры/из энциклопедии).
+ 
+-## 9. Карта и штриховка
++## 9. Карта
+ 
+ - Отображает офис, точки вызовов и движение отправленных оперативников.
+ - Метка на карте появляется при получении информации о вызове по телефону.
+-- Штриховка зон — не только визуальный, но и **механический** слой:
+-  - заражённые зоны → вызовы оттуда чаще и сложнее;
+-  - зоны карантина → вызовы оттуда реже;
+-  - очищенные/контролируемые зоны → вызовов почти нет.
+-- Штриховка обновляется **сразу**, а не только между сменами — при провале миссии, при выборе игроком варианта с карантином, а также при частых успехах в районе (зона постепенно становится контролируемой).
+-- Штриховка может затрагивать сразу несколько потенциальных точек вызовов в районе, а не одну конкретную.
++- У района есть постоянный вес (`baseWeight` в `data/zones.json`): промзона даёт вызовы чаще окраины. Это характер района, он не меняется по ходу игры.
++
++> **Штриховка снята.** Раньше район переходил в «заражён» после двух провалов подряд,
++> и оттуда вызовы шли чаще и с порогами ×1.2. Получалась спираль: игрок, у которого
++> уже не хватало людей, получал больше вызовов и более тяжёлых — отыграться было нечем.
++> Вместе со штриховкой ушли карантин и «очищенные» районы: это были состояния той же
++> системы. Последствия решений игрока остались на шкалах заражения, гласности и лояльности.
+ 
+ ## 9a. Дом и район: два адреса у вызова
+ 
+ У карты два слоя, и путать их не стоит.
+ 
+-**Район** — механика. Штриховка, вес в подборе вызовов, надбавка к требованиям.
+-Всё, что описано в разделе 9, происходит на уровне района.
++**Район** — механика. Постоянный вес в подборе вызовов (`baseWeight`): промзона
++даёт вызовы чаще окраины. На сложность не влияет и по ходу игры не меняется.
+ 
+ **Дом** — точка на плане города, одна из нарисованных геометрией карты. Отвечает
+ только на вопрос «в какой подъезд едет группа». На сложность вызова не влияет.
+@@ -324,7 +329,6 @@
+ - `ScalesChanged` — изменение значений шкал
+ - `EmployeeInjured` / `EmployeeKilled` — травма / гибель сотрудника
+ - `CreatureRevealed` — обновление энциклопедии существ новым абзацем
+-- `ZoneStateChanged` — изменение штриховки района на карте
+ - `ShiftEnded` — смена завершена, переход к сюжетной видео-вставке
+ - `HiringOpened` — открылось меню найма на следующую смену
+ - `GameLoaded` — партия поднята из сохранения, интерфейс перерисовывается целиком
+@@ -395,7 +399,6 @@
+ 
+ ### 2D-изображения — карта и слои
+ - Базовое изображение карты района
+-- Слои штриховки поверх карты: заражение / карантин / очищено (полупрозрачные оверлеи по зонам, переключаемые независимо)
+ - Иконки точек вызова (обычная метка; вариант с иконкой существа после раскрытия в энциклопедии)
+ - Спрайт/индикатор движения группы по маршруту (пунктирная линия)
+ 
+diff --git a/content/engine/tools/mission.py b/content/engine/tools/mission.py
+index 6290839..accc09a 100644
+--- a/content/engine/tools/mission.py
++++ b/content/engine/tools/mission.py
+@@ -19,6 +19,7 @@
+ from __future__ import annotations
+ 
+ import argparse
++import itertools
+ import json
+ import re
+ import sys
+@@ -184,20 +185,16 @@ def evaluate(requirements: dict, profile: dict, primary: str | None) -> tuple[li
+ 
+ 
+ def scaled_requirements(mission: dict, world: dict) -> dict:
+-    """Пороги с учётом множителя дня и штриховки зоны — то же, что сделает ядро."""
++    """Пороги с учётом множителя дня — то же, что сделает ядро.
++
++    Район на пороги не влияет: состояний у районов нет, они только задают
++    статичную частоту вызовов через baseWeight.
++    """
+     import math
+ 
+     day = next((d for d in world["config"]["days"] if d["day"] == mission.get("day", 1)), {})
+     multiplier = day.get("requirementMultiplier", 1.0)
+ 
+-    zone = next((z for z in world["zones"] if z["id"] == mission.get("zoneId")), {})
+-    state = zone.get("state", "Normal")
+-    zones_config = world["config"].get("zones", {})
+-    if state == "Infected":
+-        multiplier *= zones_config.get("infectedRequirementMultiplier", 1.2)
+-    elif state == "Cleared":
+-        multiplier *= zones_config.get("clearedRequirementMultiplier", 0.9)
+-
+     return {
+         stat: math.ceil(value * multiplier)
+         for stat, value in mission.get("requirements", {}).items()
+@@ -230,19 +227,24 @@ def command_preview(args) -> int:
+         primary = mission.get("primaryStat")
+         requirements = scaled_requirements(mission, world)
+ 
++        limit = max(1, int(mission.get("squadLimit", 1)))
++
+         print()
+-        print(f"=== {mission['id']}  ({mission.get('tier', 'Filler')}, день {mission.get('day', 1)})")
++        print(f"=== {mission['id']}  ({mission.get('tier', 'Filler')}, "
++              f"день {mission.get('day', 1)}, мест: {limit})")
+         print("    пороги: " + ", ".join(
+             f"{STAT_RU[s]} {v}{' ★' if s == primary else ''}" for s, v in requirements.items()))
+ 
+         event = events.get(mission.get("missionEventId", ""))
+         text_options = world["entries"].get(mission.get("missionEventId", ""), {}).get("options", [])
+ 
+-        combos = [([i], roster[i]["name"]) for i in range(len(roster))]
+-        if len(roster) >= 2:
+-            combos.append(([0, 1], "первый + второй"))
+-        if len(roster) >= 3:
+-            combos.append((list(range(len(roster))), "весь штат"))
++        # Показываем ровно те составы, которые игрок сможет отправить: перебирать
++        # «весь штат» на вызове для одного бессмысленно — ядро такую отправку отклонит.
++        combos = []
++        for size in range(1, min(limit, len(roster)) + 1):
++            for indexes in itertools.combinations(range(len(roster)), size):
++                label = " + ".join(roster[i]["name"].split()[0] for i in indexes)
++                combos.append((list(indexes), label))
+ 
+         for indexes, label in combos:
+             profile = squad_profile([roster[i] for i in indexes])
+@@ -275,6 +277,10 @@ def command_preview(args) -> int:
+ # --------------------------------------------------------------------------- check
+ 
+ 
++def primary_of(mission: dict) -> str | None:
++    return mission.get("primaryStat")
++
++
+ def command_check(args) -> int:
+     """Сверка всего со всем, человеческим языком.
+ 
+@@ -313,6 +319,44 @@ def command_check(args) -> int:
+         if not any(v > 0 for v in requirements.values()):
+             problems.append(f"{mid}: не задано ни одного порога — вызов невозможно провалить")
+ 
++        limit = mission.get("squadLimit", 1)
++        if not isinstance(limit, int) or limit < 1:
++            problems.append(f"{mid}: squadLimit={limit!r} — отправить некого, минимум один")
++        else:
++            # Пороги и число мест — одна настройка, разнесённая по двум полям.
++            # Если их развели, вызов либо непроходим, либо решается автоматически.
++            scaled = scaled_requirements(mission, world)
++            roster = world["roster"]["startingRoster"]
++            best = 0.0
++            perfect_at = None
++            full = 0
++            full_perfect = 0
++            for size in range(1, min(limit, len(roster)) + 1):
++                for indexes in itertools.combinations(range(len(roster)), size):
++                    profile = squad_profile([roster[i] for i in indexes])
++                    _, score, perfect = evaluate(scaled, profile, primary_of(mission))
++                    best = max(best, score)
++                    if perfect and perfect_at is None:
++                        perfect_at = size
++                    if size == limit:
++                        full += 1
++                        full_perfect += 1 if perfect else 0
++
++            if best < 0.5:
++                notes.append(
++                    f"{mid}: лучший состав в пределах {limit} мест даёт {best:.0%} — "
++                    "пороги высоки для такого числа мест")
++            if perfect_at is not None and perfect_at < limit:
++                notes.append(
++                    f"{mid}: автоуспех достижим уже {perfect_at} людьми при {limit} местах — "
++                    "лишний слот снимает выбор состава")
++            elif full and full_perfect == full:
++                # Автоуспех «правильным» составом — норма. Автоуспех ЛЮБЫМ полным
++                # составом означает, что выбирать не из чего: игрок просто заполняет слоты.
++                notes.append(
++                    f"{mid}: любой состав из {limit} даёт автоуспех — "
++                    "пороги ниже суммы двух случайных, выбор состава не работает")
++
+         primary = mission.get("primaryStat")
+         if primary and requirements.get(primary, 0) <= 0:
+             problems.append(
+@@ -510,9 +554,18 @@ def command_new(args) -> int:
+     creature_options = tuple(c["id"] for c in world["creatures"]) + ("",)
+     creature = ask("Существо (пусто — если статьи в энциклопедии нет)", "", creature_options)
+ 
++    print()
++    print("Сколько человек берёт вызов. По умолчанию один — как в Dispatch.")
++    print("Характеристики отряда СКЛАДЫВАЮТСЯ, поэтому лимит и задаёт масштаб порогов:")
++    print("  1 — порог берёт специалист: 4–5 по главной;")
++    print("  2 — порог берёт только пара: 7–8.")
++    squad_limit = int(ask("Мест на вызове", "1"))
++    if squad_limit < 1:
++        raise ToolError("мест не может быть меньше одного")
++
+     print()
+     print("Пороги по характеристикам. Формат: «интеллект 5, ловкость 4».")
+-    print("Сравнивается ЛУЧШИЙ в группе по каждой — не сумма.")
++    print("Складываются характеристики всей группы, а не берётся лучший.")
+     requirements = ask_stats("Пороги")
+ 
+     primary = ask(
+@@ -529,7 +582,8 @@ def command_new(args) -> int:
+         options = ask_options()
+ 
+     mission = build_mission(
+-        mission_id, slug, tier, day, zone, creature, requirements, primary, cap, options)
++        mission_id, slug, tier, day, zone, creature, requirements, primary, cap, options,
++        squad_limit)
+ 
+     write_mission_files(root, world, slug, mission, options)
+ 
+@@ -595,6 +649,7 @@ def build_mission(
+     primary: str,
+     cap: str,
+     options: list[dict],
++    squad_limit: int = 1,
+ ) -> dict:
+     """Геймплейная запись. Числа последствий — заготовка под правку дизайнером."""
+     reports = {
+@@ -619,6 +674,7 @@ def build_mission(
+         "missionEventId": f"radio_{slug}" if options else "",
+         "requirements": requirements,
+         "primaryStat": primary,
++        "squadLimit": squad_limit,
+         "travelSeconds": 12.0,
+         "onSiteSeconds": 6.0,
+         "returnSeconds": 10.0,
+diff --git a/content/raw/_system/ids_registry.md b/content/raw/_system/ids_registry.md
+index 02cb5a4..67b3e55 100644
+--- a/content/raw/_system/ids_registry.md
++++ b/content/raw/_system/ids_registry.md
+@@ -137,6 +137,10 @@
+ | `report_workshop_truck_seize_success` | report | content/raw/ru/missions/reports/chapter_1/shift_2/workshop_truck/workshop_truck_seize_success.md |
+ | `report_workshop_truck_write_off_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_2/workshop_truck/workshop_truck_write_off_failure.md |
+ | `report_workshop_truck_write_off_success` | report | content/raw/ru/missions/reports/chapter_1/shift_2/workshop_truck/workshop_truck_write_off_success.md |
++| `shift_note_day_1` | shift_note | content/raw/ru/shift_notes/day_1.md |
++| `shift_note_day_2` | shift_note | content/raw/ru/shift_notes/day_2.md |
++| `shift_note_day_3` | shift_note | content/raw/ru/shift_notes/day_3.md |
++| `shift_note_day_4` | shift_note | content/raw/ru/shift_notes/day_4.md |
+ | `standard` | equipment_kind | content/raw/ru/UI/hover_footnote/equipment_kinds/standard.md |
+ | `story` | equipment_kind | content/raw/ru/UI/hover_footnote/equipment_kinds/story.md |
+ | `strength` | characteristic | content/raw/ru/UI/hover_footnote/characteristics/strength.md |
+diff --git a/content/raw/_system/текстовый-движок.md b/content/raw/_system/текстовый-движок.md
+index de175ae..5508b6e 100644
+--- a/content/raw/_system/текстовый-движок.md
++++ b/content/raw/_system/текстовый-движок.md
+@@ -113,7 +113,7 @@ content/raw/
+ 
+ ```
+    data/missions.json          ← числа: пороги, риски, шкалы, тайминги
+-   data/mission_events.json    ← числа вариантов: риски, последствия, карантин
++   data/mission_events.json    ← числа вариантов: риски и последствия
+         │  ссылаются по id
+         ▼
+    missions/mission_ids/chapter_N/shift_N.md  ← название миссии
+@@ -195,21 +195,40 @@ python content/engine/tools/mission.py check                 # сверить в
+ | Прус Е. Д. (с дня 3) | 4 | 4 | 5 | 4 | 6 |
+ | Жилин С. А. (с дня 4) | 6 | 6 | 4 | 6 | 5 |
+ 
+-Порог сравнивается с суммой отряда, поэтому отталкиваться надо не от одного человека,
+-а от того, сколько людей вызов должен стоить:
++**Сначала решите, сколько человек берёт вызов.** Это поле `squadLimit`, и оно важнее
++самих чисел:
++
++```json
++"squadLimit": 1,
++"requirements": { "charisma": 4, "intellect": 3 },
++"primaryStat": "charisma"
++```
++
++По умолчанию **один** — как в Dispatch, где на вызов обычно едет один герой. Единица
++не случайно выбрана умолчанием: характеристики отряда складываются, и на вызове без
++предела выгодно было бы отправлять всех свободных, отчего выбор состава исчез бы.
++
++Порог сравнивается с суммой отряда, поэтому отталкиваться надо от того, сколько людей
++вызов должен стоить:
+ 
+ - **порог ≈ сумме двух подходящих** → верная пара вытягивает, случайная нет. Рабочая норма;
+ - **порог ≈ сумме трёх** → вызов съедает половину смены, и это заметно;
+ - **порог выше суммы всего штата** → провал по сюжету, а не задача.
+ 
+-Помните, что численность теперь помогает: если порог закрывается добором любых свободных
+-людей, решение подменяется вопросом «кого не жалко отправить».
++Потолок характеристики — семь, поэтому **на порог выше семи одиночка не выйдет никогда**:
++всё, что выше, автоматически означает вызов для группы.
++
++День 2 умножает пороги на 1.15, день 3 — на 1.3, день 4 — на 1.5, результат округляется
++вверх. Район на пороги не влияет: он задаёт только частоту вызовов через `baseWeight`.
+ 
+-День 2 умножает пороги на 1.15, день 3 — на 1.3, день 4 — на 1.5, заражённый район ещё
+-на 1.2. Порог 5 на четвёртом дне в заражённой зоне превращается в 9 — за пределами штата.
++> **Сейчас во всех пятнадцати миссиях стоит `squadLimit: 2`.** Не потому, что так
++> задумано, а потому что пороги в `data/missions.json` посчитаны под пару: одиночка
++> берёт вызов на 27–52 %, пара — на 92–100 %. Единицу можно ставить только вместе со
++> снижением порогов примерно вдвое. Это стоит перебалансировать.
+ 
+-**Не гадайте — запустите `preview`.** Последняя строка вывода, «весь штат», — проверка на
+-здравый смысл: если она заметно лучше правильной пары, решение подменяется отправкой всех.
++**Не гадайте — запустите `preview`.** Он перебирает только те составы, которые влезают
++в лимит, и показывает ровно то, что получит игрок. `check` теперь ругается на миссии,
++где автоуспех даёт **любая** пара: там выбор состава не работает.
+ 
+ ---
+ 
+@@ -273,10 +292,13 @@ requires: сила, боевая подготовка
+ всех множителей, поэтому «в детском саду не умирают» нельзя нарушить, перекрутив баланс.
+ Вариант может ужесточить потолок, но не ослабить.
+ 
+-**Карантин и энциклопедия.** У варианта: `appliesQuarantine` переводит район в карантин,
+-вызовов оттуда станет меньше; `revealsPropertyId` гарантированно раскрывает свойство
++**Энциклопедия.** У варианта `revealsPropertyId` гарантированно раскрывает свойство
+ существа — **независимо от успеха**, лишь бы кто-то вернулся живым: провалили, но узнали.
+ 
++Раньше здесь был ещё `appliesQuarantine`, закрывавший район. Состояний у районов больше
++нет; чтобы вариант «оцепить квартал» что-то значил механически, задайте ему последствия
++на шкалах через `extraScales`.
++
+ ---
+ 
+ ## 10. Отчёты
+@@ -392,7 +414,7 @@ KonturRuntime.Get(this).Simulation.SetFlag("property_mimic_routine");
+ ## 13. Чек-лист перед сдачей
+ 
+ - [ ] `preview` даёт 70–85 % при правильном выборе и заметно меньше при неправильном
+-- [ ] «весь штат» не лучше правильной пары — иначе решает численность, а не состав
++- [ ] `squadLimit` выставлен осознанно, а пороги посчитаны под него
+ - [ ] главная характеристика назначена и входит в пороги
+ - [ ] у каждой пары «вариант × исход» есть отчёт, включая `""`
+ - [ ] если по смыслу тут нельзя погибнуть — стоит `consequenceCap`
+diff --git a/data/config.json b/data/config.json
+index 890569f..4d4aa87 100644
+--- a/data/config.json
++++ b/data/config.json
+@@ -34,16 +34,6 @@
+     "experiencePerLevelStep": 100,
+     "maxStatValue": 20
+   },
+-  "zones": {
+-    "weightNormal": 1.0,
+-    "weightInfected": 2.2,
+-    "weightQuarantine": 0.4,
+-    "weightCleared": 0.1,
+-    "infectedRequirementMultiplier": 1.2,
+-    "clearedRequirementMultiplier": 0.9,
+-    "failStreakToInfect": 2,
+-    "successStreakToClear": 3
+-  },
+   "loot": {
+     "consumableFindChance": 0.2,
+     "standardOrStorySlots": 1,
+diff --git a/data/mission_events.json b/data/mission_events.json
+index e35730c..aa706a2 100644
+--- a/data/mission_events.json
++++ b/data/mission_events.json
+@@ -9,7 +9,6 @@
+         "consequenceCap": "Injury"
+       },
+       "resettle": {
+-        "appliesQuarantine": true,
+         "extraScales": {
+           "publicity": 3.0,
+           "infection": -4.0
+@@ -45,7 +44,6 @@
+         "injuryChanceMultiplier": 1.5
+       },
+       "cordon": {
+-        "appliesQuarantine": true,
+         "extraScales": {
+           "infection": 6.0,
+           "publicity": -2.0
+@@ -211,7 +209,6 @@
+         "injuryChanceMultiplier": 1.5
+       },
+       "cordon": {
+-        "appliesQuarantine": true,
+         "extraScales": {
+           "infection": 5.0,
+           "publicity": -3.0,
+diff --git a/data/missions.json b/data/missions.json
+index 0ad8881..58d014f 100644
+--- a/data/missions.json
++++ b/data/missions.json
+@@ -11,6 +11,8 @@
+       "charisma": 4,
+       "intellect": 4
+     },
++    "primaryStat": "charisma",
++    "squadLimit": 2,
+     "travelSeconds": 10.0,
+     "onSiteSeconds": 6.0,
+     "returnSeconds": 9.0,
+@@ -55,8 +57,7 @@
+         "success": "report_black_mold_reagent_success",
+         "failure": "report_black_mold_reagent_failure"
+       }
+-    },
+-    "primaryStat": "charisma"
++    }
+   },
+   {
+     "id": "m_pensioner_door",
+@@ -72,6 +73,8 @@
+       "strength": 5,
+       "combat": 4
+     },
++    "primaryStat": "intellect",
++    "squadLimit": 2,
+     "travelSeconds": 12.0,
+     "onSiteSeconds": 6.0,
+     "returnSeconds": 10.0,
+@@ -116,13 +119,13 @@
+         "success": "report_pensioner_door_left_turn_success",
+         "failure": "report_pensioner_door_left_turn_failure"
+       }
+-    },
+-    "primaryStat": "intellect"
++    }
+   },
+   {
+     "id": "m_workshop_intro",
+     "day": 1,
+     "tier": "Story",
++    "consequenceCap": "None",
+     "zoneId": "z_industrial",
+     "creatureId": "",
+     "callId": "call_workshop_intro",
+@@ -131,6 +134,8 @@
+       "intellect": 5,
+       "charisma": 4
+     },
++    "primaryStat": "intellect",
++    "squadLimit": 2,
+     "travelSeconds": 12.0,
+     "onSiteSeconds": 6.0,
+     "returnSeconds": 10.0,
+@@ -171,14 +176,13 @@
+         "success": "report_workshop_intro_peace_success",
+         "failure": "report_workshop_intro_peace_failure"
+       }
+-    },
+-    "primaryStat": "intellect",
+-    "consequenceCap": "None"
++    }
+   },
+   {
+     "id": "m_workshop_truck",
+     "day": 2,
+     "tier": "Story",
++    "consequenceCap": "Injury",
+     "zoneId": "z_industrial",
+     "creatureId": "",
+     "callId": "call_workshop_truck",
+@@ -188,6 +192,8 @@
+       "strength": 4,
+       "combat": 4
+     },
++    "primaryStat": "charisma",
++    "squadLimit": 2,
+     "travelSeconds": 12.0,
+     "onSiteSeconds": 6.0,
+     "returnSeconds": 10.0,
+@@ -228,14 +234,13 @@
+         "success": "report_workshop_truck_seize_success",
+         "failure": "report_workshop_truck_seize_failure"
+       }
+-    },
+-    "primaryStat": "charisma",
+-    "consequenceCap": "Injury"
++    }
+   },
+   {
+     "id": "m_cement_night_shift",
+     "day": 3,
+     "tier": "Filler",
++    "consequenceCap": "Injury",
+     "zoneId": "z_industrial",
+     "creatureId": "",
+     "callId": "call_cement_night_shift",
+@@ -245,6 +250,8 @@
+       "intellect": 3,
+       "charisma": 3
+     },
++    "primaryStat": "strength",
++    "squadLimit": 2,
+     "travelSeconds": 12.0,
+     "onSiteSeconds": 6.0,
+     "returnSeconds": 10.0,
+@@ -277,14 +284,13 @@
+         "success": "report_cement_night_shift_success",
+         "failure": "report_cement_night_shift_failure"
+       }
+-    },
+-    "primaryStat": "strength",
+-    "consequenceCap": "Injury"
++    }
+   },
+   {
+     "id": "m_dense_flock",
+     "day": 3,
+     "tier": "Story",
++    "consequenceCap": "Death",
+     "zoneId": "z_industrial",
+     "creatureId": "creature_simulacre",
+     "callId": "call_dense_flock",
+@@ -295,6 +301,8 @@
+       "combat": 4,
+       "strength": 3
+     },
++    "primaryStat": "combat",
++    "squadLimit": 2,
+     "travelSeconds": 12.0,
+     "onSiteSeconds": 6.0,
+     "returnSeconds": 10.0,
+@@ -339,14 +347,13 @@
+         "success": "report_dense_flock_cordon_failure",
+         "failure": "report_dense_flock_cordon_failure"
+       }
+-    },
+-    "primaryStat": "combat",
+-    "consequenceCap": "Death"
++    }
+   },
+   {
+     "id": "m_dogs_at_grate",
+     "day": 3,
+     "tier": "Filler",
++    "consequenceCap": "Injury",
+     "zoneId": "z_sleep",
+     "creatureId": "",
+     "callId": "call_dogs_at_grate",
+@@ -356,6 +363,8 @@
+       "strength": 3,
+       "combat": 3
+     },
++    "primaryStat": "intellect",
++    "squadLimit": 2,
+     "travelSeconds": 12.0,
+     "onSiteSeconds": 6.0,
+     "returnSeconds": 10.0,
+@@ -388,14 +397,13 @@
+         "success": "report_dogs_at_grate_success",
+         "failure": "report_dogs_at_grate_failure"
+       }
+-    },
+-    "primaryStat": "intellect",
+-    "consequenceCap": "Injury"
++    }
+   },
+   {
+     "id": "m_dosimeter_yard",
+     "day": 3,
+     "tier": "Filler",
++    "consequenceCap": "None",
+     "zoneId": "z_sleep",
+     "creatureId": "",
+     "callId": "call_dosimeter_yard",
+@@ -405,6 +413,8 @@
+       "combat": 3,
+       "intellect": 3
+     },
++    "primaryStat": "charisma",
++    "squadLimit": 2,
+     "travelSeconds": 12.0,
+     "onSiteSeconds": 6.0,
+     "returnSeconds": 10.0,
+@@ -437,14 +447,13 @@
+         "success": "report_dosimeter_yard_success",
+         "failure": "report_dosimeter_yard_failure"
+       }
+-    },
+-    "primaryStat": "charisma",
+-    "consequenceCap": "None"
++    }
+   },
+   {
+     "id": "m_night_pharmacy",
+     "day": 3,
+     "tier": "Story",
++    "consequenceCap": "Injury",
+     "zoneId": "z_center",
+     "creatureId": "creature_mimic",
+     "callId": "call_night_pharmacy",
+@@ -453,6 +462,8 @@
+       "charisma": 4,
+       "combat": 4
+     },
++    "primaryStat": "charisma",
++    "squadLimit": 2,
+     "travelSeconds": 12.0,
+     "onSiteSeconds": 6.0,
+     "returnSeconds": 10.0,
+@@ -497,14 +508,13 @@
+         "success": "report_night_pharmacy_militia_failure",
+         "failure": "report_night_pharmacy_militia_failure"
+       }
+-    },
+-    "primaryStat": "charisma",
+-    "consequenceCap": "Injury"
++    }
+   },
+   {
+     "id": "m_ninth_silence",
+     "day": 3,
+     "tier": "Filler",
++    "consequenceCap": "Injury",
+     "zoneId": "z_outskirts",
+     "creatureId": "",
+     "callId": "call_ninth_silence",
+@@ -514,6 +524,8 @@
+       "strength": 3,
+       "combat": 3
+     },
++    "primaryStat": "intellect",
++    "squadLimit": 2,
+     "travelSeconds": 12.0,
+     "onSiteSeconds": 6.0,
+     "returnSeconds": 10.0,
+@@ -546,14 +558,13 @@
+         "success": "report_ninth_silence_success",
+         "failure": "report_ninth_silence_failure"
+       }
+-    },
+-    "primaryStat": "intellect",
+-    "consequenceCap": "Injury"
++    }
+   },
+   {
+     "id": "m_room_34",
+     "day": 3,
+     "tier": "Story",
++    "consequenceCap": "Death",
+     "zoneId": "z_sleep",
+     "creatureId": "creature_mimic",
+     "callId": "call_room_34",
+@@ -564,6 +575,8 @@
+       "combat": 4,
+       "strength": 3
+     },
++    "primaryStat": "intellect",
++    "squadLimit": 2,
+     "travelSeconds": 12.0,
+     "onSiteSeconds": 6.0,
+     "returnSeconds": 10.0,
+@@ -608,14 +621,13 @@
+         "success": "report_room_34_evacuate_success",
+         "failure": "report_room_34_evacuate_failure"
+       }
+-    },
+-    "primaryStat": "intellect",
+-    "consequenceCap": "Death"
++    }
+   },
+   {
+     "id": "m_shelter_basement",
+     "day": 3,
+     "tier": "Filler",
++    "consequenceCap": "Injury",
+     "zoneId": "z_sleep",
+     "creatureId": "",
+     "callId": "call_shelter_basement",
+@@ -624,6 +636,8 @@
+       "strength": 4,
+       "charisma": 3
+     },
++    "primaryStat": "strength",
++    "squadLimit": 2,
+     "travelSeconds": 12.0,
+     "onSiteSeconds": 6.0,
+     "returnSeconds": 10.0,
+@@ -656,14 +670,13 @@
+         "success": "report_shelter_basement_success",
+         "failure": "report_shelter_basement_failure"
+       }
+-    },
+-    "primaryStat": "strength",
+-    "consequenceCap": "Injury"
++    }
+   },
+   {
+     "id": "m_tram_last_run",
+     "day": 3,
+     "tier": "Story",
++    "consequenceCap": "Death",
+     "zoneId": "z_station",
+     "creatureId": "creature_mimic",
+     "callId": "call_tram_last_run",
+@@ -673,6 +686,8 @@
+       "strength": 4,
+       "intellect": 4
+     },
++    "primaryStat": "combat",
++    "squadLimit": 2,
+     "travelSeconds": 12.0,
+     "onSiteSeconds": 6.0,
+     "returnSeconds": 10.0,
+@@ -717,14 +732,13 @@
+         "success": "report_tram_last_run_power_success",
+         "failure": "report_tram_last_run_power_failure"
+       }
+-    },
+-    "primaryStat": "combat",
+-    "consequenceCap": "Death"
++    }
+   },
+   {
+     "id": "m_workshop_empty",
+     "day": 3,
+     "tier": "Story",
++    "consequenceCap": "None",
+     "zoneId": "z_center",
+     "creatureId": "",
+     "callId": "call_workshop_empty",
+@@ -733,6 +747,8 @@
+       "strength": 3,
+       "intellect": 4
+     },
++    "primaryStat": "intellect",
++    "squadLimit": 2,
+     "travelSeconds": 14.0,
+     "onSiteSeconds": 10.0,
+     "returnSeconds": 10.0,
+@@ -773,14 +789,13 @@
+         "success": "report_workshop_empty_abort_success",
+         "failure": "report_workshop_empty_abort_failure"
+       }
+-    },
+-    "primaryStat": "intellect",
+-    "consequenceCap": "None"
++    }
+   },
+   {
+     "id": "m_workshop_site",
+     "day": 3,
+     "tier": "Story",
++    "consequenceCap": "Death",
+     "zoneId": "z_industrial",
+     "creatureId": "",
+     "callId": "call_workshop_site",
+@@ -790,6 +805,8 @@
+       "strength": 3,
+       "charisma": 4
+     },
++    "primaryStat": "intellect",
++    "squadLimit": 2,
+     "travelSeconds": 12.0,
+     "onSiteSeconds": 6.0,
+     "returnSeconds": 10.0,
+@@ -834,8 +851,6 @@
+         "success": "report_workshop_site_cordon_failure",
+         "failure": "report_workshop_site_cordon_failure"
+       }
+-    },
+-    "primaryStat": "intellect",
+-    "consequenceCap": "Death"
++    }
+   }
+ ]
+diff --git a/data/zones.json b/data/zones.json
+index 28e57cd..256e57c 100644
+--- a/data/zones.json
++++ b/data/zones.json
+@@ -1,7 +1,7 @@
+ [
+-  { "id": "z_center",     "name": "Центральный район",   "state": "Normal", "baseWeight": 1.0, "mapX": 0.50, "mapY": 0.45 },
+-  { "id": "z_industrial", "name": "Промзона",            "state": "Normal", "baseWeight": 1.2, "mapX": 0.78, "mapY": 0.30 },
+-  { "id": "z_sleep",      "name": "Спальный массив",     "state": "Normal", "baseWeight": 1.1, "mapX": 0.28, "mapY": 0.66 },
+-  { "id": "z_station",    "name": "Привокзальный",       "state": "Normal", "baseWeight": 1.0, "mapX": 0.62, "mapY": 0.72 },
+-  { "id": "z_outskirts",  "name": "Окраина",             "state": "Normal", "baseWeight": 0.8, "mapX": 0.15, "mapY": 0.20 }
++  { "id": "z_center",     "name": "Центральный район", "baseWeight": 1.0, "mapX": 0.50, "mapY": 0.45 },
++  { "id": "z_industrial", "name": "Промзона",          "baseWeight": 1.2, "mapX": 0.78, "mapY": 0.30 },
++  { "id": "z_sleep",      "name": "Спальный массив",   "baseWeight": 1.1, "mapX": 0.28, "mapY": 0.66 },
++  { "id": "z_station",    "name": "Привокзальный",     "baseWeight": 1.0, "mapX": 0.62, "mapY": 0.72 },
++  { "id": "z_outskirts",  "name": "Окраина",           "baseWeight": 0.8, "mapX": 0.15, "mapY": 0.20 }
+ ]
+diff --git a/docs/ядро-api.md b/docs/ядро-api.md
+index b7d4906..b02bb9d 100644
+--- a/docs/ядро-api.md
++++ b/docs/ядро-api.md
+@@ -152,7 +152,7 @@ using Kontur.Core.Model;    // StatBlock, IncidentPhase, EmployeeStatus, ScaleVa
+ Обрывает текущую смену **без** события `ShiftEnded`: смена не доработана, а отменена,
+ и интерфейс не должен принимать это за окончание дня и включать ролик. Затем чистится
+ всё состояние: штат заново клонируется из контента, шкалы возвращаются к стартовым,
+-энциклопедия и склад опустошаются, зоны сбрасываются к исходной штриховке.
++энциклопедия и склад опустошаются.
+ 
+ События при этом почти не публикуются — перерисуйте интерфейс по `Get*`-снимкам сами.
+ 
+@@ -174,8 +174,8 @@ using Kontur.Core.Model;    // StatBlock, IncidentPhase, EmployeeStatus, ScaleVa
+ 
+ ```csharp
+ DispatchEstimateView estimate = simulation.EstimateDispatch(incidentId, employeeIds, equipmentIds);
+-// estimate.Requirements   — пороги с учётом дня, штриховки зоны и выбранного радио-варианта
+-// estimate.SquadStats     — профиль группы: лучший по каждой характеристике
++// estimate.Requirements   — пороги с учётом дня и выбранного радио-варианта
++// estimate.SquadStats     — профиль группы: сумма характеристик отряда плюс снаряжение
+ // estimate.Matches        — построчно: что нужно, кто закрывает, какая ступень
+ // estimate.MatchScore     — 0..1, главная характеристика весит вдвое
+ // estimate.SuccessChance  — 0..1
+@@ -227,7 +227,6 @@ DispatchEstimateView estimate = simulation.EstimateDispatch(incidentId, employee
+ | `SquadDispatched` | `IncidentId`, `EmployeeIds`, `EquipmentIds`, `TravelSeconds` | пунктирная линия к точке |
+ | `SquadArrived` | `IncidentId`, `ZoneId`, `BuildingId` | линия дошла |
+ | `SquadReturned` | `IncidentId`, `EmployeeIds` | линия обратно, убрать метку |
+-| `ZoneStateChanged` | `ZoneId`, `OldState`, `NewState`, `Reason` | переключить слой штриховки |
+ 
+ Прогресса маршрута ядро не отдаёт: берите `TravelSeconds` из события и интерполируйте
+ у себя, либо `IncidentView.RemainingSeconds` в фазе `Travelling`.
+@@ -236,8 +235,9 @@ DispatchEstimateView estimate = simulation.EstimateDispatch(incidentId, employee
+ 
+ У вызова два адреса, и это не дублирование.
+ 
+-**`ZoneId` — район.** Механический слой: штриховка, вес в подборе вызовов, надбавка
+-к требованиям. У зоны есть `MapX`/`MapY` — условная точка для отрисовки.
++**`ZoneId` — район.** Задаёт, откуда вызов и как часто такие приходят: `baseWeight`
++в `data/zones.json` — вес района в подборе. Вес статичен, состояний у района нет.
++У зоны есть `MapX`/`MapY` — условная точка для отрисовки.
+ 
+ **`BuildingId` — конкретный дом** из `data/buildings.json`, тот самый, что нарисован
+ геометрией карты. Выбирается заново каждую смену, поэтому живёт на инциденте, а не
+@@ -355,7 +355,6 @@ MissionResolved
+   → EmployeeKilled / EmployeeInjured
+   → EquipmentConsumed / EquipmentLost
+   → ScalesChanged  (и, если порог достигнут, GameOverTriggered)
+-  → ZoneStateChanged
+   → EmployeeExperienceGained / EmployeeLeveledUp
+   → CreatureIdentified / CreatureRevealed
+   → MissionOutcomeReady          ← экран итога
+@@ -459,8 +458,9 @@ private void OnOutcomeClosed(string incidentId)
+ EmployeeView(Id, Name, RankTitle, Level, Stats, Experience, ExperienceToNextLevel,
+              UnspentSkillPoints, Status, IsInjured, CurrentIncidentId, AbilityIds, PortraitId)
+ 
+-IncidentView(Id, MissionId, CallId, ZoneId, MissionEventId, Tier, ConsequenceCap,
+-             Phase, RemainingSeconds, Requirements, SquadEmployeeIds, EquipmentIds)
++IncidentView(Id, MissionId, CallId, ZoneId, BuildingId, MissionEventId, Tier,
++             ConsequenceCap, Phase, RemainingSeconds, Requirements, SquadLimit,
++             SquadEmployeeIds, EquipmentIds)
+ 
+ ZoneView(Id, Name, State, MapX, MapY)
+ EquipmentSlotView(Id, Name, Description, Kind, Quantity, IsShiftOnly)
+@@ -472,6 +472,23 @@ ShiftStatusView(Day, IsShiftActive, ShiftTime, IsCallWindowClosed, OpenIncidents
+                 PendingCalls, StaffLimit, Scales, IsGameOver, GameOverReason)
+ ```
+ 
++### Сколько человек берёт вызов
++
++`IncidentView.SquadLimit` — предел, заданный автором миссии (`squadLimit` в
++`data/missions.json`, по умолчанию 1). `DispatchSquad` отклоняет состав больше этого
++числа, так что экран отправки обязан ограничивать выбор сам: иначе игрок наберёт
++группу и получит отказ уже после нажатия «Отправить».
++
++```csharp
++if (picked.Count >= incident.SquadLimit)
++{
++    // остальные галочки гасим
++}
++```
++
++Предел существует потому, что характеристики группы **складываются**: без него на любой
++вызов было бы выгодно отправлять всех свободных, и выбор состава исчез бы.
++
+ `GetActiveIncidents()` возвращает только незакрытые вызовы. `MapX`/`MapY` — нормализованные
+ `0..1` координаты района на карте.
+ 
+@@ -494,7 +511,7 @@ string text  = stats.ToString();       // «Сила 5 Интеллект 3» 
+ string label = StatKinds.GetDisplayName(StatKind.Combat);  // «Боевая подготовка»
+ ```
+ 
+-`StatKind`: `Strength`, `Perception`, `Endurance`, `Agility`, `Composure`.
++`StatKind`: `Strength`, `Combat`, `Agility`, `Charisma`, `Intellect`.
+ 
+ **`ScaleValues`** — `Infection`, `Publicity`, `Loyalty`, диапазон `0..100`.
+ **`ScaleDelta`** — изменение; положительное значение = рост шкалы.
+@@ -513,8 +530,6 @@ string label = StatKinds.GetDisplayName(StatKind.Combat);  // «Боевая п
+ **`EquipmentKind`** — `Consumable` (тратится всегда), `Standard` (возвращается после успеха),
+ `Story` (теряется только при гибели всей группы).
+ 
+-**`ZoneState`** — `Normal`, `Infected`, `Quarantine`, `Cleared`.
+-
+ **`MissionTier`** — `Story` (сюжетный вызов: радио, полные ставки) и `Filler`
+ (фон смены: травмы есть, гибели нет, радио не бывает).
+ 
+@@ -845,7 +860,7 @@ simulation.Events.Subscribe<TimeFreezeChanged>(e =>
+ **Числа вариантов приходят из текста.** Единственное исключение из правила «в тексте нет
+ чисел»: у варианта решения `requirement_modifier` и `canon` лежат в `.md` рядом
+ с формулировкой, потому что автор правит их вместе. Ядро читает их через каталог,
+-остальное — риски, шкалы, карантин — берёт из `data/mission_events.json`.
++остальное — риски и шкалы — берёт из `data/mission_events.json`.
+ Наборы ключей вариантов в тексте и в данных обязаны совпадать.
+ 
+ `requirement_modifier` — надбавка: **+N к каждой требуемой характеристике** миссии.
+diff --git a/kontur-core/README.md b/kontur-core/README.md
+index ae86d81..8e87acd 100644
+--- a/kontur-core/README.md
++++ b/kontur-core/README.md
+@@ -79,7 +79,7 @@ kontur-core/
+ 
+ Раздел 3 ДД целиком: звонок (15 с) → бриф → метка (30 с) → отправка → движение →
+ прибытие → радио (20 с) → расчёт → шкалы → травмы/гибель → возвращение → отчёт →
+-энциклопедия → штриховка зоны. Наложение вызовов, окно приёма 5 минут, завершение
++энциклопедия. Наложение вызовов, окно приёма 5 минут, завершение
+ смены по закрытию последнего вызова, три условия game over.
+ 
+ Сверх ДД: обучающая смена. День 1 идёт по сценарию, вызовы приходят по одному,
+diff --git a/kontur-core/docs/ARCHITECTURE.md b/kontur-core/docs/ARCHITECTURE.md
+index 843fcff..fd0b677 100644
+--- a/kontur-core/docs/ARCHITECTURE.md
++++ b/kontur-core/docs/ARCHITECTURE.md
+@@ -111,7 +111,7 @@ Returning (returnSeconds) ──► отчёт на компьютере ──
+ транзакция с обязательным порядком:
+ 
+ ```
+-потери → снаряжение → шкалы (и проверка game over) → штриховка зоны → опыт → энциклопедия → отчёт
++потери → снаряжение → шкалы (и проверка game over) → опыт → энциклопедия → отчёт
+ ```
+ 
+ Если это раскидать по подписчикам `MissionResolved`, порядок станет функцией от порядка
+@@ -133,7 +133,6 @@ Returning (returnSeconds) ──► отчёт на компьютере ──
+ ```
+ требования = requirements(миссия)
+            × requirementMultiplier(день)      // прогрессия сложности, раздел 12
+-           × множитель штриховки зоны          // заражено сложнее, очищено легче, раздел 9
+            × requirementMultiplier(радио-вариант)  // раздел 8
+ 
+ сумма_группы = Σ характеристики сотрудников (минус дебафф травмы)
+@@ -159,7 +158,6 @@ Returning (returnSeconds) ──► отчёт на компьютере ──
+ `ShiftDirector` оркестрирует, но не считает. Правило одного места изменения:
+ 
+ * шкалы меняет только `ScalesSystem` (он же единственный проверяет game over);
+-* штриховку зон меняет только `ZoneSystem`;
+ * энциклопедию — только `EncyclopediaSystem`;
+ * штат, опыт и уровни — только `RosterSystem`;
+ * исход миссии считает только `MissionResolver` (и он не имеет побочных эффектов —
+diff --git a/kontur-core/docs/CONTENT_SCHEMA.md b/kontur-core/docs/CONTENT_SCHEMA.md
+index 81b8679..b209080 100644
+--- a/kontur-core/docs/CONTENT_SCHEMA.md
++++ b/kontur-core/docs/CONTENT_SCHEMA.md
+@@ -269,7 +269,7 @@
+                    "extraScales": { "publicity": -1 } },
+     "capture":   { "deathChanceMultiplier": 2.2, "injuryChanceMultiplier": 1.6,
+                    "extraScales": { "publicity": 4, "loyalty": -2 } },
+-    "left_turn": { "appliesQuarantine": false, "injuryChanceMultiplier": 1.2 }
++    "left_turn": { "injuryChanceMultiplier": 1.2 }
+   }
+ }
+ ```
+@@ -337,8 +337,11 @@
+ * `requirements` — **пороги по отдельным характеристикам**, а не общая сложность.
+   Сравниваются с суммой группы по каждой характеристике: порог «Интеллект 9» закрывают
+   конкретный человек, а не сумма отряда. Ноль означает «характеристика на вызове не нужна».
+-  Задаются «как для базового дня»: множители дня и штриховки зоны, а также надбавку
+-  выбранного варианта ядро применит само.
++  Задаются «как для базового дня»: множитель дня и надбавку выбранного варианта
++  ядро применит само. Район на пороги не влияет.
++* `squadLimit` — сколько человек берёт этот вызов, **по умолчанию один**. Пороги
++  выставляются под него: на вызов для одного их закрывает специалист, на вызов для
++  двоих — только пара. Значение меньше единицы — ошибка загрузки.
+ * `primaryStat` — главная характеристика вызова, весит вдвое при расчёте процента.
+   Обязана входить в `requirements`, иначе ошибка загрузки. Пусто — все пороги равнозначны.
+ 
+diff --git a/kontur-core/docs/INTEGRATION.md b/kontur-core/docs/INTEGRATION.md
+index 238e020..38e8e4e 100644
+--- a/kontur-core/docs/INTEGRATION.md
++++ b/kontur-core/docs/INTEGRATION.md
+@@ -145,7 +145,6 @@ if (kontur != null && kontur.IsReady)
+ | `RadioTriggered` / `RadioMissed` | Радиостанция | треск, экран вариантов, индикатор 20 с |
+ | `ScalesChanged` | Блокнот | анимация шкал (`NotebookDebugBars` уже умеет) |
+ | `MissionReportReady` / `CreatureRevealed` | Компьютер | отчёт и новый абзац энциклопедии |
+-| `ZoneStateChanged` | Карта | переключение слоя штриховки |
+ | `EmployeeInjured` / `EmployeeKilled` | Досье | состояние портрета |
+ | `ShiftStarted` | Записка сменщика | текст записки |
+ | `ShiftEnded` | Менеджер сцен | пререндеренный ролик по `OutroCutsceneId` |
+diff --git a/kontur-core/src/Kontur.Core/Api/KonturSimulation.cs b/kontur-core/src/Kontur.Core/Api/KonturSimulation.cs
+index 5433a23..a535e9c 100644
+--- a/kontur-core/src/Kontur.Core/Api/KonturSimulation.cs
++++ b/kontur-core/src/Kontur.Core/Api/KonturSimulation.cs
+@@ -29,7 +29,6 @@ namespace Kontur.Core.Api
+ 		/// </summary>
+ 		private readonly XorShiftRandom _random;
+ 		private readonly ScalesSystem _scalesSystem;
+-		private readonly ZoneSystem _zoneSystem;
+ 		private readonly EmployeeFactory _employeeFactory;
+ 		private readonly RosterSystem _rosterSystem;
+ 		private readonly EncyclopediaSystem _encyclopediaSystem;
+@@ -47,12 +46,11 @@ namespace Kontur.Core.Api
+ 			_random = new XorShiftRandom(seed);
+ 
+ 			_scalesSystem = new ScalesSystem(_state, content.Config.Scales, _bus);
+-			_zoneSystem = new ZoneSystem(_state, content.Config.Zones, _bus);
+ 			_employeeFactory = new EmployeeFactory(content, _random);
+ 			_rosterSystem = new RosterSystem(_state, content, content.Config.Employees, _bus, _employeeFactory);
+ 			_encyclopediaSystem = new EncyclopediaSystem(_state, content, _bus);
+ 			_resolver = new MissionResolver(content, content.Config, _random);
+-			_scheduler = new IncidentScheduler(content, _state, _zoneSystem, _random);
++			_scheduler = new IncidentScheduler(content, _state, _random);
+ 
+ 			_director = new ShiftDirector(
+ 				_state,
+@@ -60,7 +58,6 @@ namespace Kontur.Core.Api
+ 				_bus,
+ 				_random,
+ 				_scalesSystem,
+-				_zoneSystem,
+ 				_rosterSystem,
+ 				_encyclopediaSystem,
+ 				_resolver,
+@@ -132,7 +129,6 @@ namespace Kontur.Core.Api
+ 				{
+ 					Id = pair.Value.Id,
+ 					Name = pair.Value.Name,
+-					State = pair.Value.State,
+ 					BaseWeight = pair.Value.BaseWeight,
+ 					MapX = pair.Value.MapX,
+ 					MapY = pair.Value.MapY
+@@ -382,6 +378,7 @@ namespace Kontur.Core.Api
+ 					incident.Phase,
+ 					incident.RemainingSeconds,
+ 					_director.GetCurrentRequirements(incident),
++					incident.Mission.SquadLimit,
+ 					incident.SquadEmployeeIds.ToArray(),
+ 					incident.EquipmentIds.ToArray()));
+ 			}
+@@ -395,7 +392,7 @@ namespace Kontur.Core.Api
+ 			foreach (KeyValuePair<string, Zone> pair in _state.Zones)
+ 			{
+ 				Zone zone = pair.Value;
+-				result.Add(new ZoneView(zone.Id, zone.Name, zone.State, zone.MapX, zone.MapY));
++				result.Add(new ZoneView(zone.Id, zone.Name, zone.MapX, zone.MapY));
+ 			}
+ 
+ 			return result;
+diff --git a/kontur-core/src/Kontur.Core/Api/Views.cs b/kontur-core/src/Kontur.Core/Api/Views.cs
+index 6c2961f..bf7c60c 100644
+--- a/kontur-core/src/Kontur.Core/Api/Views.cs
++++ b/kontur-core/src/Kontur.Core/Api/Views.cs
+@@ -40,10 +40,12 @@ namespace Kontur.Core.Api
+ 		IncidentPhase Phase,
+ 		double RemainingSeconds,
+ 		StatBlock Requirements,
++		/// <summary>Сколько человек берёт этот вызов. Обычно один.</summary>
++		int SquadLimit,
+ 		IReadOnlyList<string> SquadEmployeeIds,
+ 		IReadOnlyList<string> EquipmentIds);
+ 
+-	public sealed record ZoneView(string Id, string Name, ZoneState State, double MapX, double MapY);
++	public sealed record ZoneView(string Id, string Name, double MapX, double MapY);
+ 
+ 	/// <summary>
+ 	/// Предпросмотр отправки: что получится, если послать именно этот состав с этим снаряжением.
+diff --git a/kontur-core/src/Kontur.Core/Config/SimulationConfig.cs b/kontur-core/src/Kontur.Core/Config/SimulationConfig.cs
+index ae79950..c96c196 100644
+--- a/kontur-core/src/Kontur.Core/Config/SimulationConfig.cs
++++ b/kontur-core/src/Kontur.Core/Config/SimulationConfig.cs
+@@ -17,8 +17,6 @@ namespace Kontur.Core.Config
+ 
+ 		public EmployeeConfig Employees { get; set; } = new EmployeeConfig();
+ 
+-		public ZoneConfig Zones { get; set; } = new ZoneConfig();
+-
+ 		public LootConfig Loot { get; set; } = new LootConfig();
+ 
+ 		public MissionEventConfig MissionEvents { get; set; } = new MissionEventConfig();
+@@ -166,29 +164,6 @@ namespace Kontur.Core.Config
+ 		public int MaxStatValue { get; set; } = 20;
+ 	}
+ 
+-	public sealed class ZoneConfig
+-	{
+-		public double WeightNormal { get; set; } = 1.0;
+-
+-		/// <summary>Заражённые зоны — вызовы оттуда чаще (ДД, раздел 9).</summary>
+-		public double WeightInfected { get; set; } = 2.2;
+-
+-		/// <summary>Карантин — реже.</summary>
+-		public double WeightQuarantine { get; set; } = 0.4;
+-
+-		/// <summary>Очищено — почти нет.</summary>
+-		public double WeightCleared { get; set; } = 0.1;
+-
+-		/// <summary>И сложнее: требования миссии в заражённой зоне умножаются.</summary>
+-		public double InfectedRequirementMultiplier { get; set; } = 1.2;
+-
+-		public double ClearedRequirementMultiplier { get; set; } = 0.9;
+-
+-		public int FailStreakToInfect { get; set; } = 2;
+-
+-		public int SuccessStreakToClear { get; set; } = 3;
+-	}
+-
+ 	public sealed class LootConfig
+ 	{
+ 		/// <summary>Небольшой шанс найти расходник по итогам удачной миссии (ДД, раздел 6).</summary>
+diff --git a/kontur-core/src/Kontur.Core/Content/ContentDtos.cs b/kontur-core/src/Kontur.Core/Content/ContentDtos.cs
+index 2c14de5..ef15668 100644
+--- a/kontur-core/src/Kontur.Core/Content/ContentDtos.cs
++++ b/kontur-core/src/Kontur.Core/Content/ContentDtos.cs
+@@ -58,8 +58,6 @@ namespace Kontur.Core.Content
+ 
+ 		public string Name { get; set; } = string.Empty;
+ 
+-		public string State { get; set; } = "Normal";
+-
+ 		public double BaseWeight { get; set; } = 1.0;
+ 
+ 		public double MapX { get; set; }
+@@ -208,8 +206,6 @@ namespace Kontur.Core.Content
+ 
+ 		public double? InjuryChanceMultiplier { get; set; }
+ 
+-		public bool AppliesQuarantine { get; set; }
+-
+ 		public ScaleDeltaDto? ExtraScales { get; set; }
+ 
+ 		public string? RevealsPropertyId { get; set; }
+@@ -259,6 +255,9 @@ namespace Kontur.Core.Content
+ 		/// <summary>Главная характеристика вызова — весит вдвое. Пусто — все равнозначны.</summary>
+ 		public string? PrimaryStat { get; set; }
+ 
++		/// <summary>Сколько человек можно отправить. По умолчанию один, как в Dispatch.</summary>
++		public int SquadLimit { get; set; } = 1;
++
+ 		public double TravelSeconds { get; set; } = 12.0;
+ 
+ 		public double OnSiteSeconds { get; set; } = 6.0;
+diff --git a/kontur-core/src/Kontur.Core/Content/ContentLoader.cs b/kontur-core/src/Kontur.Core/Content/ContentLoader.cs
+index efdda2e..5b4d26f 100644
+--- a/kontur-core/src/Kontur.Core/Content/ContentLoader.cs
++++ b/kontur-core/src/Kontur.Core/Content/ContentLoader.cs
+@@ -105,7 +105,6 @@ namespace Kontur.Core.Content
+ 				{
+ 					Id = dto.Id,
+ 					Name = dto.Name,
+-					State = ParseEnum(dto.State, ZoneState.Normal, ZonesFile, dto.Id, "state"),
+ 					BaseWeight = dto.BaseWeight,
+ 					MapX = dto.MapX,
+ 					MapY = dto.MapY
+@@ -375,7 +374,6 @@ namespace Kontur.Core.Content
+ 				InjuryChanceMultiplier = dto == null || dto.InjuryChanceMultiplier == null
+ 					? defaults.RiskMultiplier
+ 					: dto.InjuryChanceMultiplier.Value,
+-				AppliesQuarantine = dto != null && dto.AppliesQuarantine,
+ 				ExtraScales = dto == null || dto.ExtraScales == null ? ScaleDelta.Zero : dto.ExtraScales.ToModel(),
+ 				RevealsPropertyId = dto == null ? null : dto.RevealsPropertyId,
+ 				ConsequenceCapOverride = dto == null ? null : ParseOptionalCap(dto.ConsequenceCap, MissionEventsFile, textOption.Id)
+@@ -399,6 +397,7 @@ namespace Kontur.Core.Content
+ 					MissionEventId = dto.MissionEventId,
+ 					Requirements = dto.Requirements == null ? StatBlock.Zero : dto.Requirements.ToModel(),
+ 					PrimaryStat = ParsePrimaryStat(dto.PrimaryStat, dto.Id),
++					SquadLimit = dto.SquadLimit,
+ 					TravelSeconds = dto.TravelSeconds,
+ 					OnSiteSeconds = dto.OnSiteSeconds,
+ 					ReturnSeconds = dto.ReturnSeconds,
+@@ -555,6 +554,17 @@ namespace Kontur.Core.Content
+ 				ValidateEmployeeAbilities(database, candidate.Template, errors);
+ 			}
+ 
++			foreach (KeyValuePair<string, MissionDefinition> pair in database.Missions)
++			{
++				MissionDefinition mission = pair.Value;
++				if (mission.SquadLimit < 1)
++				{
++					errors.Add(
++						$"Миссия '{mission.Id}': squadLimit={mission.SquadLimit} — " +
++						"отправить некого. Минимум один.");
++				}
++			}
++
+ 			ValidateGenerator(database, errors);
+ 			ValidateBuildings(database, errors);
+ 
+diff --git a/kontur-core/src/Kontur.Core/Events/Signals.cs b/kontur-core/src/Kontur.Core/Events/Signals.cs
+index 8c00614..c1b305c 100644
+--- a/kontur-core/src/Kontur.Core/Events/Signals.cs
++++ b/kontur-core/src/Kontur.Core/Events/Signals.cs
+@@ -170,7 +170,6 @@ namespace Kontur.Core.Events
+ 	/// <summary>Существо опознано и добавлено в энциклопедию впервые.</summary>
+ 	public sealed record CreatureIdentified(string CreatureId) : IGameEvent;
+ 
+-	public sealed record ZoneStateChanged(string ZoneId, ZoneState OldState, ZoneState NewState, string Reason) : IGameEvent;
+ 
+ 	public sealed record EquipmentConsumed(string EquipmentId, string EquipmentName, int RemainingQuantity) : IGameEvent;
+ 
+diff --git a/kontur-core/src/Kontur.Core/Model/BuildingDefinition.cs b/kontur-core/src/Kontur.Core/Model/BuildingDefinition.cs
+index 1a38708..2eca1aa 100644
+--- a/kontur-core/src/Kontur.Core/Model/BuildingDefinition.cs
++++ b/kontur-core/src/Kontur.Core/Model/BuildingDefinition.cs
+@@ -3,10 +3,10 @@ namespace Kontur.Core.Model
+ 	/// <summary>
+ 	/// Дом на карте. Отвечает на вопрос «куда именно ткнуть метку», а не «что там происходит».
+ 	///
+-	/// Зона и здание — разные слои, и путать их не стоит. Зона — механика: штриховка,
+-	/// вес в подборе вызовов, надбавка к требованиям. Здание — точка на плане города,
+-	/// одна из тех, что нарисованы геометрией карты. У вызова есть и то, и другое:
+-	/// зона говорит, насколько там паршиво, здание — в какой подъезд едет группа.
++	/// Зона и здание — разные слои, и путать их не стоит. Зона — механика:
++	/// вес района в подборе вызовов. Здание — точка на плане города, одна из тех,
++	/// что нарисованы геометрией карты. У вызова есть и то, и другое: зона говорит,
++	/// откуда вызов, здание — в какой подъезд едет группа.
+ 	/// </summary>
+ 	public sealed class BuildingDefinition
+ 	{
+diff --git a/kontur-core/src/Kontur.Core/Model/MissionDefinition.cs b/kontur-core/src/Kontur.Core/Model/MissionDefinition.cs
+index c33d70b..623135e 100644
+--- a/kontur-core/src/Kontur.Core/Model/MissionDefinition.cs
++++ b/kontur-core/src/Kontur.Core/Model/MissionDefinition.cs
+@@ -87,6 +87,20 @@ namespace Kontur.Core.Model
+ 		/// </summary>
+ 		public StatKind? PrimaryStat { get; set; }
+ 
++		/// <summary>
++		/// Сколько человек можно отправить на этот вызов. По умолчанию один.
++		///
++		/// Это главный рычаг сложности, а не числа в порогах. Характеристики отряда
++		/// складываются, поэтому «сколько можно взять» и «насколько трудно» — один
++		/// и тот же вопрос: на вызов для одного порог должен закрывать специалист,
++		/// на вызов для двоих — только пара.
++		///
++		/// Единица по умолчанию намеренно. Без предела на любой вызов выгодно было бы
++		/// отправлять всех свободных, а потом обнаружить, что на следующий звонок
++		/// людей не осталось.
++		/// </summary>
++		public int SquadLimit { get; set; } = 1;
++
+ 		/// <summary>Время движения группы к месту (пунктирная линия на карте).</summary>
+ 		public double TravelSeconds { get; set; } = 12.0;
+ 
+diff --git a/kontur-core/src/Kontur.Core/Model/MissionEvent.cs b/kontur-core/src/Kontur.Core/Model/MissionEvent.cs
+index 1cd23ef..e23e63d 100644
+--- a/kontur-core/src/Kontur.Core/Model/MissionEvent.cs
++++ b/kontur-core/src/Kontur.Core/Model/MissionEvent.cs
+@@ -64,8 +64,6 @@ namespace Kontur.Core.Model
+ 		public double InjuryChanceMultiplier { get; set; } = 1.0;
+ 
+ 		/// <summary>Вариант «оцепить и закрыть район» — переводит зону в карантин (ДД, раздел 9).</summary>
+-		public bool AppliesQuarantine { get; set; }
+-
+ 		/// <summary>Дополнительное изменение шкал именно за этот выбор.</summary>
+ 		public ScaleDelta ExtraScales { get; set; } = ScaleDelta.Zero;
+ 
+diff --git a/kontur-core/src/Kontur.Core/Model/Zone.cs b/kontur-core/src/Kontur.Core/Model/Zone.cs
+index 895343e..f69c3d2 100644
+--- a/kontur-core/src/Kontur.Core/Model/Zone.cs
++++ b/kontur-core/src/Kontur.Core/Model/Zone.cs
+@@ -1,37 +1,22 @@
+ namespace Kontur.Core.Model
+ {
+-	/// <summary>Штриховка зоны на карте — механический слой (ДД, раздел 9).</summary>
+-	public enum ZoneState
+-	{
+-		Normal = 0,
+-
+-		/// <summary>Заражена: вызовы чаще и сложнее.</summary>
+-		Infected = 1,
+-
+-		/// <summary>Карантин: вызовы реже.</summary>
+-		Quarantine = 2,
+-
+-		/// <summary>Очищена/контролируется: вызовов почти нет.</summary>
+-		Cleared = 3
+-	}
+-
++	/// <summary>
++	/// Район города. Справочные данные: ядро их только читает.
++	///
++	/// Состояний у района нет намеренно. Штриховка (заражено / карантин / очищено)
++	/// была снята: она меняла и частоту вызовов, и пороги, из-за чего провал тянул
++	/// за собой ещё более тяжёлые вызовы в том же районе — спираль, из которой
++	/// игрок не выбирался. Частота задаётся статично через BaseWeight.
++	/// </summary>
+ 	public sealed class Zone
+ 	{
+ 		public string Id { get; set; } = string.Empty;
+ 
+ 		public string Name { get; set; } = string.Empty;
+ 
+-		public ZoneState State { get; set; } = ZoneState.Normal;
+-
+-		/// <summary>Базовый вес зоны в планировщике вызовов.</summary>
++		/// <summary>Вес района в планировщике вызовов. Задаётся контентом и не меняется.</summary>
+ 		public double BaseWeight { get; set; } = 1.0;
+ 
+-		/// <summary>Подряд успешных вызовов — накопление ведёт к переходу в Cleared.</summary>
+-		public int SuccessStreak { get; set; }
+-
+-		/// <summary>Подряд провалов — накопление ведёт к переходу в Infected.</summary>
+-		public int FailStreak { get; set; }
+-
+ 		/// <summary>Условная позиция на карте для отрисовки; ядру не нужна, но удобно прокидывать в UI.</summary>
+ 		public double MapX { get; set; }
+ 
+diff --git a/kontur-core/src/Kontur.Core/Persistence/SaveData.cs b/kontur-core/src/Kontur.Core/Persistence/SaveData.cs
+index 8a69b6d..191ad23 100644
+--- a/kontur-core/src/Kontur.Core/Persistence/SaveData.cs
++++ b/kontur-core/src/Kontur.Core/Persistence/SaveData.cs
+@@ -19,7 +19,12 @@ namespace Kontur.Core.Persistence
+ 		/// </summary>
+ 		public int Version { get; set; } = CurrentVersion;
+ 
+-		public const int CurrentVersion = 1;
++		/// <summary>
++		/// Версия 2: из снимка убраны состояния районов. Штриховку (заражено / карантин /
++		/// очищено) сняли вместе с механикой, и сохранения версии 1 несовместимы —
++		/// не потому, что поле лишнее, а потому что партия под ту механику балансировалась.
++		/// </summary>
++		public const int CurrentVersion = 2;
+ 
+ 		/// <summary>Метка времени в формате ISO — для списка сохранений в интерфейсе.</summary>
+ 		public string SavedAtUtc { get; set; } = string.Empty;
+@@ -47,8 +52,6 @@ namespace Kontur.Core.Persistence
+ 
+ 		public List<SavedEmployee> Roster { get; set; } = new List<SavedEmployee>();
+ 
+-		public List<SavedZone> Zones { get; set; } = new List<SavedZone>();
+-
+ 		public List<SavedStack> Inventory { get; set; } = new List<SavedStack>();
+ 
+ 		public List<string> Flags { get; set; } = new List<string>();
+@@ -114,18 +117,6 @@ namespace Kontur.Core.Persistence
+ 		public int AvailableFromDay { get; set; } = 1;
+ 	}
+ 
+-	public sealed class SavedZone
+-	{
+-		public string Id { get; set; } = string.Empty;
+-
+-		/// <summary>Имя значения ZoneState.</summary>
+-		public string State { get; set; } = "Normal";
+-
+-		public int SuccessStreak { get; set; }
+-
+-		public int FailStreak { get; set; }
+-	}
+-
+ 	public sealed class SavedStack
+ 	{
+ 		public string Id { get; set; } = string.Empty;
+diff --git a/kontur-core/src/Kontur.Core/Persistence/SaveSystem.cs b/kontur-core/src/Kontur.Core/Persistence/SaveSystem.cs
+index b2710aa..03a5745 100644
+--- a/kontur-core/src/Kontur.Core/Persistence/SaveSystem.cs
++++ b/kontur-core/src/Kontur.Core/Persistence/SaveSystem.cs
+@@ -91,17 +91,6 @@ namespace Kontur.Core.Persistence
+ 				data.Roster.Add(CaptureEmployee(state.Roster[i], 1));
+ 			}
+ 
+-			foreach (KeyValuePair<string, Zone> pair in state.Zones)
+-			{
+-				data.Zones.Add(new SavedZone
+-				{
+-					Id = pair.Value.Id,
+-					State = pair.Value.State.ToString(),
+-					SuccessStreak = pair.Value.SuccessStreak,
+-					FailStreak = pair.Value.FailStreak
+-				});
+-			}
+-
+ 			foreach (KeyValuePair<string, EquipmentStack> pair in state.Inventory.Stacks)
+ 			{
+ 				data.Inventory.Add(new SavedStack
+@@ -249,8 +238,8 @@ namespace Kontur.Core.Persistence
+ 				state.Roster.Add(RestoreEmployee(data.Roster[i]));
+ 			}
+ 
+-			// Зоны берутся из контента (там имя, вес, координаты), а из сохранения
+-			// накладывается только то, что игрок наиграл: штриховка и серии.
++			// Районы целиком берутся из контента: играть в них нечего, состояний у
++			// них больше нет, поэтому в сохранении их и не было смысла держать.
+ 			state.Zones.Clear();
+ 			foreach (KeyValuePair<string, Zone> pair in content.Zones)
+ 			{
+@@ -258,32 +247,12 @@ namespace Kontur.Core.Persistence
+ 				{
+ 					Id = pair.Value.Id,
+ 					Name = pair.Value.Name,
+-					State = pair.Value.State,
+ 					BaseWeight = pair.Value.BaseWeight,
+ 					MapX = pair.Value.MapX,
+ 					MapY = pair.Value.MapY
+ 				};
+ 			}
+ 
+-			for (int i = 0; i < data.Zones.Count; i++)
+-			{
+-				SavedZone savedZone = data.Zones[i];
+-				Zone? zone = state.FindZone(savedZone.Id);
+-				if (zone == null)
+-				{
+-					continue;
+-				}
+-
+-				ZoneState zoneState;
+-				if (Enum.TryParse<ZoneState>(savedZone.State, true, out zoneState))
+-				{
+-					zone.State = zoneState;
+-				}
+-
+-				zone.SuccessStreak = savedZone.SuccessStreak;
+-				zone.FailStreak = savedZone.FailStreak;
+-			}
+-
+ 			state.Inventory.Clear();
+ 			for (int i = 0; i < data.Inventory.Count; i++)
+ 			{
+diff --git a/kontur-core/src/Kontur.Core/Systems/IncidentScheduler.cs b/kontur-core/src/Kontur.Core/Systems/IncidentScheduler.cs
+index 7d27acc..fee13c0 100644
+--- a/kontur-core/src/Kontur.Core/Systems/IncidentScheduler.cs
++++ b/kontur-core/src/Kontur.Core/Systems/IncidentScheduler.cs
+@@ -9,21 +9,19 @@ namespace Kontur.Core.Systems
+ {
+ 	/// <summary>
+ 	/// Планирует расписание вызовов на смену (ДД, раздел 3, п. 13–14):
+-	/// 5–10 вызовов, окно приёма — 5 минут, зона выбирается по весу штриховки (раздел 9).
++	/// 5–10 вызовов, окно приёма — 5 минут, зона выбирается по своему весу (раздел 9).
+ 	/// Расписание строится один раз в начале смены — так прогон детерминирован и его легко логировать.
+ 	/// </summary>
+ 	public sealed class IncidentScheduler
+ 	{
+ 		private readonly ContentDatabase _content;
+ 		private readonly GameState _state;
+-		private readonly ZoneSystem _zoneSystem;
+ 		private readonly IRandomSource _random;
+ 
+-		public IncidentScheduler(ContentDatabase content, GameState state, ZoneSystem zoneSystem, IRandomSource random)
++		public IncidentScheduler(ContentDatabase content, GameState state, IRandomSource random)
+ 		{
+ 			_content = content;
+ 			_state = state;
+-			_zoneSystem = zoneSystem;
+ 			_random = random;
+ 		}
+ 
+@@ -209,14 +207,15 @@ namespace Kontur.Core.Systems
+ 
+ 		private MissionDefinition? PickMission(IReadOnlyList<MissionDefinition> pool, HashSet<string> usedThisShift)
+ 		{
+-			// Зона выбирается по весу штриховки, миссия — из числа привязанных к этой зоне.
++			// Зона выбирается по своему весу, миссия — из числа привязанных к этой зоне.
++			// Вес статичен: он задаёт характер района, а не реагирует на игру.
+ 			var zoneIds = new List<string>();
+ 			var weights = new List<double>();
+ 
+ 			foreach (KeyValuePair<string, Zone> pair in _state.Zones)
+ 			{
+ 				zoneIds.Add(pair.Key);
+-				weights.Add(_zoneSystem.GetSpawnWeight(pair.Value));
++				weights.Add(pair.Value.BaseWeight);
+ 			}
+ 
+ 			for (int attempt = 0; attempt < 8 && zoneIds.Count > 0; attempt++)
+diff --git a/kontur-core/src/Kontur.Core/Systems/MissionResolver.cs b/kontur-core/src/Kontur.Core/Systems/MissionResolver.cs
+index 712b134..66a1e5f 100644
+--- a/kontur-core/src/Kontur.Core/Systems/MissionResolver.cs
++++ b/kontur-core/src/Kontur.Core/Systems/MissionResolver.cs
+@@ -31,18 +31,14 @@ namespace Kontur.Core.Systems
+ 
+ 		public StatBlock ComputeEffectiveRequirements(
+ 			MissionDefinition mission,
+-			Zone? zone,
+-			ZoneSystem zoneSystem,
+ 			MissionEventOption? chosenOption,
+ 			int day)
+ 		{
++			// Единственный множитель — дневной. Район на пороги не влияет: штриховку
++			// сняли, потому что провал делал следующие вызовы в том же районе тяжелее,
++			// и отыграться становилось нечем.
+ 			double multiplier = _config.GetDay(day).RequirementMultiplier;
+ 
+-			if (zone != null)
+-			{
+-				multiplier *= zoneSystem.GetRequirementMultiplier(zone);
+-			}
+-
+ 			StatBlock requirements = mission.Requirements.Scale(multiplier);
+ 
+ 			// Вариант сужает проверку до тех характеристик, которые назвал текст: пороги
+diff --git a/kontur-core/src/Kontur.Core/Systems/ShiftDirector.cs b/kontur-core/src/Kontur.Core/Systems/ShiftDirector.cs
+index 1765518..b61d598 100644
+--- a/kontur-core/src/Kontur.Core/Systems/ShiftDirector.cs
++++ b/kontur-core/src/Kontur.Core/Systems/ShiftDirector.cs
+@@ -22,7 +22,6 @@ namespace Kontur.Core.Systems
+ 		private readonly IEventBus _bus;
+ 		private readonly IRandomSource _random;
+ 		private readonly ScalesSystem _scales;
+-		private readonly ZoneSystem _zones;
+ 		private readonly RosterSystem _roster;
+ 		private readonly EncyclopediaSystem _encyclopedia;
+ 		private readonly MissionResolver _resolver;
+@@ -53,7 +52,6 @@ namespace Kontur.Core.Systems
+ 			IEventBus bus,
+ 			IRandomSource random,
+ 			ScalesSystem scales,
+-			ZoneSystem zones,
+ 			RosterSystem roster,
+ 			EncyclopediaSystem encyclopedia,
+ 			MissionResolver resolver,
+@@ -64,7 +62,6 @@ namespace Kontur.Core.Systems
+ 			_bus = bus;
+ 			_random = random;
+ 			_scales = scales;
+-			_zones = zones;
+ 			_roster = roster;
+ 			_encyclopedia = encyclopedia;
+ 			_resolver = resolver;
+@@ -675,19 +672,12 @@ namespace Kontur.Core.Systems
+ 			_bus.Publish(new MissionResolved(outcome));
+ 			_scales.Apply(scaleDelta, reasonText);
+ 
+-			Zone? zone = _state.FindZone(incident.Mission.ZoneId);
+-			if (zone != null)
+-			{
+-				_zones.ApplyMissionResult(zone, false);
+-			}
+-
+ 			CloseIncident(incident, false);
+ 		}
+ 
+ 		private void ResolveMission(IncidentRuntime incident)
+ 		{
+ 			MissionDefinition mission = incident.Mission;
+-			Zone? zone = _state.FindZone(mission.ZoneId);
+ 
+ 			List<Employee> squad = ResolveSquad(incident);
+ 			List<EquipmentDefinition> equipment = ResolveEquipment(incident);
+@@ -695,8 +685,6 @@ namespace Kontur.Core.Systems
+ 
+ 			StatBlock requirements = _resolver.ComputeEffectiveRequirements(
+ 				mission,
+-				zone,
+-				_zones,
+ 				incident.ChosenOption,
+ 				_state.Day);
+ 
+@@ -741,16 +729,6 @@ namespace Kontur.Core.Systems
+ 			ReturnOrConsumeEquipment(incident, equipment, outcome);
+ 			_scales.Apply(delta, outcome.IsSuccess ? "успешный вызов" : "провал вызова");
+ 
+-			if (zone != null)
+-			{
+-				_zones.ApplyMissionResult(zone, outcome.IsSuccess);
+-
+-				if (incident.ChosenOption != null && incident.ChosenOption.AppliesQuarantine)
+-				{
+-					_zones.ApplyQuarantine(zone);
+-				}
+-			}
+-
+ 			_roster.GrantExperience(
+ 				outcome.EmployeeIds,
+ 				outcome.IsSuccess ? mission.ExperienceOnSuccess : mission.ExperienceOnFailure);
+@@ -1027,11 +1005,11 @@ namespace Kontur.Core.Systems
+ 			return null;
+ 		}
+ 
+-		/// <summary>Требования миссии с учётом дня, штриховки зоны и уже выбранного радио-варианта — для экрана отправки.</summary>
++		/// <summary>Требования миссии с учётом дня и уже выбранного радио-варианта — для экрана отправки.</summary>
+ 		public StatBlock GetCurrentRequirements(IncidentRuntime incident)
+ 		{
+-			Zone? zone = _state.FindZone(incident.Mission.ZoneId);
+-			return _resolver.ComputeEffectiveRequirements(incident.Mission, zone, _zones, incident.ChosenOption, _state.Day);
++			return _resolver.ComputeEffectiveRequirements(
++				incident.Mission, incident.ChosenOption, _state.Day);
+ 		}
+ 
+ 		/// <summary>
+@@ -1268,6 +1246,17 @@ namespace Kontur.Core.Systems
+ 				return CommandResult.Fail("Не выбран ни один сотрудник.");
+ 			}
+ 
++			// Сколько человек берёт вызов — решает автор миссии, а не игрок.
++			// Характеристики отряда складываются, поэтому без этого предела
++			// на любой вызов было бы выгодно отправлять всех свободных.
++			int squadLimit = incident.Mission.SquadLimit;
++			if (employeeIds.Count > squadLimit)
++			{
++				return CommandResult.Fail(squadLimit == 1
++					? "На этот вызов едет только один оперативник."
++					: $"На этот вызов можно отправить не больше {squadLimit}.");
++			}
++
+ 			var squad = new List<Employee>();
+ 			var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+ 
+diff --git a/kontur-core/src/Kontur.Core/Systems/ZoneSystem.cs b/kontur-core/src/Kontur.Core/Systems/ZoneSystem.cs
+deleted file mode 100644
+index 240865e..0000000
+--- a/kontur-core/src/Kontur.Core/Systems/ZoneSystem.cs
++++ /dev/null
+@@ -1,122 +0,0 @@
+-using Kontur.Core.Config;
+-using Kontur.Core.Events;
+-using Kontur.Core.Model;
+-
+-namespace Kontur.Core.Systems
+-{
+-	/// <summary>
+-	/// Штриховка зон (ДД, раздел 9). Обновляется сразу по итогу вызова,
+-	/// а не между сменами — поэтому живёт отдельной системой, а не в конце смены.
+-	/// </summary>
+-	public sealed class ZoneSystem
+-	{
+-		private readonly GameState _state;
+-		private readonly ZoneConfig _config;
+-		private readonly IEventBus _bus;
+-
+-		public ZoneSystem(GameState state, ZoneConfig config, IEventBus bus)
+-		{
+-			_state = state;
+-			_config = config;
+-			_bus = bus;
+-		}
+-
+-		/// <summary>Вес зоны в планировщике вызовов: заражённые чаще, карантин реже, очищенные почти никогда.</summary>
+-		public double GetSpawnWeight(Zone zone)
+-		{
+-			double stateWeight;
+-			switch (zone.State)
+-			{
+-				case ZoneState.Infected:
+-					stateWeight = _config.WeightInfected;
+-					break;
+-				case ZoneState.Quarantine:
+-					stateWeight = _config.WeightQuarantine;
+-					break;
+-				case ZoneState.Cleared:
+-					stateWeight = _config.WeightCleared;
+-					break;
+-				default:
+-					stateWeight = _config.WeightNormal;
+-					break;
+-			}
+-
+-			return zone.BaseWeight * stateWeight;
+-		}
+-
+-		/// <summary>Заражённая зона делает вызовы сложнее, очищенная — легче (ДД, раздел 9).</summary>
+-		public double GetRequirementMultiplier(Zone zone)
+-		{
+-			switch (zone.State)
+-			{
+-				case ZoneState.Infected:
+-					return _config.InfectedRequirementMultiplier;
+-				case ZoneState.Cleared:
+-					return _config.ClearedRequirementMultiplier;
+-				default:
+-					return 1.0;
+-			}
+-		}
+-
+-		public void ApplyMissionResult(Zone zone, bool isSuccess)
+-		{
+-			if (isSuccess)
+-			{
+-				zone.SuccessStreak++;
+-				zone.FailStreak = 0;
+-
+-				if (zone.State == ZoneState.Infected && zone.SuccessStreak >= _config.SuccessStreakToClear)
+-				{
+-					SetState(zone, ZoneState.Normal, "серия успехов в заражённом районе");
+-					zone.SuccessStreak = 0;
+-				}
+-				else if (zone.State == ZoneState.Normal && zone.SuccessStreak >= _config.SuccessStreakToClear)
+-				{
+-					SetState(zone, ZoneState.Cleared, "район взят под контроль");
+-					zone.SuccessStreak = 0;
+-				}
+-
+-				return;
+-			}
+-
+-			zone.FailStreak++;
+-			zone.SuccessStreak = 0;
+-
+-			if (zone.State == ZoneState.Cleared)
+-			{
+-				SetState(zone, ZoneState.Normal, "провал в контролируемом районе");
+-				zone.FailStreak = 0;
+-			}
+-			else if (zone.State != ZoneState.Infected && zone.FailStreak >= _config.FailStreakToInfect)
+-			{
+-				SetState(zone, ZoneState.Infected, "серия провалов");
+-				zone.FailStreak = 0;
+-			}
+-		}
+-
+-		/// <summary>Выбор игрока по радио может закрыть район на карантин.</summary>
+-		public void ApplyQuarantine(Zone zone)
+-		{
+-			if (zone.State == ZoneState.Quarantine)
+-			{
+-				return;
+-			}
+-
+-			SetState(zone, ZoneState.Quarantine, "решение оператора: карантин");
+-			zone.FailStreak = 0;
+-			zone.SuccessStreak = 0;
+-		}
+-
+-		public void SetState(Zone zone, ZoneState newState, string reason)
+-		{
+-			if (zone.State == newState)
+-			{
+-				return;
+-			}
+-
+-			ZoneState oldState = zone.State;
+-			zone.State = newState;
+-			_bus.Publish(new ZoneStateChanged(zone.Id, oldState, newState, reason));
+-		}
+-	}
+-}
+diff --git a/kontur-core/src/Kontur.Harness/AutoOperator.cs b/kontur-core/src/Kontur.Harness/AutoOperator.cs
+index 86bfe78..dcc31d9 100644
+--- a/kontur-core/src/Kontur.Harness/AutoOperator.cs
++++ b/kontur-core/src/Kontur.Harness/AutoOperator.cs
+@@ -146,7 +146,7 @@ namespace Kontur.Harness
+ 			// прогон встанет насмерть и это будет выглядеть как зависание ядра.
+ 			_sim.OpenDispatchScreen(incident.Id);
+ 
+-			List<string> squad = PickSquad(incident.Requirements);
++			List<string> squad = PickSquad(incident.Requirements, incident.SquadLimit);
+ 			if (squad.Count == 0)
+ 			{
+ 				_sim.CloseDispatchScreen(incident.Id);
+@@ -172,7 +172,7 @@ namespace Kontur.Harness
+ 		/// Берёт под каждый непокрытый порог того, кто добавляет больше всех, и копит сумму:
+ 		/// численность помогает, поэтому добор людей продолжается, пока пороги не закрыты.
+ 		/// </summary>
+-		private List<string> PickSquad(StatBlock requirements)
++		private List<string> PickSquad(StatBlock requirements, int squadLimit)
+ 		{
+ 			var available = new List<EmployeeView>();
+ 			IReadOnlyList<EmployeeView> roster = _sim.GetRoster();
+@@ -188,7 +188,11 @@ namespace Kontur.Harness
+ 			var picked = new List<string>();
+ 			StatBlock total = StatBlock.Zero;
+ 
+-			for (int i = 0; i < StatKinds.All.Length && picked.Count < MaxSquadSize; i++)
++			// Сколько можно взять, решает вызов, а не автопилот: MaxSquadSize —
++			// только верхняя планка на случай, если контент разрешит слишком много.
++			int limit = Math.Min(squadLimit, MaxSquadSize);
++
++			for (int i = 0; i < StatKinds.All.Length && picked.Count < limit; i++)
+ 			{
+ 				StatKind kind = StatKinds.All[i];
+ 				if (requirements[kind] <= 0 || total[kind] >= requirements[kind])
+@@ -219,7 +223,7 @@ namespace Kontur.Harness
+ 				total = total.Add(candidate.Stats);
+ 
+ 				// Порог мог остаться незакрытым: тогда берём ещё одного по той же характеристике.
+-				if (total[kind] < requirements[kind] && picked.Count < MaxSquadSize)
++				if (total[kind] < requirements[kind] && picked.Count < limit)
+ 				{
+ 					i--;
+ 				}
+diff --git a/kontur-core/src/Kontur.Harness/ConsoleEventLog.cs b/kontur-core/src/Kontur.Harness/ConsoleEventLog.cs
+index eb3a5c6..03886a7 100644
+--- a/kontur-core/src/Kontur.Harness/ConsoleEventLog.cs
++++ b/kontur-core/src/Kontur.Harness/ConsoleEventLog.cs
+@@ -183,9 +183,6 @@ namespace Kontur.Harness
+ 				case CreatureRevealed s:
+ 					return $"ЭНЦИКЛОПЕДИЯ: {s.CreatureId} — открыто свойство {s.PropertyId}";
+ 
+-				case ZoneStateChanged s:
+-					return $"КАРТА: зона {s.ZoneId} {s.OldState} -> {s.NewState} ({s.Reason})";
+-
+ 				case EquipmentConsumed s:
+ 					return _verbose ? $"Расход: {s.EquipmentName}, осталось {s.RemainingQuantity}" : null;
+ 
+diff --git a/kontur-core/src/Kontur.Harness/Program.cs b/kontur-core/src/Kontur.Harness/Program.cs
+index c943ac7..f995197 100644
+--- a/kontur-core/src/Kontur.Harness/Program.cs
++++ b/kontur-core/src/Kontur.Harness/Program.cs
+@@ -113,7 +113,6 @@ namespace Kontur.Harness
+ 				}
+ 
+ 				PrintRoster(simulation);
+-				PrintZones(simulation);
+ 
+ 				if (!gameOver && day < options.Days)
+ 				{
+@@ -163,18 +162,6 @@ namespace Kontur.Harness
+ 			}
+ 		}
+ 
+-		private static void PrintZones(KonturSimulation simulation)
+-		{
+-			Console.WriteLine("КАРТА:");
+-			IReadOnlyList<ZoneView> zones = simulation.GetZones();
+-			for (int i = 0; i < zones.Count; i++)
+-			{
+-				Console.WriteLine($"  {zones[i].Name,-22} {zones[i].State}");
+-			}
+-
+-			Console.WriteLine();
+-		}
+-
+ 		private static void PrintFinal(KonturSimulation simulation)
+ 		{
+ 			ShiftStatusView status = simulation.GetStatus();
+diff --git a/kontur-core/src/Kontur.Harness/SelfTest.cs b/kontur-core/src/Kontur.Harness/SelfTest.cs
+index 2b214ab..046c872 100644
+--- a/kontur-core/src/Kontur.Harness/SelfTest.cs
++++ b/kontur-core/src/Kontur.Harness/SelfTest.cs
+@@ -5,6 +5,7 @@ using Kontur.Core.Api;
+ using Kontur.Core.Content;
+ using Kontur.Core.Events;
+ using Kontur.Core.Model;
++using Kontur.Core.Persistence;
+ using Kontur.Core.Simulation;
+ using Kontur.Core.Systems;
+ 
+@@ -291,6 +292,23 @@ namespace Kontur.Harness
+ 			CommandResult empty = simulation.DispatchSquad(incidentId, new List<string>(), new List<string>());
+ 			Check("Пустая группа — отказ", !empty.IsSuccess);
+ 
++			// Слотов на вызове столько, сколько задал автор миссии. Проверяем,
++			// что на один больше уже не пролезает: иначе игроку выгодно возить
++			// весь отдел на каждый филлер, ведь характеристики складываются.
++			IncidentView? current = FindIncident(simulation, incidentId);
++			if (current != null && roster.Count > current.SquadLimit)
++			{
++				var сверхЛимита = new List<string>();
++				for (int i = 0; i <= current.SquadLimit && i < roster.Count; i++)
++				{
++					сверхЛимита.Add(roster[i].Id);
++				}
++
++				CommandResult tooMany = simulation.DispatchSquad(
++					incidentId, сверхЛимита, new List<string>());
++				Check("Группа сверх слотов миссии — отказ", !tooMany.IsSuccess);
++			}
++
+ 			CommandResult ok = simulation.DispatchSquad(incidentId, squad, new List<string>());
+ 			Check("Корректная отправка принимается", ok.IsSuccess);
+ 
+@@ -298,6 +316,20 @@ namespace Kontur.Harness
+ 			Check("Повторная отправка по тому же вызову — отказ", !twice.IsSuccess);
+ 		}
+ 
++		private static IncidentView? FindIncident(KonturSimulation simulation, string incidentId)
++		{
++			IReadOnlyList<IncidentView> incidents = simulation.GetActiveIncidents();
++			for (int i = 0; i < incidents.Count; i++)
++			{
++				if (incidents[i].Id == incidentId)
++				{
++					return incidents[i];
++				}
++			}
++
++			return null;
++		}
++
+ 		private static void TestStaffLimit(ContentDatabase content)
+ 		{
+ 			var simulation = new KonturSimulation(content, 17);
+@@ -712,7 +744,16 @@ namespace Kontur.Harness
+ 			Check("Пустой файл отклонён", !target.Load(string.Empty).IsSuccess);
+ 			Check("Мусор вместо JSON отклонён", !target.Load("{это не json").IsSuccess);
+ 
+-			string wrongVersion = json.Replace("\"Version\": 1", "\"Version\": 999");
++			// Номер версии берём из ядра, а не числом в тексте: с прошлым его подъёмом
++			// подстановка перестала находить строку, сохранение грузилось, и три
++			// проверки разом покраснели, хотя ломалась одна.
++			string wrongVersion = json.Replace(
++				$"\"Version\": {SaveData.CurrentVersion}", "\"Version\": 999");
++
++			// Если подстановка промахнулась, дальше проверялась бы не чужая версия,
++			// а обычное сохранение — и провал показал бы совсем не то, что сломалось.
++			Check("Подмена версии в JSON сработала", wrongVersion != json);
++
+ 			CommandResult versionResult = target.Load(wrongVersion);
+ 			Check("Чужая версия отклонена", !versionResult.IsSuccess);
+ 			Check(
+@@ -886,18 +927,16 @@ namespace Kontur.Harness
+ 			var option = new MissionEventOption { Id = "test", RequirementModifier = 2 };
+ 
+ 			var resolver = new MissionResolver(content, content.Config, new XorShiftRandom(1));
+-			var state = new GameState();
+-			var zones = new ZoneSystem(state, content.Config.Zones, new EventBus());
+ 			var mission = new MissionDefinition { Id = "m", Day = 1, Requirements = requirements };
+ 
+-			StatBlock scaled = resolver.ComputeEffectiveRequirements(mission, null, zones, option, 1);
++			StatBlock scaled = resolver.ComputeEffectiveRequirements(mission, option, 1);
+ 
+ 			Check("Надбавка прибавилась к требуемым характеристикам",
+ 				scaled[StatKind.Strength] == 10 && scaled[StatKind.Combat] == 6);
+ 			Check("Нетребуемые характеристики остались нулевыми",
+ 				scaled[StatKind.Intellect] == 0 && scaled[StatKind.Agility] == 0 && scaled[StatKind.Charisma] == 0);
+ 
+-			StatBlock plain = resolver.ComputeEffectiveRequirements(mission, null, zones, null, 1);
++			StatBlock plain = resolver.ComputeEffectiveRequirements(mission, null, 1);
+ 			Check("Без варианта требования не меняются", plain.Equals(requirements));
+ 		}
+ 
+diff --git a/scripts/debug/KonturDebugOverlay.cs b/scripts/debug/KonturDebugOverlay.cs
+index 351fe85..31d19d9 100644
+--- a/scripts/debug/KonturDebugOverlay.cs
++++ b/scripts/debug/KonturDebugOverlay.cs
+@@ -233,7 +233,9 @@ public partial class KonturDebugOverlay : CanvasLayer
+ 
+ 		AddDimLabel(_dispatchList, $"{selected.Id}   район: {selected.ZoneId}");
+ 		AddDimLabel(_dispatchList, "   " + StripBb(TierMark(selected)));
+-		AddSectionLabel(_dispatchList, "ОПЕРАТИВНИКИ");
++		AddSectionLabel(_dispatchList, selected.SquadLimit == 1
++			? "ОПЕРАТИВНИКИ (мест: 1)"
++			: $"ОПЕРАТИВНИКИ (мест: {selected.SquadLimit})");
+ 
+ 		int available = 0;
+ 		for (int i = 0; i < roster.Count; i++)
+@@ -871,7 +873,9 @@ public partial class KonturDebugOverlay : CanvasLayer
+ 
+ 		var squad = new List<string>();
+ 		IReadOnlyList<EmployeeView> roster = _runtime.Simulation.GetRoster();
+-		for (int i = 0; i < roster.Count && squad.Count < 3; i++)
++		// Слотов ровно столько, сколько разрешает миссия: с 3 «на глазок»
++		// быстрая отправка получала бы отказ на любом одиночном вызове.
++		for (int i = 0; i < roster.Count && squad.Count < incident.SquadLimit; i++)
+ 		{
+ 			if (roster[i].Status == EmployeeStatus.Available)
+ 			{
+diff --git a/tools/check-core.ps1 b/tools/check-core.ps1
+index 5ce50e9..ec261e5 100644
+--- a/tools/check-core.ps1
++++ b/tools/check-core.ps1
+@@ -126,6 +126,10 @@ foreach ($кандидат in @('python', 'py', 'python3')) {
+ 
+ if ($питон) {
+     Заголовок '0. Структурные проверки (без компилятора)'
++
++    # Python на Windows пишет в кодировке консоли, а не UTF-8, и кириллица
++    # в выводе превращается в кракозябры. Переменная лечит это на корню.
++    $env:PYTHONIOENCODING = 'utf-8'
+     Выполнить $питон @((Join-Path $PSScriptRoot 'lint-core.py')) | Out-Null
+ }
+ 

@@ -93,7 +93,7 @@ Returning (returnSeconds) ──► отчёт на компьютере ──�
                                                                     │
                                                     ┌───────────────┼───────────────┐
                                                     ▼               ▼               ▼
-                                            ScalesSystem   RosterSystem   EncyclopediaSystem …
+                                              ScalesSystem     ZoneSystem     RosterSystem …
                                                     │               │               │
   UI ◄──────────────────────────────────────────────┴───────────────┴───────────────┘
         события (Event Bus, только наружу)
