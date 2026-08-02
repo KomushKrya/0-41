@@ -1,8 +1,14 @@
+using System;
 using Godot;
 using System.Collections.Generic;
 
 public partial class DebugInterfaceOverlay : CanvasLayer
 {
+	public const string DebugOverlayGroup = "debug_interface_overlay";
+	private const int MaxRecentCoreEvents = 8;
+	public static bool IsInteractionRayDebugEnabled { get; private set; }
+	public static event Action<bool> InteractionRayDebugChanged;
+
 	[Export] public NodePath PanelPath { get; set; } = new("Panel");
 	[Export] public NodePath PreviewPath { get; set; } = new("Panel/MarginContainer/VBoxContainer/Preview");
 	[Export] public NodePath TitlePath { get; set; } = new("Panel/MarginContainer/VBoxContainer/Title");
@@ -30,10 +36,12 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 	private bool _isInteractionAreaDebugEnabled;
 	private bool _isMapLayoutDebugEnabled;
 	private bool _isSessionReadoutEnabled;
+	private bool _isInteractionRayReadoutEnabled;
 	private string _activeInterfaceName = "none";
 
 	public override void _Ready()
 	{
+		AddToGroup(DebugOverlayGroup);
 		_panel = GetNode<Control>(PanelPath);
 		_preview = GetNode<TextureRect>(PreviewPath);
 		_title = GetNode<Label>(TitlePath);
@@ -89,35 +97,50 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 
 	public override void _UnhandledInput(InputEvent @event)
 	{
-		if (@event is not InputEventKey keyEvent || !keyEvent.Pressed || keyEvent.Echo)
+		if (@event is InputEventKey keyEvent && HandleDebugKey(keyEvent))
 		{
-			return;
+			GetViewport().SetInputAsHandled();
+		}
+	}
+
+	/// <summary>
+	/// Обрабатывает клавиши от глобального диспетчера отладки. Оставлена также
+	/// для автономного запуска сцены, когда диспетчер ещё не добавлен в проект.
+	/// </summary>
+	public bool HandleDebugKey(InputEventKey keyEvent)
+	{
+		if (!keyEvent.Pressed || keyEvent.Echo)
+		{
+			return false;
 		}
 
 		if (keyEvent.Keycode == Key.F3)
 		{
 			SetDebugModeEnabled(!_isDebugModeEnabled);
-			GetViewport().SetInputAsHandled();
-			return;
+			return true;
 		}
 
 		if (keyEvent.Keycode == Key.F2)
 		{
 			SetSessionReadoutEnabled(!_isSessionReadoutEnabled);
-			GetViewport().SetInputAsHandled();
-			return;
+			return true;
+		}
+
+		if (keyEvent.Keycode == Key.F1)
+		{
+			SetInteractionRayReadoutEnabled(!_isInteractionRayReadoutEnabled);
+			return true;
 		}
 
 		if (!_isDebugModeEnabled)
 		{
-			return;
+			return false;
 		}
 
 		if (IsActiveViewportTextInputFocused() && keyEvent.Keycode is not Key.F2 and not Key.F3 and not Key.F4 and not Key.F5 and not Key.Escape)
 		{
 			_activeViewport.PushInput(keyEvent, true);
-			GetViewport().SetInputAsHandled();
-			return;
+			return true;
 		}
 
 		switch (keyEvent.Keycode)
@@ -144,10 +167,10 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 				CloseInterface();
 				break;
 			default:
-				return;
+				return false;
 		}
 
-		GetViewport().SetInputAsHandled();
+		return true;
 	}
 
 	private bool IsActiveViewportTextInputFocused()
@@ -185,6 +208,32 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 		}
 
 		UpdateText();
+	}
+
+	private void SetInteractionRayReadoutEnabled(bool isEnabled)
+	{
+		_isInteractionRayReadoutEnabled = isEnabled;
+		IsInteractionRayDebugEnabled = isEnabled;
+		InteractionRayDebugChanged?.Invoke(isEnabled);
+		_centerRayMarker.Visible = isEnabled;
+
+		if (isEnabled)
+		{
+			UpdateInteractionRayReadout();
+		}
+
+		UpdateText();
+	}
+
+	private void UpdateInteractionRayReadout()
+	{
+		if (_activeViewport == null)
+		{
+			return;
+		}
+
+		_sessionReadout.Visible = true;
+		_sessionReadout.Text = $"INTERACTION RAY\nVIEWPORT: {_activeInterfaceName}\nCURSOR: {_lastViewportMousePosition}";
 	}
 
 	private void UpdateSessionReadout()
@@ -479,6 +528,6 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 		string areasState = _isInteractionAreaDebugEnabled ? "areas:on" : "areas:off";
 		string layoutState = _isMapLayoutDebugEnabled ? "map-layout:on" : "map-layout:off";
 		_title.Text = $"DEBUG INTERFACE: {_activeInterfaceName} | {areasState} | {layoutState}";
-		_help.Text = "F2: session data and ray | F3: debug on/off | F4: interaction areas | F5: map layout | 1: PC | 2: MAP | 3: DOSSIER | 4: NOTEBOOK | Esc: close";
+		_help.Text = "F1: interaction ray + marker zones | F2: session data | F3: debug on/off | F4: interaction areas | F5: map layout | F6: core simulation | F12: noclip | 1: PC | 2: MAP | 3: DOSSIER | 4: NOTEBOOK | Esc: close";
 	}
 }

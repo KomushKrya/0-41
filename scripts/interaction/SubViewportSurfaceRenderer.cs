@@ -20,6 +20,7 @@ public partial class SubViewportSurfaceRenderer : Node
 		{
 			AlbedoColor = Colors.White,
 			AlbedoTexture = viewport.GetTexture(),
+			Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
 			EmissionEnabled = true,
 			EmissionTexture = viewport.GetTexture(),
 			EmissionEnergyMultiplier = EmissionEnergy,

@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3]
 
-[ext_resource type="PackedScene" path="res://assets/models/environment/import/PCNew.glb" id="1_model"]
+[ext_resource type="PackedScene" path="res://assets/PCNew.glb" id="1_model"]
 [ext_resource type="PackedScene" path="res://scenes/ui/computer/ComputerUI.tscn" id="2_ui"]
 [ext_resource type="Script" path="res://scripts/debug/NewComputerScreenPreview.cs" id="3_preview"]
 

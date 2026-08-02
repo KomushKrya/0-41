@@ -1,55 +1,94 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://cwp8v2448gsct"]
 
 [ext_resource type="PackedScene" path="res://scenes/ui/dossier/DossierUI.tscn" id="1_dossier_ui"]
-[ext_resource type="Script" path="res://scripts/interaction/InteractionOutline.cs" id="2_outline"]
-[ext_resource type="Script" path="res://scripts/interaction/OutlineOnlyInteractable.cs" id="3_interactable"]
-[ext_resource type="Script" path="res://scripts/interaction/SubViewportSurfaceRenderer.cs" id="4_surface_renderer"]
+[ext_resource type="Script" uid="uid://d0fbn8kr5taka" path="res://scripts/interaction/InteractionOutline.cs" id="2_outline"]
+[ext_resource type="Script" uid="uid://bg1h1jf7kjf0c" path="res://scripts/interaction/OutlineOnlyInteractable.cs" id="3_interactable"]
+[ext_resource type="Script" uid="uid://bc4fkppsr57vc" path="res://scripts/dossier/DossierDispatchController.cs" id="4_dispatch_controller"]
+[ext_resource type="Script" uid="uid://dlmg61l5jluns" path="res://scripts/dossier/OpenDossierSurfaceRenderer.cs" id="5_surface_renderer"]
+[ext_resource type="Shader" path="res://assets/shaders/DossierPageSlice.gdshader" id="6_page_shader"]
+[ext_resource type="Script" path="res://scripts/dossier/DossierInteractable.cs" id="7_interactable"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_folder_card"]
-albedo_color = Color(0.42, 0.31, 0.16, 1)
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_page_backing"]
+albedo_color = Color(0.31, 0.22, 0.12, 1)
+roughness = 0.88
 
-[sub_resource type="BoxMesh" id="BoxMesh_dossier_folder"]
-size = Vector3(0.21, 0.016, 0.297)
+[sub_resource type="BoxMesh" id="BoxMesh_page"]
+material = SubResource("StandardMaterial3D_page_backing")
+size = Vector3(0.208, 0.012, 0.297)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_dossier_folder"]
-size = Vector3(0.21, 0.016, 0.297)
+[sub_resource type="ViewportTexture" id="ViewportTexture_tmppy"]
+viewport_path = NodePath("DossierViewport")
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_dossier_surface"]
-size = Vector2(0.194, 0.281)
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_a7c7h"]
+render_priority = 0
+shader = ExtResource("6_page_shader")
+shader_parameter/dossier_texture = SubResource("ViewportTexture_tmppy")
+shader_parameter/page_offset = 0.0
+shader_parameter/emission_energy = 0.08
 
-[node name="EmployeeDossierFolder" type="Node3D" groups=["interactive"]]
+[sub_resource type="PlaneMesh" id="PlaneMesh_page_surface"]
+size = Vector2(0.198, 0.281)
 
-[node name="VisualRoot" type="Node3D" parent="."]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_uxehw"]
+render_priority = 0
+shader = ExtResource("6_page_shader")
+shader_parameter/dossier_texture = SubResource("ViewportTexture_tmppy")
+shader_parameter/page_offset = 0.5
+shader_parameter/emission_energy = 0.08
 
-[node name="FolderCover" type="MeshInstance3D" parent="VisualRoot"]
-material_override = SubResource("StandardMaterial3D_folder_card")
-mesh = SubResource("BoxMesh_dossier_folder")
+[sub_resource type="BoxShape3D" id="BoxShape3D_dossier"]
+size = Vector3(0.44, 0.06, 0.31)
 
-[node name="ViewportSurface" type="MeshInstance3D" parent="VisualRoot"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0085, 0)
-mesh = SubResource("PlaneMesh_dossier_surface")
+[node name="EmployeeDossierFolder" type="Node3D" unique_id=1960104668 groups=["employee_dossier", "interactive"]]
+script = ExtResource("4_dispatch_controller")
 
-[node name="InteractionOutline" type="Node" parent="."]
+[node name="VisualRoot" type="Node3D" parent="." unique_id=834980233]
+transform = Transform3D(1.8, 0, 0, 0, 1.8, 0, 0, 0, 1.8, 0, 0, 0)
+
+[node name="LeftPage" type="Node3D" parent="VisualRoot"]
+
+[node name="LeftPageBacking" type="MeshInstance3D" parent="VisualRoot/LeftPage" unique_id=1313609764]
+transform = Transform3D(0.9999999, 0, 0, 0, 1, 0, 0, 0, 0.9999999, -0.095, 0, 0)
+mesh = SubResource("BoxMesh_page")
+
+[node name="LeftPageSurface" type="MeshInstance3D" parent="VisualRoot/LeftPage" unique_id=726578067]
+transform = Transform3D(0.9999999, 0, 0, 0, 1, 0, 0, 0, 0.9999999, -0.095, 0.0085, 0)
+material_override = SubResource("ShaderMaterial_a7c7h")
+mesh = SubResource("PlaneMesh_page_surface")
+
+[node name="RightPage" type="Node3D" parent="VisualRoot"]
+
+[node name="RightPageBacking" type="MeshInstance3D" parent="VisualRoot/RightPage" unique_id=295868259]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.105, -1.6556847e-08, -0.0002606296)
+mesh = SubResource("BoxMesh_page")
+
+[node name="RightPageSurface" type="MeshInstance3D" parent="VisualRoot/RightPage" unique_id=1744914854]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.105, 0.008499984, -0.0002606296)
+material_override = SubResource("ShaderMaterial_uxehw")
+mesh = SubResource("PlaneMesh_page_surface")
+
+[node name="InteractionOutline" type="Node" parent="." unique_id=105995993]
 script = ExtResource("2_outline")
 VisualRootPath = NodePath("../VisualRoot")
 
-[node name="InteractionArea" type="Area3D" parent="."]
+[node name="InteractionArea" type="Area3D" parent="." unique_id=1526895471]
 collision_layer = 2
 collision_mask = 0
-script = ExtResource("3_interactable")
-Label = "Dossier"
+script = ExtResource("7_interactable")
+Label = "Open dossier"
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionArea"]
-shape = SubResource("BoxShape3D_dossier_folder")
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionArea" unique_id=1106573448]
+shape = SubResource("BoxShape3D_dossier")
 
-[node name="DossierViewport" type="SubViewport" parent="."]
+[node name="DossierViewport" type="SubViewport" parent="." unique_id=1715802355]
 disable_3d = true
-size = Vector2i(700, 990)
+size = Vector2i(1400, 900)
 render_target_update_mode = 4
 
-[node name="DossierUI" parent="DossierViewport" instance=ExtResource("1_dossier_ui")]
+[node name="DossierUI" parent="DossierViewport" unique_id=1218488742 instance=ExtResource("1_dossier_ui")]
 
-[node name="DossierSurfaceRenderer" type="Node" parent="."]
-script = ExtResource("4_surface_renderer")
-SurfacePath = NodePath("../VisualRoot/ViewportSurface")
-ViewportPath = NodePath("../DossierViewport")
+[node name="DossierSurfaceRenderer" type="Node" parent="." unique_id=1213189943]
+script = ExtResource("5_surface_renderer")
+PageShader = ExtResource("6_page_shader")
+LeftPagePath = NodePath("../VisualRoot/LeftPage/LeftPageSurface")
+RightPagePath = NodePath("../VisualRoot/RightPage/RightPageSurface")

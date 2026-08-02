@@ -2,16 +2,26 @@
 
 importer="texture"
 type="CompressedTexture2D"
+<<<<<<<< HEAD:scenes/debug/DossierComputerCameraPreview.png.import
+uid="uid://bs61dc5qexgfh"
+path="res://.godot/imported/DossierComputerCameraPreview.png-37d43bc5366c36cfb045ab72831751d1.ctex"
+========
 uid="uid://bpg0ax8rllwjx"
 path="res://.godot/imported/test_map.png-1f49188de0e15bbd03f416b7c077a954.ctex"
+>>>>>>>> main:assets/test_map.png.import
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
+<<<<<<<< HEAD:scenes/debug/DossierComputerCameraPreview.png.import
+source_file="res://scenes/debug/DossierComputerCameraPreview.png"
+dest_files=["res://.godot/imported/DossierComputerCameraPreview.png-37d43bc5366c36cfb045ab72831751d1.ctex"]
+========
 source_file="res://assets/test_map.png"
 dest_files=["res://.godot/imported/test_map.png-1f49188de0e15bbd03f416b7c077a954.ctex"]
+>>>>>>>> main:assets/test_map.png.import
 
 [params]
 

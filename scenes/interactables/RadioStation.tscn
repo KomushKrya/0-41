@@ -1,7 +1,8 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/interaction/InteractionOutline.cs" id="1_outline"]
-[ext_resource type="Script" path="res://scripts/interaction/OutlineOnlyInteractable.cs" id="2_interactable"]
+[ext_resource type="Script" path="res://scripts/radio/DeskRadio.cs" id="2_radio"]
+[ext_resource type="Script" path="res://scripts/radio/DeskRadioInteractable.cs" id="3_interactable"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_radio"]
 size = Vector3(0.491, 0.25, 0.709)
@@ -10,11 +11,19 @@ size = Vector3(0.491, 0.25, 0.709)
 size = Vector3(0.491, 0.25, 0.709)
 
 [node name="RadioStation" type="Node3D" groups=["interactive"]]
+script = ExtResource("2_radio")
 
 [node name="VisualRoot" type="Node3D" parent="."]
 
 [node name="RadioBody" type="MeshInstance3D" parent="VisualRoot"]
 mesh = SubResource("BoxMesh_radio")
+
+[node name="SignalLight" type="OmniLight3D" parent="VisualRoot"]
+visible = false
+position = Vector3(0, 0.16, 0)
+light_color = Color(0.38, 1, 0.48, 1)
+light_energy = 1.4
+omni_range = 0.75
 
 [node name="InteractionOutline" type="Node" parent="."]
 script = ExtResource("1_outline")
@@ -23,8 +32,7 @@ VisualRootPath = NodePath("../VisualRoot")
 [node name="InteractionArea" type="Area3D" parent="."]
 collision_layer = 2
 collision_mask = 0
-script = ExtResource("2_interactable")
-Label = "Radio"
+script = ExtResource("3_interactable")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionArea"]
 shape = SubResource("BoxShape3D_radio")

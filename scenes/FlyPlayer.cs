@@ -18,6 +18,7 @@ public partial class FlyPlayer : CharacterBody3D
 	public bool IsCameraTransitioning => _transitionKind != CameraTransitionKind.None;
 	public bool IsNoclipEnabled => _isNoclipEnabled;
 	public bool MovementEnabled { get; private set; } = true;
+	public event System.Action? FocusedViewReturned;
 
 	private Node3D _head = null!;
 	private RayCast3D _interactionRay = null!;
@@ -48,6 +49,7 @@ public partial class FlyPlayer : CharacterBody3D
 
 	public override void _Ready()
 	{
+		AddToGroup("debug_player");
 		_head = GetNode<Node3D>(HeadPath);
 		_interactionRay = GetNode<RayCast3D>(InteractionRayPath);
 		_defaultCollisionMask = CollisionMask;
@@ -58,13 +60,6 @@ public partial class FlyPlayer : CharacterBody3D
 	{
 		if (_transitionKind != CameraTransitionKind.None)
 		{
-			GetViewport().SetInputAsHandled();
-			return;
-		}
-
-		if (@event is InputEventKey keyEvent && keyEvent.Pressed && !keyEvent.Echo && keyEvent.Keycode == Key.F12)
-		{
-			SetNoclipEnabled(!_isNoclipEnabled);
 			GetViewport().SetInputAsHandled();
 			return;
 		}
@@ -98,7 +93,13 @@ public partial class FlyPlayer : CharacterBody3D
 			return;
 		}
 
-		if (@event.IsActionPressed("interact") && _hoveredInteractable != null && _hoveredInteractable.CanInteract(this))
+		bool isMarkerLeftClick = @event is InputEventMouseButton mouseButton
+			&& mouseButton.Pressed
+			&& mouseButton.ButtonIndex == MouseButton.Left
+			&& _hoveredInteractable is MapMissionMarkerInteractable;
+		if ((@event.IsActionPressed("interact") || isMarkerLeftClick)
+			&& _hoveredInteractable != null
+			&& _hoveredInteractable.CanInteract(this))
 		{
 			_hoveredInteractable.Interact(this);
 			GetViewport().SetInputAsHandled();
@@ -216,6 +217,12 @@ public partial class FlyPlayer : CharacterBody3D
 		_isNoclipEnabled = enabled;
 		CollisionMask = enabled ? 0u : _defaultCollisionMask;
 		GD.Print($"[KONTUR] Noclip: {(enabled ? "ON" : "OFF")}");
+	}
+
+	/// <summary>Глобальная отладочная команда F12.</summary>
+	public void ToggleNoclip()
+	{
+		SetNoclipEnabled(!_isNoclipEnabled);
 	}
 
 	public void ExitFocusedView()
@@ -350,12 +357,17 @@ public partial class FlyPlayer : CharacterBody3D
 		_head.Rotation = _transitionEndHeadRotation;
 		_pitch = 0.0f;
 
-		if (_transitionKind == CameraTransitionKind.Stand)
+		CameraTransitionKind completedTransition = _transitionKind;
+		if (completedTransition == CameraTransitionKind.Stand)
 		{
 			_isSeated = false;
 			_isViewFocused = false;
 		}
 
 		_transitionKind = CameraTransitionKind.None;
+		if (completedTransition == CameraTransitionKind.ReturnToSeat)
+		{
+			FocusedViewReturned?.Invoke();
+		}
 	}
 }

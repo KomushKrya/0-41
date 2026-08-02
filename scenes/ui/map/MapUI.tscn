@@ -1,21 +1,11 @@
-[gd_scene load_steps=4 format=3 uid="uid://b5yfoidtc831t"]
+[gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/MapBuildingEditor.cs" id="1_map_editor"]
 [ext_resource type="Script" path="res://scripts/ui/DashedRouteRenderer.cs" id="2_dashed_route"]
+[ext_resource type="PackedScene" path="res://scenes/ui/map/GeneratedMapGeometry.tscn" id="3_geometry"]
+[ext_resource type="PackedScene" path="res://scenes/ui/map/MapDispatchRoute.tscn" id="4_dispatch_route"]
 
-[sub_resource type="SystemFont" id="SystemFont_map"]
-font_names = PackedStringArray("Cascadia Mono", "Consolas", "Courier New")
-subpixel_positioning = 0
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_editor_panel"]
-bg_color = Color(0.66, 0.6, 0.45, 0.92)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.39, 0.31, 0.2, 0.82)
-
-[node name="MapUI" type="Control" unique_id=1965384022]
+[node name="MapUI" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -23,8 +13,20 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_map_editor")
+BuildingLayerPath = NodePath("MapLayers/GeneratedMapGeometry/BuildingLayer")
+RoadLayerPath = NodePath("MapLayers/GeneratedMapGeometry/RoadLayer")
+SelectionOutlinePath = NodePath("OverlayLayer/SelectionOutline")
+RouteRendererPath = NodePath("MapLayers/RouteLayer/RouteDashRenderer")
+MovingMarkerPath = NodePath("MapLayers/RouteLayer/MovingMarker")
+HeadquartersMarkerPath = NodePath("MapLayers/MarkerLayer/HeadquartersMarker")
+EffectLayerPath = NodePath("MapLayers/EffectLayer")
+PaperFramePath = NodePath("OverlayLayer/PaperFrame")
+HeadquartersBuildingName = "ImportedBuilding_569"
+HeadquartersBuildingId = "building_block_r04_c03"
+ShowHeadquartersLabel = false
+DispatchRouteScene = ExtResource("4_dispatch_route")
 
-[node name="Background" type="ColorRect" parent="." unique_id=1574098039]
+[node name="Background" type="ColorRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -32,88 +34,25 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0.72, 0.67, 0.54, 1)
+color = Color(0.72, 0.67, 0.54, 0)
 
 [node name="MapLayers" type="Control" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 48.0
-offset_top = 48.0
-offset_right = -48.0
-offset_bottom = -48.0
-grow_horizontal = 2
-grow_vertical = 2
+clip_contents = true
+layout_mode = 0
+offset_left = 47.1034
+offset_top = 117.292
+offset_right = 990.896
+offset_bottom = 663.708
 mouse_filter = 2
 
-[node name="BuildingLayer" type="Control" parent="MapLayers"]
-visible = false
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="Building_NorthWest" type="Polygon2D" parent="MapLayers/BuildingLayer"]
-color = Color(0.58, 0.54, 0.42, 1)
-polygon = PackedVector2Array(64, 64, 280, 64, 280, 296, 64, 296)
-
-[node name="Building_NorthCenter" type="Polygon2D" parent="MapLayers/BuildingLayer"]
-color = Color(0.63, 0.58, 0.45, 1)
-polygon = PackedVector2Array(376, 64, 552, 64, 552, 296, 376, 296)
-
-[node name="Building_NorthEast" type="Polygon2D" parent="MapLayers/BuildingLayer"]
-color = Color(0.56, 0.51, 0.4, 1)
-polygon = PackedVector2Array(648, 64, 864, 64, 864, 296, 648, 296)
-
-[node name="Building_SouthWest" type="Polygon2D" parent="MapLayers/BuildingLayer"]
-color = Color(0.6, 0.55, 0.43, 1)
-polygon = PackedVector2Array(64, 392, 280, 392, 280, 608, 64, 608)
-
-[node name="Building_SouthCenter" type="Polygon2D" parent="MapLayers/BuildingLayer"]
-color = Color(0.55, 0.51, 0.39, 1)
-polygon = PackedVector2Array(376, 392, 552, 392, 552, 608, 376, 608)
-
-[node name="Building_SouthEast" type="Polygon2D" parent="MapLayers/BuildingLayer"]
-color = Color(0.62, 0.57, 0.44, 1)
-polygon = PackedVector2Array(648, 392, 864, 392, 864, 608, 648, 608)
-
-[node name="RoadLayer" type="Control" parent="MapLayers"]
-visible = false
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="HorizontalStreet" type="Line2D" parent="MapLayers/RoadLayer"]
-points = PackedVector2Array(48, 344, 880, 344)
-width = 48.0
-default_color = Color(0.83, 0.78, 0.62, 1)
-joint_mode = 2
-begin_cap_mode = 2
-end_cap_mode = 2
-
-[node name="VerticalStreetWest" type="Line2D" parent="MapLayers/RoadLayer"]
-points = PackedVector2Array(328, 44, 328, 628)
-width = 48.0
-default_color = Color(0.83, 0.78, 0.62, 1)
-joint_mode = 2
-begin_cap_mode = 2
-end_cap_mode = 2
-
-[node name="VerticalStreetEast" type="Line2D" parent="MapLayers/RoadLayer"]
-points = PackedVector2Array(600, 44, 600, 628)
-width = 48.0
-default_color = Color(0.83, 0.78, 0.62, 1)
-joint_mode = 2
-begin_cap_mode = 2
-end_cap_mode = 2
+[node name="GeneratedMapGeometry" parent="MapLayers" instance=ExtResource("3_geometry")]
+custom_minimum_size = Vector2(377, 236)
+layout_mode = 0
+offset_left = -434.807
+offset_top = -186.949
+offset_right = -57.807
+offset_bottom = 49.051
+scale = Vector2(4.63819, 4.63819)
 
 [node name="RouteLayer" type="Control" parent="MapLayers"]
 layout_mode = 1
@@ -151,6 +90,17 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
+[node name="HeadquartersMarker" type="Label" parent="MapLayers/MarkerLayer"]
+visible = false
+z_index = 4
+custom_minimum_size = Vector2(94, 30)
+layout_mode = 0
+offset_right = 94.0
+offset_bottom = 30.0
+text = "HQ"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="EffectLayer" type="Control" parent="MapLayers"]
 layout_mode = 1
 anchors_preset = 15
@@ -179,6 +129,8 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="PaperFrame" type="Line2D" parent="OverlayLayer"]
+position = Vector2(-6.241381, 74.5)
+scale = Vector2(1.025862, 0.82291657)
 points = PackedVector2Array(52, 52, 972, 52, 972, 716, 52, 716, 52, 52)
 width = 4.0
 default_color = Color(0.42, 0.34, 0.22, 0.7)
@@ -193,78 +145,3 @@ default_color = Color(0.12, 0.2, 0.24, 0.9)
 joint_mode = 2
 begin_cap_mode = 2
 end_cap_mode = 2
-
-[node name="EditorPanel" type="PanelContainer" parent="OverlayLayer"]
-offset_left = 574.0
-offset_top = 540.0
-offset_right = 956.0
-offset_bottom = 704.0
-mouse_filter = 0
-theme_override_styles/panel = SubResource("StyleBoxFlat_editor_panel")
-
-[node name="MarginContainer" type="MarginContainer" parent="OverlayLayer/EditorPanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 10
-
-[node name="VBoxContainer" type="VBoxContainer" parent="OverlayLayer/EditorPanel/MarginContainer"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="SelectedLabel" type="Label" parent="OverlayLayer/EditorPanel/MarginContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.12, 0.09, 0.06, 1)
-theme_override_fonts/font = SubResource("SystemFont_map")
-theme_override_font_sizes/font_size = 18
-text = "ЗДАНИЕ: не выбрано"
-
-[node name="RoleLabel" type="Label" parent="OverlayLayer/EditorPanel/MarginContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.22, 0.15, 0.08, 1)
-theme_override_fonts/font = SubResource("SystemFont_map")
-theme_override_font_sizes/font_size = 18
-text = "ТИП: -"
-
-[node name="RoleButtonRow" type="HBoxContainer" parent="OverlayLayer/EditorPanel/MarginContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="ClearButton" type="Button" parent="OverlayLayer/EditorPanel/MarginContainer/VBoxContainer/RoleButtonRow"]
-custom_minimum_size = Vector2(58, 34)
-layout_mode = 2
-theme_override_fonts/font = SubResource("SystemFont_map")
-theme_override_font_sizes/font_size = 16
-text = "ПУСТО"
-
-[node name="HeadquartersButton" type="Button" parent="OverlayLayer/EditorPanel/MarginContainer/VBoxContainer/RoleButtonRow"]
-custom_minimum_size = Vector2(58, 34)
-layout_mode = 2
-theme_override_fonts/font = SubResource("SystemFont_map")
-theme_override_font_sizes/font_size = 16
-text = "ШТАБ"
-
-[node name="ObjectButton" type="Button" parent="OverlayLayer/EditorPanel/MarginContainer/VBoxContainer/RoleButtonRow"]
-custom_minimum_size = Vector2(68, 34)
-layout_mode = 2
-theme_override_fonts/font = SubResource("SystemFont_map")
-theme_override_font_sizes/font_size = 16
-text = "ОБЪЕКТ"
-
-[node name="RouteStatusLabel" type="Label" parent="OverlayLayer/EditorPanel/MarginContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.13, 0.07, 1)
-theme_override_fonts/font = SubResource("SystemFont_map")
-theme_override_font_sizes/font_size = 16
-text = "МАРШРУТ: назначь штаб и объект"
-
-[node name="RouteButtonRow" type="HBoxContainer" parent="OverlayLayer/EditorPanel/MarginContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="BuildRouteButton" type="Button" parent="OverlayLayer/EditorPanel/MarginContainer/VBoxContainer/RouteButtonRow"]
-custom_minimum_size = Vector2(136, 34)
-layout_mode = 2
-theme_override_fonts/font = SubResource("SystemFont_map")
-theme_override_font_sizes/font_size = 16
-text = "ПОСТРОИТЬ"

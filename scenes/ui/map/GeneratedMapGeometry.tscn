@@ -13,10 +13,12 @@ mouse_filter = 2
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=682178301]
 layout_mode = 0
-offset_left = -411.811
-offset_top = -181.10608
-offset_right = 1889.4495
-offset_bottom = 2174.8286
+offset_left = -19.0
+offset_top = -2.0
+offset_right = 358.0
+offset_bottom = 234.0
+mouse_filter = 2
+color = Color(0.72, 0.67, 0.54, 0)
 
 [node name="BuildingLayer" type="Control" parent="." unique_id=465485076]
 anchors_preset = 0
