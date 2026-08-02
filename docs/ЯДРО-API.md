@@ -139,6 +139,7 @@ using Kontur.Core.Model;    // StatBlock, IncidentPhase, EmployeeStatus, ScaleVa
 | `GetRadioOptions(id)` | всегда | — (снимок доступности вариантов) |
 | `SpendSkillPoint(employeeId, stat)` | есть нераспределённые очки | `EmployeeStatsChanged` |
 | `HireEmployee(candidateId, day)` | смена не идёт, лимит штата не исчерпан | `EmployeeHired` |
+| `ConfirmStartingRoster(ids)` | смена не идёт, состав ещё не собран | `EmployeeHired` на каждого |
 | `ForceEndShift()` | всегда | `ShiftEnded`, `HiringOpened` |
 | `ResetToNewGame()` | всегда | — (см. ниже) |
 | `Save(label)` | всегда, в том числе посреди смены | — (возвращает JSON) |
@@ -440,6 +441,8 @@ private void OnOutcomeClosed(string incidentId)
 | `GetAvailableEquipment()` | `EquipmentSlotView[]` | экран отправки |
 | `GetEncyclopedia()` | `EncyclopediaEntryView[]` | раздел энциклопедии |
 | `GetHireCandidates(day)` | `HireCandidateView[]` | экран найма между сменами |
+| `GetStartingChoice()` | `HireCandidateView[]` | экран стартового выбора |
+| `NeedsStartingChoice` | `bool` | показывать ли экран стартового выбора |
 | `GetReports()` | `MissionReport[]` | список отчётов |
 | `IsTimeFrozen` | `bool` | открыт экран, мир стоит |
 | `IsFlagSet(flag)` | `bool` | условные абзацы, ветвление контента |
@@ -945,3 +948,4 @@ if (_kontur.LoadFromSlot("slot1"))
 | Как выводить текст по id | `docs/ТЕКСТОВЫЕ-БОКСЫ.md` |
 | Схема .md для авторов | `content/raw/_system/Syntax/README.md` |
 | Как придумывать вызовы | `docs/КАК-ДЕЛАТЬ-МИССИИ.md` |
+| Меню, ролики, экраны найма | `docs/ЭКРАНЫ-И-ПОТОК.md` |
