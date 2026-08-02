@@ -136,8 +136,8 @@ def load_world(root: Path) -> dict:
 
 
 def squad_profile(members: list[dict]) -> dict:
-    """Профиль группы — ЛУЧШИЙ в отряде по каждой характеристике, а не сумма."""
-    return {stat: max((m["stats"].get(stat, 0) for m in members), default=0) for stat in STATS}
+    """Профиль группы — СУММА отряда по каждой характеристике."""
+    return {stat: sum(m["stats"].get(stat, 0) for m in members) for stat in STATS}
 
 
 def evaluate(requirements: dict, profile: dict, primary: str | None) -> tuple[list[dict], float, bool]:
@@ -254,14 +254,15 @@ def command_preview(args) -> int:
             )
             verdict = "АВТОУСПЕХ" if perfect else f"{score:.0%}"
 
-            open_options = [
-                o["id"] for o in text_options
-                if all(profile.get(k, 0) >= v for k, v in (o.get("requires") or {}).items())
+            # Варианты не запираются составом: показываем, чем каждый проверяется.
+            checks = [
+                f"{o['id']}({', '.join(STAT_RU[s].lower() for s in o.get('requires') or []) or 'без проверки'})"
+                for o in text_options
             ]
 
             line = f"  {label:22} {detail:46} → {verdict:>10}"
-            if event:
-                line += f"   варианты: {', '.join(open_options) if open_options else '—'}"
+            if event and checks:
+                line += f"   варианты: {', '.join(checks)}"
             print(line)
 
     print()

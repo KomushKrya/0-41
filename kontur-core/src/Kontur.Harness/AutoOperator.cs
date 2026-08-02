@@ -169,8 +169,8 @@ namespace Kontur.Harness
 		}
 
 		/// <summary>
-		/// Берёт под каждый порог того, кто его закрывает лучше всех. Сумма больше не помогает:
-		/// добирать людей имеет смысл только ради непокрытых характеристик.
+		/// Берёт под каждый непокрытый порог того, кто добавляет больше всех, и копит сумму:
+		/// численность помогает, поэтому добор людей продолжается, пока пороги не закрыты.
 		/// </summary>
 		private List<string> PickSquad(StatBlock requirements)
 		{
@@ -186,12 +186,12 @@ namespace Kontur.Harness
 			}
 
 			var picked = new List<string>();
-			StatBlock best = StatBlock.Zero;
+			StatBlock total = StatBlock.Zero;
 
 			for (int i = 0; i < StatKinds.All.Length && picked.Count < MaxSquadSize; i++)
 			{
 				StatKind kind = StatKinds.All[i];
-				if (requirements[kind] <= 0 || best[kind] >= requirements[kind])
+				if (requirements[kind] <= 0 || total[kind] >= requirements[kind])
 				{
 					continue;
 				}
@@ -216,13 +216,12 @@ namespace Kontur.Harness
 				}
 
 				picked.Add(candidate.Id);
-				for (int k = 0; k < StatKinds.All.Length; k++)
+				total = total.Add(candidate.Stats);
+
+				// Порог мог остаться незакрытым: тогда берём ещё одного по той же характеристике.
+				if (total[kind] < requirements[kind] && picked.Count < MaxSquadSize)
 				{
-					StatKind other = StatKinds.All[k];
-					if (candidate.Stats[other] > best[other])
-					{
-						best = best.With(other, candidate.Stats[other]);
-					}
+					i--;
 				}
 			}
 

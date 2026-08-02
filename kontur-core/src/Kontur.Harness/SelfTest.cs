@@ -91,7 +91,7 @@ namespace Kontur.Harness
 
 		/// <summary>
 		/// Сравнение профилей по модели Dispatch: пороги по каждой характеристике,
-		/// лучший в группе, три ступени оценки и двойной вес главной характеристики.
+		/// сумма группы, три ступени оценки и двойной вес главной характеристики.
 		/// </summary>
 		private static void TestStatMatchMath()
 		{
@@ -136,7 +136,7 @@ namespace Kontur.Harness
 
 			Check("Главная характеристика тянет процент вверх", withPrimary > withoutPrimary);
 
-			// Лучший в группе, а не сумма: трое слабых не заменяют одного сильного.
+			// Сумма группы, а не лучший: численность — такой же ресурс, как специалист.
 			var weakling = new Employee { Id = "w", BaseStats = new StatBlock(3, 3, 0, 0, 0) };
 			var specialist = new Employee { Id = "s", BaseStats = new StatBlock(8, 3, 0, 0, 0) };
 			var noGear = new List<EquipmentDefinition>();
@@ -146,8 +146,14 @@ namespace Kontur.Harness
 			StatBlock alone = resolver.ComputeSquadStats(
 				new List<Employee> { specialist }, noGear, null);
 
-			Check("Трое слабых не складываются", crowd[StatKind.Strength] == 3);
-			Check("Один специалист сильнее толпы", alone[StatKind.Strength] > crowd[StatKind.Strength]);
+			Check("Трое слабых складываются", crowd[StatKind.Strength] == 9);
+			Check("Толпа перевешивает одного специалиста", crowd[StatKind.Strength] > alone[StatKind.Strength]);
+
+			// Сумма считается по каждой характеристике отдельно: состав всё равно решает.
+			StatBlock mixed = resolver.ComputeSquadStats(
+				new List<Employee> { weakling, specialist }, noGear, null);
+			Check("Сумма идёт по каждой характеристике отдельно",
+				mixed[StatKind.Strength] == 11 && mixed[StatKind.Intellect] == 6);
 		}
 
 		private static void TestSuccessChanceCurve()

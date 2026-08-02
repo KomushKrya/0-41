@@ -427,7 +427,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 			builder.Append("[color=").Append(colour).Append(']')
 				.Append(match.IsPrimary ? "★ " : "  ")
 				.Append(StatKinds.GetDisplayName(match.Stat))
-				.Append(' ').Append(match.Best).Append(" / ").Append(match.Required);
+				.Append(' ').Append(match.Available).Append(" / ").Append(match.Required);
 
 			if (match.Shortfall > 0)
 			{

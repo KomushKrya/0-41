@@ -74,15 +74,15 @@ namespace Kontur.Core.Systems
 		}
 
 		/// <summary>
-		/// Профиль группы: **лучшее значение в отряде по каждой характеристике**, а не сумма.
+		/// Профиль группы: **сумма характеристик отряда**.
 		///
-		/// Порог «Интеллект 6» закрывает тот, у кого интеллект не ниже шести. Трое
-		/// невнимательных не заменяют одного глазастого — поэтому состав собирают под
-		/// требования вызова, а не по принципу «отправить всех, кто свободен».
+		/// Порог «Интеллект 9» закрывают трое по три так же, как один с девяткой: миссию
+		/// тянет группа целиком, и численность — такой же ресурс, как отдельный специалист.
+		/// Поэтому отправить больше людей действительно помогает, а состав решает, чем
+		/// именно группа сильна.
 		///
-		/// Перки считаются частью профиля своего владельца: «+2 к силе против перекожников»
-		/// поднимает силу того, кто этим перком владеет, а не всей группы. Снаряжение
-		/// наоборот выдаётся на группу и добавляется поверх лучшего.
+		/// Способности считаются по каждому сотруднику отдельно и входят в сумму,
+		/// снаряжение наоборот выдаётся на группу и добавляется поверх суммы один раз.
 		/// </summary>
 		public StatBlock ComputeSquadStats(
 			IReadOnlyList<Employee> squad,
@@ -101,7 +101,7 @@ namespace Kontur.Core.Systems
 				equipmentIds.Add(equipment[i].Id);
 			}
 
-			StatBlock best = StatBlock.Zero;
+			StatBlock total = StatBlock.Zero;
 
 			for (int i = 0; i < squad.Count; i++)
 			{
@@ -117,32 +117,16 @@ namespace Kontur.Core.Systems
 					}
 				}
 
-				best = i == 0 ? profile : Max(best, profile);
+				total = total.Add(profile);
 			}
 
 			// Снаряжение действует на группу целиком (ДД, раздел 6).
 			for (int i = 0; i < equipment.Count; i++)
 			{
-				best = best.Add(equipment[i].GetEffectiveBonus());
+				total = total.Add(equipment[i].GetEffectiveBonus());
 			}
 
-			return best;
-		}
-
-		private static StatBlock Max(StatBlock left, StatBlock right)
-		{
-			StatBlock result = left;
-
-			for (int i = 0; i < StatKinds.All.Length; i++)
-			{
-				StatKind kind = StatKinds.All[i];
-				if (right[kind] > result[kind])
-				{
-					result = result.With(kind, right[kind]);
-				}
-			}
-
-			return result;
+			return total;
 		}
 
 		/// <summary>
@@ -168,8 +152,8 @@ namespace Kontur.Core.Systems
 					continue;
 				}
 
-				int best = squadStats[kind];
-				int margin = best - required;
+				int available = squadStats[kind];
+				int margin = available - required;
 
 				StatMatchRating rating;
 				double score;
@@ -191,7 +175,7 @@ namespace Kontur.Core.Systems
 				}
 
 				bool isPrimary = primaryStat.HasValue && primaryStat.Value == kind;
-				results.Add(new StatMatch(kind, required, best, isPrimary, rating, score));
+				results.Add(new StatMatch(kind, required, available, isPrimary, rating, score));
 			}
 
 			return results;
