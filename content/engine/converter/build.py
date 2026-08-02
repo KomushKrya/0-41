@@ -54,10 +54,13 @@ TYPE_FIELDS = {
 # radio — вызов с вмешательством игрока, filler — одна проверка характеристик.
 CALL_MISSION_TYPES = ("radio", "filler")
 
-# Виджет нижнего текста: кусок должен влезать примерно в две строки. Энциклопедия
-# и отчёты рендерятся на своих экранах и под ограничение не попадают.
-BOTTOM_TEXT_TYPES = ("call", "cutscene")
+# Виджет нижнего текста: кусок должен влезать примерно в две строки. Всё остальное —
+# энциклопедия, отчёты, звонки — рендерится на своих экранах, где абзац уместен.
+BOTTOM_TEXT_TYPES = ("cutscene",)
 DEFAULT_MAX_CHUNK_CHARS = 150
+
+# Шапка «откуда звонок» бывает только у звонка: это отдельный блок, а не реплика.
+CALL_META_TYPES = ("call",)
 
 KNOWN_STATUSES = ("draft", "ready")
 
@@ -70,7 +73,8 @@ DEV_BLOCK_RE = re.compile(r"%%\s*dev\s*%%.*?%%\s*/\s*dev\s*%%", re.DOTALL)
 DEV_INLINE_RE = re.compile(r"[ \t]*%%\s*dev:[^\n]*?%%")
 DEV_TAG_RE = re.compile(r"%%\s*(/?)\s*dev\s*%%")
 DEV_LEFTOVER_RE = re.compile(r"%%\s*/?\s*dev\b")
-# Шапка звонка. Едет отдельным kind, чтобы виджет рендерил её не как реплику.
+# Шапка звонка: откуда звонят и кто на линии. Едет отдельным kind, чтобы интерфейс
+# отделил её от реплик — это не то, что говорит человек в трубке.
 CALL_META_RE = re.compile(r"^%%\s*call_meta:\s*(.+?)\s*%%$")
 REVEAL_OPEN_RE = re.compile(r"^%%\s*reveal:\s*([^\s%]+)\s*%%$")
 REVEAL_CLOSE_RE = re.compile(r"^%%\s*/\s*reveal\s*%%$")
@@ -492,12 +496,11 @@ def parse_file(path: Path, expected_type: str, repo_root: Path) -> dict:
             "filler — вызов, который решается одной проверкой характеристик)"
         )
 
-    if expected_type not in BOTTOM_TEXT_TYPES:
+    if expected_type not in CALL_META_TYPES:
         for chunk in all_chunks(entry):
             if chunk["kind"] == CHUNK_KIND_CALL_META:
                 raise BuildFailed(
-                    f"{path}: %% call_meta %% рендерится только виджетом нижнего текста, "
-                    f"а тип {expected_type!r} показывается на своём экране"
+                    f"{path}: %% call_meta %% — шапка звонка, у типа {expected_type!r} её быть не может"
                 )
 
     if expected_type == "call":
@@ -676,7 +679,7 @@ def collect_long_chunks(entries: list[dict], limit: int) -> list[str]:
             continue
 
         for index, chunk in enumerate(entry["chunks"], start=1):
-            # Шапка звонка живёт в своём узле, ограничение на две строки к ней не относится.
+            # Шапка живёт в своём узле и под ограничение реплики не попадает.
             if chunk["kind"] == CHUNK_KIND_CALL_META or len(chunk["text"]) <= limit:
                 continue
 

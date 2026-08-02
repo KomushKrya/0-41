@@ -73,7 +73,10 @@ public abstract partial class ContentTextBox : Control
 	/// <summary>Куски в порядке файла, уже без скрытых. Пустой список, если записи нет.</summary>
 	protected IReadOnlyList<ContentChunk> Chunks => _chunks;
 
-	/// <summary>Шапка звонка (kind: call_meta) без квадратных скобок. Пустая строка, если её нет.</summary>
+	/// <summary>
+	/// Шапка звонка (kind: call_meta) без квадратных скобок — откуда звонок и кто на линии.
+	/// Показывается отдельно от реплик. Пустая строка, если её нет.
+	/// </summary>
 	protected string CallMeta { get; private set; } = string.Empty;
 
 	public bool IsLoaded => Entry != null;

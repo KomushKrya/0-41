@@ -33,7 +33,10 @@ public sealed class ContentChunk
 	/// <summary>Обычная реплика или абзац.</summary>
 	public const string KindText = "text";
 
-	/// <summary>Шапка звонка — [ЗВОНОК ПЕРЕНАПРАВЛЕН ...], рендерится отдельно.</summary>
+	/// <summary>
+	/// Шапка звонка — [ЗВОНОК ПЕРЕНАПРАВЛЕН ...]: откуда звонят и кто на линии.
+	/// Свой kind, чтобы интерфейс отделил её от реплик: это не слова собеседника.
+	/// </summary>
 	public const string KindCallMeta = "call_meta";
 
 	public const string HighlightColor = "#d27253";
