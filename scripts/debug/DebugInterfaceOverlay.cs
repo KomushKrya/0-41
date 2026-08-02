@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 public partial class DebugInterfaceOverlay : CanvasLayer
 {
+	public const string DebugOverlayGroup = "debug_interface_overlay";
 	private const int MaxRecentCoreEvents = 8;
 	public static bool IsInteractionRayDebugEnabled { get; private set; }
 	public static event Action<bool> InteractionRayDebugChanged;
@@ -40,6 +41,7 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 
 	public override void _Ready()
 	{
+		AddToGroup(DebugOverlayGroup);
 		_panel = GetNode<Control>(PanelPath);
 		_preview = GetNode<TextureRect>(PreviewPath);
 		_title = GetNode<Label>(TitlePath);
@@ -95,42 +97,50 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 
 	public override void _UnhandledInput(InputEvent @event)
 	{
-		if (@event is not InputEventKey keyEvent || !keyEvent.Pressed || keyEvent.Echo)
+		if (@event is InputEventKey keyEvent && HandleDebugKey(keyEvent))
 		{
-			return;
+			GetViewport().SetInputAsHandled();
+		}
+	}
+
+	/// <summary>
+	/// Обрабатывает клавиши от глобального диспетчера отладки. Оставлена также
+	/// для автономного запуска сцены, когда диспетчер ещё не добавлен в проект.
+	/// </summary>
+	public bool HandleDebugKey(InputEventKey keyEvent)
+	{
+		if (!keyEvent.Pressed || keyEvent.Echo)
+		{
+			return false;
 		}
 
 		if (keyEvent.Keycode == Key.F3)
 		{
 			SetDebugModeEnabled(!_isDebugModeEnabled);
-			GetViewport().SetInputAsHandled();
-			return;
+			return true;
 		}
 
 		if (keyEvent.Keycode == Key.F2)
 		{
 			SetSessionReadoutEnabled(!_isSessionReadoutEnabled);
-			GetViewport().SetInputAsHandled();
-			return;
+			return true;
 		}
 
 		if (keyEvent.Keycode == Key.F1)
 		{
 			SetInteractionRayReadoutEnabled(!_isInteractionRayReadoutEnabled);
-			GetViewport().SetInputAsHandled();
-			return;
+			return true;
 		}
 
 		if (!_isDebugModeEnabled)
 		{
-			return;
+			return false;
 		}
 
 		if (IsActiveViewportTextInputFocused() && keyEvent.Keycode is not Key.F2 and not Key.F3 and not Key.F4 and not Key.F5 and not Key.Escape)
 		{
 			_activeViewport.PushInput(keyEvent, true);
-			GetViewport().SetInputAsHandled();
-			return;
+			return true;
 		}
 
 		switch (keyEvent.Keycode)
@@ -157,10 +167,10 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 				CloseInterface();
 				break;
 			default:
-				return;
+				return false;
 		}
 
-		GetViewport().SetInputAsHandled();
+		return true;
 	}
 
 	private bool IsActiveViewportTextInputFocused()

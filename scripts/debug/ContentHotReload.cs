@@ -13,6 +13,7 @@ using Godot;
 /// </summary>
 public partial class ContentHotReload : Node
 {
+	public static ContentHotReload Instance { get; private set; }
 	private const string ConverterPath = "res://content/engine/converter/build.py";
 
 	/// <summary>
@@ -39,6 +40,7 @@ public partial class ContentHotReload : Node
 
 	public override void _Ready()
 	{
+		Instance = this;
 		if (!OS.IsDebugBuild())
 		{
 			SetProcess(false);
@@ -57,6 +59,14 @@ public partial class ContentHotReload : Node
 		_stamp = LocaleStamp();
 		_pendingStamp = _stamp;
 		GD.Print($"[текст] горячая перезагрузка включена: {OS.GetKeycodeString(RebuildKey)} — пересборка, папка локализации под наблюдением");
+	}
+
+	public override void _ExitTree()
+	{
+		if (Instance == this)
+		{
+			Instance = null;
+		}
 	}
 
 	public override void _Process(double delta)

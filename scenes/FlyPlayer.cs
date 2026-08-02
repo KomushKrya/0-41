@@ -49,6 +49,7 @@ public partial class FlyPlayer : CharacterBody3D
 
 	public override void _Ready()
 	{
+		AddToGroup("debug_player");
 		_head = GetNode<Node3D>(HeadPath);
 		_interactionRay = GetNode<RayCast3D>(InteractionRayPath);
 		_defaultCollisionMask = CollisionMask;
@@ -59,13 +60,6 @@ public partial class FlyPlayer : CharacterBody3D
 	{
 		if (_transitionKind != CameraTransitionKind.None)
 		{
-			GetViewport().SetInputAsHandled();
-			return;
-		}
-
-		if (@event is InputEventKey keyEvent && keyEvent.Pressed && !keyEvent.Echo && keyEvent.Keycode == Key.F12)
-		{
-			SetNoclipEnabled(!_isNoclipEnabled);
 			GetViewport().SetInputAsHandled();
 			return;
 		}
@@ -210,6 +204,12 @@ public partial class FlyPlayer : CharacterBody3D
 		_isNoclipEnabled = enabled;
 		CollisionMask = enabled ? 0u : _defaultCollisionMask;
 		GD.Print($"[KONTUR] Noclip: {(enabled ? "ON" : "OFF")}");
+	}
+
+	/// <summary>Глобальная отладочная команда F12.</summary>
+	public void ToggleNoclip()
+	{
+		SetNoclipEnabled(!_isNoclipEnabled);
 	}
 
 	public void ExitFocusedView()

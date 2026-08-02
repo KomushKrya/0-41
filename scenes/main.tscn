@@ -319,7 +319,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.58, 0.82, 0.6, 1)
 theme_override_fonts/font = SubResource("SystemFont_terminal")
 theme_override_font_sizes/font_size = 18
-text = "F2: session data and ray | F3: debug on/off | F4: interaction areas | F5: map layout | F6: core simulation | 1: PC | 2: MAP | 3: DOSSIER | 4: NOTEBOOK | Esc: close"
+text = "F1: interaction ray | F2: session data | F3: interface debug | F4: interaction areas | F5: map layout | F6: core simulation | F9: content reload | F11: load main scene | F12: noclip | 1: PC | 2: MAP | 3: DOSSIER | 4: NOTEBOOK | Esc: close"
 autowrap_mode = 2
 
 [node name="SessionReadout" type="Label" parent="DebugInterfaceOverlay" unique_id=1494613994]

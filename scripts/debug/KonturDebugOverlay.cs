@@ -16,9 +16,9 @@ using Kontur.Core.Model;
 /// </summary>
 public partial class KonturDebugOverlay : CanvasLayer
 {
+	public const string DebugOverlayGroup = "kontur_debug_overlay";
 	private const int MaxLogLines = 200;
 
-	[Export] public Key ToggleKey { get; set; } = Key.F6;
 	[Export] public PackedScene RadioDecisionScene { get; set; } = null!;
 
 	private KonturRuntime _runtime;
@@ -46,6 +46,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 
 	public override void _Ready()
 	{
+		AddToGroup(DebugOverlayGroup);
 		Layer = 100;
 
 		BuildUi();
@@ -70,29 +71,16 @@ public partial class KonturDebugOverlay : CanvasLayer
 		AppendLog("Ядро подключено. Нажмите «Смена 1».");
 	}
 
-	public override void _Input(InputEvent @event)
+	/// <summary>Открывает или закрывает панель независимо от текущей сцены.</summary>
+	public void Toggle()
 	{
-		if (@event is not InputEventKey keyEvent
-			|| !keyEvent.Pressed
-			|| keyEvent.Echo
-			|| keyEvent.Keycode != ToggleKey)
-		{
-			return;
-		}
-
-		if (_radioDecisionPreview != null && _radioDecisionPreview.Visible)
-		{
-			if (keyEvent.Keycode == Key.Escape)
-			{
-				CloseRadioDecisionPreview();
-				GetViewport().SetInputAsHandled();
-			}
-
-			return;
-		}
-
 		SetOpen(!_isOpen);
-		GetViewport().SetInputAsHandled();
+	}
+
+	/// <summary>Открывает панель после перехода на debug-сцену.</summary>
+	public void Open()
+	{
+		SetOpen(true);
 	}
 
 	public override void _Process(double delta)
