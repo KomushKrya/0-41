@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using Kontur.Core.Model;
+
 namespace Kontur.Core.Content
 {
 	/// <summary>
@@ -6,8 +9,13 @@ namespace Kontur.Core.Content
 	/// полезно знать, — существует ли то, на что ссылаются геймплейные данные, чтобы
 	/// опечатка в id падала при загрузке, а не оборачивалась пустым экраном на смене.
 	///
-	/// Реализация живёт на стороне движка (GodotTextCatalog). Если каталог не передан,
-	/// ContentLoader эти проверки пропускает — так ядро остаётся запускаемым без Godot.
+	/// Плюс одно исключение: у вариантов решения на выезде числовая часть живёт
+	/// в тексте (`requirement_modifier`, `quality`, `requires`), потому что автор правит её вместе
+	/// с формулировкой варианта. Каталог отдаёт эти числа — но не сами формулировки.
+	///
+	/// Реализация живёт на стороне движка (GodotTextCatalog) либо читает собранный
+	/// JSON напрямую (JsonTextCatalog) — так ядро остаётся запускаемым без Godot.
+	/// Если каталог не передан, ContentLoader эти проверки пропускает.
 	/// </summary>
 	public interface ITextCatalog
 	{
@@ -16,5 +24,47 @@ namespace Kontur.Core.Content
 
 		/// <summary>Есть ли внутри записи условный блок под это свойство (%% reveal %%).</summary>
 		bool HasProperty(string entryId, string propertyId);
+
+		/// <summary>
+		/// Варианты решения у записи типа mission_event, в порядке файла.
+		/// Пустой список, если записи нет или вариантов у неё нет.
+		/// </summary>
+		IReadOnlyList<TextOption> GetOptions(string entryId);
+	}
+
+	/// <summary>
+	/// Вариант решения глазами ядра: ключ, тип и числа, без единого слова прозы.
+	/// Формулировку по этому же ключу возьмёт интерфейс.
+	/// </summary>
+	public sealed class TextOption
+	{
+		public TextOption(
+			string id,
+			MissionEventQuality quality,
+			int? requirementModifier,
+			StatBlock requirements)
+		{
+			Id = id;
+			Quality = quality;
+			RequirementModifier = requirementModifier;
+			Requirements = requirements;
+		}
+
+		public string Id { get; }
+
+		/// <summary>Хороший, нейтральный или плохой. Задаёт умолчания и проверяется на сборке.</summary>
+		public MissionEventQuality Quality { get; }
+
+		/// <summary>
+		/// Надбавка к сложности: +N к каждой требуемой характеристике миссии.
+		/// null — автор не писал число, берётся умолчание по типу диалога.
+		/// </summary>
+		public int? RequirementModifier { get; }
+
+		/// <summary>
+		/// Порог, ниже которого вариант закрыт. Сравнивается с суммой характеристик
+		/// уже отправленной группы — состав решает, какие решения останутся доступны.
+		/// </summary>
+		public StatBlock Requirements { get; }
 	}
 }

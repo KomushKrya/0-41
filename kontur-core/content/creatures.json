@@ -24,27 +24,15 @@
 		]
 	},
 	{
-		"id": "creature_hum",
+		"id": "creature_kanalotvar",
 		"tags": [
-			"гул"
-		],
-		"illustrationId": "art_hum",
-		"properties": [
-			"property_hum_crowd",
-			"property_hum_plugs",
-			"property_hum_channel"
-		]
-	},
-	{
-		"id": "creature_simulacre",
-		"tags": [
-			"симулякр"
+			"каналотварь"
 		],
 		"illustrationId": "",
 		"properties": [
-			"property_simulacre_speech",
-			"property_simulacre_unpredictable",
-			"property_simulacre_survival"
+			"property_kanalotvar_water",
+			"property_kanalotvar_lure",
+			"property_kanalotvar_sound"
 		]
 	}
 ]

@@ -63,12 +63,12 @@ border_width_bottom = 2
 border_color = Color(0.72, 1, 0.76, 1)
 
 [node name="NotebookUI" type="Control"]
-layout_mode = 0
-offset_left = 2.0
-offset_top = 233.0
-offset_right = 1026.0
-offset_bottom = 1001.0
-scale = Vector2(0.68, 0.68)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1_notebook_bars")
 
 [node name="Background" type="ColorRect" parent="."]

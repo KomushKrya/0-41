@@ -34,17 +34,5 @@
 			"property_kanalotvar_lure",
 			"property_kanalotvar_sound"
 		]
-	},
-	{
-		"id": "creature_simulacre",
-		"tags": [
-			"симулякр"
-		],
-		"illustrationId": "",
-		"properties": [
-			"property_simulacre_speech",
-			"property_simulacre_unpredictable",
-			"property_simulacre_survival"
-		]
 	}
 ]

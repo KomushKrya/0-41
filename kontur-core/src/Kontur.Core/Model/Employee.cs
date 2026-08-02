@@ -27,6 +27,15 @@ namespace Kontur.Core.Model
 
 		public string PortraitId { get; set; } = string.Empty;
 
+		/// <summary>
+		/// Архетип, из которого собран сотрудник. Пусто у прописанных вручную.
+		///
+		/// На механику не влияет вообще: нужен, чтобы интерфейс мог подобрать реплики
+		/// или набор портретов под типаж, а отладка — понять, почему характеристики
+		/// разложились именно так.
+		/// </summary>
+		public string ArchetypeId { get; set; } = string.Empty;
+
 		public StatBlock BaseStats { get; set; } = StatBlock.Zero;
 
 		public List<string> AbilityIds { get; } = new List<string>();
@@ -74,6 +83,7 @@ namespace Kontur.Core.Model
 				Level = Level,
 				RankTitle = RankTitle,
 				PortraitId = PortraitId,
+				ArchetypeId = ArchetypeId,
 				BaseStats = BaseStats,
 				Experience = Experience,
 				UnspentSkillPoints = UnspentSkillPoints,

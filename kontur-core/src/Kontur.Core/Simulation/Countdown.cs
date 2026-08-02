@@ -30,6 +30,18 @@ namespace Kontur.Core.Simulation
 			return new Countdown(durationSeconds);
 		}
 
+		/// <summary>
+		/// Восстановить таймер из сохранения: не с начала, а с той секунды, на которой
+		/// игрок сохранился. Иначе загрузка посреди звонка дарила бы полные 15 секунд.
+		/// </summary>
+		public static Countdown Restore(double duration, double remaining, bool isRunning)
+		{
+			var countdown = new Countdown(duration);
+			countdown.Remaining = remaining < 0.0 ? 0.0 : remaining;
+			countdown.IsRunning = isRunning;
+			return countdown;
+		}
+
 		/// <summary>Возвращает true ровно один раз — в тик, когда таймер истёк.</summary>
 		public bool Tick(double delta)
 		{

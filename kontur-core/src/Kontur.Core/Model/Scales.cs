@@ -10,32 +10,6 @@ namespace Kontur.Core.Model
 		Loyalty = 2
 	}
 
-	public static class ScaleKinds
-	{
-		public static readonly ScaleKind[] All =
-		{
-			ScaleKind.Infection,
-			ScaleKind.Publicity,
-			ScaleKind.Loyalty
-		};
-
-		/// <summary>
-		/// Id шкалы — он же id записи контента с её названием и сноской
-		/// (content/raw/UI/hover_footnote/scales). Названий ядро не знает: что написано
-		/// на блокноте оператора, решает интерфейс и локаль.
-		/// </summary>
-		public static string GetId(ScaleKind kind)
-		{
-			switch (kind)
-			{
-				case ScaleKind.Infection: return "infection";
-				case ScaleKind.Publicity: return "publicity";
-				case ScaleKind.Loyalty: return "loyalty";
-				default: return kind.ToString().ToLowerInvariant();
-			}
-		}
-	}
-
 	public readonly struct ScaleValues
 	{
 		public ScaleValues(double infection, double publicity, double loyalty)
@@ -77,7 +51,7 @@ namespace Kontur.Core.Model
 		{
 			return string.Format(
 				System.Globalization.CultureInfo.InvariantCulture,
-				"infection {0:0.#} / publicity {1:0.#} / loyalty {2:0.#}",
+				"Заражение {0:0.#} / Гласность {1:0.#} / Лояльность {2:0.#}",
 				Infection,
 				Publicity,
 				Loyalty);
@@ -131,7 +105,7 @@ namespace Kontur.Core.Model
 		{
 			return string.Format(
 				System.Globalization.CultureInfo.InvariantCulture,
-				"[infection {0:+0.#;-0.#;0} | publicity {1:+0.#;-0.#;0} | loyalty {2:+0.#;-0.#;0}]",
+				"[Зар {0:+0.#;-0.#;0} | Глас {1:+0.#;-0.#;0} | Лоял {2:+0.#;-0.#;0}]",
 				Infection,
 				Publicity,
 				Loyalty);
