@@ -82,8 +82,8 @@
 	},
 	{
 	  "day": 4,
-	  "minCalls": 0,
-	  "maxCalls": 0,
+	  "minCalls": 6,
+	  "maxCalls": 9,
 	  "requirementMultiplier": 1.5,
 	  "consumablesPerShift": 5,
 	  "standardPerShift": 2,
