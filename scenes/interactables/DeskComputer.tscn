@@ -50,6 +50,7 @@ ScreenNodeName = "Plane"
 script = ExtResource("4_viewport_input")
 ViewportPath = NodePath("../ComputerViewport")
 CursorPath = NodePath("../ComputerViewport/ComputerUI/ComputerCursor")
+CursorBoundsPath = NodePath("../ComputerViewport/ComputerUI/SafeArea")
 
 [node name="InteractionOutline" type="Node" parent="." unique_id=1991097361]
 script = ExtResource("5_outline")

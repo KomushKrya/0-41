@@ -18,6 +18,7 @@ public partial class FlyPlayer : CharacterBody3D
 	public bool IsCameraTransitioning => _transitionKind != CameraTransitionKind.None;
 	public bool IsNoclipEnabled => _isNoclipEnabled;
 	public bool MovementEnabled { get; private set; } = true;
+	public event System.Action? FocusedViewReturned;
 
 	private Node3D _head = null!;
 	private RayCast3D _interactionRay = null!;
@@ -343,12 +344,17 @@ public partial class FlyPlayer : CharacterBody3D
 		_head.Rotation = _transitionEndHeadRotation;
 		_pitch = 0.0f;
 
-		if (_transitionKind == CameraTransitionKind.Stand)
+		CameraTransitionKind completedTransition = _transitionKind;
+		if (completedTransition == CameraTransitionKind.Stand)
 		{
 			_isSeated = false;
 			_isViewFocused = false;
 		}
 
 		_transitionKind = CameraTransitionKind.None;
+		if (completedTransition == CameraTransitionKind.ReturnToSeat)
+		{
+			FocusedViewReturned?.Invoke();
+		}
 	}
 }

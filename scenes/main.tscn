@@ -20,6 +20,7 @@
 [ext_resource type="Script" uid="uid://d0fbn8kr5taka" path="res://scripts/interaction/InteractionOutline.cs" id="26_outline"]
 [ext_resource type="Script" uid="uid://db0evcj3y5u80" path="res://scripts/interaction/ScreenSpaceOutlineManager.cs" id="27_screen_space_outline"]
 [ext_resource type="PackedScene" path="res://scenes/ui/radio/RadioDecisionUI.tscn" id="28_radio_decision"]
+[ext_resource type="PackedScene" path="res://scenes/ui/radio/PhoneCallAcceptanceUI.tscn" id="32_phone_acceptance"]
 [ext_resource type="Texture2D" uid="uid://bsqhl7x2m70kl" path="res://assets/textures/Паркет.png" id="29_floor_texture"]
 [ext_resource type="Texture2D" uid="uid://h66b0t7w1i2p" path="res://assets/textures/Стена с панелями.png" id="30_wall_texture"]
 [ext_resource type="Texture2D" uid="uid://bt1u08fsb82kw" path="res://assets/textures/окно.png" id="31_window_texture"]
@@ -242,7 +243,7 @@ transform = Transform3D(0.97184837, 0, 0.23560765, 0, 1, 0, -0.23560765, 0, 0.97
 transform = Transform3D(-0.035289623, 0, -0.49875316, 0, 0.5, 0, 0.49875316, 0, -0.035289623, 1.0997958, 0.42790103, -0.26877475)
 
 [node name="DebugInterfaceOverlay" type="CanvasLayer" parent="." unique_id=687672162]
-layer = 100
+layer = 1000
 script = ExtResource("9_debug_overlay")
 PcViewportPath = NodePath("../Desk/DeskComputer/ComputerViewport")
 MapViewportPath = NodePath("../WallMap/MapViewport")
@@ -405,6 +406,12 @@ collide_with_areas = true
 layer = 200
 
 [node name="RadioDecisionUI" parent="RadioDecisionLayer" unique_id=2098048432 instance=ExtResource("28_radio_decision")]
+visible = false
+
+[node name="PhoneCallAcceptanceLayer" type="CanvasLayer" parent="."]
+layer = 190
+
+[node name="PhoneCallAcceptanceUI" parent="PhoneCallAcceptanceLayer" instance=ExtResource("32_phone_acceptance")]
 visible = false
 
 [node name="CoatRack" parent="." unique_id=1203847236 groups=["visual_only"] instance=ExtResource("14_0ld40")]

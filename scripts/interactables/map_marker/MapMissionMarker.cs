@@ -76,7 +76,29 @@ public partial class MapMissionMarker : Node3D
 			return;
 		}
 
-		computer.EnterComputerMode(player);
+		GameRuntime runtime = GameRuntime.Get(this);
+		if (runtime == null || !runtime.IsReady)
+		{
+			GD.PushWarning("MapMissionMarker: GameRuntime is not ready.");
+			return;
+		}
+
+		var opened = runtime.Session.OpenDispatchScreen(_pin.IncidentId);
+		if (!opened.IsSuccess)
+		{
+			GD.PushWarning($"MapMissionMarker: {opened.Error}");
+			return;
+		}
+
+		bool resumeSimulationAfterExit = !runtime.IsPaused;
+		runtime.IsPaused = true;
+		computer.EnterDispatchMode(player, _pin.IncidentId, () =>
+		{
+			if (resumeSimulationAfterExit)
+			{
+				runtime.IsPaused = false;
+			}
+		});
 	}
 
 	public void ShowDispatchCountdown(double remainingSeconds, double durationSeconds)

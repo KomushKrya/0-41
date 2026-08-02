@@ -58,6 +58,6 @@ script = ExtResource("4_surface_renderer")
 SurfacePath = NodePath("../VisualRoot/ViewportSurface")
 ViewportPath = NodePath("../MapViewport")
 
-[node name="MapMarkerController" type="Node" parent="."]
+[node name="MapMarkerController" type="Node" parent="." groups=["map_marker_controller"]]
 script = ExtResource("6_marker_controller")
 MapMissionMarkerScene = ExtResource("5_map_pin")

@@ -13,6 +13,7 @@ using Kontur.Core.Model;
 public partial class DeskPhone : Node3D
 {
 	[Export] public NodePath RingLightPath { get; set; } = new("VisualRoot/RingLight");
+	[Export] public NodePath PhoneCallAcceptanceUiPath { get; set; } = new("../../PhoneCallAcceptanceLayer/PhoneCallAcceptanceUI");
 
 	private readonly List<string> _ringingIncidentIds = new();
 	private IDisposable _incidentCreatedSubscription = null!;
@@ -20,12 +21,14 @@ public partial class DeskPhone : Node3D
 	private IDisposable _callMissedSubscription = null!;
 	private IDisposable _shiftEndedSubscription = null!;
 	private OmniLight3D _ringLight = null!;
+	private PhoneCallAcceptanceUI _callAcceptanceUi = null!;
 
 	public bool IsRinging => _ringingIncidentIds.Count > 0;
 
 	public override void _Ready()
 	{
 		_ringLight = GetNode<OmniLight3D>(RingLightPath);
+		_callAcceptanceUi = GetNode<PhoneCallAcceptanceUI>(PhoneCallAcceptanceUiPath);
 		SetRingingVisual(false);
 
 		GameRuntime runtime = GameRuntime.Get(this);
@@ -67,12 +70,25 @@ public partial class DeskPhone : Node3D
 			return false;
 		}
 
+		if (_callAcceptanceUi.Visible)
+		{
+			return true;
+		}
+
 		while (_ringingIncidentIds.Count > 0)
 		{
 			string incidentId = _ringingIncidentIds[0];
-			CommandResult result = runtime.Session.AnswerCall(incidentId);
-			if (result.IsSuccess)
+			IncidentView incident = FindIncident(runtime, incidentId);
+			if (incident != null && incident.Phase == IncidentPhase.Ringing)
 			{
+				string description = $"Входящий вызов от: {incident.CallerName}.\n"
+					+ $"Инцидент: {incident.Title}.\n\n"
+					+ "Подтвердите принятие вызова, чтобы открыть задание на карте.";
+				_callAcceptanceUi.ShowCallAcceptance(
+					"ВХОДЯЩИЙ ВЫЗОВ",
+					description,
+					null,
+					() => ConfirmAnswer(runtime, incidentId));
 				return true;
 			}
 
@@ -82,6 +98,28 @@ public partial class DeskPhone : Node3D
 		SetRingingVisual(false);
 		error = "Нет входящих звонков.";
 		return false;
+	}
+
+	private static IncidentView FindIncident(GameRuntime runtime, string incidentId)
+	{
+		foreach (IncidentView incident in runtime.Session.GetActiveIncidents())
+		{
+			if (incident.Id == incidentId)
+			{
+				return incident;
+			}
+		}
+
+		return null!;
+	}
+
+	private void ConfirmAnswer(GameRuntime runtime, string incidentId)
+	{
+		CommandResult result = runtime.Session.AnswerCall(incidentId);
+		if (!result.IsSuccess)
+		{
+			GD.PushWarning($"DeskPhone: {result.Error}");
+		}
 	}
 
 	private void OnIncidentCreated(IncidentCreated incident)

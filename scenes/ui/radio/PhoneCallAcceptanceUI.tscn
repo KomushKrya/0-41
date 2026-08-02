@@ -1,0 +1,225 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/phone/PhoneCallAcceptanceUI.cs" id="1_phone_ui"]
+[ext_resource type="Shader" path="res://assets/shaders/PhoneCallBackgroundBlur.gdshader" id="2_background_blur"]
+
+[sub_resource type="SystemFont" id="SystemFont_terminal"]
+font_names = PackedStringArray("Cascadia Mono", "Consolas", "Courier New")
+subpixel_positioning = 0
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_frame"]
+bg_color = Color(0.012, 0.025, 0.018, 0.97)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.24, 0.64, 0.38, 0.82)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+shadow_color = Color(0, 0, 0, 0.72)
+shadow_size = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_illustration"]
+bg_color = Color(0.006, 0.018, 0.012, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.15, 0.38, 0.23, 0.78)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_confirm"]
+bg_color = Color(0.04, 0.13, 0.07, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.33, 0.74, 0.42, 0.85)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_background_blur"]
+shader = ExtResource("2_background_blur")
+shader_parameter/blur_radius_pixels = 7.0
+
+[node name="PhoneCallAcceptanceUI" type="Control"]
+custom_minimum_size = Vector2(960, 540)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+script = ExtResource("1_phone_ui")
+
+[node name="PreviousScreenBlur" type="ColorRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+z_index = -1
+material = SubResource("ShaderMaterial_background_blur")
+color = Color(1, 1, 1, 1)
+
+[node name="BackdropShade" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.16)
+
+[node name="ContentFrame" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 0
+anchor_left = 0.23
+anchor_top = 0.22
+anchor_right = 0.77
+anchor_bottom = 0.75
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBox_frame")
+
+[node name="Header" type="Label" parent="ContentFrame"]
+layout_mode = 1
+anchors_preset = 0
+anchor_left = 0.06
+anchor_top = 0.07
+anchor_right = 0.94
+anchor_bottom = 0.16
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.65, 1, 0.72, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 18
+text = "К.О.Н.Т.У.Р.-Д  /  ТЕЛЕФОННАЯ ЛИНИЯ"
+horizontal_alignment = 1
+
+[node name="Divider" type="ColorRect" parent="ContentFrame"]
+layout_mode = 1
+anchors_preset = 0
+anchor_left = 0.06
+anchor_top = 0.2
+anchor_right = 0.94
+anchor_bottom = 0.205
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.22, 0.58, 0.35, 0.55)
+
+[node name="IllustrationPanel" type="Panel" parent="ContentFrame"]
+layout_mode = 1
+anchors_preset = 0
+anchor_left = 0.065
+anchor_top = 0.27
+anchor_right = 0.39
+anchor_bottom = 0.88
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBox_illustration")
+
+[node name="Illustration" type="TextureRect" parent="ContentFrame/IllustrationPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+mouse_filter = 2
+
+[node name="Placeholder" type="Label" parent="ContentFrame/IllustrationPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.25, 0.52, 0.33, 0.8)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 16
+text = "[ ИЛЛЮСТРАЦИЯ\n  ВЫЗОВА ]"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CallTitle" type="Label" parent="ContentFrame"]
+layout_mode = 1
+anchors_preset = 0
+anchor_left = 0.45
+anchor_top = 0.29
+anchor_right = 0.93
+anchor_bottom = 0.42
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.78, 1, 0.8, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 23
+text = "ВХОДЯЩИЙ ВЫЗОВ"
+autowrap_mode = 2
+
+[node name="Description" type="Label" parent="ContentFrame"]
+layout_mode = 1
+anchors_preset = 0
+anchor_left = 0.45
+anchor_top = 0.48
+anchor_right = 0.93
+anchor_bottom = 0.66
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.75, 0.9, 0.77, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 15
+text = "Тестовое описание вызова."
+autowrap_mode = 2
+
+[node name="ConfirmButton" type="Button" parent="ContentFrame"]
+layout_mode = 1
+anchors_preset = 0
+anchor_left = 0.45
+anchor_top = 0.74
+anchor_right = 0.93
+anchor_bottom = 0.88
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.78, 1, 0.8, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBox_confirm")
+text = "ПОДТВЕРДИТЬ ПРИНЯТИЕ ВЫЗОВА"
+
+[node name="PausedHint" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 0
+anchor_left = 0.23
+anchor_top = 0.78
+anchor_right = 0.77
+anchor_bottom = 0.82
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.56, 0.8, 0.61, 0.86)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 13
+text = "СИМУЛЯЦИЯ ПРИОСТАНОВЛЕНА  •  ОЖИДАЕТСЯ ПОДТВЕРЖДЕНИЕ"
+horizontal_alignment = 1
