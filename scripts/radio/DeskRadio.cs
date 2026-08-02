@@ -17,7 +17,7 @@ public partial class DeskRadio : Node3D
 	private readonly Dictionary<string, RadioTriggered> _pendingRequests = new(StringComparer.OrdinalIgnoreCase);
 	private OmniLight3D _signalLight = null!;
 	private RadioDecisionUI _decisionUi = null!;
-	private GameRuntime _runtime = null!;
+	private KonturRuntime _runtime = null!;
 	private IDisposable _radioTriggeredSubscription = null!;
 	private IDisposable _radioMissedSubscription = null!;
 	private IDisposable _radioChosenSubscription = null!;
@@ -31,17 +31,17 @@ public partial class DeskRadio : Node3D
 		_decisionUi = GetNode<RadioDecisionUI>(RadioDecisionUiPath);
 		SetActiveVisual(false);
 
-		_runtime = GameRuntime.Get(this);
+		_runtime = KonturRuntime.Get(this);
 		if (_runtime == null || !_runtime.IsReady)
 		{
-			GD.PushWarning("DeskRadio: GameRuntime is not ready; radio requests are disabled.");
+			GD.PushWarning("DeskRadio: KonturRuntime is not ready; radio requests are disabled.");
 			return;
 		}
 
-		_radioTriggeredSubscription = _runtime.Session.Events.Subscribe<RadioTriggered>(OnRadioTriggered);
-		_radioMissedSubscription = _runtime.Session.Events.Subscribe<RadioMissed>(radio => RemoveRequest(radio.IncidentId));
-		_radioChosenSubscription = _runtime.Session.Events.Subscribe<RadioOptionChosen>(radio => RemoveRequest(radio.IncidentId));
-		_shiftEndedSubscription = _runtime.Session.Events.Subscribe<ShiftEnded>(_ => ClearRequests());
+		_radioTriggeredSubscription = _runtime.Simulation.Events.Subscribe<RadioTriggered>(OnRadioTriggered);
+		_radioMissedSubscription = _runtime.Simulation.Events.Subscribe<RadioMissed>(radio => RemoveRequest(radio.IncidentId));
+		_radioChosenSubscription = _runtime.Simulation.Events.Subscribe<RadioOptionChosen>(radio => RemoveRequest(radio.IncidentId));
+		_shiftEndedSubscription = _runtime.Simulation.Events.Subscribe<ShiftEnded>(_ => ClearRequests());
 		RefreshActiveVisual();
 	}
 
@@ -74,7 +74,7 @@ public partial class DeskRadio : Node3D
 			return false;
 		}
 
-		_decisionUi.ShowRadioDecision(incident.Id, incident.Title, request.SituationText, request.Options);
+		_decisionUi.ShowRadioDecision(incident.Id, KonturUiText.MissionTitle(incident), request.MissionEventId, request.Options);
 		return true;
 	}
 
@@ -106,7 +106,7 @@ public partial class DeskRadio : Node3D
 		}
 
 		double bestRemainingSeconds = double.MaxValue;
-		foreach (IncidentView candidate in _runtime.Session.GetActiveIncidents())
+		foreach (IncidentView candidate in _runtime.Simulation.GetActiveIncidents())
 		{
 			if (candidate.Phase != IncidentPhase.RadioPending
 				|| !_pendingRequests.TryGetValue(candidate.Id, out RadioTriggered pending))

@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="kontur_prototype"
-run/main_scene="res://scenes/main.tscn"
+run/main_scene="res://scenes/ui/menu/MainMenu.tscn"
 config/features=PackedStringArray("4.7", "C#", "GL Compatibility")
 config/icon="res://icon.svg"
 
@@ -19,7 +19,10 @@ config/icon="res://icon.svg"
 
 ContentHotReload="*res://scripts/debug/ContentHotReload.cs"
 Content="*res://content/engine/content/Content.cs"
-GameRuntime="*res://scripts/kontur/GameRuntime.cs"
+EventBus="*res://scripts/gameplay/EventBus.cs"
+GameSession="*res://scripts/gameplay/GameSession.cs"
+Kontur="*res://scripts/kontur/KonturRuntime.cs"
+GameFlow="*res://scripts/flow/GameFlow.cs"
 
 [display]
 

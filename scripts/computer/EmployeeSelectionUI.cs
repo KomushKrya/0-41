@@ -65,7 +65,7 @@ public partial class EmployeeSelectionUI : Control, IComputerScreen
 			child.QueueFree();
 		}
 
-		GameRuntime runtime = GameRuntime.Get(this);
+		KonturRuntime runtime = KonturRuntime.Get(this);
 		if (runtime == null || !runtime.IsReady)
 		{
 			_rosterList.AddChild(new Label { Text = "ЯДРО НЕДОСТУПНО" });
@@ -73,7 +73,7 @@ public partial class EmployeeSelectionUI : Control, IComputerScreen
 			return;
 		}
 
-		IReadOnlyList<EmployeeView> roster = runtime.Session.GetRoster();
+		IReadOnlyList<EmployeeView> roster = runtime.Simulation.GetRoster();
 		var knownIds = new HashSet<string>();
 		for (int index = 0; index < roster.Count; index++)
 		{
@@ -113,8 +113,8 @@ public partial class EmployeeSelectionUI : Control, IComputerScreen
 		string state = isAvailable
 			? employee.IsInjured ? "AVAILABLE · INJURED" : "AVAILABLE"
 			: employee.Status == EmployeeStatus.Dead ? "DEAD" : "ON MISSION";
-		string stats = $"STR {employee.Stats.Strength}  PER {employee.Stats.Perception}  END {employee.Stats.Endurance}  " +
-			$"CHA {employee.Stats.Charisma}  COM {employee.Stats.Composure}";
+		string stats = $"STR {employee.Stats.Strength}  PER {employee.Stats.Intellect}  END {employee.Stats.Combat}  " +
+			$"CHA {employee.Stats.Charisma}  COM {employee.Stats.Agility}";
 		card.AddChild(new Label
 		{
 			Text = $"   {state}   |   {stats}",

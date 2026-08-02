@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Kontur.Core.Api;
 using Kontur.Core.Content;
+using Kontur.Core.Events;
 using Kontur.Core.Model;
 using Kontur.Core.Simulation;
 using Kontur.Core.Systems;
@@ -30,13 +31,13 @@ namespace Kontur.Harness
 	/// </summary>
 	public sealed class AutoOperator
 	{
-		private readonly GameSession _session;
+		private readonly KonturSimulation _sim;
 		private readonly ContentDatabase _content;
 		private readonly Random _random;
 
-		public AutoOperator(GameSession session, ContentDatabase content, RadioStrategy strategy, int seed)
+		public AutoOperator(KonturSimulation sim, ContentDatabase content, RadioStrategy strategy, int seed)
 		{
-			_session = session;
+			_sim = sim;
 			_content = content;
 			Strategy = strategy;
 			_random = new Random(seed);
@@ -57,7 +58,7 @@ namespace Kontur.Harness
 
 		public void Update()
 		{
-			IReadOnlyList<IncidentView> incidents = _session.GetActiveIncidents();
+			IReadOnlyList<IncidentView> incidents = _sim.GetActiveIncidents();
 
 			for (int i = 0; i < incidents.Count; i++)
 			{
@@ -66,15 +67,19 @@ namespace Kontur.Harness
 				switch (incident.Phase)
 				{
 					case IncidentPhase.Ringing:
-						if (Elapsed(_session.Config.Timings.PhoneRingSeconds, incident.RemainingSeconds) >= AnswerDelay)
+						if (Elapsed(_sim.Config.Timings.PhoneRingSeconds, incident.RemainingSeconds) >= AnswerDelay)
 						{
-							_session.AnswerCall(incident.Id);
+							_sim.AnswerCall(incident.Id);
 						}
 
 						break;
 
-				case IncidentPhase.MarkerActive:
-						if (Elapsed(_session.Config.Timings.MapMarkerSeconds, incident.RemainingSeconds) >= DispatchDelay)
+					case IncidentPhase.Briefing:
+						_sim.ConfirmBriefing(incident.Id);
+						break;
+
+					case IncidentPhase.MarkerActive:
+						if (Elapsed(_sim.Config.Timings.MapMarkerSeconds, incident.RemainingSeconds) >= DispatchDelay)
 						{
 							TryDispatch(incident);
 						}
@@ -83,7 +88,7 @@ namespace Kontur.Harness
 
 					case IncidentPhase.RadioPending:
 						if (Strategy != RadioStrategy.Ignore
-							&& Elapsed(_session.Config.Timings.RadioSeconds, incident.RemainingSeconds) >= RadioDelay)
+							&& Elapsed(_sim.Config.Timings.RadioSeconds, incident.RemainingSeconds) >= RadioDelay)
 						{
 							ChooseRadio(incident);
 						}
@@ -96,19 +101,19 @@ namespace Kontur.Harness
 		/// <summary>Межсменные действия: раздать очки навыков и добрать штат до лимита.</summary>
 		public void BetweenShifts(int nextDay)
 		{
-			IReadOnlyList<EmployeeView> roster = _session.GetRoster();
+			IReadOnlyList<EmployeeView> roster = _sim.GetRoster();
 			for (int i = 0; i < roster.Count; i++)
 			{
 				EmployeeView employee = roster[i];
 				for (int point = 0; point < employee.UnspentSkillPoints; point++)
 				{
 					StatKind weakest = FindWeakestStat(employee.Stats);
-					_session.SpendSkillPoint(employee.Id, weakest);
+					_sim.SpendSkillPoint(employee.Id, weakest);
 				}
 			}
 
 			int living = 0;
-			roster = _session.GetRoster();
+			roster = _sim.GetRoster();
 			for (int i = 0; i < roster.Count; i++)
 			{
 				if (roster[i].Status != EmployeeStatus.Dead)
@@ -118,11 +123,11 @@ namespace Kontur.Harness
 			}
 
 			int limit = _content.Config.GetDay(nextDay).StaffLimit;
-			IReadOnlyList<HireCandidateView> candidates = _session.GetHireCandidates(nextDay);
+			IReadOnlyList<HireCandidateView> candidates = _sim.GetHireCandidates(nextDay);
 
 			for (int i = 0; i < candidates.Count && living < limit; i++)
 			{
-				CommandResult result = _session.HireEmployee(candidates[i].Id, nextDay);
+				CommandResult result = _sim.HireEmployee(candidates[i].Id, nextDay);
 				if (result.IsSuccess)
 				{
 					living++;
@@ -137,28 +142,40 @@ namespace Kontur.Harness
 
 		private void TryDispatch(IncidentView incident)
 		{
-			_session.OpenDispatchScreen(incident.Id);
+			// Открытие экрана останавливает мир: закрыть его обязательно, иначе
+			// прогон встанет насмерть и это будет выглядеть как зависание ядра.
+			_sim.OpenDispatchScreen(incident.Id);
 
-			List<string> squad = PickSquad(incident.Requirements);
+			List<string> squad = PickSquad(incident.Requirements, incident.SquadLimit);
 			if (squad.Count == 0)
 			{
+				_sim.CloseDispatchScreen(incident.Id);
 				return;
 			}
 
 			List<string> equipment = PickEquipment();
-			CommandResult result = _session.DispatchSquad(incident.Id, squad, equipment);
+			CommandResult result = _sim.DispatchSquad(incident.Id, squad, equipment);
 
 			if (!result.IsSuccess && equipment.Count > 0)
 			{
 				// Снаряжение мог занять параллельный вызов — пробуем без него.
-				_session.DispatchSquad(incident.Id, squad, Array.Empty<string>());
+				result = _sim.DispatchSquad(incident.Id, squad, Array.Empty<string>());
+			}
+
+			if (!result.IsSuccess)
+			{
+				_sim.CloseDispatchScreen(incident.Id);
 			}
 		}
 
-		private List<string> PickSquad(StatBlock requirements)
+		/// <summary>
+		/// Берёт под каждый непокрытый порог того, кто добавляет больше всех, и копит сумму:
+		/// численность помогает, поэтому добор людей продолжается, пока пороги не закрыты.
+		/// </summary>
+		private List<string> PickSquad(StatBlock requirements, int squadLimit)
 		{
 			var available = new List<EmployeeView>();
-			IReadOnlyList<EmployeeView> roster = _session.GetRoster();
+			IReadOnlyList<EmployeeView> roster = _sim.GetRoster();
 
 			for (int i = 0; i < roster.Count; i++)
 			{
@@ -168,40 +185,59 @@ namespace Kontur.Harness
 				}
 			}
 
-			// Сначала те, кто лучше закрывает именно требуемые характеристики.
-			available.Sort((left, right) => Relevance(right.Stats, requirements).CompareTo(Relevance(left.Stats, requirements)));
-
 			var picked = new List<string>();
 			StatBlock total = StatBlock.Zero;
 
-			for (int i = 0; i < available.Count && picked.Count < MaxSquadSize; i++)
+			// Сколько можно взять, решает вызов, а не автопилот: MaxSquadSize —
+			// только верхняя планка на случай, если контент разрешит слишком много.
+			int limit = Math.Min(squadLimit, MaxSquadSize);
+
+			for (int i = 0; i < StatKinds.All.Length && picked.Count < limit; i++)
 			{
-				if (MissionResolver.ComputeCoverage(requirements, total) >= 1.0)
+				StatKind kind = StatKinds.All[i];
+				if (requirements[kind] <= 0 || total[kind] >= requirements[kind])
+				{
+					continue;
+				}
+
+				EmployeeView? candidate = null;
+				for (int j = 0; j < available.Count; j++)
+				{
+					if (picked.Contains(available[j].Id))
+					{
+						continue;
+					}
+
+					if (candidate == null || available[j].Stats[kind] > candidate.Stats[kind])
+					{
+						candidate = available[j];
+					}
+				}
+
+				if (candidate == null)
 				{
 					break;
 				}
 
-				picked.Add(available[i].Id);
-				total = total.Add(available[i].Stats);
+				picked.Add(candidate.Id);
+				total = total.Add(candidate.Stats);
+
+				// Порог мог остаться незакрытым: тогда берём ещё одного по той же характеристике.
+				if (total[kind] < requirements[kind] && picked.Count < limit)
+				{
+					i--;
+				}
+			}
+
+			// Ни одного порога не закрыть — отправляем хоть кого-то, иначе метка истечёт.
+			if (picked.Count == 0 && available.Count > 0)
+			{
+				picked.Add(available[0].Id);
 			}
 
 			return picked;
 		}
 
-		private static int Relevance(StatBlock stats, StatBlock requirements)
-		{
-			int score = 0;
-			for (int i = 0; i < StatKinds.All.Length; i++)
-			{
-				StatKind kind = StatKinds.All[i];
-				if (requirements[kind] > 0)
-				{
-					score += stats[kind];
-				}
-			}
-
-			return score;
-		}
 
 		private List<string> PickEquipment()
 		{
@@ -209,7 +245,7 @@ namespace Kontur.Harness
 			int heavy = 0;
 			int consumables = 0;
 
-			IReadOnlyList<EquipmentSlotView> available = _session.GetAvailableEquipment();
+			IReadOnlyList<EquipmentSlotView> available = _sim.GetAvailableEquipment();
 			for (int i = 0; i < available.Count; i++)
 			{
 				EquipmentSlotView slot = available[i];
@@ -241,46 +277,79 @@ namespace Kontur.Harness
 
 		private void ChooseRadio(IncidentView incident)
 		{
-			MissionDefinition? mission = _content.FindMission(incident.MissionId);
-			if (mission == null || mission.RadioEncounterId == null)
+			MissionEventDefinition? missionEvent = _content.FindMissionEvent(incident.MissionEventId);
+			if (missionEvent == null || missionEvent.Options.Count == 0)
 			{
 				return;
 			}
 
-			RadioEncounter? encounter = _content.FindRadioEncounter(mission.RadioEncounterId);
-			if (encounter == null || encounter.Options.Count == 0)
-			{
-				return;
-			}
+			// Мир встаёт с момента, как радио взяли, — и идёт дальше после выбора.
+			_sim.AnswerRadio(incident.Id);
 
-			RadioOption option;
-			switch (Strategy)
+			// Закрытых вариантов нет: нажать можно любой, состав решает шанс, а не доступ.
+			var available = new List<MissionEventOption>();
+			IReadOnlyList<RadioOptionOffer> offers = _sim.GetRadioOptions(incident.Id);
+			for (int i = 0; i < offers.Count; i++)
 			{
-				case RadioStrategy.Best:
-					option = FindByQuality(encounter, RadioOptionQuality.Best);
-					break;
-				case RadioStrategy.Worst:
-					option = FindByQuality(encounter, RadioOptionQuality.Bad);
-					break;
-				default:
-					option = encounter.Options[_random.Next(encounter.Options.Count)];
-					break;
-			}
 
-			_session.ChooseRadioOption(incident.Id, option.Id);
-		}
-
-		private static RadioOption FindByQuality(RadioEncounter encounter, RadioOptionQuality quality)
-		{
-			for (int i = 0; i < encounter.Options.Count; i++)
-			{
-				if (encounter.Options[i].Quality == quality)
+				MissionEventOption? unlocked = missionEvent.FindOption(offers[i].Id);
+				if (unlocked != null)
 				{
-					return encounter.Options[i];
+					available.Add(unlocked);
 				}
 			}
 
-			return encounter.Options[0];
+			if (available.Count == 0)
+			{
+				_sim.CloseRadio(incident.Id);
+				return;
+			}
+
+			MissionEventOption option;
+			switch (Strategy)
+			{
+				case RadioStrategy.Best:
+					option = PickByQuality(available, MissionEventQuality.Good);
+					break;
+				case RadioStrategy.Worst:
+					option = PickByQuality(available, MissionEventQuality.Bad);
+					break;
+				default:
+					option = available[_random.Next(available.Count)];
+					break;
+			}
+
+			_sim.ChooseRadioOption(incident.Id, option.Id);
+		}
+
+		/// <summary>
+		/// «Лучший» вариант для автопилота — самый уставный из наименее сложных.
+		/// Живой игрок этих чисел не видит: он сопоставляет текст с энциклопедией,
+		/// а автопилоту нужен воспроизводимый потолок и пол баланса.
+		/// </summary>
+		/// <summary>
+		/// Автопилот выбирает по типу диалога — тому самому, который игроку не показывают.
+		/// Живой игрок восстанавливает его по энциклопедии, а прогону нужен воспроизводимый
+		/// потолок и пол баланса.
+		/// </summary>
+		private static MissionEventOption PickByQuality(
+			List<MissionEventOption> options,
+			MissionEventQuality preferred)
+		{
+			MissionEventOption best = options[0];
+
+			for (int i = 1; i < options.Count; i++)
+			{
+				int candidateDistance = Math.Abs((int)options[i].Quality - (int)preferred);
+				int bestDistance = Math.Abs((int)best.Quality - (int)preferred);
+
+				if (candidateDistance < bestDistance)
+				{
+					best = options[i];
+				}
+			}
+
+			return best;
 		}
 
 		private static StatKind FindWeakestStat(StatBlock stats)

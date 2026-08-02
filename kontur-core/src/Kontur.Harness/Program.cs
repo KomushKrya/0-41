@@ -24,17 +24,33 @@ namespace Kontur.Harness
 
 			var options = HarnessOptions.Parse(args);
 
-			string contentPath = options.ContentPath ?? FindContentDirectory();
+			string? contentPath = options.ContentPath ?? FindContentDirectory();
 			if (contentPath == null)
 			{
 				Console.Error.WriteLine("Не найдена папка content. Укажите путь: --content <путь>");
 				return 2;
 			}
 
+			// Запоминаем найденный путь, чтобы шапка прогона показала источник контента.
+			options.ContentPath = contentPath;
+
+			// Каталог текстов: тот же собранный JSON, что читает игра. Без него прогон
+			// возможен, но опечатки в id останутся незамеченными до запуска в движке.
+			ITextCatalog? textCatalog = null;
+			string? localePath = FindLocaleDirectory(contentPath, options.Locale);
+			if (localePath != null)
+			{
+				textCatalog = JsonTextCatalog.Load(new DirectoryContentSource(localePath));
+			}
+			else
+			{
+				Console.WriteLine($"Каталог текстов не найден (локаль {options.Locale}) — сверка id пропущена.");
+			}
+
 			ContentDatabase content;
 			try
 			{
-				content = ContentLoader.Load(new DirectoryContentSource(contentPath));
+				content = ContentLoader.Load(new DirectoryContentSource(contentPath), textCatalog);
 			}
 			catch (ContentException exception)
 			{
@@ -52,20 +68,20 @@ namespace Kontur.Harness
 
 		private static int RunShifts(ContentDatabase content, HarnessOptions options)
 		{
-			var session = new GameSession(content, options.Seed);
+			var simulation = new KonturSimulation(content, options.Seed);
 
 			double clock = 0.0;
 			var log = new ConsoleEventLog(() => clock, options.Verbose);
-			log.Attach(session.Events);
+			log.Attach(simulation.Events);
 
-			var oper = new AutoOperator(session, content, options.Strategy, options.Seed)
+			var oper = new AutoOperator(simulation, content, options.Strategy, options.Seed)
 			{
 				AnswerDelay = options.AnswerDelay,
 				DispatchDelay = options.DispatchDelay
 			};
 
 			bool gameOver = false;
-			session.Events.Subscribe<GameOverTriggered>(_ => gameOver = true);
+			simulation.Events.Subscribe<GameOverTriggered>(_ => gameOver = true);
 
 			PrintHeader(options, content);
 
@@ -73,7 +89,7 @@ namespace Kontur.Harness
 			{
 				clock = 0.0;
 
-				CommandResult start = session.StartShift(day);
+				CommandResult start = simulation.StartShift(day);
 				if (!start.IsSuccess)
 				{
 					Console.Error.WriteLine(start.Error);
@@ -81,22 +97,22 @@ namespace Kontur.Harness
 				}
 
 				double guard = 0.0;
-				while (session.IsShiftActive && !gameOver && guard < options.MaxShiftSeconds)
+				while (simulation.IsShiftActive && !gameOver && guard < options.MaxShiftSeconds)
 				{
-					session.Tick(options.DeltaSeconds);
+					simulation.Tick(options.DeltaSeconds);
 					clock += options.DeltaSeconds;
 					guard += options.DeltaSeconds;
 
 					oper.Update();
 				}
 
-				if (session.IsShiftActive)
+				if (simulation.IsShiftActive)
 				{
 					Console.WriteLine("!! Смена не завершилась за отведённое время — принудительное закрытие.");
-					session.ForceEndShift();
+					simulation.ForceEndShift();
 				}
 
-				PrintRoster(session);
+				PrintRoster(simulation);
 
 				if (!gameOver && day < options.Days)
 				{
@@ -104,7 +120,7 @@ namespace Kontur.Harness
 				}
 			}
 
-			PrintFinal(session);
+			PrintFinal(simulation);
 			return gameOver ? 1 : 0;
 		}
 
@@ -119,17 +135,21 @@ namespace Kontur.Harness
 				options.DeltaSeconds.ToString("0.##", CultureInfo.InvariantCulture),
 				options.Strategy);
 			Console.WriteLine(
-				$"контент: зон {content.Buildings.Count}, существ {content.Creatures.Count}, миссий {content.Missions.Count}, "
-				+ $"радио-сцен {content.RadioEncounters.Count}, снаряжения {content.Equipment.Count}");
+				$"контент: зон {content.Zones.Count}, существ {content.Creatures.Count}, миссий {content.Missions.Count}, "
+				+ $"вмешательств {content.MissionEvents.Count}, снаряжения {content.Equipment.Count}");
+
+			// Путь печатается не для красоты: в дереве живёт вторая копия контента,
+			// и прогон по ней однажды уже разошёлся с игрой. Пусть источник виден сразу.
+			Console.WriteLine($"источник: {options.ContentPath}");
 			Console.WriteLine(new string('=', 78));
 		}
 
-		private static void PrintRoster(GameSession session)
+		private static void PrintRoster(KonturSimulation simulation)
 		{
 			Console.WriteLine();
 			Console.WriteLine("ШТАТ:");
 
-			IReadOnlyList<EmployeeView> roster = session.GetRoster();
+			IReadOnlyList<EmployeeView> roster = simulation.GetRoster();
 			for (int i = 0; i < roster.Count; i++)
 			{
 				EmployeeView employee = roster[i];
@@ -142,9 +162,9 @@ namespace Kontur.Harness
 			}
 		}
 
-		private static void PrintFinal(GameSession session)
+		private static void PrintFinal(KonturSimulation simulation)
 		{
-			ShiftStatusView status = session.GetStatus();
+			ShiftStatusView status = simulation.GetStatus();
 
 			Console.WriteLine(new string('=', 78));
 			Console.WriteLine($"ИТОГ: {status.Scales}");
@@ -156,7 +176,7 @@ namespace Kontur.Harness
 
 			Console.WriteLine();
 			Console.WriteLine("ЭНЦИКЛОПЕДИЯ:");
-			IReadOnlyList<EncyclopediaEntryView> entries = session.GetEncyclopedia();
+			IReadOnlyList<EncyclopediaEntryView> entries = simulation.GetEncyclopedia();
 			if (entries.Count == 0)
 			{
 				Console.WriteLine("  (пусто)");
@@ -170,23 +190,49 @@ namespace Kontur.Harness
 		}
 
 		/// <summary>
-		/// Ищет контент вверх по дереву. Сначала data/ в корне Godot-проекта — это
-		/// единственный источник истины после интеграции; content/ внутри ядра остаётся
-		/// запасным вариантом для автономного прогона.
+		/// content/localisation/&lt;локаль&gt; рядом с папкой данных: ищем вверх от неё же,
+		/// чтобы прогон работал и из корня проекта, и из папки ядра.
+		/// </summary>
+		private static string? FindLocaleDirectory(string contentPath, string locale)
+		{
+			var directory = new DirectoryInfo(contentPath);
+
+			for (int depth = 0; depth < 8 && directory != null; depth++)
+			{
+				string candidate = Path.Combine(directory.FullName, "content", "localisation", locale);
+				if (Directory.Exists(candidate))
+				{
+					return candidate;
+				}
+
+				directory = directory.Parent;
+			}
+
+			return null;
+		}
+
+		/// <summary>
+		/// Ищет контент игры: поднимается по дереву до корня — папки с project.godot —
+		/// и берёт data/ оттуда. Другого источника нет.
+		///
+		/// Раньше был запасной вариант «ближайшая папка с config.json», и рядом с ядром
+		/// лежала своя копия контента. Она оказывалась ближе к бинарнику, чем корневая
+		/// data/: харнесс гонял баланс по копии, игра шла по оригиналу, и расхождение
+		/// всплыло не сразу. Копия удалена, запасной поиск вместе с ней — лучше честно
+		/// не найти контент и попросить --content, чем молча взять не тот.
 		/// </summary>
 		private static string? FindContentDirectory()
 		{
-			string[] candidates = { "data", "content" };
 			var directory = new DirectoryInfo(AppContext.BaseDirectory);
 
 			for (int depth = 0; depth < 8 && directory != null; depth++)
 			{
-				for (int i = 0; i < candidates.Length; i++)
+				if (File.Exists(Path.Combine(directory.FullName, "project.godot")))
 				{
-					string candidate = Path.Combine(directory.FullName, candidates[i]);
-					if (File.Exists(Path.Combine(candidate, ContentLoader.ConfigFile)))
+					string data = Path.Combine(directory.FullName, "data");
+					if (File.Exists(Path.Combine(data, ContentLoader.ConfigFile)))
 					{
-						return candidate;
+						return data;
 					}
 				}
 
@@ -218,6 +264,8 @@ namespace Kontur.Harness
 		public bool SelfTest { get; set; }
 
 		public string? ContentPath { get; set; }
+
+		public string Locale { get; set; } = "ru";
 
 		public static HarnessOptions Parse(string[] args)
 		{
@@ -256,6 +304,10 @@ namespace Kontur.Harness
 						break;
 					case "--content":
 						options.ContentPath = value;
+						i++;
+						break;
+					case "--locale":
+						options.Locale = value ?? options.Locale;
 						i++;
 						break;
 					case "--verbose":

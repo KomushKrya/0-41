@@ -1,1771 +1,856 @@
 [
-	{
-		"id": "m_d1_01",
-		"day": 1,
-		"zoneId": "z_industrial",
-		"creatureId": "creature_kanalotvar",
-		"title": "Вызов в котельной №2",
-		"callerName": "вахтёр",
-		"briefingText": "Сообщение принято: в котельной №2 затоплен подвал, из стоков идёт шум и пропали дворовые собаки. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"perception": 4,
-			"endurance": 3,
-			"composure": 7
-		},
-		"travelSeconds": 10.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 9.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.24,
-		"deathChance": 0.06999999999999999,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в котельной №2 локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в котельной №2 не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"radioEncounterId": "radio_kanalotvar_boiler"
-	},
-	{
-		"id": "m_d1_02",
-		"day": 1,
-		"zoneId": "z_sleep",
-		"creatureId": "creature_mimic",
-		"title": "Вызов в детском саду №9",
-		"callerName": "диспетчер",
-		"briefingText": "Сообщение принято: в детском саду №9 жалуются на второго такого же человека. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"perception": 8,
-			"composure": 5
-		},
-		"travelSeconds": 12.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 11.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.24,
-		"deathChance": 0.06999999999999999,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в детском саду №9 локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в детском саду №9 не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"manifestedPropertyIds": [
-			"property_mimic_speech"
-		]
-	},
-	{
-		"id": "m_d1_03",
-		"day": 1,
-		"zoneId": "z_station",
-		"creatureId": "creature_perekozhnik",
-		"title": "Вызов в привокзальной гостинице",
-		"callerName": "участковый",
-		"briefingText": "Сообщение принято: в привокзальной гостинице кто-то крупный ходит вдоль стен и не выходит на свет. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"strength": 9,
-			"endurance": 4
-		},
-		"travelSeconds": 14.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 13.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.24,
-		"deathChance": 0.06999999999999999,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в привокзальной гостинице локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в привокзальной гостинице не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"radioEncounterId": "radio_skin_yard"
-	},
-	{
-		"id": "m_d1_04",
-		"day": 1,
-		"zoneId": "z_outskirts",
-		"creatureId": "creature_kanalotvar",
-		"title": "Вызов в гаражном кооперативе",
-		"callerName": "сторож",
-		"briefingText": "Сообщение принято: в гаражном кооперативе затоплен подвал, из стоков идёт шум и пропали дворовые собаки. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"perception": 5,
-			"composure": 7
-		},
-		"travelSeconds": 16.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 9.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.24,
-		"deathChance": 0.06999999999999999,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в гаражном кооперативе локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в гаражном кооперативе не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"manifestedPropertyIds": [
-			"property_kanalotvar_lure"
-		]
-	},
-	{
-		"id": "m_d1_05",
-		"day": 1,
-		"zoneId": "z_center",
-		"creatureId": "creature_mimic",
-		"title": "Вызов в школе №14",
-		"callerName": "директор объекта",
-		"briefingText": "Сообщение принято: в школе №14 жалуются на второго такого же человека. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"perception": 8,
-			"charisma": 3,
-			"composure": 4
-		},
-		"travelSeconds": 10.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 11.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.24,
-		"deathChance": 0.06999999999999999,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в школе №14 локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в школе №14 не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"radioEncounterId": "radio_mimic_school"
-	},
-	{
-		"id": "m_d1_06",
-		"day": 1,
-		"zoneId": "z_industrial",
-		"creatureId": "creature_perekozhnik",
-		"title": "Вызов в складском корпусе",
-		"callerName": "бригадир смены",
-		"briefingText": "Сообщение принято: в складском корпусе кто-то крупный ходит вдоль стен и не выходит на свет. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"strength": 9,
-			"endurance": 5
-		},
-		"travelSeconds": 12.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 13.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.24,
-		"deathChance": 0.06999999999999999,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в складском корпусе локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в складском корпусе не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"manifestedPropertyIds": [
-			"property_perekozhnik_heartbeat"
-		]
-	},
-	{
-		"id": "m_d1_07",
-		"day": 1,
-		"zoneId": "z_sleep",
-		"creatureId": "creature_kanalotvar",
-		"title": "Вызов в подвале дома 12",
-		"callerName": "дежурный по райотделу",
-		"briefingText": "Сообщение принято: в подвале дома 12 затоплен подвал, из стоков идёт шум и пропали дворовые собаки. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"perception": 4,
-			"composure": 7
-		},
-		"travelSeconds": 14.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 9.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.24,
-		"deathChance": 0.06999999999999999,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в подвале дома 12 локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в подвале дома 12 не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"radioEncounterId": "radio_kanalotvar_boiler"
-	},
-	{
-		"id": "m_d1_08",
-		"day": 1,
-		"zoneId": "z_station",
-		"creatureId": "creature_mimic",
-		"title": "Вызов в депо",
-		"callerName": "вахтёр",
-		"briefingText": "Сообщение принято: в депо жалуются на второго такого же человека. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"perception": 8,
-			"composure": 5
-		},
-		"travelSeconds": 16.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 11.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.24,
-		"deathChance": 0.06999999999999999,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в депо локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в депо не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"manifestedPropertyIds": [
-			"property_mimic_speech"
-		]
-	},
-	{
-		"id": "m_d2_01",
-		"day": 2,
-		"zoneId": "z_sleep",
-		"creatureId": "creature_perekozhnik",
-		"title": "Вызов в девятиэтажке по Лесной",
-		"callerName": "диспетчер",
-		"briefingText": "Сообщение принято: в девятиэтажке по Лесной кто-то крупный ходит вдоль стен и не выходит на свет. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"strength": 7,
-			"endurance": 4,
-			"charisma": 3
-		},
-		"travelSeconds": 10.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 9.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.26,
-		"deathChance": 0.08,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в девятиэтажке по Лесной локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в девятиэтажке по Лесной не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"radioEncounterId": "radio_skin_yard"
-	},
-	{
-		"id": "m_d2_02",
-		"day": 2,
-		"zoneId": "z_station",
-		"creatureId": "creature_kanalotvar",
-		"title": "Вызов в путевом посту",
-		"callerName": "участковый",
-		"briefingText": "Сообщение принято: в путевом посту затоплен подвал, из стоков идёт шум и пропали дворовые собаки. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"perception": 5,
-			"composure": 8
-		},
-		"travelSeconds": 12.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 11.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.26,
-		"deathChance": 0.08,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в путевом посту локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в путевом посту не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"manifestedPropertyIds": [
-			"property_kanalotvar_sound"
-		]
-	},
-	{
-		"id": "m_d2_03",
-		"day": 2,
-		"zoneId": "z_outskirts",
-		"creatureId": "creature_mimic",
-		"title": "Вызов в коллекторе за кольцевой",
-		"callerName": "сторож",
-		"briefingText": "Сообщение принято: в коллекторе за кольцевой жалуются на второго такого же человека. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"perception": 9,
-			"composure": 4
-		},
-		"travelSeconds": 14.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 13.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.26,
-		"deathChance": 0.08,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в коллекторе за кольцевой локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в коллекторе за кольцевой не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"radioEncounterId": "radio_mimic_school"
-	},
-	{
-		"id": "m_d2_04",
-		"day": 2,
-		"zoneId": "z_center",
-		"creatureId": "creature_perekozhnik",
-		"title": "Вызов в архиве горсовета",
-		"callerName": "директор объекта",
-		"briefingText": "Сообщение принято: в архиве горсовета кто-то крупный ходит вдоль стен и не выходит на свет. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"strength": 7,
-			"endurance": 5
-		},
-		"travelSeconds": 16.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 9.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.26,
-		"deathChance": 0.08,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в архиве горсовета локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в архиве горсовета не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"manifestedPropertyIds": [
-			"property_perekozhnik_eye_contact"
-		]
-	},
-	{
-		"id": "m_d2_05",
-		"day": 2,
-		"zoneId": "z_industrial",
-		"creatureId": "creature_kanalotvar",
-		"title": "Вызов в котельной №2",
-		"callerName": "бригадир смены",
-		"briefingText": "Сообщение принято: в котельной №2 затоплен подвал, из стоков идёт шум и пропали дворовые собаки. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"perception": 4,
-			"endurance": 3,
-			"composure": 8
-		},
-		"travelSeconds": 10.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 11.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.26,
-		"deathChance": 0.08,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в котельной №2 локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в котельной №2 не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"radioEncounterId": "radio_kanalotvar_boiler"
-	},
-	{
-		"id": "m_d2_06",
-		"day": 2,
-		"zoneId": "z_sleep",
-		"creatureId": "creature_mimic",
-		"title": "Вызов в детском саду №9",
-		"callerName": "дежурный по райотделу",
-		"briefingText": "Сообщение принято: в детском саду №9 жалуются на второго такого же человека. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"perception": 9,
-			"composure": 5
-		},
-		"travelSeconds": 12.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 13.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.26,
-		"deathChance": 0.08,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в детском саду №9 локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в детском саду №9 не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"manifestedPropertyIds": [
-			"property_mimic_break"
-		]
-	},
-	{
-		"id": "m_d2_07",
-		"day": 2,
-		"zoneId": "z_station",
-		"creatureId": "creature_perekozhnik",
-		"title": "Вызов в привокзальной гостинице",
-		"callerName": "вахтёр",
-		"briefingText": "Сообщение принято: в привокзальной гостинице кто-то крупный ходит вдоль стен и не выходит на свет. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"strength": 7,
-			"endurance": 4
-		},
-		"travelSeconds": 14.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 9.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.26,
-		"deathChance": 0.08,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в привокзальной гостинице локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в привокзальной гостинице не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"radioEncounterId": "radio_skin_yard"
-	},
-	{
-		"id": "m_d2_08",
-		"day": 2,
-		"zoneId": "z_outskirts",
-		"creatureId": "creature_kanalotvar",
-		"title": "Вызов в гаражном кооперативе",
-		"callerName": "диспетчер",
-		"briefingText": "Сообщение принято: в гаражном кооперативе затоплен подвал, из стоков идёт шум и пропали дворовые собаки. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"perception": 5,
-			"composure": 8
-		},
-		"travelSeconds": 16.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 11.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.26,
-		"deathChance": 0.08,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в гаражном кооперативе локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в гаражном кооперативе не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"manifestedPropertyIds": [
-			"property_kanalotvar_sound"
-		]
-	},
-	{
-		"id": "m_d2_09",
-		"day": 2,
-		"zoneId": "z_center",
-		"creatureId": "creature_mimic",
-		"title": "Вызов в школе №14",
-		"callerName": "участковый",
-		"briefingText": "Сообщение принято: в школе №14 жалуются на второго такого же человека. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"perception": 9,
-			"charisma": 3,
-			"composure": 4
-		},
-		"travelSeconds": 10.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 13.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.26,
-		"deathChance": 0.08,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в школе №14 локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в школе №14 не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"radioEncounterId": "radio_mimic_school"
-	},
-	{
-		"id": "m_d3_01",
-		"day": 3,
-		"zoneId": "z_station",
-		"creatureId": "creature_mimic",
-		"title": "Вызов в багажном отделении",
-		"callerName": "участковый",
-		"briefingText": "Сообщение принято: в багажном отделении жалуются на второго такого же человека. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"perception": 7,
-			"endurance": 3,
-			"composure": 4
-		},
-		"travelSeconds": 10.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 9.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.28,
-		"deathChance": 0.09,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в багажном отделении локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в багажном отделении не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"radioEncounterId": "radio_mimic_school"
-	},
-	{
-		"id": "m_d3_02",
-		"day": 3,
-		"zoneId": "z_outskirts",
-		"creatureId": "creature_perekozhnik",
-		"title": "Вызов в старой водокачке",
-		"callerName": "сторож",
-		"briefingText": "Сообщение принято: в старой водокачке кто-то крупный ходит вдоль стен и не выходит на свет. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"strength": 8,
-			"endurance": 5
-		},
-		"travelSeconds": 12.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 11.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.28,
-		"deathChance": 0.09,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в старой водокачке локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в старой водокачке не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"manifestedPropertyIds": [
-			"property_perekozhnik_distance"
-		]
-	},
-	{
-		"id": "m_d3_03",
-		"day": 3,
-		"zoneId": "z_center",
-		"creatureId": "creature_kanalotvar",
-		"title": "Вызов в доме культуры",
-		"callerName": "директор объекта",
-		"briefingText": "Сообщение принято: в доме культуры затоплен подвал, из стоков идёт шум и пропали дворовые собаки. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"perception": 4,
-			"composure": 9
-		},
-		"travelSeconds": 14.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 13.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.28,
-		"deathChance": 0.09,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в доме культуры локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в доме культуры не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"radioEncounterId": "radio_kanalotvar_boiler"
-	},
-	{
-		"id": "m_d3_04",
-		"day": 3,
-		"zoneId": "z_industrial",
-		"creatureId": "creature_mimic",
-		"title": "Вызов в насосной станции",
-		"callerName": "бригадир смены",
-		"briefingText": "Сообщение принято: в насосной станции жалуются на второго такого же человека. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"perception": 7,
-			"composure": 5
-		},
-		"travelSeconds": 16.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 9.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.28,
-		"deathChance": 0.09,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в насосной станции локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в насосной станции не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"manifestedPropertyIds": [
-			"property_mimic_routine"
-		]
-	},
-	{
-		"id": "m_d3_05",
-		"day": 3,
-		"zoneId": "z_sleep",
-		"creatureId": "creature_perekozhnik",
-		"title": "Вызов в девятиэтажке по Лесной",
-		"callerName": "дежурный по райотделу",
-		"briefingText": "Сообщение принято: в девятиэтажке по Лесной кто-то крупный ходит вдоль стен и не выходит на свет. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"strength": 8,
-			"endurance": 4,
-			"charisma": 3
-		},
-		"travelSeconds": 10.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 11.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.28,
-		"deathChance": 0.09,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в девятиэтажке по Лесной локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в девятиэтажке по Лесной не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"radioEncounterId": "radio_skin_yard"
-	},
-	{
-		"id": "m_d3_06",
-		"day": 3,
-		"zoneId": "z_station",
-		"creatureId": "creature_kanalotvar",
-		"title": "Вызов в путевом посту",
-		"callerName": "вахтёр",
-		"briefingText": "Сообщение принято: в путевом посту затоплен подвал, из стоков идёт шум и пропали дворовые собаки. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"perception": 5,
-			"composure": 9
-		},
-		"travelSeconds": 12.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 13.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.28,
-		"deathChance": 0.09,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в путевом посту локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в путевом посту не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"manifestedPropertyIds": [
-			"property_kanalotvar_water"
-		]
-	},
-	{
-		"id": "m_d3_07",
-		"day": 3,
-		"zoneId": "z_outskirts",
-		"creatureId": "creature_mimic",
-		"title": "Вызов в коллекторе за кольцевой",
-		"callerName": "диспетчер",
-		"briefingText": "Сообщение принято: в коллекторе за кольцевой жалуются на второго такого же человека. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"perception": 7,
-			"composure": 4
-		},
-		"travelSeconds": 14.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 9.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.28,
-		"deathChance": 0.09,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в коллекторе за кольцевой локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в коллекторе за кольцевой не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"radioEncounterId": "radio_mimic_school"
-	},
-	{
-		"id": "m_d3_08",
-		"day": 3,
-		"zoneId": "z_center",
-		"creatureId": "creature_perekozhnik",
-		"title": "Вызов в архиве горсовета",
-		"callerName": "участковый",
-		"briefingText": "Сообщение принято: в архиве горсовета кто-то крупный ходит вдоль стен и не выходит на свет. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"strength": 8,
-			"endurance": 5
-		},
-		"travelSeconds": 16.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 11.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.28,
-		"deathChance": 0.09,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в архиве горсовета локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в архиве горсовета не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"manifestedPropertyIds": [
-			"property_perekozhnik_distance"
-		]
-	},
-	{
-		"id": "m_d3_09",
-		"day": 3,
-		"zoneId": "z_industrial",
-		"creatureId": "creature_kanalotvar",
-		"title": "Вызов в котельной №2",
-		"callerName": "сторож",
-		"briefingText": "Сообщение принято: в котельной №2 затоплен подвал, из стоков идёт шум и пропали дворовые собаки. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"perception": 4,
-			"endurance": 3,
-			"composure": 9
-		},
-		"travelSeconds": 10.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 13.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.28,
-		"deathChance": 0.09,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в котельной №2 локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в котельной №2 не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"radioEncounterId": "radio_kanalotvar_boiler"
-	},
-	{
-		"id": "m_d3_10",
-		"day": 3,
-		"zoneId": "z_sleep",
-		"creatureId": "creature_mimic",
-		"title": "Вызов в детском саду №9",
-		"callerName": "директор объекта",
-		"briefingText": "Сообщение принято: в детском саду №9 жалуются на второго такого же человека. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"perception": 7,
-			"composure": 5
-		},
-		"travelSeconds": 12.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 9.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.28,
-		"deathChance": 0.09,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в детском саду №9 локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в детском саду №9 не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"manifestedPropertyIds": [
-			"property_mimic_routine"
-		]
-	},
-	{
-		"id": "m_d3_11",
-		"day": 3,
-		"zoneId": "z_station",
-		"creatureId": "creature_perekozhnik",
-		"title": "Вызов в привокзальной гостинице",
-		"callerName": "бригадир смены",
-		"briefingText": "Сообщение принято: в привокзальной гостинице кто-то крупный ходит вдоль стен и не выходит на свет. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"strength": 8,
-			"endurance": 4
-		},
-		"travelSeconds": 14.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 11.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.28,
-		"deathChance": 0.09,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в привокзальной гостинице локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в привокзальной гостинице не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"radioEncounterId": "radio_skin_yard"
-	},
-	{
-		"id": "m_d4_01",
-		"day": 4,
-		"zoneId": "z_outskirts",
-		"creatureId": "creature_kanalotvar",
-		"title": "Вызов в дачном массиве",
-		"callerName": "сторож",
-		"briefingText": "Сообщение принято: в дачном массиве затоплен подвал, из стоков идёт шум и пропали дворовые собаки. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"perception": 4,
-			"charisma": 3,
-			"composure": 7
-		},
-		"travelSeconds": 10.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 9.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.3,
-		"deathChance": 0.1,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в дачном массиве локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в дачном массиве не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"radioEncounterId": "radio_kanalotvar_boiler"
-	},
-	{
-		"id": "m_d4_02",
-		"day": 4,
-		"zoneId": "z_center",
-		"creatureId": "creature_mimic",
-		"title": "Вызов в поликлинике №3",
-		"callerName": "директор объекта",
-		"briefingText": "Сообщение принято: в поликлинике №3 жалуются на второго такого же человека. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"perception": 8,
-			"composure": 5
-		},
-		"travelSeconds": 12.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 11.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.3,
-		"deathChance": 0.1,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в поликлинике №3 локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в поликлинике №3 не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"manifestedPropertyIds": [
-			"property_mimic_speech"
-		]
-	},
-	{
-		"id": "m_d4_03",
-		"day": 4,
-		"zoneId": "z_industrial",
-		"creatureId": "creature_perekozhnik",
-		"title": "Вызов в цехе сборки",
-		"callerName": "бригадир смены",
-		"briefingText": "Сообщение принято: в цехе сборки кто-то крупный ходит вдоль стен и не выходит на свет. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"strength": 9,
-			"endurance": 4
-		},
-		"travelSeconds": 14.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 13.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.3,
-		"deathChance": 0.1,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в цехе сборки локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в цехе сборки не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"radioEncounterId": "radio_skin_yard"
-	},
-	{
-		"id": "m_d4_04",
-		"day": 4,
-		"zoneId": "z_sleep",
-		"creatureId": "creature_kanalotvar",
-		"title": "Вызов в дворовой котельной",
-		"callerName": "дежурный по райотделу",
-		"briefingText": "Сообщение принято: в дворовой котельной затоплен подвал, из стоков идёт шум и пропали дворовые собаки. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"perception": 5,
-			"composure": 7
-		},
-		"travelSeconds": 16.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 9.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.3,
-		"deathChance": 0.1,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в дворовой котельной локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в дворовой котельной не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"manifestedPropertyIds": [
-			"property_kanalotvar_lure"
-		]
-	},
-	{
-		"id": "m_d4_05",
-		"day": 4,
-		"zoneId": "z_station",
-		"creatureId": "creature_mimic",
-		"title": "Вызов в багажном отделении",
-		"callerName": "вахтёр",
-		"briefingText": "Сообщение принято: в багажном отделении жалуются на второго такого же человека. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"perception": 8,
-			"endurance": 3,
-			"composure": 4
-		},
-		"travelSeconds": 10.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 11.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.3,
-		"deathChance": 0.1,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в багажном отделении локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в багажном отделении не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"radioEncounterId": "radio_mimic_school"
-	},
-	{
-		"id": "m_d4_06",
-		"day": 4,
-		"zoneId": "z_outskirts",
-		"creatureId": "creature_perekozhnik",
-		"title": "Вызов в старой водокачке",
-		"callerName": "диспетчер",
-		"briefingText": "Сообщение принято: в старой водокачке кто-то крупный ходит вдоль стен и не выходит на свет. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"strength": 9,
-			"endurance": 5
-		},
-		"travelSeconds": 12.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 13.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.3,
-		"deathChance": 0.1,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в старой водокачке локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в старой водокачке не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"manifestedPropertyIds": [
-			"property_perekozhnik_heartbeat"
-		]
-	},
-	{
-		"id": "m_d4_07",
-		"day": 4,
-		"zoneId": "z_center",
-		"creatureId": "creature_kanalotvar",
-		"title": "Вызов в доме культуры",
-		"callerName": "участковый",
-		"briefingText": "Сообщение принято: в доме культуры затоплен подвал, из стоков идёт шум и пропали дворовые собаки. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"perception": 4,
-			"composure": 7
-		},
-		"travelSeconds": 14.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 9.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.3,
-		"deathChance": 0.1,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в доме культуры локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в доме культуры не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"radioEncounterId": "radio_kanalotvar_boiler"
-	},
-	{
-		"id": "m_d4_08",
-		"day": 4,
-		"zoneId": "z_industrial",
-		"creatureId": "creature_mimic",
-		"title": "Вызов в насосной станции",
-		"callerName": "сторож",
-		"briefingText": "Сообщение принято: в насосной станции жалуются на второго такого же человека. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"perception": 8,
-			"composure": 5
-		},
-		"travelSeconds": 16.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 11.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.3,
-		"deathChance": 0.1,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в насосной станции локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в насосной станции не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"manifestedPropertyIds": [
-			"property_mimic_speech"
-		]
-	},
-	{
-		"id": "m_d4_09",
-		"day": 4,
-		"zoneId": "z_sleep",
-		"creatureId": "creature_perekozhnik",
-		"title": "Вызов в девятиэтажке по Лесной",
-		"callerName": "директор объекта",
-		"briefingText": "Сообщение принято: в девятиэтажке по Лесной кто-то крупный ходит вдоль стен и не выходит на свет. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"strength": 9,
-			"endurance": 4,
-			"charisma": 3
-		},
-		"travelSeconds": 10.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 13.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.3,
-		"deathChance": 0.1,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в девятиэтажке по Лесной локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в девятиэтажке по Лесной не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"radioEncounterId": "radio_skin_yard"
-	},
-	{
-		"id": "m_d4_10",
-		"day": 4,
-		"zoneId": "z_station",
-		"creatureId": "creature_kanalotvar",
-		"title": "Вызов в путевом посту",
-		"callerName": "бригадир смены",
-		"briefingText": "Сообщение принято: в путевом посту затоплен подвал, из стоков идёт шум и пропали дворовые собаки. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"perception": 5,
-			"composure": 7
-		},
-		"travelSeconds": 12.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 9.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.3,
-		"deathChance": 0.1,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в путевом посту локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в путевом посту не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"manifestedPropertyIds": [
-			"property_kanalotvar_lure"
-		]
-	},
-	{
-		"id": "m_d4_11",
-		"day": 4,
-		"zoneId": "z_outskirts",
-		"creatureId": "creature_mimic",
-		"title": "Вызов в коллекторе за кольцевой",
-		"callerName": "дежурный по райотделу",
-		"briefingText": "Сообщение принято: в коллекторе за кольцевой жалуются на второго такого же человека. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"perception": 8,
-			"composure": 4
-		},
-		"travelSeconds": 14.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 11.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.3,
-		"deathChance": 0.1,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в коллекторе за кольцевой локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в коллекторе за кольцевой не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"radioEncounterId": "radio_mimic_school"
-	},
-	{
-		"id": "m_d4_12",
-		"day": 4,
-		"zoneId": "z_center",
-		"creatureId": "creature_perekozhnik",
-		"title": "Вызов в архиве горсовета",
-		"callerName": "вахтёр",
-		"briefingText": "Сообщение принято: в архиве горсовета кто-то крупный ходит вдоль стен и не выходит на свет. Объект не идентифицирован. Требуется выезд группы.",
-		"requirements": {
-			"strength": 9,
-			"endurance": 5
-		},
-		"travelSeconds": 16.0,
-		"onSiteSeconds": 6.0,
-		"returnSeconds": 13.0,
-		"experienceOnSuccess": 100,
-		"experienceOnFailure": 25,
-		"injuryChance": 0.3,
-		"deathChance": 0.1,
-		"scalesOnSuccess": {
-			"infection": -2.0,
-			"publicity": -1.0,
-			"loyalty": 2.0
-		},
-		"scalesOnFailure": {
-			"infection": 5.0,
-			"publicity": 4.0,
-			"loyalty": -4.0
-		},
-		"scalesOnMissedCall": {
-			"infection": 6.0,
-			"publicity": 6.0,
-			"loyalty": -6.0
-		},
-		"scalesOnExpiredMarker": {
-			"infection": 5.0,
-			"publicity": 5.0,
-			"loyalty": -5.0
-		},
-		"reportSuccessText": "Объект в архиве горсовета локализован. Пострадавших среди гражданских нет. Материалы переданы в отдел учёта.",
-		"reportFailureText": "Работа в архиве горсовета не завершена. Объект покинул точку. Район требует повторной проверки.",
-		"manifestedPropertyIds": [
-			"property_perekozhnik_heartbeat"
-		]
-	}
+  {
+    "id": "m_black_mold",
+    "day": 1,
+    "tier": "Story",
+    "zoneId": "z_center",
+    "creatureId": "",
+    "callId": "call_black_mold",
+    "missionEventId": "radio_black_mold",
+    "requirements": {
+      "charisma": 4,
+      "intellect": 4
+    },
+    "primaryStat": "charisma",
+    "squadLimit": 2,
+    "travelSeconds": 10.0,
+    "onSiteSeconds": 6.0,
+    "returnSeconds": 9.0,
+    "experienceOnSuccess": 100,
+    "experienceOnFailure": 25,
+    "injuryChance": 0.18,
+    "deathChance": 0.04,
+    "scalesOnSuccess": {
+      "infection": -3.0,
+      "publicity": -1.0,
+      "loyalty": 1.0
+    },
+    "scalesOnFailure": {
+      "infection": 4.0,
+      "publicity": 3.0,
+      "loyalty": -3.0
+    },
+    "scalesOnMissedCall": {
+      "infection": 6.0,
+      "publicity": 5.0,
+      "loyalty": -5.0
+    },
+    "scalesOnExpiredMarker": {
+      "infection": 5.0,
+      "publicity": 4.0,
+      "loyalty": -4.0
+    },
+    "reports": {
+      "": {
+        "success": "report_black_mold_carpets_success",
+        "failure": "report_black_mold_carpets_failure"
+      },
+      "carpets": {
+        "success": "report_black_mold_carpets_success",
+        "failure": "report_black_mold_carpets_failure"
+      },
+      "resettle": {
+        "success": "report_black_mold_resettle_success",
+        "failure": "report_black_mold_resettle_failure"
+      },
+      "reagent": {
+        "success": "report_black_mold_reagent_success",
+        "failure": "report_black_mold_reagent_failure"
+      }
+    }
+  },
+  {
+    "id": "m_pensioner_door",
+    "day": 1,
+    "tier": "Story",
+    "zoneId": "z_sleep",
+    "creatureId": "creature_mimic",
+    "callId": "call_pensioner_door",
+    "missionEventId": "radio_pensioner_door",
+    "requirements": {
+      "intellect": 5,
+      "charisma": 4,
+      "strength": 5,
+      "combat": 4
+    },
+    "primaryStat": "intellect",
+    "squadLimit": 2,
+    "travelSeconds": 12.0,
+    "onSiteSeconds": 6.0,
+    "returnSeconds": 10.0,
+    "experienceOnSuccess": 100,
+    "experienceOnFailure": 25,
+    "injuryChance": 0.22,
+    "deathChance": 0.06,
+    "scalesOnSuccess": {
+      "infection": -2.0,
+      "publicity": -1.0,
+      "loyalty": 2.0
+    },
+    "scalesOnFailure": {
+      "infection": 5.0,
+      "publicity": 4.0,
+      "loyalty": -4.0
+    },
+    "scalesOnMissedCall": {
+      "infection": 6.0,
+      "publicity": 6.0,
+      "loyalty": -6.0
+    },
+    "scalesOnExpiredMarker": {
+      "infection": 5.0,
+      "publicity": 5.0,
+      "loyalty": -5.0
+    },
+    "reports": {
+      "": {
+        "success": "report_pensioner_door_plain_success",
+        "failure": "report_pensioner_door_plain_failure"
+      },
+      "pass_by": {
+        "success": "report_pensioner_door_pass_by_success",
+        "failure": "report_pensioner_door_pass_by_failure"
+      },
+      "capture": {
+        "success": "report_pensioner_door_capture_success",
+        "failure": "report_pensioner_door_capture_failure"
+      },
+      "left_turn": {
+        "success": "report_pensioner_door_left_turn_success",
+        "failure": "report_pensioner_door_left_turn_failure"
+      }
+    }
+  },
+  {
+    "id": "m_workshop_intro",
+    "day": 1,
+    "tier": "Story",
+    "consequenceCap": "None",
+    "zoneId": "z_industrial",
+    "creatureId": "",
+    "callId": "call_workshop_intro",
+    "missionEventId": "radio_workshop_intro",
+    "requirements": {
+      "intellect": 5,
+      "charisma": 4
+    },
+    "primaryStat": "intellect",
+    "squadLimit": 2,
+    "travelSeconds": 12.0,
+    "onSiteSeconds": 6.0,
+    "returnSeconds": 10.0,
+    "experienceOnSuccess": 100,
+    "experienceOnFailure": 25,
+    "injuryChance": 0.0,
+    "deathChance": 0.0,
+    "scalesOnSuccess": {
+      "infection": 0.0,
+      "publicity": -1.0,
+      "loyalty": 2.0
+    },
+    "scalesOnFailure": {
+      "infection": 0.0,
+      "publicity": 3.0,
+      "loyalty": -2.0
+    },
+    "scalesOnMissedCall": {
+      "infection": 6.0,
+      "publicity": 6.0,
+      "loyalty": -6.0
+    },
+    "scalesOnExpiredMarker": {
+      "infection": 5.0,
+      "publicity": 5.0,
+      "loyalty": -5.0
+    },
+    "reports": {
+      "": {
+        "success": "report_workshop_intro_peace_success",
+        "failure": "report_workshop_intro_peace_failure"
+      },
+      "papers": {
+        "success": "report_workshop_intro_papers_success",
+        "failure": "report_workshop_intro_papers_failure"
+      },
+      "peace": {
+        "success": "report_workshop_intro_peace_success",
+        "failure": "report_workshop_intro_peace_failure"
+      }
+    }
+  },
+  {
+    "id": "m_workshop_truck",
+    "day": 2,
+    "tier": "Story",
+    "consequenceCap": "Injury",
+    "zoneId": "z_industrial",
+    "creatureId": "",
+    "callId": "call_workshop_truck",
+    "missionEventId": "radio_workshop_truck",
+    "requirements": {
+      "charisma": 4,
+      "strength": 4,
+      "combat": 4
+    },
+    "primaryStat": "charisma",
+    "squadLimit": 2,
+    "travelSeconds": 12.0,
+    "onSiteSeconds": 6.0,
+    "returnSeconds": 10.0,
+    "experienceOnSuccess": 100,
+    "experienceOnFailure": 25,
+    "injuryChance": 0.25,
+    "deathChance": 0.0,
+    "scalesOnSuccess": {
+      "infection": -2.0,
+      "publicity": -1.0,
+      "loyalty": 2.0
+    },
+    "scalesOnFailure": {
+      "infection": 5.0,
+      "publicity": 4.0,
+      "loyalty": -4.0
+    },
+    "scalesOnMissedCall": {
+      "infection": 6.0,
+      "publicity": 6.0,
+      "loyalty": -6.0
+    },
+    "scalesOnExpiredMarker": {
+      "infection": 5.0,
+      "publicity": 5.0,
+      "loyalty": -5.0
+    },
+    "reports": {
+      "": {
+        "success": "report_workshop_truck_write_off_success",
+        "failure": "report_workshop_truck_write_off_failure"
+      },
+      "write_off": {
+        "success": "report_workshop_truck_write_off_success",
+        "failure": "report_workshop_truck_write_off_failure"
+      },
+      "seize": {
+        "success": "report_workshop_truck_seize_success",
+        "failure": "report_workshop_truck_seize_failure"
+      }
+    }
+  },
+  {
+    "id": "m_cement_night_shift",
+    "day": 3,
+    "tier": "Filler",
+    "consequenceCap": "Injury",
+    "zoneId": "z_industrial",
+    "creatureId": "",
+    "callId": "call_cement_night_shift",
+    "missionEventId": "",
+    "requirements": {
+      "strength": 4,
+      "intellect": 3,
+      "charisma": 3
+    },
+    "primaryStat": "strength",
+    "squadLimit": 2,
+    "travelSeconds": 12.0,
+    "onSiteSeconds": 6.0,
+    "returnSeconds": 10.0,
+    "experienceOnSuccess": 60,
+    "experienceOnFailure": 15,
+    "injuryChance": 0.2,
+    "deathChance": 0.0,
+    "scalesOnSuccess": {
+      "infection": -1.0,
+      "publicity": -1.0,
+      "loyalty": 1.0
+    },
+    "scalesOnFailure": {
+      "infection": 3.0,
+      "publicity": 2.0,
+      "loyalty": -2.0
+    },
+    "scalesOnMissedCall": {
+      "infection": 6.0,
+      "publicity": 6.0,
+      "loyalty": -6.0
+    },
+    "scalesOnExpiredMarker": {
+      "infection": 5.0,
+      "publicity": 5.0,
+      "loyalty": -5.0
+    },
+    "reports": {
+      "": {
+        "success": "report_cement_night_shift_success",
+        "failure": "report_cement_night_shift_failure"
+      }
+    }
+  },
+  {
+    "id": "m_dense_flock",
+    "day": 3,
+    "tier": "Story",
+    "consequenceCap": "Death",
+    "zoneId": "z_industrial",
+    "creatureId": "creature_simulacre",
+    "callId": "call_dense_flock",
+    "missionEventId": "radio_dense_flock",
+    "requirements": {
+      "agility": 4,
+      "intellect": 3,
+      "combat": 4,
+      "strength": 3
+    },
+    "primaryStat": "combat",
+    "squadLimit": 2,
+    "travelSeconds": 12.0,
+    "onSiteSeconds": 6.0,
+    "returnSeconds": 10.0,
+    "experienceOnSuccess": 100,
+    "experienceOnFailure": 25,
+    "injuryChance": 0.3,
+    "deathChance": 0.08,
+    "scalesOnSuccess": {
+      "infection": -2.0,
+      "publicity": -1.0,
+      "loyalty": 2.0
+    },
+    "scalesOnFailure": {
+      "infection": 5.0,
+      "publicity": 4.0,
+      "loyalty": -4.0
+    },
+    "scalesOnMissedCall": {
+      "infection": 6.0,
+      "publicity": 6.0,
+      "loyalty": -6.0
+    },
+    "scalesOnExpiredMarker": {
+      "infection": 5.0,
+      "publicity": 5.0,
+      "loyalty": -5.0
+    },
+    "reports": {
+      "": {
+        "success": "report_dense_flock_perimeter_success",
+        "failure": "report_dense_flock_perimeter_failure"
+      },
+      "perimeter": {
+        "success": "report_dense_flock_perimeter_success",
+        "failure": "report_dense_flock_perimeter_failure"
+      },
+      "disperse": {
+        "success": "report_dense_flock_disperse_success",
+        "failure": "report_dense_flock_disperse_failure"
+      },
+      "cordon": {
+        "success": "report_dense_flock_cordon_failure",
+        "failure": "report_dense_flock_cordon_failure"
+      }
+    }
+  },
+  {
+    "id": "m_dogs_at_grate",
+    "day": 3,
+    "tier": "Filler",
+    "consequenceCap": "Injury",
+    "zoneId": "z_sleep",
+    "creatureId": "",
+    "callId": "call_dogs_at_grate",
+    "missionEventId": "",
+    "requirements": {
+      "intellect": 4,
+      "strength": 3,
+      "combat": 3
+    },
+    "primaryStat": "intellect",
+    "squadLimit": 2,
+    "travelSeconds": 12.0,
+    "onSiteSeconds": 6.0,
+    "returnSeconds": 10.0,
+    "experienceOnSuccess": 60,
+    "experienceOnFailure": 15,
+    "injuryChance": 0.1,
+    "deathChance": 0.0,
+    "scalesOnSuccess": {
+      "infection": 0.0,
+      "publicity": 0.0,
+      "loyalty": 0.0
+    },
+    "scalesOnFailure": {
+      "infection": 2.0,
+      "publicity": 0.0,
+      "loyalty": 0.0
+    },
+    "scalesOnMissedCall": {
+      "infection": 6.0,
+      "publicity": 6.0,
+      "loyalty": -6.0
+    },
+    "scalesOnExpiredMarker": {
+      "infection": 5.0,
+      "publicity": 5.0,
+      "loyalty": -5.0
+    },
+    "reports": {
+      "": {
+        "success": "report_dogs_at_grate_success",
+        "failure": "report_dogs_at_grate_failure"
+      }
+    }
+  },
+  {
+    "id": "m_dosimeter_yard",
+    "day": 3,
+    "tier": "Filler",
+    "consequenceCap": "None",
+    "zoneId": "z_sleep",
+    "creatureId": "",
+    "callId": "call_dosimeter_yard",
+    "missionEventId": "",
+    "requirements": {
+      "charisma": 4,
+      "combat": 3,
+      "intellect": 3
+    },
+    "primaryStat": "charisma",
+    "squadLimit": 2,
+    "travelSeconds": 12.0,
+    "onSiteSeconds": 6.0,
+    "returnSeconds": 10.0,
+    "experienceOnSuccess": 60,
+    "experienceOnFailure": 15,
+    "injuryChance": 0.0,
+    "deathChance": 0.0,
+    "scalesOnSuccess": {
+      "infection": 0.0,
+      "publicity": -3.0,
+      "loyalty": 1.0
+    },
+    "scalesOnFailure": {
+      "infection": 0.0,
+      "publicity": 5.0,
+      "loyalty": -2.0
+    },
+    "scalesOnMissedCall": {
+      "infection": 6.0,
+      "publicity": 6.0,
+      "loyalty": -6.0
+    },
+    "scalesOnExpiredMarker": {
+      "infection": 5.0,
+      "publicity": 5.0,
+      "loyalty": -5.0
+    },
+    "reports": {
+      "": {
+        "success": "report_dosimeter_yard_success",
+        "failure": "report_dosimeter_yard_failure"
+      }
+    }
+  },
+  {
+    "id": "m_night_pharmacy",
+    "day": 3,
+    "tier": "Story",
+    "consequenceCap": "Injury",
+    "zoneId": "z_center",
+    "creatureId": "creature_mimic",
+    "callId": "call_night_pharmacy",
+    "missionEventId": "radio_night_pharmacy",
+    "requirements": {
+      "charisma": 4,
+      "combat": 4
+    },
+    "primaryStat": "charisma",
+    "squadLimit": 2,
+    "travelSeconds": 12.0,
+    "onSiteSeconds": 6.0,
+    "returnSeconds": 10.0,
+    "experienceOnSuccess": 100,
+    "experienceOnFailure": 25,
+    "injuryChance": 0.15,
+    "deathChance": 0.03,
+    "scalesOnSuccess": {
+      "infection": -2.0,
+      "publicity": -1.0,
+      "loyalty": 2.0
+    },
+    "scalesOnFailure": {
+      "infection": 5.0,
+      "publicity": 4.0,
+      "loyalty": -4.0
+    },
+    "scalesOnMissedCall": {
+      "infection": 6.0,
+      "publicity": 6.0,
+      "loyalty": -6.0
+    },
+    "scalesOnExpiredMarker": {
+      "infection": 5.0,
+      "publicity": 5.0,
+      "loyalty": -5.0
+    },
+    "reports": {
+      "": {
+        "success": "report_night_pharmacy_closed_success",
+        "failure": "report_night_pharmacy_closed_failure"
+      },
+      "closed": {
+        "success": "report_night_pharmacy_closed_success",
+        "failure": "report_night_pharmacy_closed_failure"
+      },
+      "placebo": {
+        "success": "report_night_pharmacy_placebo_success",
+        "failure": "report_night_pharmacy_placebo_failure"
+      },
+      "militia": {
+        "success": "report_night_pharmacy_militia_failure",
+        "failure": "report_night_pharmacy_militia_failure"
+      }
+    }
+  },
+  {
+    "id": "m_ninth_silence",
+    "day": 3,
+    "tier": "Filler",
+    "consequenceCap": "Injury",
+    "zoneId": "z_outskirts",
+    "creatureId": "",
+    "callId": "call_ninth_silence",
+    "missionEventId": "",
+    "requirements": {
+      "intellect": 4,
+      "strength": 3,
+      "combat": 3
+    },
+    "primaryStat": "intellect",
+    "squadLimit": 2,
+    "travelSeconds": 12.0,
+    "onSiteSeconds": 6.0,
+    "returnSeconds": 10.0,
+    "experienceOnSuccess": 60,
+    "experienceOnFailure": 15,
+    "injuryChance": 0.05,
+    "deathChance": 0.0,
+    "scalesOnSuccess": {
+      "infection": 0.0,
+      "publicity": 0.0,
+      "loyalty": 0.0
+    },
+    "scalesOnFailure": {
+      "infection": 0.0,
+      "publicity": 0.0,
+      "loyalty": -3.0
+    },
+    "scalesOnMissedCall": {
+      "infection": 6.0,
+      "publicity": 6.0,
+      "loyalty": -6.0
+    },
+    "scalesOnExpiredMarker": {
+      "infection": 5.0,
+      "publicity": 5.0,
+      "loyalty": -5.0
+    },
+    "reports": {
+      "": {
+        "success": "report_ninth_silence_success",
+        "failure": "report_ninth_silence_failure"
+      }
+    }
+  },
+  {
+    "id": "m_room_34",
+    "day": 3,
+    "tier": "Story",
+    "consequenceCap": "Death",
+    "zoneId": "z_sleep",
+    "creatureId": "creature_mimic",
+    "callId": "call_room_34",
+    "missionEventId": "radio_room_34",
+    "requirements": {
+      "intellect": 4,
+      "charisma": 4,
+      "combat": 4,
+      "strength": 3
+    },
+    "primaryStat": "intellect",
+    "squadLimit": 2,
+    "travelSeconds": 12.0,
+    "onSiteSeconds": 6.0,
+    "returnSeconds": 10.0,
+    "experienceOnSuccess": 100,
+    "experienceOnFailure": 25,
+    "injuryChance": 0.2,
+    "deathChance": 0.04,
+    "scalesOnSuccess": {
+      "infection": -2.0,
+      "publicity": -1.0,
+      "loyalty": 2.0
+    },
+    "scalesOnFailure": {
+      "infection": 5.0,
+      "publicity": 4.0,
+      "loyalty": -4.0
+    },
+    "scalesOnMissedCall": {
+      "infection": 6.0,
+      "publicity": 6.0,
+      "loyalty": -6.0
+    },
+    "scalesOnExpiredMarker": {
+      "infection": 5.0,
+      "publicity": 5.0,
+      "loyalty": -5.0
+    },
+    "reports": {
+      "": {
+        "success": "report_room_34_lists_success",
+        "failure": "report_room_34_lists_failure"
+      },
+      "lists": {
+        "success": "report_room_34_lists_success",
+        "failure": "report_room_34_lists_failure"
+      },
+      "routine": {
+        "success": "report_room_34_routine_success",
+        "failure": "report_room_34_routine_failure"
+      },
+      "evacuate": {
+        "success": "report_room_34_evacuate_success",
+        "failure": "report_room_34_evacuate_failure"
+      }
+    }
+  },
+  {
+    "id": "m_shelter_basement",
+    "day": 3,
+    "tier": "Filler",
+    "consequenceCap": "Injury",
+    "zoneId": "z_sleep",
+    "creatureId": "",
+    "callId": "call_shelter_basement",
+    "missionEventId": "",
+    "requirements": {
+      "strength": 4,
+      "charisma": 3
+    },
+    "primaryStat": "strength",
+    "squadLimit": 2,
+    "travelSeconds": 12.0,
+    "onSiteSeconds": 6.0,
+    "returnSeconds": 10.0,
+    "experienceOnSuccess": 60,
+    "experienceOnFailure": 15,
+    "injuryChance": 0.35,
+    "deathChance": 0.0,
+    "scalesOnSuccess": {
+      "infection": -1.0,
+      "publicity": -1.0,
+      "loyalty": 1.0
+    },
+    "scalesOnFailure": {
+      "infection": 3.0,
+      "publicity": 2.0,
+      "loyalty": -2.0
+    },
+    "scalesOnMissedCall": {
+      "infection": 6.0,
+      "publicity": 6.0,
+      "loyalty": -6.0
+    },
+    "scalesOnExpiredMarker": {
+      "infection": 5.0,
+      "publicity": 5.0,
+      "loyalty": -5.0
+    },
+    "reports": {
+      "": {
+        "success": "report_shelter_basement_success",
+        "failure": "report_shelter_basement_failure"
+      }
+    }
+  },
+  {
+    "id": "m_tram_last_run",
+    "day": 3,
+    "tier": "Story",
+    "consequenceCap": "Death",
+    "zoneId": "z_station",
+    "creatureId": "creature_mimic",
+    "callId": "call_tram_last_run",
+    "missionEventId": "radio_tram_last_run",
+    "requirements": {
+      "combat": 4,
+      "strength": 4,
+      "intellect": 4
+    },
+    "primaryStat": "combat",
+    "squadLimit": 2,
+    "travelSeconds": 12.0,
+    "onSiteSeconds": 6.0,
+    "returnSeconds": 10.0,
+    "experienceOnSuccess": 100,
+    "experienceOnFailure": 25,
+    "injuryChance": 0.3,
+    "deathChance": 0.1,
+    "scalesOnSuccess": {
+      "infection": -2.0,
+      "publicity": -1.0,
+      "loyalty": 2.0
+    },
+    "scalesOnFailure": {
+      "infection": 5.0,
+      "publicity": 4.0,
+      "loyalty": -4.0
+    },
+    "scalesOnMissedCall": {
+      "infection": 6.0,
+      "publicity": 6.0,
+      "loyalty": -6.0
+    },
+    "scalesOnExpiredMarker": {
+      "infection": 5.0,
+      "publicity": 5.0,
+      "loyalty": -5.0
+    },
+    "reports": {
+      "": {
+        "success": "report_tram_last_run_route_success",
+        "failure": "report_tram_last_run_route_failure"
+      },
+      "route": {
+        "success": "report_tram_last_run_route_success",
+        "failure": "report_tram_last_run_route_failure"
+      },
+      "driver": {
+        "success": "report_tram_last_run_driver_success",
+        "failure": "report_tram_last_run_driver_failure"
+      },
+      "power": {
+        "success": "report_tram_last_run_power_success",
+        "failure": "report_tram_last_run_power_failure"
+      }
+    }
+  },
+  {
+    "id": "m_workshop_empty",
+    "day": 3,
+    "tier": "Story",
+    "consequenceCap": "None",
+    "zoneId": "z_center",
+    "creatureId": "",
+    "callId": "call_workshop_empty",
+    "missionEventId": "radio_workshop_empty",
+    "requirements": {
+      "strength": 3,
+      "intellect": 4
+    },
+    "primaryStat": "intellect",
+    "squadLimit": 2,
+    "travelSeconds": 14.0,
+    "onSiteSeconds": 10.0,
+    "returnSeconds": 10.0,
+    "experienceOnSuccess": 100,
+    "experienceOnFailure": 25,
+    "injuryChance": 0.0,
+    "deathChance": 0.0,
+    "scalesOnSuccess": {
+      "infection": 0.0,
+      "publicity": 0.0,
+      "loyalty": 0.0
+    },
+    "scalesOnFailure": {
+      "infection": 0.0,
+      "publicity": 0.0,
+      "loyalty": -2.0
+    },
+    "scalesOnMissedCall": {
+      "infection": 6.0,
+      "publicity": 6.0,
+      "loyalty": -6.0
+    },
+    "scalesOnExpiredMarker": {
+      "infection": 5.0,
+      "publicity": 5.0,
+      "loyalty": -5.0
+    },
+    "reports": {
+      "": {
+        "success": "report_workshop_empty_search_success",
+        "failure": "report_workshop_empty_search_failure"
+      },
+      "search": {
+        "success": "report_workshop_empty_search_success",
+        "failure": "report_workshop_empty_search_failure"
+      },
+      "abort": {
+        "success": "report_workshop_empty_abort_success",
+        "failure": "report_workshop_empty_abort_failure"
+      }
+    }
+  },
+  {
+    "id": "m_workshop_site",
+    "day": 3,
+    "tier": "Story",
+    "consequenceCap": "Death",
+    "zoneId": "z_industrial",
+    "creatureId": "",
+    "callId": "call_workshop_site",
+    "missionEventId": "radio_workshop_site",
+    "requirements": {
+      "intellect": 4,
+      "strength": 3,
+      "charisma": 4
+    },
+    "primaryStat": "intellect",
+    "squadLimit": 2,
+    "travelSeconds": 12.0,
+    "onSiteSeconds": 6.0,
+    "returnSeconds": 10.0,
+    "experienceOnSuccess": 100,
+    "experienceOnFailure": 25,
+    "injuryChance": 0.35,
+    "deathChance": 0.12,
+    "scalesOnSuccess": {
+      "infection": -2.0,
+      "publicity": -1.0,
+      "loyalty": 2.0
+    },
+    "scalesOnFailure": {
+      "infection": 5.0,
+      "publicity": 4.0,
+      "loyalty": -4.0
+    },
+    "scalesOnMissedCall": {
+      "infection": 6.0,
+      "publicity": 6.0,
+      "loyalty": -6.0
+    },
+    "scalesOnExpiredMarker": {
+      "infection": 5.0,
+      "publicity": 5.0,
+      "loyalty": -5.0
+    },
+    "reports": {
+      "": {
+        "success": "report_workshop_site_cut_success",
+        "failure": "report_workshop_site_cut_failure"
+      },
+      "cut": {
+        "success": "report_workshop_site_cut_success",
+        "failure": "report_workshop_site_cut_failure"
+      },
+      "lead_out": {
+        "success": "report_workshop_site_lead_out_success",
+        "failure": "report_workshop_site_lead_out_failure"
+      },
+      "cordon": {
+        "success": "report_workshop_site_cordon_failure",
+        "failure": "report_workshop_site_cordon_failure"
+      }
+    }
+  }
 ]

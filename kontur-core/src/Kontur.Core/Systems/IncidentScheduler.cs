@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Kontur.Core.Config;
 using Kontur.Core.Content;
@@ -8,7 +9,7 @@ namespace Kontur.Core.Systems
 {
 	/// <summary>
 	/// Планирует расписание вызовов на смену (ДД, раздел 3, п. 13–14):
-	/// 5–10 вызовов и окно приёма в 5 минут. Здание назначается каждому инциденту из каталога доступных целей.
+	/// 5–10 вызовов, окно приёма — 5 минут, зона выбирается по своему весу (раздел 9).
 	/// Расписание строится один раз в начале смены — так прогон детерминирован и его легко логировать.
 	/// </summary>
 	public sealed class IncidentScheduler
@@ -49,25 +50,29 @@ namespace Kontur.Core.Systems
 
 			List<double> times = BuildCallTimes(count, timings);
 			var usedThisShift = new HashSet<string>();
-			var usedBuildingIds = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
+			var usedBuildings = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
 			for (int i = 0; i < times.Count; i++)
 			{
 				MissionDefinition? mission = PickMission(pool, usedThisShift);
-				BuildingDefinition? building = PickBuilding(usedBuildingIds);
-				if (mission == null || building == null)
+				if (mission == null)
 				{
 					break;
 				}
 
 				usedThisShift.Add(mission.Id);
-				usedBuildingIds.Add(building.Id);
 				_state.UsedMissionIds.Add(mission.Id);
 
-				var incident = new IncidentRuntime($"INC-{day:00}-{i + 1:00}", mission, building.Id)
+				var incident = new IncidentRuntime($"INC-{day:00}-{i + 1:00}", mission)
 				{
-					ScheduledAtSeconds = times[i]
+					ScheduledAtSeconds = times[i],
+					BuildingId = PickBuilding(mission.ZoneId, usedBuildings)
 				};
+
+				if (incident.BuildingId.Length > 0)
+				{
+					usedBuildings.Add(incident.BuildingId);
+				}
 
 				schedule.Add(incident);
 			}
@@ -83,8 +88,8 @@ namespace Kontur.Core.Systems
 		private List<IncidentRuntime> BuildScriptedSchedule(DayConfig dayConfig, TimingConfig timings, int day)
 		{
 			var schedule = new List<IncidentRuntime>();
-			var usedBuildingIds = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
 			double gap = timings.MinSecondsBetweenCalls;
+			var usedBuildings = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
 			for (int i = 0; i < dayConfig.MissionOrder.Count; i++)
 			{
@@ -101,17 +106,16 @@ namespace Kontur.Core.Systems
 
 				_state.UsedMissionIds.Add(mission.Id);
 
-				BuildingDefinition? building = PickBuilding(usedBuildingIds);
-				if (building == null)
+				string buildingId = PickBuilding(mission.ZoneId, usedBuildings);
+				if (buildingId.Length > 0)
 				{
-					throw new Kontur.Core.Content.ContentException(
-						$"{ContentLoader.BuildingsFile}: не хватает зданий для сценария смены {day}.");
+					usedBuildings.Add(buildingId);
 				}
 
-				usedBuildingIds.Add(building.Id);
-				schedule.Add(new IncidentRuntime($"INC-{day:00}-{i + 1:00}", mission, building.Id)
+				schedule.Add(new IncidentRuntime($"INC-{day:00}-{i + 1:00}", mission)
 				{
-					ScheduledAtSeconds = gap * i
+					ScheduledAtSeconds = gap * i,
+					BuildingId = buildingId
 				});
 			}
 
@@ -154,36 +158,103 @@ namespace Kontur.Core.Systems
 			return times;
 		}
 
-		private MissionDefinition? PickMission(IReadOnlyList<MissionDefinition> pool, HashSet<string> usedThisShift)
+		/// <summary>
+		/// Дом под вызов. Два дома под один вызов за смену не выдаются: две метки
+		/// в одном подъезде игрок прочитал бы как ошибку отрисовки.
+		///
+		/// Приоритет у домов нужного района. Если ни один дом района не подошёл — берём
+		/// любой свободный: пустая карта хуже неточной. Пока районы в buildings.json
+		/// не проставлены, работает как раз эта ветка.
+		/// </summary>
+		private string PickBuilding(string zoneId, HashSet<string> usedBuildings)
 		{
-			var candidates = new List<MissionDefinition>();
-			for (int index = 0; index < pool.Count; index++)
+			if (_content.Buildings.Count == 0)
 			{
-				MissionDefinition mission = pool[index];
-				if (!usedThisShift.Contains(mission.Id))
-				{
-					candidates.Add(mission);
-				}
+				return string.Empty;
 			}
 
-			return candidates.Count > 0 ? _random.Pick(candidates) : null;
+			var inZone = new List<BuildingDefinition>();
+			var anywhere = new List<BuildingDefinition>();
 
-		}
-
-		private BuildingDefinition? PickBuilding(HashSet<string> usedBuildingIds)
-		{
-			var candidates = new List<BuildingDefinition>();
 			foreach (KeyValuePair<string, BuildingDefinition> pair in _content.Buildings)
 			{
 				BuildingDefinition building = pair.Value;
-				if (building.IsDispatchTarget && !usedBuildingIds.Contains(building.Id))
+				if (!building.IsDispatchTarget || usedBuildings.Contains(building.Id))
 				{
-					candidates.Add(building);
+					continue;
+				}
+
+				anywhere.Add(building);
+
+				if (building.ZoneId.Length > 0
+					&& string.Equals(building.ZoneId, zoneId, StringComparison.OrdinalIgnoreCase))
+				{
+					inZone.Add(building);
 				}
 			}
 
+			List<BuildingDefinition> candidates = inZone.Count > 0 ? inZone : anywhere;
+			if (candidates.Count == 0)
+			{
+				return string.Empty;
+			}
+
+			// Сортировка перед выбором — ради воспроизводимости: порядок обхода словаря
+			// не гарантирован, и без неё один и тот же сид давал бы разные дома.
 			candidates.Sort((left, right) => string.CompareOrdinal(left.Id, right.Id));
-			return candidates.Count > 0 ? _random.Pick(candidates) : null;
+			return _random.Pick(candidates).Id;
+		}
+
+		private MissionDefinition? PickMission(IReadOnlyList<MissionDefinition> pool, HashSet<string> usedThisShift)
+		{
+			// Зона выбирается по своему весу, миссия — из числа привязанных к этой зоне.
+			// Вес статичен: он задаёт характер района, а не реагирует на игру.
+			var zoneIds = new List<string>();
+			var weights = new List<double>();
+
+			foreach (KeyValuePair<string, Zone> pair in _state.Zones)
+			{
+				zoneIds.Add(pair.Key);
+				weights.Add(pair.Value.BaseWeight);
+			}
+
+			for (int attempt = 0; attempt < 8 && zoneIds.Count > 0; attempt++)
+			{
+				int zoneIndex = _random.PickWeightedIndex(weights);
+				string zoneId = zoneIds[zoneIndex];
+
+				var candidates = new List<MissionDefinition>();
+				for (int i = 0; i < pool.Count; i++)
+				{
+					MissionDefinition mission = pool[i];
+					if (usedThisShift.Contains(mission.Id))
+					{
+						continue;
+					}
+
+					if (string.Equals(mission.ZoneId, zoneId, System.StringComparison.OrdinalIgnoreCase))
+					{
+						candidates.Add(mission);
+					}
+				}
+
+				if (candidates.Count > 0)
+				{
+					return _random.Pick(candidates);
+				}
+			}
+
+			// Ни одной свободной миссии в выпавших зонах — берём любую неиспользованную.
+			var fallback = new List<MissionDefinition>();
+			for (int i = 0; i < pool.Count; i++)
+			{
+				if (!usedThisShift.Contains(pool[i].Id))
+				{
+					fallback.Add(pool[i]);
+				}
+			}
+
+			return fallback.Count > 0 ? _random.Pick(fallback) : null;
 		}
 	}
 }

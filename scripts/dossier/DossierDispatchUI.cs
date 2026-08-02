@@ -43,10 +43,10 @@ public partial class DossierDispatchUI : Control
 	{
 		_dispatchComputer = computerUi;
 		_roster.Clear();
-		GameRuntime runtime = GameRuntime.Get(this);
+		KonturRuntime runtime = KonturRuntime.Get(this);
 		if (runtime != null && runtime.IsReady)
 		{
-			foreach (EmployeeView employee in runtime.Session.GetRoster())
+			foreach (EmployeeView employee in runtime.Simulation.GetRoster())
 			{
 				_roster.Add(employee);
 			}
@@ -172,9 +172,9 @@ public partial class DossierDispatchUI : Control
 	private static string BuildStats(EmployeeView employee)
 	{
 		return "\u0425\u0410\u0420\u0410\u041a\u0422\u0415\u0420\u0418\u0421\u0422\u0418\u041a\u0418\n"
-			+ $"\u0421\u0418\u041b {employee.Stats.Strength}  \u0412\u041e\u0421\u041f {employee.Stats.Perception}\n"
-			+ $"\u0412\u042b\u041d {employee.Stats.Endurance}  \u0425\u0410\u0420 {employee.Stats.Charisma}\n"
-			+ $"\u0421\u0410\u041c {employee.Stats.Composure}";
+			+ $"\u0421\u0418\u041b {employee.Stats.Strength}  \u0412\u041e\u0421\u041f {employee.Stats.Intellect}\n"
+			+ $"\u0412\u042b\u041d {employee.Stats.Combat}  \u0425\u0410\u0420 {employee.Stats.Charisma}\n"
+			+ $"\u0421\u0410\u041c {employee.Stats.Agility}";
 	}
 
 	private static string BuildTraits(EmployeeView employee)

@@ -76,14 +76,14 @@ public partial class MapMissionMarker : Node3D
 			return;
 		}
 
-		GameRuntime runtime = GameRuntime.Get(this);
+		KonturRuntime runtime = KonturRuntime.Get(this);
 		if (runtime == null || !runtime.IsReady)
 		{
-			GD.PushWarning("MapMissionMarker: GameRuntime is not ready.");
+			GD.PushWarning("MapMissionMarker: KonturRuntime is not ready.");
 			return;
 		}
 
-		var opened = runtime.Session.OpenDispatchScreen(_pin.IncidentId);
+		var opened = runtime.Simulation.OpenDispatchScreen(_pin.IncidentId);
 		if (!opened.IsSuccess)
 		{
 			GD.PushWarning($"MapMissionMarker: {opened.Error}");

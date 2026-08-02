@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using Godot;
 using Kontur.Core.Content;
+using Kontur.Core.Model;
 
 /// <summary>
 /// Реализация порта <see cref="ITextCatalog"/> поверх автозагрузки Content.
@@ -15,6 +17,59 @@ public sealed class GodotTextCatalog : ITextCatalog
 	{
 		Content content = Content.Instance;
 		return content != null && content.TryGetEntry(entryId, out _);
+	}
+
+	/// <summary>
+	/// Варианты решения: ключ, порядок и характеристики, по которым идёт проверка.
+	/// Формулировки ядру не отдаются — их разворачивает текстовый бокс по тому же id.
+	///
+	/// Чисел текст не несёт вовсе: тип диалога и надбавка живут в mission_events.json,
+	/// а порог по каждой названной характеристике ядро подставляет из требований миссии.
+	/// Поэтому сюда уходят Neutral и null, а список характеристик — как есть.
+	/// </summary>
+	public IReadOnlyList<TextOption> GetOptions(string entryId)
+	{
+		var result = new List<TextOption>();
+
+		Content content = Content.Instance;
+		if (content == null || !content.TryGetEntry(entryId, out ContentEntry entry))
+		{
+			return result;
+		}
+
+		foreach (ContentOption option in entry.Options)
+		{
+			result.Add(new TextOption(
+				option.Id,
+				MissionEventQuality.Neutral,
+				null,
+				ToStatKinds(option.Requirements)));
+		}
+
+		return result;
+	}
+
+	/// <summary>
+	/// Названия характеристик из текста в вид, понятный ядру. Незнакомый ключ пропускается:
+	/// допустимые значения конвертер уже проверил на сборке текста.
+	/// </summary>
+	private static List<StatKind> ToStatKinds(IReadOnlyList<string> names)
+	{
+		var result = new List<StatKind>();
+		if (names == null)
+		{
+			return result;
+		}
+
+		for (int i = 0; i < names.Count; i++)
+		{
+			if (StatKinds.TryParse(names[i], out StatKind kind))
+			{
+				result.Add(kind);
+			}
+		}
+
+		return result;
 	}
 
 	public bool HasProperty(string entryId, string propertyId)

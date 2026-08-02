@@ -50,7 +50,7 @@ public partial class PhoneCallAcceptanceUI : Control
 		_illustrationPlaceholder.Visible = illustration == null;
 		_confirmedCallback = confirmedCallback;
 
-		GameRuntime runtime = GameRuntime.Get(this);
+		KonturRuntime runtime = KonturRuntime.Get(this);
 		if (runtime != null && runtime.IsReady && !runtime.IsPaused)
 		{
 			runtime.IsPaused = true;
@@ -83,7 +83,7 @@ public partial class PhoneCallAcceptanceUI : Control
 		Hide();
 		if (_pausedRuntime)
 		{
-			GameRuntime runtime = GameRuntime.Get(this);
+			KonturRuntime runtime = KonturRuntime.Get(this);
 			if (runtime != null)
 			{
 				runtime.IsPaused = false;

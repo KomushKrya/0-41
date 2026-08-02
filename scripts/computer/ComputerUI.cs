@@ -222,7 +222,7 @@ public partial class ComputerUI : Control
 
 	private IReadOnlyList<string> GetDispatchEmployeeNames()
 	{
-		GameRuntime runtime = GameRuntime.Get(this);
+		KonturRuntime runtime = KonturRuntime.Get(this);
 		if (runtime == null || !runtime.IsReady)
 		{
 			return System.Array.Empty<string>();
@@ -237,7 +237,7 @@ public partial class ComputerUI : Control
 				continue;
 			}
 
-			foreach (EmployeeView employee in runtime.Session.GetRoster())
+			foreach (EmployeeView employee in runtime.Simulation.GetRoster())
 			{
 				if (employee.Id == employeeId)
 				{
@@ -252,14 +252,14 @@ public partial class ComputerUI : Control
 
 	private string BuildDispatchTitle(string incidentId)
 	{
-		GameRuntime runtime = GameRuntime.Get(this);
+		KonturRuntime runtime = KonturRuntime.Get(this);
 		if (runtime != null && runtime.IsReady)
 		{
-			foreach (IncidentView incident in runtime.Session.GetActiveIncidents())
+			foreach (IncidentView incident in runtime.Simulation.GetActiveIncidents())
 			{
 				if (incident.Id == incidentId)
 				{
-					return $"ВХОДЯЩИЙ ВЫЗОВ: {incident.Title}";
+					return $"ВХОДЯЩИЙ ВЫЗОВ: {KonturUiText.MissionTitle(incident)}";
 				}
 			}
 		}
@@ -269,14 +269,14 @@ public partial class ComputerUI : Control
 
 	private string BuildDispatchTranscript(string incidentId)
 	{
-		GameRuntime runtime = GameRuntime.Get(this);
+		KonturRuntime runtime = KonturRuntime.Get(this);
 		if (runtime != null && runtime.IsReady)
 		{
-			foreach (IncidentView incident in runtime.Session.GetActiveIncidents())
+			foreach (IncidentView incident in runtime.Simulation.GetActiveIncidents())
 			{
 				if (incident.Id == incidentId)
 				{
-					return $"Вызов от: {incident.CallerName}. Требуется направить группу на объект: {incident.BuildingId}.";
+					return $"Вызов от: {KonturUiText.CallerName(incident)}. Требуется направить группу на объект: {incident.BuildingId}.";
 				}
 			}
 		}

@@ -1,0 +1,7 @@
+[
+  { "id": "z_center",     "name": "Центральный район", "baseWeight": 1.0, "mapX": 0.50, "mapY": 0.45 },
+  { "id": "z_industrial", "name": "Промзона",          "baseWeight": 1.2, "mapX": 0.78, "mapY": 0.30 },
+  { "id": "z_sleep",      "name": "Спальный массив",   "baseWeight": 1.1, "mapX": 0.28, "mapY": 0.66 },
+  { "id": "z_station",    "name": "Привокзальный",     "baseWeight": 1.0, "mapX": 0.62, "mapY": 0.72 },
+  { "id": "z_outskirts",  "name": "Окраина",           "baseWeight": 0.8, "mapX": 0.15, "mapY": 0.20 }
+]

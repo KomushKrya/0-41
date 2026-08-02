@@ -149,7 +149,7 @@ public partial class DeskComputerInteraction : Node3D
 
 	private void PauseSimulationForComputer()
 	{
-		GameRuntime runtime = GameRuntime.Get(this);
+		KonturRuntime runtime = KonturRuntime.Get(this);
 		if (runtime != null && runtime.IsReady && !runtime.IsPaused)
 		{
 			runtime.IsPaused = true;
@@ -164,7 +164,7 @@ public partial class DeskComputerInteraction : Node3D
 			return;
 		}
 
-		GameRuntime runtime = GameRuntime.Get(this);
+		KonturRuntime runtime = KonturRuntime.Get(this);
 		if (runtime != null)
 		{
 			runtime.IsPaused = false;

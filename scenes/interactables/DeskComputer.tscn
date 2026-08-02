@@ -5,7 +5,7 @@
 [ext_resource type="Script" uid="uid://bjwfxhtauk3gn" path="res://scripts/computer/DeskComputerInteractable.cs" id="3_computer_interactable"]
 [ext_resource type="Script" uid="uid://cxbebiv6k1myu" path="res://scripts/interaction/SubViewportInputController.cs" id="4_viewport_input"]
 [ext_resource type="Script" uid="uid://d0fbn8kr5taka" path="res://scripts/interaction/InteractionOutline.cs" id="5_outline"]
-[ext_resource type="PackedScene" uid="uid://ymb84ii4qwcm" path="res://assets/models/interactables/desk_computer/PCNew.glb" id="6_computer_model"]
+[ext_resource type="PackedScene" uid="uid://ymb84ii4qwcm" path="res://assets/PCNew.glb" id="6_computer_model"]
 [ext_resource type="Script" uid="uid://ddp610k3mi5c2" path="res://scripts/computer/ComputerScreenRenderer.cs" id="7_screen_renderer"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_computer_interaction"]

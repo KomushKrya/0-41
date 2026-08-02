@@ -9,24 +9,29 @@ namespace Kontur.Core.Model
 	/// </summary>
 	public readonly struct StatBlock : IEquatable<StatBlock>
 	{
-		public StatBlock(int strength, int perception, int endurance, int charisma, int composure)
+		/// <summary>
+		/// Порядок аргументов — исторический порядок слотов, он же порядок полей ниже.
+		/// Порядок показа характеристик игроку задаёт StatKinds.All и он другой:
+		/// перечисление там идёт так, как читается в интерфейсе.
+		/// </summary>
+		public StatBlock(int strength, int intellect, int combat, int agility, int charisma)
 		{
 			Strength = strength;
-			Perception = perception;
-			Endurance = endurance;
+			Intellect = intellect;
+			Combat = combat;
+			Agility = agility;
 			Charisma = charisma;
-			Composure = composure;
 		}
 
 		public int Strength { get; }
 
-		public int Perception { get; }
+		public int Intellect { get; }
 
-		public int Endurance { get; }
+		public int Combat { get; }
+
+		public int Agility { get; }
 
 		public int Charisma { get; }
-
-		public int Composure { get; }
 
 		public static StatBlock Zero
 		{
@@ -40,10 +45,10 @@ namespace Kontur.Core.Model
 				switch (kind)
 				{
 					case StatKind.Strength: return Strength;
-					case StatKind.Perception: return Perception;
-					case StatKind.Endurance: return Endurance;
+					case StatKind.Intellect: return Intellect;
+					case StatKind.Combat: return Combat;
+					case StatKind.Agility: return Agility;
 					case StatKind.Charisma: return Charisma;
-					case StatKind.Composure: return Composure;
 					default: return 0;
 				}
 			}
@@ -51,7 +56,7 @@ namespace Kontur.Core.Model
 
 		public int Total
 		{
-			get { return Strength + Perception + Endurance + Charisma + Composure; }
+			get { return Strength + Intellect + Combat + Agility + Charisma; }
 		}
 
 		public static StatBlock Uniform(int value)
@@ -63,11 +68,11 @@ namespace Kontur.Core.Model
 		{
 			switch (kind)
 			{
-				case StatKind.Strength: return new StatBlock(value, Perception, Endurance, Charisma, Composure);
-				case StatKind.Perception: return new StatBlock(Strength, value, Endurance, Charisma, Composure);
-				case StatKind.Endurance: return new StatBlock(Strength, Perception, value, Charisma, Composure);
-				case StatKind.Charisma: return new StatBlock(Strength, Perception, Endurance, value, Composure);
-				case StatKind.Composure: return new StatBlock(Strength, Perception, Endurance, Charisma, value);
+				case StatKind.Strength: return new StatBlock(value, Intellect, Combat, Agility, Charisma);
+				case StatKind.Intellect: return new StatBlock(Strength, value, Combat, Agility, Charisma);
+				case StatKind.Combat: return new StatBlock(Strength, Intellect, value, Agility, Charisma);
+				case StatKind.Agility: return new StatBlock(Strength, Intellect, Combat, value, Charisma);
+				case StatKind.Charisma: return new StatBlock(Strength, Intellect, Combat, Agility, value);
 				default: return this;
 			}
 		}
@@ -81,10 +86,10 @@ namespace Kontur.Core.Model
 		{
 			return new StatBlock(
 				Strength + other.Strength,
-				Perception + other.Perception,
-				Endurance + other.Endurance,
-				Charisma + other.Charisma,
-				Composure + other.Composure);
+				Intellect + other.Intellect,
+				Combat + other.Combat,
+				Agility + other.Agility,
+				Charisma + other.Charisma);
 		}
 
 		/// <summary>Поэлементное умножение с округлением вверх — используется радио-вариантами (множитель требований).</summary>
@@ -92,20 +97,20 @@ namespace Kontur.Core.Model
 		{
 			return new StatBlock(
 				ScaleValue(Strength, factor),
-				ScaleValue(Perception, factor),
-				ScaleValue(Endurance, factor),
-				ScaleValue(Charisma, factor),
-				ScaleValue(Composure, factor));
+				ScaleValue(Intellect, factor),
+				ScaleValue(Combat, factor),
+				ScaleValue(Agility, factor),
+				ScaleValue(Charisma, factor));
 		}
 
 		public StatBlock ClampMin(int minValue)
 		{
 			return new StatBlock(
 				Math.Max(minValue, Strength),
-				Math.Max(minValue, Perception),
-				Math.Max(minValue, Endurance),
-				Math.Max(minValue, Charisma),
-				Math.Max(minValue, Composure));
+				Math.Max(minValue, Intellect),
+				Math.Max(minValue, Combat),
+				Math.Max(minValue, Agility),
+				Math.Max(minValue, Charisma));
 		}
 
 		public static StatBlock operator +(StatBlock left, StatBlock right)
@@ -116,10 +121,10 @@ namespace Kontur.Core.Model
 		public bool Equals(StatBlock other)
 		{
 			return Strength == other.Strength
-				&& Perception == other.Perception
-				&& Endurance == other.Endurance
-				&& Charisma == other.Charisma
-				&& Composure == other.Composure;
+				&& Intellect == other.Intellect
+				&& Combat == other.Combat
+				&& Agility == other.Agility
+				&& Charisma == other.Charisma;
 		}
 
 		public override bool Equals(object? obj)
@@ -129,7 +134,7 @@ namespace Kontur.Core.Model
 
 		public override int GetHashCode()
 		{
-			return HashCode.Combine(Strength, Perception, Endurance, Charisma, Composure);
+			return HashCode.Combine(Strength, Intellect, Combat, Agility, Charisma);
 		}
 
 		public override string ToString()
@@ -150,7 +155,7 @@ namespace Kontur.Core.Model
 					builder.Append(' ');
 				}
 
-				builder.Append(StatKinds.GetId(kind)).Append(' ').Append(value);
+				builder.Append(StatKinds.GetDisplayName(kind)).Append(' ').Append(value);
 				first = false;
 			}
 

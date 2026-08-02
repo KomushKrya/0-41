@@ -73,7 +73,10 @@ public abstract partial class ContentTextBox : Control
 	/// <summary>Куски в порядке файла, уже без скрытых. Пустой список, если записи нет.</summary>
 	protected IReadOnlyList<ContentChunk> Chunks => _chunks;
 
-	/// <summary>Шапка звонка (kind: call_meta) без квадратных скобок. Пустая строка, если её нет.</summary>
+	/// <summary>
+	/// Шапка звонка (kind: call_meta) без квадратных скобок — откуда звонок и кто на линии.
+	/// Показывается отдельно от реплик. Пустая строка, если её нет.
+	/// </summary>
 	protected string CallMeta { get; private set; } = string.Empty;
 
 	public bool IsLoaded => Entry != null;
@@ -84,11 +87,11 @@ public abstract partial class ContentTextBox : Control
 
 		if (RefreshOnReveal)
 		{
-			GameRuntime runtime = GameRuntime.Get(this);
+			KonturRuntime runtime = KonturRuntime.Get(this);
 			if (runtime != null && runtime.IsReady)
 			{
-				_revealSubscription = runtime.Session.Events.Subscribe<CreatureRevealed>(_ => Refresh());
-				_flagSubscription = runtime.Session.Events.Subscribe<FlagChanged>(_ => Refresh());
+				_revealSubscription = runtime.Simulation.Events.Subscribe<CreatureRevealed>(_ => Refresh());
+				_flagSubscription = runtime.Simulation.Events.Subscribe<FlagChanged>(_ => Refresh());
 			}
 		}
 
@@ -169,14 +172,14 @@ public abstract partial class ContentTextBox : Control
 	/// </summary>
 	protected virtual bool IsRevealed(string propertyId)
 	{
-		GameRuntime runtime = GameRuntime.Get(this);
+		KonturRuntime runtime = KonturRuntime.Get(this);
 		if (runtime == null || !runtime.IsReady)
 		{
 			return false;
 		}
 
-		return runtime.Session.IsFlagSet(propertyId)
-			|| runtime.Session.IsPropertyRevealed(ContentId, propertyId);
+		return runtime.Simulation.IsFlagSet(propertyId)
+			|| runtime.Simulation.IsPropertyRevealed(ContentId, propertyId);
 	}
 
 	/// <summary>
@@ -199,13 +202,13 @@ public abstract partial class ContentTextBox : Control
 	/// </summary>
 	protected virtual string ResolveValue(string name)
 	{
-		GameRuntime runtime = GameRuntime.Get(this);
+		KonturRuntime runtime = KonturRuntime.Get(this);
 		if (runtime == null || !runtime.IsReady)
 		{
 			return string.Empty;
 		}
 
-		return runtime.Session.Content.Abilities.TryGetValue(ContentId, out Ability ability)
+		return runtime.Simulation.Content.Abilities.TryGetValue(ContentId, out Ability ability)
 			? AbilityValue(ability, name)
 			: string.Empty;
 	}
@@ -239,7 +242,7 @@ public abstract partial class ContentTextBox : Control
 			return chunk;
 		}
 
-		string Resolve(string name)
+		string filled = Content.Fill(chunk.Text, name =>
 		{
 			string value = ResolveValue(name);
 			if (string.IsNullOrEmpty(value) && _reportedMissingValues.Add(name))
@@ -248,23 +251,9 @@ public abstract partial class ContentTextBox : Control
 			}
 
 			return value;
-		}
+		});
 
-		// Отрезки подсветки подставляются каждый сам по себе: поэтому конвертер и отдаёт
-		// их отрезками, а не позициями в тексте — те после подстановки уехали бы.
-		List<ContentSpan> spans = new(chunk.Spans.Count);
-		foreach (ContentSpan span in chunk.Spans)
-		{
-			spans.Add(new ContentSpan { Text = Content.Fill(span.Text, Resolve), Highlight = span.Highlight });
-		}
-
-		return new ContentChunk
-		{
-			Text = Content.Fill(chunk.Text, Resolve),
-			Kind = chunk.Kind,
-			Reveal = chunk.Reveal,
-			Spans = spans
-		};
+		return new ContentChunk { Text = filled, Kind = chunk.Kind, Reveal = chunk.Reveal };
 	}
 
 	/// <summary>Записи с таким id нет. По умолчанию предупреждение в Output.</summary>

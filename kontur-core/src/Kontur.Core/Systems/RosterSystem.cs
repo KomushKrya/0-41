@@ -16,13 +16,20 @@ namespace Kontur.Core.Systems
 		private readonly ContentDatabase _content;
 		private readonly EmployeeConfig _config;
 		private readonly IEventBus _bus;
+		private readonly EmployeeFactory _factory;
 
-		public RosterSystem(GameState state, ContentDatabase content, EmployeeConfig config, IEventBus bus)
+		public RosterSystem(
+			GameState state,
+			ContentDatabase content,
+			EmployeeConfig config,
+			IEventBus bus,
+			EmployeeFactory factory)
 		{
 			_state = state;
 			_content = content;
 			_config = config;
 			_bus = bus;
+			_factory = factory;
 		}
 
 		public int GetStaffLimit(int day)
@@ -154,9 +161,43 @@ namespace Kontur.Core.Systems
 			return true;
 		}
 
+		/// <summary>
+		/// Кандидаты, доступные в этот день. Набор фиксируется на день: пока день не сменился,
+		/// повторный вызов вернёт тот же список в том же порядке — интерфейс может дёргать
+		/// его на каждую перерисовку, не боясь, что кандидат прыгнет под курсором.
+		/// </summary>
 		public IReadOnlyList<HireCandidate> GetAvailableCandidates(int day)
 		{
+			if (_state.HireOffersDay != day)
+			{
+				RefreshHireOffers(day);
+			}
+
 			var result = new List<HireCandidate>();
+			for (int i = 0; i < _state.HireOffers.Count; i++)
+			{
+				HireCandidate candidate = _state.HireOffers[i];
+				if (!_state.HiredCandidateIds.Contains(candidate.Template.Id))
+				{
+					result.Add(candidate);
+				}
+			}
+
+			return result;
+		}
+
+		/// <summary>
+		/// Пересобирает предложения найма на указанный день.
+		///
+		/// Сначала идут прописанные вручную кандидаты — это сюжетные лица, они должны
+		/// попасть в список обязательно, а не по остаточному принципу. Свободные места
+		/// добирает фабрика.
+		/// </summary>
+		public void RefreshHireOffers(int day)
+		{
+			_state.HireOffers.Clear();
+			_state.HireOffersDay = day;
+
 			for (int i = 0; i < _content.HirePool.Count; i++)
 			{
 				HireCandidate candidate = _content.HirePool[i];
@@ -170,10 +211,167 @@ namespace Kontur.Core.Systems
 					continue;
 				}
 
-				result.Add(candidate);
+				_state.HireOffers.Add(candidate);
 			}
 
-			return result;
+			int missing = _content.Generator.CandidatesPerShift - _state.HireOffers.Count;
+			if (missing <= 0)
+			{
+				return;
+			}
+
+			List<string> takenNames = CollectNames();
+			for (int i = 0; i < _state.HireOffers.Count; i++)
+			{
+				takenNames.Add(_state.HireOffers[i].Template.Name);
+			}
+
+			_state.HireOffers.AddRange(_factory.Generate(day, missing, takenNames, CollectIds()));
+		}
+
+		/// <summary>Сколько человек можно взять в штат на этот день.</summary>
+		public int CountFreeSlots(int day)
+		{
+			int free = GetStaffLimit(day) - CountLiving();
+			return free < 0 ? 0 : free;
+		}
+
+		// ------------------------------------------------------------------ стартовый выбор
+
+		/// <summary>
+		/// Кандидаты, из которых игрок собирает стартовый состав.
+		///
+		/// Пул шире, чем мест в штате: смысл выбора в том, чтобы от кого-то отказаться.
+		/// Пустой список означает, что выбора нет — состав задан контентом и берётся как есть.
+		/// </summary>
+		public IReadOnlyList<HireCandidate> GetStartingChoice()
+		{
+			if (_state.StartingRosterConfirmed)
+			{
+				return new List<HireCandidate>();
+			}
+
+			int poolSize = _content.Generator.StartingChoicePoolSize;
+			if (poolSize <= 0)
+			{
+				return new List<HireCandidate>();
+			}
+
+			if (_state.StartingChoice.Count == 0)
+			{
+				// Стартовый выбор идёт до первой смены, поэтому день первый:
+				// кандидаты должны быть такими же, каких видит игрок в начале игры.
+				_state.StartingChoice.AddRange(
+					_factory.Generate(1, poolSize, CollectNames(), CollectIds()));
+			}
+
+			return _state.StartingChoice;
+		}
+
+		/// <summary>
+		/// Заменяет штат выбранными кандидатами.
+		///
+		/// Проверок больше, чем кажется нужным, и все они про одно: экран выбора —
+		/// первое, что видит игрок, и молча собрать не тот состав здесь хуже, чем
+		/// где-либо ещё. Партию с этим составом ему играть все четыре смены.
+        /// </summary>
+		public bool TryConfirmStartingRoster(IReadOnlyList<string> candidateIds, out string error)
+		{
+			if (_state.StartingRosterConfirmed)
+			{
+				error = "Стартовый состав уже собран.";
+				return false;
+			}
+
+			IReadOnlyList<HireCandidate> pool = GetStartingChoice();
+			if (pool.Count == 0)
+			{
+				error = "Стартовый выбор не предусмотрен контентом.";
+				return false;
+			}
+
+			if (candidateIds == null || candidateIds.Count == 0)
+			{
+				error = "Не выбран ни один оперативник.";
+				return false;
+			}
+
+			int limit = GetStaffLimit(1);
+			if (candidateIds.Count > limit)
+			{
+				error = $"В штате только {limit} мест, а выбрано {candidateIds.Count}.";
+				return false;
+			}
+
+			var chosen = new List<Employee>();
+			var seen = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
+
+			for (int i = 0; i < candidateIds.Count; i++)
+			{
+				string id = candidateIds[i];
+
+				if (!seen.Add(id))
+				{
+					error = $"Оперативник '{id}' выбран дважды.";
+					return false;
+				}
+
+				HireCandidate? found = null;
+				for (int j = 0; j < pool.Count; j++)
+				{
+					if (string.Equals(pool[j].Template.Id, id, System.StringComparison.OrdinalIgnoreCase))
+					{
+						found = pool[j];
+						break;
+					}
+				}
+
+				if (found == null)
+				{
+					error = $"Оперативника '{id}' нет среди предложенных.";
+					return false;
+				}
+
+				chosen.Add(found.Template.Clone());
+			}
+
+			_state.Roster.Clear();
+			for (int i = 0; i < chosen.Count; i++)
+			{
+				Employee hired = chosen[i];
+				hired.Status = EmployeeStatus.Available;
+				_state.Roster.Add(hired);
+				_state.HiredCandidateIds.Add(hired.Id);
+				_bus.Publish(new EmployeeHired(hired.Id, hired.Name, 1));
+			}
+
+			_state.StartingChoice.Clear();
+			_state.StartingRosterConfirmed = true;
+
+			error = string.Empty;
+			return true;
+		}
+
+		private List<string> CollectNames()
+		{
+			var names = new List<string>();
+			for (int i = 0; i < _state.Roster.Count; i++)
+			{
+				names.Add(_state.Roster[i].Name);
+			}
+
+			return names;
+		}
+
+		private List<string> CollectIds()
+		{
+			var ids = new List<string>(_state.HiredCandidateIds);
+			for (int i = 0; i < _state.Roster.Count; i++)
+			{
+				ids.Add(_state.Roster[i].Id);
+			}
+
+			return ids;
 		}
 
 		public bool TryHire(string candidateId, int day, out string error)

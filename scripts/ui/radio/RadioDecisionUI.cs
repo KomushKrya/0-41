@@ -34,7 +34,7 @@ public partial class RadioDecisionUI : Control
 	private bool _isTransitionPlaying;
 	private bool _layoutInitialized;
 	private string _incidentId = string.Empty;
-	private IReadOnlyList<RadioOptionView> _options = Array.Empty<RadioOptionView>();
+	private IReadOnlyList<RadioOptionOffer> _options = Array.Empty<RadioOptionOffer>();
 	private bool _pausedRuntime;
 	private Input.MouseModeEnum _previousMouseMode;
 
@@ -103,12 +103,17 @@ public partial class RadioDecisionUI : Control
 	}
 
 	/// <summary>Открывает экран по рации и временно останавливает симуляцию.</summary>
-	public void ShowRadioDecision(string incidentId, string missionTitle, string situationText, IReadOnlyList<RadioOptionView> options)
+	public void ShowRadioDecision(
+		string incidentId,
+		string missionTitle,
+		string missionEventId,
+		IReadOnlyList<RadioOptionOffer> options)
 	{
 		_incidentId = incidentId;
-		_options = options ?? Array.Empty<RadioOptionView>();
+		_options = options ?? Array.Empty<RadioOptionOffer>();
 		_header.Text = $"К.О.Н.Т.У.Р.-Д  /  РАДИО: {missionTitle}";
-		_situationLabel.Text = situationText;
+		ContentEntry entry = FindRadioEntry(missionEventId);
+		_situationLabel.Text = BuildSituationText(entry, missionEventId);
 
 		for (int index = 0; index < _optionButtons.Count; index++)
 		{
@@ -117,11 +122,11 @@ public partial class RadioDecisionUI : Control
 			_optionButtons[index].Disabled = !hasOption;
 			if (hasOption)
 			{
-				_optionButtons[index].Text = $"[ {index + 1} ] {_options[index].Text}";
+				_optionButtons[index].Text = $"[ {index + 1} ] {BuildOptionText(entry, _options[index].Id)}";
 			}
 		}
 
-		GameRuntime runtime = GameRuntime.Get(this);
+		KonturRuntime runtime = KonturRuntime.Get(this);
 		if (runtime != null && runtime.IsReady && !runtime.IsPaused)
 		{
 			runtime.IsPaused = true;
@@ -149,14 +154,14 @@ public partial class RadioDecisionUI : Control
 			return;
 		}
 
-		GameRuntime runtime = GameRuntime.Get(this);
+		KonturRuntime runtime = KonturRuntime.Get(this);
 		if (runtime == null || !runtime.IsReady)
 		{
-			GD.PushWarning("RadioDecisionUI: GameRuntime is not ready.");
+			GD.PushWarning("RadioDecisionUI: KonturRuntime is not ready.");
 			return;
 		}
 
-		CommandResult result = runtime.Session.ChooseRadioOption(_incidentId, _options[optionIndex].Id);
+		CommandResult result = runtime.Simulation.ChooseRadioOption(_incidentId, _options[optionIndex].Id);
 		if (!result.IsSuccess)
 		{
 			GD.PushWarning($"RadioDecisionUI: {result.Error}");
@@ -171,10 +176,10 @@ public partial class RadioDecisionUI : Control
 		StopTransition();
 		Hide();
 		_incidentId = string.Empty;
-		_options = Array.Empty<RadioOptionView>();
+		_options = Array.Empty<RadioOptionOffer>();
 		if (_pausedRuntime)
 		{
-			GameRuntime runtime = GameRuntime.Get(this);
+			KonturRuntime runtime = KonturRuntime.Get(this);
 			if (runtime != null)
 			{
 				runtime.IsPaused = false;
@@ -214,5 +219,54 @@ public partial class RadioDecisionUI : Control
 			_transitionMaterial.SetShaderParameter("mask_texture", videoTexture);
 			_previousScreenBlurMaterial.SetShaderParameter("mask_texture", videoTexture);
 		}
+	}
+
+	private static ContentEntry FindRadioEntry(string missionEventId)
+	{
+		Content content = Content.Instance;
+		return content != null && content.TryGetEntry(missionEventId, out ContentEntry entry) ? entry : null;
+	}
+
+	private static string BuildSituationText(ContentEntry entry, string fallback)
+	{
+		if (entry == null || entry.Chunks.Count == 0)
+		{
+			return fallback;
+		}
+
+		var lines = new List<string>();
+		foreach (ContentChunk chunk in entry.Chunks)
+		{
+			if (!string.IsNullOrWhiteSpace(chunk.Text))
+			{
+				lines.Add(chunk.Text);
+			}
+		}
+
+		return lines.Count > 0 ? string.Join("\n", lines) : fallback;
+	}
+
+	private static string BuildOptionText(ContentEntry entry, string optionId)
+	{
+		if (entry != null)
+		{
+			foreach (ContentOption option in entry.Options)
+			{
+				if (string.Equals(option.Id, optionId, StringComparison.OrdinalIgnoreCase))
+				{
+					if (!string.IsNullOrWhiteSpace(option.Name))
+					{
+						return option.Name;
+					}
+
+					if (option.Chunks.Count > 0 && !string.IsNullOrWhiteSpace(option.Chunks[0].Text))
+					{
+						return option.Chunks[0].Text;
+					}
+				}
+			}
+		}
+
+		return optionId;
 	}
 }

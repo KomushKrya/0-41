@@ -19,6 +19,10 @@ namespace Kontur.Core.Config
 
 		public LootConfig Loot { get; set; } = new LootConfig();
 
+		public MissionEventConfig MissionEvents { get; set; } = new MissionEventConfig();
+
+		public StatMatchConfig Match { get; set; } = new StatMatchConfig();
+
 		public List<DayConfig> Days { get; set; } = new List<DayConfig>();
 
 		public DayConfig GetDay(int day)
@@ -51,7 +55,7 @@ namespace Kontur.Core.Config
 		public double PhoneRingSeconds { get; set; } = 15.0;
 
 		/// <summary>ДД, раздел 4: метка держится 30 секунд.</summary>
-		public double MapMarkerSeconds { get; set; } = 20.0;
+		public double MapMarkerSeconds { get; set; } = 30.0;
 
 		/// <summary>ДД, раздел 4: 20 секунд на реакцию по радио.</summary>
 		public double RadioSeconds { get; set; } = 20.0;
@@ -64,6 +68,12 @@ namespace Kontur.Core.Config
 
 		/// <summary>Пауза перед появлением отчёта после возвращения группы.</summary>
 		public double ReportDelaySeconds { get; set; } = 1.0;
+
+		/// <summary>
+		/// Пауза после того, как линия освободилась, прежде чем зазвонит следующий вызов
+		/// из очереди. Без неё звонки шли бы встык и слипались в один поток.
+		/// </summary>
+		public double CallQueueGapSeconds { get; set; } = 2.0;
 	}
 
 	public sealed class ScalesConfig
@@ -86,6 +96,30 @@ namespace Kontur.Core.Config
 
 		/// <summary>Лояльность достигает минимума — game over.</summary>
 		public double LoyaltyLoseAt { get; set; } = 0.0;
+	}
+
+	/// <summary>
+	/// Как порог по характеристике превращается в проценты. Три ступени вместо плавной
+	/// кривой — потому что игрок читает их цветом и должен понимать, что именно исправить.
+	/// </summary>
+	public sealed class StatMatchConfig
+	{
+		/// <summary>Превышение на столько и больше — зелёный, полный вклад.</summary>
+		public int ExceedsMargin { get; set; } = 2;
+
+		/// <summary>Вклад жёлтого: порог закрыт, но без запаса.</summary>
+		public double MeetsScore { get; set; } = 0.8;
+
+		/// <summary>
+		/// Во сколько раз падает вклад за каждое очко недобора. 0.35 означает: не хватает
+		/// одного — вклад падает втрое, двух — вдесятеро. Красный обязан быть больно.
+		/// </summary>
+		public double BelowFalloff { get; set; } = 0.35;
+
+		/// <summary>Вес главной характеристики вызова относительно остальных.</summary>
+		public double PrimaryWeight { get; set; } = 2.0;
+
+		public double SecondaryWeight { get; set; } = 1.0;
 	}
 
 	public sealed class ResolutionConfig
@@ -139,6 +173,40 @@ namespace Kontur.Core.Config
 		public int StandardOrStorySlots { get; set; } = 1;
 
 		public int ConsumableSlots { get; set; } = 2;
+	}
+
+	/// <summary>
+	/// Умолчания по типу диалога. Автор пишет `quality: good` и может не писать числа —
+	/// они возьмутся отсюда. Явно написанное в тексте всегда сильнее умолчания.
+	/// </summary>
+	public sealed class MissionEventConfig
+	{
+		public MissionEventQualityConfig Good { get; set; } =
+			new MissionEventQualityConfig { RequirementModifier = 0, RiskMultiplier = 1.0 };
+
+		public MissionEventQualityConfig Neutral { get; set; } =
+			new MissionEventQualityConfig { RequirementModifier = 1, RiskMultiplier = 1.0 };
+
+		public MissionEventQualityConfig Bad { get; set; } =
+			new MissionEventQualityConfig { RequirementModifier = 2, RiskMultiplier = 1.5 };
+
+		public MissionEventQualityConfig For(Kontur.Core.Model.MissionEventQuality quality)
+		{
+			switch (quality)
+			{
+				case Kontur.Core.Model.MissionEventQuality.Good: return Good;
+				case Kontur.Core.Model.MissionEventQuality.Bad: return Bad;
+				default: return Neutral;
+			}
+		}
+	}
+
+	public sealed class MissionEventQualityConfig
+	{
+		public int RequirementModifier { get; set; }
+
+		/// <summary>Множитель травм и гибели, если у варианта не заданы свои.</summary>
+		public double RiskMultiplier { get; set; } = 1.0;
 	}
 
 	public sealed class DayConfig

@@ -12,10 +12,10 @@ public partial class ComputerTerminalUI : Control
 	private Button _startShiftButton = null!;
 	private Label _statusLabel = null!;
 	private OptionButton _shiftSelector = null!;
-	private GameRuntime _runtime = null!;
-	private IDisposable _shiftStartedSubscription;
-	private IDisposable _shiftEndedSubscription;
-	private IDisposable _gameOverSubscription;
+	private KonturRuntime _runtime = null!;
+	private IDisposable? _shiftStartedSubscription;
+	private IDisposable? _shiftEndedSubscription;
+	private IDisposable? _gameOverSubscription;
 
 	public override void _Ready()
 	{
@@ -25,16 +25,16 @@ public partial class ComputerTerminalUI : Control
 		_startShiftButton.Pressed += StartNextShift;
 		_shiftSelector.ItemSelected += OnShiftSelected;
 
-		_runtime = GameRuntime.Get(this);
+		_runtime = KonturRuntime.Get(this);
 		if (_runtime == null || !_runtime.IsReady)
 		{
 			ShowCoreUnavailable();
 			return;
 		}
 
-		_shiftStartedSubscription = _runtime.Session.Events.Subscribe<ShiftStarted>(_ => RefreshState());
-		_shiftEndedSubscription = _runtime.Session.Events.Subscribe<ShiftEnded>(_ => RefreshState());
-		_gameOverSubscription = _runtime.Session.Events.Subscribe<GameOverTriggered>(_ => RefreshState());
+		_shiftStartedSubscription = _runtime.Simulation.Events.Subscribe<ShiftStarted>(_ => RefreshState());
+		_shiftEndedSubscription = _runtime.Simulation.Events.Subscribe<ShiftEnded>(_ => RefreshState());
+		_gameOverSubscription = _runtime.Simulation.Events.Subscribe<GameOverTriggered>(_ => RefreshState());
 		PopulateShiftSelector();
 		RefreshState();
 	}
@@ -43,13 +43,9 @@ public partial class ComputerTerminalUI : Control
 	{
 		_startShiftButton.Pressed -= StartNextShift;
 		_shiftSelector.ItemSelected -= OnShiftSelected;
-
 		_shiftStartedSubscription?.Dispose();
 		_shiftEndedSubscription?.Dispose();
 		_gameOverSubscription?.Dispose();
-		_shiftStartedSubscription = null;
-		_shiftEndedSubscription = null;
-		_gameOverSubscription = null;
 	}
 
 	private void StartNextShift()
@@ -60,9 +56,7 @@ public partial class ComputerTerminalUI : Control
 			return;
 		}
 
-		GameSession session = _runtime.Session;
-		CommandResult result = session.StartShift(GetSelectedShiftDay());
-
+		CommandResult result = _runtime.Simulation.StartShift(GetSelectedShiftDay());
 		if (!result.IsSuccess)
 		{
 			_statusLabel.Text = $"TERMINAL: ERROR\n{result.Error}";
@@ -79,8 +73,8 @@ public partial class ComputerTerminalUI : Control
 			return;
 		}
 
-		GameSession session = _runtime.Session;
-		ShiftStatusView status = session.GetStatus();
+		KonturSimulation simulation = _runtime.Simulation;
+		ShiftStatusView status = simulation.GetStatus();
 		int selectedDay = GetSelectedShiftDay();
 
 		if (status.IsGameOver)
@@ -97,19 +91,14 @@ public partial class ComputerTerminalUI : Control
 			_startShiftButton.Disabled = true;
 			_shiftSelector.Disabled = true;
 			_startShiftButton.Text = $"SHIFT {status.Day} ACTIVE";
-			_statusLabel.Text =
-				$"TERMINAL: ONLINE\n" +
-				$"SHIFT {status.Day}: IN PROGRESS\n" +
-				$"OPEN INCIDENTS: {status.OpenIncidents}";
+			_statusLabel.Text = $"TERMINAL: ONLINE\nSHIFT {status.Day}: IN PROGRESS\nOPEN INCIDENTS: {status.OpenIncidents}";
 			return;
 		}
 
 		_startShiftButton.Disabled = false;
 		_shiftSelector.Disabled = false;
 		_startShiftButton.Text = $"START SHIFT {selectedDay}";
-		_statusLabel.Text =
-			$"TERMINAL: READY\n" +
-			$"SELECTED SHIFT: {selectedDay}/{session.Config.Days.Count}";
+		_statusLabel.Text = $"TERMINAL: READY\nSELECTED SHIFT: {selectedDay}/{simulation.Config.Days.Count}";
 	}
 
 	private void ShowCoreUnavailable()
@@ -123,7 +112,7 @@ public partial class ComputerTerminalUI : Control
 	private void PopulateShiftSelector()
 	{
 		_shiftSelector.Clear();
-		foreach (var day in _runtime.Session.Config.Days)
+		foreach (var day in _runtime.Simulation.Config.Days)
 		{
 			_shiftSelector.AddItem($"SHIFT {day.Day}", day.Day);
 		}
@@ -136,12 +125,10 @@ public partial class ComputerTerminalUI : Control
 
 	private int GetSelectedShiftDay()
 	{
-		return _shiftSelector.Selected >= 0
-			? _shiftSelector.GetItemId(_shiftSelector.Selected)
-			: 1;
+		return _shiftSelector.Selected >= 0 ? _shiftSelector.GetItemId(_shiftSelector.Selected) : 1;
 	}
 
-	private void OnShiftSelected(long index)
+	private void OnShiftSelected(long _)
 	{
 		RefreshState();
 	}

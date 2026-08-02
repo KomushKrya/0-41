@@ -29,13 +29,13 @@ public partial class MapPinInteractable : Area3D, IInteractable
 			return;
 		}
 
-		GameRuntime runtime = GameRuntime.Get(this);
+		KonturRuntime runtime = KonturRuntime.Get(this);
 		if (runtime == null || !runtime.IsReady)
 		{
 			return;
 		}
 
-		var result = runtime.Session.OpenDispatchScreen(IncidentId);
+		var result = runtime.Simulation.OpenDispatchScreen(IncidentId);
 		if (!result.IsSuccess)
 		{
 			GD.PushWarning($"Map pin '{IncidentId}': {result.Error}");

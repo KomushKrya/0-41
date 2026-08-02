@@ -18,6 +18,8 @@ namespace Kontur.Core.Systems
 
 		public GameOverReason? GameOverReason { get; set; }
 
+		public Dictionary<string, Zone> Zones { get; } = new Dictionary<string, Zone>(StringComparer.OrdinalIgnoreCase);
+
 		public List<Employee> Roster { get; } = new List<Employee>();
 
 		public EncyclopediaState Encyclopedia { get; } = new EncyclopediaState();
@@ -29,6 +31,29 @@ namespace Kontur.Core.Systems
 
 		/// <summary>Кандидаты, уже нанятые в предыдущие дни — повторно не предлагаются.</summary>
 		public HashSet<string> HiredCandidateIds { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+		/// <summary>
+		/// Кандидаты, показываемые в меню найма прямо сейчас.
+		///
+		/// Хранятся, а не пересобираются на каждый запрос: интерфейс дёргает список при каждой
+		/// перерисовке, и генерация на лету меняла бы кандидатов под курсором игрока.
+		/// </summary>
+		public List<Content.HireCandidate> HireOffers { get; } = new List<Content.HireCandidate>();
+
+		/// <summary>День, на который собран HireOffers. -1 — не собирался ни разу.</summary>
+		public int HireOffersDay { get; set; } = -1;
+
+		/// <summary>
+		/// Кандидаты, из которых игрок набирает стартовый состав перед первой сменой.
+		///
+		/// Хранятся, а не пересобираются: экран выбора перерисовывается на каждое
+		/// нажатие, и генерация на лету меняла бы людей под курсором. Список живёт
+		/// до подтверждения выбора, после чего очищается.
+		/// </summary>
+		public List<Content.HireCandidate> StartingChoice { get; } = new List<Content.HireCandidate>();
+
+		/// <summary>Стартовый состав уже собран — выбор больше не предлагается.</summary>
+		public bool StartingRosterConfirmed { get; set; }
 
 		/// <summary>Отчёты на компьютере — накапливаются за партию.</summary>
 		public List<MissionReport> Reports { get; } = new List<MissionReport>();
@@ -47,6 +72,12 @@ namespace Kontur.Core.Systems
 			}
 
 			return null;
+		}
+
+		public Zone? FindZone(string zoneId)
+		{
+			Zone? zone;
+			return Zones.TryGetValue(zoneId, out zone) ? zone : null;
 		}
 
 		public int CountLivingEmployees()

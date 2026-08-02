@@ -12,7 +12,7 @@ using Kontur.Core.Model;
 ///
 /// Позволяет прогнать смену прямо в движке до того, как телефон, карта и компьютер
 /// научатся реагировать на события: слева состояние ядра, справа поток сигналов,
-/// снизу кнопки команд и ускорение времени. Открывается и закрывается по F6.
+/// снизу кнопки команд и ускорение времени.
 /// </summary>
 public partial class KonturDebugOverlay : CanvasLayer
 {
@@ -21,13 +21,13 @@ public partial class KonturDebugOverlay : CanvasLayer
 	[Export] public Key ToggleKey { get; set; } = Key.F6;
 	[Export] public PackedScene RadioDecisionScene { get; set; } = null!;
 
-	private GameRuntime _runtime;
+	private KonturRuntime _runtime;
 	private RichTextLabel _status;
 	private RichTextLabel _log;
 	private Label _hint;
 
 	private readonly List<string> _logLines = new();
-	private readonly Dictionary<string, List<RadioOptionView>> _radioOptions = new();
+	private readonly Dictionary<string, List<string>> _radioOptionIds = new();
 	private IDisposable _logSubscription;
 	private IDisposable _radioSubscription;
 	private double _refreshAccumulator;
@@ -49,14 +49,12 @@ public partial class KonturDebugOverlay : CanvasLayer
 		Layer = 100;
 
 		BuildUi();
-		Hide();
-		SetProcess(false);
 
-		_runtime = GameRuntime.Get(this);
+		_runtime = KonturRuntime.Get(this);
 
 		if (_runtime == null)
 		{
-			AppendLog("Автозагрузка 'GameRuntime' не найдена. Project → Project Settings → Autoload.");
+			AppendLog("Автозагрузка 'Kontur' не найдена. Project → Project Settings → Autoload.");
 			return;
 		}
 
@@ -66,8 +64,8 @@ public partial class KonturDebugOverlay : CanvasLayer
 			return;
 		}
 
-		_logSubscription = _runtime.Session.Events.SubscribeAll(OnCoreEvent);
-		_radioSubscription = _runtime.Session.Events.Subscribe<RadioTriggered>(OnRadioTriggered);
+		_logSubscription = _runtime.Simulation.Events.SubscribeAll(OnCoreEvent);
+		_radioSubscription = _runtime.Simulation.Events.Subscribe<RadioTriggered>(OnRadioTriggered);
 
 		AppendLog("Ядро подключено. Нажмите «Смена 1».");
 	}
@@ -144,7 +142,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 			return;
 		}
 
-		GameSession simulation = _runtime.Session;
+		KonturSimulation simulation = _runtime.Simulation;
 
 		var markers = new List<IncidentView>();
 		IReadOnlyList<IncidentView> incidents = simulation.GetActiveIncidents();
@@ -281,12 +279,15 @@ public partial class KonturDebugOverlay : CanvasLayer
 
 		_dispatchList.AddChild(new Label
 		{
-			Text = selected.Title,
+			Text = selected.CallId,
 			AutowrapMode = TextServer.AutowrapMode.WordSmart
 		});
 
-		AddDimLabel(_dispatchList, $"{selected.Id}   район: {selected.BuildingId}");
-		AddSectionLabel(_dispatchList, "ОПЕРАТИВНИКИ");
+		AddDimLabel(_dispatchList, $"{selected.Id}   район: {selected.ZoneId}");
+		AddDimLabel(_dispatchList, "   " + StripBb(TierMark(selected)));
+		AddSectionLabel(_dispatchList, selected.SquadLimit == 1
+			? "ОПЕРАТИВНИКИ (мест: 1)"
+			: $"ОПЕРАТИВНИКИ (мест: {selected.SquadLimit})");
 
 		int available = 0;
 		for (int i = 0; i < roster.Count; i++)
@@ -332,9 +333,23 @@ public partial class KonturDebugOverlay : CanvasLayer
 		_dispatchSummary.CustomMinimumSize = new Vector2(0, 90);
 		_dispatchList.AddChild(_dispatchSummary);
 
+		var buttons = new HBoxContainer();
+
 		var send = new Button { Text = "Отправить выбранных" };
 		send.Pressed += DispatchSelected;
-		_dispatchList.AddChild(send);
+		buttons.AddChild(send);
+
+		// Панель в оверлее видна всегда, поэтому «открыть экран» — отдельное действие:
+		// иначе мир стоял бы всё время, пока на карте висит хоть одна метка.
+		var hold = new Button { Text = "Открыть экран (стоп время)" };
+		hold.Pressed += () => Report("Экран отправки", _runtime.Simulation.OpenDispatchScreen(_dispatchIncidentId));
+		buttons.AddChild(hold);
+
+		var release = new Button { Text = "Закрыть" };
+		release.Pressed += () => Report("Экран отправки", _runtime.Simulation.CloseDispatchScreen(_dispatchIncidentId));
+		buttons.AddChild(release);
+
+		_dispatchList.AddChild(buttons);
 	}
 
 	private void AddEmployeeCheck(EmployeeView employee)
@@ -400,7 +415,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 		_dispatchList.AddChild(check);
 	}
 
-	private void UpdateDispatchSummary(GameSession simulation, IReadOnlyList<EquipmentSlotView> stock)
+	private void UpdateDispatchSummary(KonturSimulation simulation, IReadOnlyList<EquipmentSlotView> stock)
 	{
 		if (_dispatchSummary == null || _dispatchIncidentId == null)
 		{
@@ -444,16 +459,45 @@ public partial class KonturDebugOverlay : CanvasLayer
 		int consumableLimit = simulation.Config.Loot.ConsumableSlots;
 
 		var builder = new StringBuilder();
-		builder.Append("Требуется [color=#ffd166]").Append(estimate.Requirements).Append("[/color]\n");
-		builder.Append("Группа    ").Append(employees.Count == 0 ? "—" : estimate.SquadStats.ToString()).Append('\n');
 
-		if (estimate.IsAutoSuccess && employees.Count > 0)
+		// Построчно по характеристикам — как на экране Dispatch: видно, кто что закрывает
+		// и чего именно не хватает, а не одно общее число.
+		if (estimate.Matches.Count == 0)
 		{
-			builder.Append("[color=#9fd6a6]Требования покрыты — успех без броска[/color]\n");
+			builder.Append("[color=#6f7a6f]У вызова нет требований по характеристикам[/color]\n");
+		}
+
+		for (int i = 0; i < estimate.Matches.Count; i++)
+		{
+			StatMatch match = estimate.Matches[i];
+			string colour;
+			switch (match.Rating)
+			{
+				case StatMatchRating.Exceeds: colour = "#9fd6a6"; break;
+				case StatMatchRating.Meets: colour = "#ffd166"; break;
+				default: colour = "#ff6b6b"; break;
+			}
+
+			builder.Append("[color=").Append(colour).Append(']')
+				.Append(match.IsPrimary ? "★ " : "  ")
+				.Append(StatKinds.GetDisplayName(match.Stat))
+				.Append(' ').Append(match.Available).Append(" / ").Append(match.Required);
+
+			if (match.Shortfall > 0)
+			{
+				builder.Append("  не хватает ").Append(match.Shortfall);
+			}
+
+			builder.Append("[/color]\n");
+		}
+
+		if (estimate.IsPerfectMatch && employees.Count > 0)
+		{
+			builder.Append("[color=#9fd6a6]Профиль закрыт с запасом — успех без броска[/color]\n");
 		}
 		else
 		{
-			builder.Append("Покрытие ").Append(estimate.Coverage.ToString("0.00"))
+			builder.Append("Совпадение ").Append(estimate.MatchScore.ToString("0.00"))
 				.Append(" → шанс ").Append((estimate.SuccessChance * 100.0).ToString("0"))
 				.Append(" %\n");
 		}
@@ -488,7 +532,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 		}
 
 		string incidentId = _dispatchIncidentId;
-		_runtime.Session.OpenDispatchScreen(incidentId);
+		_runtime.Simulation.OpenDispatchScreen(incidentId);
 
 		CommandResult result = DispatchUsingMapRoute(
 			incidentId,
@@ -503,6 +547,11 @@ public partial class KonturDebugOverlay : CanvasLayer
 			_pickedEquipment.Clear();
 			_dispatchSignature = string.Empty;
 		}
+		else
+		{
+			// Отправка не прошла — мир держать незачем, иначе оверлей выглядит зависшим.
+			_runtime.Simulation.CloseDispatchScreen(incidentId);
+		}
 	}
 
 	private static string KindName(EquipmentKind kind)
@@ -514,6 +563,22 @@ public partial class KonturDebugOverlay : CanvasLayer
 			case EquipmentKind.Story: return "сюжетное";
 			default: return kind.ToString();
 		}
+	}
+
+	/// <summary>Метки в панели отправки — обычные Label, разметку из них нужно убрать.</summary>
+	private static string StripBb(string text)
+	{
+		var builder = new StringBuilder();
+		bool inTag = false;
+
+		foreach (char symbol in text)
+		{
+			if (symbol == '[') { inTag = true; continue; }
+			if (symbol == ']') { inTag = false; continue; }
+			if (!inTag) { builder.Append(symbol); }
+		}
+
+		return builder.ToString();
 	}
 
 	private static void AddSectionLabel(Control parent, string text)
@@ -600,7 +665,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 
 		_hint = new Label
 		{
-			Text = "F6 — закрыть. Ядро не знает о сценах — команды идут через GameSession."
+			Text = "Оверлей отладки. Ядро не знает о сценах — команды идут через KonturSimulation."
 		};
 		_hint.AddThemeColorOverride("font_color", new Color(0.55f, 0.62f, 0.55f));
 		column.AddChild(_hint);
@@ -691,6 +756,10 @@ public partial class KonturDebugOverlay : CanvasLayer
 		row.AddChild(CreateButton("Сброс партии", ResetGame));
 		row.AddChild(CreateButton("Закрыть смену", ForceEndShift));
 
+		row.AddChild(new VSeparator());
+		row.AddChild(CreateButton("Сохранить", SaveToDebugSlot));
+		row.AddChild(CreateButton("Загрузить", LoadFromDebugSlot));
+
 		return row;
 	}
 
@@ -702,6 +771,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 		row.AddChild(new Label { Text = "Команды:" });
 		row.AddChild(CreateButton("Ответить", AnswerFirstCall));
 		row.AddChild(CreateButton("Отправить всех", DispatchFirstMarker));
+		row.AddChild(CreateButton("Взять радио", AnswerFirstRadio));
 
 		for (int index = 0; index < 3; index++)
 		{
@@ -788,7 +858,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 			return;
 		}
 
-		Report($"Смена {day}", _runtime.Session.StartShift(day));
+		Report($"Смена {day}", _runtime.Simulation.StartShift(day));
 	}
 
 	private void ResetGame()
@@ -798,8 +868,8 @@ public partial class KonturDebugOverlay : CanvasLayer
 			return;
 		}
 
-		_radioOptions.Clear();
-		_runtime.Session.ResetToNewGame();
+		_radioOptionIds.Clear();
+		_runtime.Simulation.ResetToNewGame();
 		AppendLog("Партия сброшена.");
 	}
 
@@ -810,7 +880,57 @@ public partial class KonturDebugOverlay : CanvasLayer
 			return;
 		}
 
-		_runtime.Session.ForceEndShift();
+		_runtime.Simulation.ForceEndShift();
+	}
+
+	/// <summary>Отладочный слот один: кнопка «сохранить» перетирает предыдущий снимок.</summary>
+	private const string DebugSlot = "debug";
+
+	private void SaveToDebugSlot()
+	{
+		if (!HasCore())
+		{
+			return;
+		}
+
+		ShiftStatusView status = _runtime.Simulation.GetStatus();
+		string label = $"день {status.Day}, {status.ShiftTime:0} с";
+
+		if (_runtime.SaveToSlot(DebugSlot, label))
+		{
+			AppendLog($"Сохранено: {label} → {KonturRuntime.GetSlotPath(DebugSlot)}");
+		}
+		else
+		{
+			AppendLog("Сохранить не удалось, подробности в Output.");
+		}
+	}
+
+	private void LoadFromDebugSlot()
+	{
+		if (!HasCore())
+		{
+			return;
+		}
+
+		if (!_runtime.LoadFromSlot(DebugSlot))
+		{
+			AppendLog("Загрузить не удалось, подробности в Output.");
+			return;
+		}
+
+		// Радио-варианты кэшируются по инцидентам, а после загрузки это уже другие
+		// объекты: старый кэш выдал бы кнопкам чужие id.
+		_radioOptionIds.Clear();
+		_dispatchIncidentId = null;
+		_dispatchSignature = string.Empty;
+		_pickedEmployees.Clear();
+		_pickedEquipment.Clear();
+
+		// Настоящий интерфейс здесь перерисовывал бы стол. Оверлею достаточно
+		// отпустить время — он и так перечитывает состояние десять раз в секунду.
+		_runtime.Simulation.ResumeAfterLoad();
+		AppendLog("Загружено, время пущено.");
 	}
 
 	private void AnswerFirstCall()
@@ -822,7 +942,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 			return;
 		}
 
-		Report("Ответить", _runtime.Session.AnswerCall(incident.Id));
+		Report("Ответить", _runtime.Simulation.AnswerCall(incident.Id));
 	}
 
 	private void DispatchFirstMarker()
@@ -834,11 +954,13 @@ public partial class KonturDebugOverlay : CanvasLayer
 			return;
 		}
 
-		_runtime.Session.OpenDispatchScreen(incident.Id);
+		_runtime.Simulation.OpenDispatchScreen(incident.Id);
 
 		var squad = new List<string>();
-		IReadOnlyList<EmployeeView> roster = _runtime.Session.GetRoster();
-		for (int i = 0; i < roster.Count && squad.Count < 3; i++)
+		IReadOnlyList<EmployeeView> roster = _runtime.Simulation.GetRoster();
+		// Слотов ровно столько, сколько разрешает миссия: с 3 «на глазок»
+		// быстрая отправка получала бы отказ на любом одиночном вызове.
+		for (int i = 0; i < roster.Count && squad.Count < incident.SquadLimit; i++)
 		{
 			if (roster[i].Status == EmployeeStatus.Available)
 			{
@@ -872,12 +994,12 @@ public partial class KonturDebugOverlay : CanvasLayer
 		int heavy = 0;
 		int consumables = 0;
 
-		IReadOnlyList<EquipmentSlotView> stock = _runtime.Session.GetAvailableEquipment();
+		IReadOnlyList<EquipmentSlotView> stock = _runtime.Simulation.GetAvailableEquipment();
 		for (int i = 0; i < stock.Count; i++)
 		{
 			if (stock[i].Kind == EquipmentKind.Consumable)
 			{
-				if (consumables >= _runtime.Session.Config.Loot.ConsumableSlots)
+				if (consumables >= _runtime.Simulation.Config.Loot.ConsumableSlots)
 				{
 					continue;
 				}
@@ -886,7 +1008,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 			}
 			else
 			{
-				if (heavy >= _runtime.Session.Config.Loot.StandardOrStorySlots)
+				if (heavy >= _runtime.Simulation.Config.Loot.StandardOrStorySlots)
 				{
 					continue;
 				}
@@ -909,14 +1031,30 @@ public partial class KonturDebugOverlay : CanvasLayer
 			return;
 		}
 
-		List<RadioOptionView> options;
-		if (!_radioOptions.TryGetValue(incident.Id, out options) || optionIndex >= options.Count)
+		List<string> options;
+		if (!_radioOptionIds.TryGetValue(incident.Id, out options) || optionIndex >= options.Count)
 		{
 			AppendLog($"Вариант {optionIndex + 1} недоступен.");
 			return;
 		}
 
-		Report($"Радио {optionIndex + 1}", _runtime.Session.ChooseRadioOption(incident.Id, options[optionIndex].Id));
+		Report($"Радио {optionIndex + 1}", _runtime.Simulation.ChooseRadioOption(incident.Id, options[optionIndex]));
+	}
+
+	/// <summary>
+	/// Взять радио: мир останавливается до выбора варианта. Кнопка отдельная, потому что
+	/// это игровое действие — до него тикают секунды на реакцию, после него время стоит.
+	/// </summary>
+	private void AnswerFirstRadio()
+	{
+		IncidentView incident = FindFirst(IncidentPhase.RadioPending);
+		if (incident == null)
+		{
+			AppendLog("Радио сейчас не активно.");
+			return;
+		}
+
+		Report("Взять радио", _runtime.Simulation.AnswerRadio(incident.Id));
 	}
 
 	private void SetTimeScale(float scale)
@@ -951,19 +1089,21 @@ public partial class KonturDebugOverlay : CanvasLayer
 			return;
 		}
 
-		GameSession simulation = _runtime.Session;
+		KonturSimulation simulation = _runtime.Simulation;
 		ShiftStatusView status = simulation.GetStatus();
 		var builder = new StringBuilder();
 
 		builder.Append("День ").Append(status.Day)
 			.Append("   время ").Append(status.ShiftTime.ToString("0.0"))
 			.Append(" с   ").Append(status.IsShiftActive ? "смена идёт" : "смена не идёт")
-			.Append(_runtime.IsPaused ? "   [ПАУЗА]" : string.Empty)
+			.Append(_runtime.IsPaused ? "   [ПАУЗА РЕДАКТОРА]" : string.Empty)
+			.Append(status.IsTimeFrozen ? "   [color=#ffd166][ВРЕМЯ ОСТАНОВЛЕНО][/color]" : string.Empty)
 			.Append("   x").Append(_runtime.TimeScale.ToString("0.#"))
 			.Append('\n');
 
 		builder.Append("Окно вызовов: ").Append(status.IsCallWindowClosed ? "закрыто" : "открыто")
-			.Append("   в очереди: ").Append(status.PendingCalls)
+			.Append("   не поступало: ").Append(status.PendingCalls)
+			.Append("   на линии ждут: ").Append(status.QueuedCalls)
 			.Append("   открыто: ").Append(status.OpenIncidents)
 			.Append("   лимит штата: ").Append(status.StaffLimit)
 			.Append("\n\n");
@@ -1001,7 +1141,8 @@ public partial class KonturDebugOverlay : CanvasLayer
 				builder.Append(" [color=#6f7a6f]ждёт действия[/color]");
 			}
 
-			builder.Append("\n    ").Append(incident.Title)
+			builder.Append("  ").Append(TierMark(incident))
+				.Append("\n    ").Append(incident.CallId)
 				.Append("  требуется [").Append(incident.Requirements).Append("]\n");
 
 			if (incident.SquadEmployeeIds.Count > 0)
@@ -1067,7 +1208,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 	/// Запись появляется после первого успешного опознания, абзацы 1–3 открываются,
 	/// когда соответствующее свойство проявилось на вызове и группа выжила.
 	/// </summary>
-	private void AppendEncyclopedia(StringBuilder builder, GameSession simulation)
+	private void AppendEncyclopedia(StringBuilder builder, KonturSimulation simulation)
 	{
 		builder.Append("\n[color=#9fd6a6]ЭНЦИКЛОПЕДИЯ[/color]\n");
 
@@ -1132,7 +1273,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 	}
 
 	/// <summary>Отчёты, которые в игре появляются на компьютере после возвращения группы.</summary>
-	private void AppendReports(StringBuilder builder, GameSession simulation)
+	private void AppendReports(StringBuilder builder, KonturSimulation simulation)
 	{
 		builder.Append("\n[color=#9fd6a6]ОТЧЁТЫ[/color]\n");
 
@@ -1187,6 +1328,24 @@ public partial class KonturDebugOverlay : CanvasLayer
 		return builder.ToString();
 	}
 
+	/// <summary>Уровень вызова и потолок последствий — по ним видно, чем игрок рискует.</summary>
+	private static string TierMark(IncidentView incident)
+	{
+		string tier = incident.Tier == MissionTier.Story
+			? "[color=#ff9f43]сюжетный[/color]"
+			: "[color=#6f7a6f]филлер[/color]";
+
+		string cap;
+		switch (incident.ConsequenceCap)
+		{
+			case ConsequenceCap.None: cap = "без потерь"; break;
+			case ConsequenceCap.Injury: cap = "только травмы"; break;
+			default: cap = "[color=#ff6b6b]гибель возможна[/color]"; break;
+		}
+
+		return tier + ", " + cap;
+	}
+
 	private static bool IsWaitingForPlayer(IncidentPhase phase)
 	{
 		return phase == IncidentPhase.Ringing
@@ -1199,6 +1358,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 	{
 		switch (phase)
 		{
+			case IncidentPhase.Queued: return "[color=#6f7a6f]в очереди[/color]";
 			case IncidentPhase.Ringing: return "[color=#ffd166]ТЕЛЕФОН ЗВОНИТ[/color]";
 			case IncidentPhase.Briefing: return "[color=#ffd166]ЭКРАН ЗАДАНИЯ[/color]";
 			case IncidentPhase.MarkerActive: return "[color=#ffd166]МЕТКА НА КАРТЕ[/color]";
@@ -1219,13 +1379,27 @@ public partial class KonturDebugOverlay : CanvasLayer
 
 	private void OnRadioTriggered(RadioTriggered radioEvent)
 	{
-		var options = new List<RadioOptionView>(radioEvent.Options);
-		_radioOptions[radioEvent.IncidentId] = options;
-
-		var builder = new StringBuilder("Варианты по радио:");
-		for (int i = 0; i < options.Count; i++)
+		var options = new List<string>();
+		for (int i = 0; i < radioEvent.Options.Count; i++)
 		{
-			builder.Append("\n   ").Append(i + 1).Append(") ").Append(options[i].Text);
+			options.Add(radioEvent.Options[i].Id);
+		}
+
+		_radioOptionIds[radioEvent.IncidentId] = options;
+
+		// Оверлей показывает ключи, а не формулировки: прозу ядро не присылает,
+		// её разворачивает текстовый бокс по MissionEventId. Для отладки ключей хватает.
+		var builder = new StringBuilder("Варианты по радио (" + radioEvent.MissionEventId + "):");
+		for (int i = 0; i < radioEvent.Options.Count; i++)
+		{
+			RadioOptionOffer offer = radioEvent.Options[i];
+			builder.Append("\n   ").Append(i + 1).Append(") ").Append(offer.Id);
+
+			// Закрытых вариантов нет: показываем, за что тут спросят.
+			if (offer.Requirements.Total > 0)
+			{
+				builder.Append("  [проверка: ").Append(offer.Requirements).Append(']');
+			}
 		}
 
 		AppendLog(builder.ToString());
@@ -1253,7 +1427,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 			return null;
 		}
 
-		IReadOnlyList<IncidentView> incidents = _runtime.Session.GetActiveIncidents();
+		IReadOnlyList<IncidentView> incidents = _runtime.Simulation.GetActiveIncidents();
 		for (int i = 0; i < incidents.Count; i++)
 		{
 			if (incidents[i].Phase == phase)
