@@ -43,6 +43,18 @@ namespace Kontur.Core.Systems
 		/// <summary>День, на который собран HireOffers. -1 — не собирался ни разу.</summary>
 		public int HireOffersDay { get; set; } = -1;
 
+		/// <summary>
+		/// Кандидаты, из которых игрок набирает стартовый состав перед первой сменой.
+		///
+		/// Хранятся, а не пересобираются: экран выбора перерисовывается на каждое
+		/// нажатие, и генерация на лету меняла бы людей под курсором. Список живёт
+		/// до подтверждения выбора, после чего очищается.
+		/// </summary>
+		public List<Content.HireCandidate> StartingChoice { get; } = new List<Content.HireCandidate>();
+
+		/// <summary>Стартовый состав уже собран — выбор больше не предлагается.</summary>
+		public bool StartingRosterConfirmed { get; set; }
+
 		/// <summary>Отчёты на компьютере — накапливаются за партию.</summary>
 		public List<MissionReport> Reports { get; } = new List<MissionReport>();
 

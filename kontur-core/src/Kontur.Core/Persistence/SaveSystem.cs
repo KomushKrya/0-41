@@ -82,7 +82,8 @@ namespace Kontur.Core.Persistence
 				Loyalty = state.Scales.Loyalty,
 				IsGameOver = state.IsGameOver,
 				GameOverReason = state.GameOverReason.HasValue ? state.GameOverReason.Value.ToString() : string.Empty,
-				HireOffersDay = state.HireOffersDay
+				HireOffersDay = state.HireOffersDay,
+				StartingRosterConfirmed = state.StartingRosterConfirmed
 			};
 
 			for (int i = 0; i < state.Roster.Count; i++)
@@ -344,6 +345,11 @@ namespace Kontur.Core.Persistence
 			}
 
 			state.HireOffersDay = data.HireOffersDay;
+
+			// Стартовый выбор в снимок не кладётся: он живёт считаные секунды
+			// до первой смены, и сохраниться в этот момент негде.
+			state.StartingChoice.Clear();
+			state.StartingRosterConfirmed = data.StartingRosterConfirmed;
 		}
 
 		private static Employee RestoreEmployee(SavedEmployee saved)
