@@ -591,9 +591,14 @@ namespace Kontur.Core.Systems
 			{
 				MissionEventOption option = incident.MissionEvent.Options[i];
 
+				bool isAvailable = string.IsNullOrEmpty(option.RequiresEquipmentId)
+					|| incident.EquipmentIds.Contains(option.RequiresEquipmentId);
+
 				offers.Add(new RadioOptionOffer(
 					option.Id,
-					option.ResolveRequirements(missionRequirements)));
+					option.ResolveRequirements(missionRequirements),
+					isAvailable,
+					option.RequiresEquipmentId ?? string.Empty));
 			}
 
 			return offers;
@@ -1351,6 +1356,14 @@ namespace Kontur.Core.Systems
 			if (option == null)
 			{
 				return CommandResult.Fail($"Вариант '{optionId}' не найден.");
+			}
+
+			if (!string.IsNullOrEmpty(option.RequiresEquipmentId)
+				&& !incident.EquipmentIds.Contains(option.RequiresEquipmentId))
+			{
+				// UI не должен был предложить эту кнопку вовсе (см. RadioOptionOffer.IsAvailable) —
+				// это подстраховка на случай рассинхрона, а не основной путь отказа.
+				return CommandResult.Fail($"Вариант '{optionId}' недоступен: нужно снаряжение '{option.RequiresEquipmentId}'.");
 			}
 
 			// Решение принято — экран закрылся, мир пошёл дальше.

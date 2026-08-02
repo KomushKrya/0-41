@@ -51,5 +51,12 @@
 	"allStatsBonus": 2,
 	"successChanceBonus": 0.10,
 	"deathChanceMultiplier": 0.6
+  },
+  {
+	"id": "eq_dosimeter",
+	"name": "Японский дозиметр",
+	"description": "Импортный дозиметр. Отдаёт workshop_truck (write_off, успех).",
+	"kind": "Story",
+	"bonus": { "intellect": 2, "charisma": 1, "combat": 1 }
   }
 ]

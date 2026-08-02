@@ -122,6 +122,299 @@
 	}
   },
   {
+	"id": "m_missing_daughter",
+	"day": 1,
+	"tier": "Story",
+	"consequenceCap": "Death",
+	"zoneId": "z_sleep",
+	"creatureId": "creature_perekozhnik",
+	"callId": "call_missing_daughter",
+	"missionEventId": "radio_missing_daughter",
+	"requirements": {
+	  "strength": 5,
+	  "combat": 5
+	},
+	"primaryStat": "combat",
+	"squadLimit": 2,
+	"travelSeconds": 12.0,
+	"onSiteSeconds": 6.0,
+	"returnSeconds": 10.0,
+	"experienceOnSuccess": 100,
+	"experienceOnFailure": 25,
+	"injuryChance": 0.25,
+	"deathChance": 0.08,
+	"scalesOnSuccess": {
+	  "infection": -2.0,
+	  "publicity": -1.0,
+	  "loyalty": 2.0
+	},
+	"scalesOnFailure": {
+	  "infection": 5.0,
+	  "publicity": 4.0,
+	  "loyalty": -4.0
+	},
+	"scalesOnMissedCall": {
+	  "infection": 6.0,
+	  "publicity": 6.0,
+	  "loyalty": -6.0
+	},
+	"scalesOnExpiredMarker": {
+	  "infection": 5.0,
+	  "publicity": 5.0,
+	  "loyalty": -5.0
+	},
+	"reports": {
+	  "": {
+		"success": "report_missing_daughter_plain_success",
+		"failure": "report_missing_daughter_plain_failure"
+	  },
+	  "pull": {
+		"success": "report_missing_daughter_pull_success",
+		"failure": "report_missing_daughter_pull_failure"
+	  },
+	  "shoot": {
+		"success": "report_missing_daughter_shoot_success",
+		"failure": "report_missing_daughter_shoot_failure"
+	  },
+	  "amputate": {
+		"success": "report_missing_daughter_amputate_success",
+		"failure": "report_missing_daughter_amputate_failure"
+	  }
+	}
+  },
+  {
+	"id": "m_brother_smile",
+	"day": 1,
+	"tier": "Story",
+	"consequenceCap": "Injury",
+	"zoneId": "z_sleep",
+	"creatureId": "creature_mimic",
+	"callId": "call_brother_smile",
+	"missionEventId": "radio_brother_smile",
+	"requirements": {
+	  "strength": 4,
+	  "intellect": 4,
+	  "charisma": 4
+	},
+	"primaryStat": "charisma",
+	"squadLimit": 2,
+	"travelSeconds": 12.0,
+	"onSiteSeconds": 6.0,
+	"returnSeconds": 10.0,
+	"experienceOnSuccess": 100,
+	"experienceOnFailure": 25,
+	"injuryChance": 0.2,
+	"deathChance": 0.0,
+	"scalesOnSuccess": {
+	  "infection": -2.0,
+	  "publicity": -1.0,
+	  "loyalty": 2.0
+	},
+	"scalesOnFailure": {
+	  "infection": 5.0,
+	  "publicity": 4.0,
+	  "loyalty": -4.0
+	},
+	"scalesOnMissedCall": {
+	  "infection": 6.0,
+	  "publicity": 6.0,
+	  "loyalty": -6.0
+	},
+	"scalesOnExpiredMarker": {
+	  "infection": 5.0,
+	  "publicity": 5.0,
+	  "loyalty": -5.0
+	},
+	"reports": {
+	  "": {
+		"success": "report_brother_smile_plain_success",
+		"failure": "report_brother_smile_talk_failure"
+	  },
+	  "pull": {
+		"success": "report_brother_smile_pull_success",
+		"failure": "report_brother_smile_pull_failure"
+	  },
+	  "doll": {
+		"success": "report_brother_smile_doll_success",
+		"failure": "report_brother_smile_doll_failure"
+	  },
+	  "talk": {
+		"success": "report_brother_smile_talk_success",
+		"failure": "report_brother_smile_talk_failure"
+	  }
+	}
+  },
+  {
+	"id": "m_construction_intruders",
+	"day": 1,
+	"tier": "Story",
+	"consequenceCap": "Injury",
+	"zoneId": "z_industrial",
+	"creatureId": "creature_mimic",
+	"callId": "call_construction_intruders",
+	"missionEventId": "radio_construction_intruders",
+	"requirements": {
+	  "agility": 4,
+	  "intellect": 4
+	},
+	"primaryStat": "agility",
+	"squadLimit": 2,
+	"travelSeconds": 12.0,
+	"onSiteSeconds": 6.0,
+	"returnSeconds": 10.0,
+	"experienceOnSuccess": 100,
+	"experienceOnFailure": 25,
+	"injuryChance": 0.15,
+	"deathChance": 0.0,
+	"scalesOnSuccess": {
+	  "infection": 0.0,
+	  "publicity": -2.0,
+	  "loyalty": 1.0
+	},
+	"scalesOnFailure": {
+	  "infection": 0.0,
+	  "publicity": 4.0,
+	  "loyalty": -2.0
+	},
+	"scalesOnMissedCall": {
+	  "infection": 6.0,
+	  "publicity": 6.0,
+	  "loyalty": -6.0
+	},
+	"scalesOnExpiredMarker": {
+	  "infection": 5.0,
+	  "publicity": 5.0,
+	  "loyalty": -5.0
+	},
+	"reports": {
+	  "": {
+		"success": "report_construction_intruders_plain_success",
+		"failure": "report_construction_intruders_plain_failure"
+	  },
+	  "distract": {
+		"success": "report_construction_intruders_distract_success",
+		"failure": "report_construction_intruders_distract_failure"
+	  },
+	  "strike": {
+		"success": "report_construction_intruders_strike_success",
+		"failure": "report_construction_intruders_strike_failure"
+	  }
+	}
+  },
+  {
+	"id": "m_urgent_evacuation",
+	"day": 1,
+	"tier": "Story",
+	"consequenceCap": "Injury",
+	"zoneId": "z_sleep",
+	"creatureId": "",
+	"callId": "call_urgent_evacuation",
+	"missionEventId": "radio_urgent_evacuation",
+	"requirements": {
+	  "charisma": 5,
+	  "intellect": 4
+	},
+	"primaryStat": "charisma",
+	"squadLimit": 2,
+	"travelSeconds": 12.0,
+	"onSiteSeconds": 6.0,
+	"returnSeconds": 10.0,
+	"experienceOnSuccess": 100,
+	"experienceOnFailure": 25,
+	"injuryChance": 0.15,
+	"deathChance": 0.0,
+	"scalesOnSuccess": {
+	  "infection": -2.0,
+	  "publicity": -1.0,
+	  "loyalty": 1.0
+	},
+	"scalesOnFailure": {
+	  "infection": 3.0,
+	  "publicity": 4.0,
+	  "loyalty": -3.0
+	},
+	"scalesOnMissedCall": {
+	  "infection": 6.0,
+	  "publicity": 6.0,
+	  "loyalty": -6.0
+	},
+	"scalesOnExpiredMarker": {
+	  "infection": 5.0,
+	  "publicity": 5.0,
+	  "loyalty": -5.0
+	},
+	"reports": {
+	  "": {
+		"success": "report_urgent_evacuation_plain_success",
+		"failure": "report_urgent_evacuation_riot_failure"
+	  },
+	  "threaten": {
+		"success": "report_urgent_evacuation_threaten_success",
+		"failure": "report_urgent_evacuation_riot_failure"
+	  },
+	  "persuade": {
+		"success": "report_urgent_evacuation_persuade_success",
+		"failure": "report_urgent_evacuation_persuade_failure"
+	  }
+	}
+  },
+  {
+	"id": "m_false_gas_alarm",
+	"day": 1,
+	"tier": "Story",
+	"consequenceCap": "None",
+	"zoneId": "z_sleep",
+	"creatureId": "",
+	"callId": "call_false_gas_alarm",
+	"missionEventId": "radio_false_gas_alarm",
+	"requirements": {
+	  "intellect": 4
+	},
+	"primaryStat": "intellect",
+	"squadLimit": 2,
+	"travelSeconds": 10.0,
+	"onSiteSeconds": 6.0,
+	"returnSeconds": 9.0,
+	"experienceOnSuccess": 60,
+	"experienceOnFailure": 15,
+	"injuryChance": 0.0,
+	"deathChance": 0.0,
+	"scalesOnSuccess": {
+	  "infection": 0.0,
+	  "publicity": 0.0,
+	  "loyalty": 0.0
+	},
+	"scalesOnFailure": {
+	  "infection": 0.0,
+	  "publicity": 1.0,
+	  "loyalty": -2.0
+	},
+	"scalesOnMissedCall": {
+	  "infection": 6.0,
+	  "publicity": 6.0,
+	  "loyalty": -6.0
+	},
+	"scalesOnExpiredMarker": {
+	  "infection": 5.0,
+	  "publicity": 5.0,
+	  "loyalty": -5.0
+	},
+	"reports": {
+	  "": {
+		"success": "report_false_gas_alarm_seal",
+		"failure": "report_false_gas_alarm_seal"
+	  },
+	  "check": {
+		"success": "report_false_gas_alarm_check_success",
+		"failure": "report_false_gas_alarm_seal"
+	  },
+	  "seal": {
+		"success": "report_false_gas_alarm_seal",
+		"failure": "report_false_gas_alarm_seal"
+	  }
+	}
+  },
+  {
 	"id": "m_workshop_intro",
 	"day": 1,
 	"tier": "Story",
@@ -850,6 +1143,577 @@
 	  "cordon": {
 		"success": "report_workshop_site_cordon_failure",
 		"failure": "report_workshop_site_cordon_failure"
+	  }
+	}
+  },
+  {
+	"id": "m_wall_infection",
+	"day": 4,
+	"tier": "Story",
+	"consequenceCap": "Injury",
+	"zoneId": "z_sleep",
+	"creatureId": "",
+	"callId": "call_wall_infection",
+	"missionEventId": "radio_wall_infection",
+	"requirements": {
+	  "intellect": 5,
+	  "strength": 5
+	},
+	"primaryStat": "intellect",
+	"squadLimit": 2,
+	"travelSeconds": 12.0,
+	"onSiteSeconds": 10.0,
+	"returnSeconds": 10.0,
+	"experienceOnSuccess": 100,
+	"experienceOnFailure": 25,
+	"injuryChance": 0.15,
+	"deathChance": 0.0,
+	"scalesOnSuccess": {
+	  "infection": -2.0,
+	  "publicity": -1.0,
+	  "loyalty": 1.0
+	},
+	"scalesOnFailure": {
+	  "infection": 5.0,
+	  "publicity": 3.0,
+	  "loyalty": -3.0
+	},
+	"scalesOnMissedCall": {
+	  "infection": 6.0,
+	  "publicity": 6.0,
+	  "loyalty": -6.0
+	},
+	"scalesOnExpiredMarker": {
+	  "infection": 5.0,
+	  "publicity": 5.0,
+	  "loyalty": -5.0
+	},
+	"reports": {
+	  "": {
+		"success": "report_wall_infection_plain_success",
+		"failure": "report_wall_infection_plain_failure"
+	  },
+	  "dosimeter": {
+		"success": "report_wall_infection_dosimeter",
+		"failure": "report_wall_infection_dosimeter"
+	  },
+	  "listen": {
+		"success": "report_wall_infection_listen_success",
+		"failure": "report_wall_infection_listen_failure"
+	  },
+	  "brute": {
+		"success": "report_wall_infection_brute_success",
+		"failure": "report_wall_infection_brute_failure"
+	  }
+	}
+  },
+  {
+	"id": "m_flooded_basement",
+	"day": 4,
+	"tier": "Story",
+	"consequenceCap": "Injury",
+	"zoneId": "z_sleep",
+	"creatureId": "creature_kanalotvar",
+	"callId": "call_flooded_basement",
+	"missionEventId": "radio_flooded_basement",
+	"requirements": {
+	  "intellect": 5,
+	  "combat": 4
+	},
+	"primaryStat": "intellect",
+	"squadLimit": 2,
+	"travelSeconds": 12.0,
+	"onSiteSeconds": 8.0,
+	"returnSeconds": 10.0,
+	"experienceOnSuccess": 100,
+	"experienceOnFailure": 25,
+	"injuryChance": 0.2,
+	"deathChance": 0.0,
+	"scalesOnSuccess": {
+	  "infection": -2.0,
+	  "publicity": -1.0,
+	  "loyalty": 1.0
+	},
+	"scalesOnFailure": {
+	  "infection": 5.0,
+	  "publicity": 3.0,
+	  "loyalty": -3.0
+	},
+	"scalesOnMissedCall": {
+	  "infection": 6.0,
+	  "publicity": 6.0,
+	  "loyalty": -6.0
+	},
+	"scalesOnExpiredMarker": {
+	  "infection": 5.0,
+	  "publicity": 5.0,
+	  "loyalty": -5.0
+	},
+	"reports": {
+	  "": {
+		"success": "report_flooded_basement_plain_success",
+		"failure": "report_flooded_basement_plain_failure"
+	  },
+	  "shut_valve": {
+		"success": "report_flooded_basement_shut_valve_success",
+		"failure": "report_flooded_basement_shut_valve_failure"
+	  },
+	  "approach": {
+		"success": "report_flooded_basement_approach_success",
+		"failure": "report_flooded_basement_approach_failure"
+	  }
+	}
+  },
+  {
+	"id": "m_dogs_go_down",
+	"day": 4,
+	"tier": "Story",
+	"consequenceCap": "Injury",
+	"zoneId": "z_sleep",
+	"creatureId": "creature_kanalotvar",
+	"callId": "call_dogs_go_down",
+	"missionEventId": "radio_dogs_go_down",
+	"requirements": {
+	  "intellect": 5,
+	  "strength": 4
+	},
+	"primaryStat": "intellect",
+	"squadLimit": 2,
+	"travelSeconds": 12.0,
+	"onSiteSeconds": 8.0,
+	"returnSeconds": 10.0,
+	"experienceOnSuccess": 100,
+	"experienceOnFailure": 25,
+	"injuryChance": 0.15,
+	"deathChance": 0.0,
+	"scalesOnSuccess": {
+	  "infection": -2.0,
+	  "publicity": -1.0,
+	  "loyalty": 1.0
+	},
+	"scalesOnFailure": {
+	  "infection": 5.0,
+	  "publicity": 2.0,
+	  "loyalty": -2.0
+	},
+	"scalesOnMissedCall": {
+	  "infection": 6.0,
+	  "publicity": 6.0,
+	  "loyalty": -6.0
+	},
+	"scalesOnExpiredMarker": {
+	  "infection": 5.0,
+	  "publicity": 5.0,
+	  "loyalty": -5.0
+	},
+	"reports": {
+	  "": {
+		"success": "report_dogs_go_down_plain_success",
+		"failure": "report_dogs_go_down_plain_failure"
+	  },
+	  "follow": {
+		"success": "report_dogs_go_down_follow_success",
+		"failure": "report_dogs_go_down_follow_failure"
+	  },
+	  "block": {
+		"success": "report_dogs_go_down_block_success",
+		"failure": "report_dogs_go_down_block_failure"
+	  }
+	}
+  },
+  {
+	"id": "m_silent_collector",
+	"day": 4,
+	"tier": "Story",
+	"consequenceCap": "Injury",
+	"zoneId": "z_industrial",
+	"creatureId": "creature_kanalotvar",
+	"callId": "call_silent_collector",
+	"missionEventId": "radio_silent_collector",
+	"requirements": {
+	  "charisma": 4,
+	  "intellect": 5
+	},
+	"primaryStat": "intellect",
+	"squadLimit": 2,
+	"travelSeconds": 12.0,
+	"onSiteSeconds": 8.0,
+	"returnSeconds": 10.0,
+	"experienceOnSuccess": 100,
+	"experienceOnFailure": 25,
+	"injuryChance": 0.15,
+	"deathChance": 0.0,
+	"scalesOnSuccess": {
+	  "infection": -2.0,
+	  "publicity": -1.0,
+	  "loyalty": 1.0
+	},
+	"scalesOnFailure": {
+	  "infection": 5.0,
+	  "publicity": 3.0,
+	  "loyalty": -3.0
+	},
+	"scalesOnMissedCall": {
+	  "infection": 6.0,
+	  "publicity": 6.0,
+	  "loyalty": -6.0
+	},
+	"scalesOnExpiredMarker": {
+	  "infection": 5.0,
+	  "publicity": 5.0,
+	  "loyalty": -5.0
+	},
+	"reports": {
+	  "": {
+		"success": "report_silent_collector_plain_success",
+		"failure": "report_silent_collector_plain_failure"
+	  },
+	  "call_out": {
+		"success": "report_silent_collector_call_out_success",
+		"failure": "report_silent_collector_call_out_failure"
+	  },
+	  "signal": {
+		"success": "report_silent_collector_signal_success",
+		"failure": "report_silent_collector_signal_failure"
+	  }
+	}
+  },
+  {
+	"id": "m_dont_blink",
+	"day": 4,
+	"tier": "Story",
+	"consequenceCap": "Death",
+	"zoneId": "z_sleep",
+	"creatureId": "creature_perekozhnik",
+	"callId": "call_dont_blink",
+	"missionEventId": "radio_dont_blink",
+	"requirements": {
+	  "combat": 5,
+	  "intellect": 5
+	},
+	"primaryStat": "combat",
+	"squadLimit": 2,
+	"travelSeconds": 12.0,
+	"onSiteSeconds": 8.0,
+	"returnSeconds": 10.0,
+	"experienceOnSuccess": 100,
+	"experienceOnFailure": 25,
+	"injuryChance": 0.2,
+	"deathChance": 0.05,
+	"scalesOnSuccess": {
+	  "infection": -2.0,
+	  "publicity": -1.0,
+	  "loyalty": 1.0
+	},
+	"scalesOnFailure": {
+	  "infection": 5.0,
+	  "publicity": 3.0,
+	  "loyalty": -3.0
+	},
+	"scalesOnMissedCall": {
+	  "infection": 6.0,
+	  "publicity": 6.0,
+	  "loyalty": -6.0
+	},
+	"scalesOnExpiredMarker": {
+	  "infection": 5.0,
+	  "publicity": 5.0,
+	  "loyalty": -5.0
+	},
+	"reports": {
+	  "": {
+		"success": "report_dont_blink_plain_success",
+		"failure": "report_dont_blink_plain_failure"
+	  },
+	  "relieve": {
+		"success": "report_dont_blink_relieve_success",
+		"failure": "report_dont_blink_relieve_failure"
+	  },
+	  "blind": {
+		"success": "report_dont_blink_blind_success",
+		"failure": "report_dont_blink_blind_failure"
+	  }
+	}
+  },
+  {
+	"id": "m_racing_pulse",
+	"day": 4,
+	"tier": "Story",
+	"consequenceCap": "Death",
+	"zoneId": "z_industrial",
+	"creatureId": "creature_perekozhnik",
+	"callId": "call_racing_pulse",
+	"missionEventId": "radio_racing_pulse",
+	"requirements": {
+	  "charisma": 4,
+	  "agility": 4
+	},
+	"primaryStat": "charisma",
+	"squadLimit": 2,
+	"travelSeconds": 12.0,
+	"onSiteSeconds": 8.0,
+	"returnSeconds": 10.0,
+	"experienceOnSuccess": 100,
+	"experienceOnFailure": 25,
+	"injuryChance": 0.2,
+	"deathChance": 0.05,
+	"scalesOnSuccess": {
+	  "infection": -2.0,
+	  "publicity": -1.0,
+	  "loyalty": 1.0
+	},
+	"scalesOnFailure": {
+	  "infection": 5.0,
+	  "publicity": 3.0,
+	  "loyalty": -3.0
+	},
+	"scalesOnMissedCall": {
+	  "infection": 6.0,
+	  "publicity": 6.0,
+	  "loyalty": -6.0
+	},
+	"scalesOnExpiredMarker": {
+	  "infection": 5.0,
+	  "publicity": 5.0,
+	  "loyalty": -5.0
+	},
+	"reports": {
+	  "": {
+		"success": "report_racing_pulse_plain_success",
+		"failure": "report_racing_pulse_plain_failure"
+	  },
+	  "calm": {
+		"success": "report_racing_pulse_calm_success",
+		"failure": "report_racing_pulse_calm_failure"
+	  },
+	  "extract": {
+		"success": "report_racing_pulse_extract_success",
+		"failure": "report_racing_pulse_extract_failure"
+	  }
+	}
+  },
+  {
+	"id": "m_talking_dog",
+	"day": 4,
+	"tier": "Story",
+	"consequenceCap": "Injury",
+	"zoneId": "z_sleep",
+	"creatureId": "creature_simulacre",
+	"callId": "call_talking_dog",
+	"missionEventId": "radio_talking_dog",
+	"requirements": {
+	  "intellect": 5,
+	  "agility": 5
+	},
+	"primaryStat": "intellect",
+	"squadLimit": 2,
+	"travelSeconds": 12.0,
+	"onSiteSeconds": 8.0,
+	"returnSeconds": 10.0,
+	"experienceOnSuccess": 100,
+	"experienceOnFailure": 25,
+	"injuryChance": 0.2,
+	"deathChance": 0.0,
+	"scalesOnSuccess": {
+	  "infection": -2.0,
+	  "publicity": -1.0,
+	  "loyalty": 1.0
+	},
+	"scalesOnFailure": {
+	  "infection": 5.0,
+	  "publicity": 3.0,
+	  "loyalty": -3.0
+	},
+	"scalesOnMissedCall": {
+	  "infection": 6.0,
+	  "publicity": 6.0,
+	  "loyalty": -6.0
+	},
+	"scalesOnExpiredMarker": {
+	  "infection": 5.0,
+	  "publicity": 5.0,
+	  "loyalty": -5.0
+	},
+	"reports": {
+	  "": {
+		"success": "report_talking_dog_plain_success",
+		"failure": "report_talking_dog_plain_failure"
+	  },
+	  "listen": {
+		"success": "report_talking_dog_listen_success",
+		"failure": "report_talking_dog_listen_failure"
+	  },
+	  "ignore": {
+		"success": "report_talking_dog_ignore_success",
+		"failure": "report_talking_dog_ignore_failure"
+	  }
+	}
+  },
+  {
+	"id": "m_whole_stairwell",
+	"day": 4,
+	"tier": "Story",
+	"consequenceCap": "Death",
+	"zoneId": "z_sleep",
+	"creatureId": "creature_perekozhnik",
+	"callId": "call_whole_stairwell",
+	"missionEventId": "radio_whole_stairwell",
+	"requirements": {
+	  "combat": 5,
+	  "charisma": 4,
+	  "strength": 4
+	},
+	"primaryStat": "combat",
+	"squadLimit": 2,
+	"travelSeconds": 12.0,
+	"onSiteSeconds": 10.0,
+	"returnSeconds": 10.0,
+	"experienceOnSuccess": 120,
+	"experienceOnFailure": 30,
+	"injuryChance": 0.25,
+	"deathChance": 0.08,
+	"scalesOnSuccess": {
+	  "infection": -3.0,
+	  "publicity": -1.0,
+	  "loyalty": 3.0
+	},
+	"scalesOnFailure": {
+	  "infection": 7.0,
+	  "publicity": 5.0,
+	  "loyalty": -6.0
+	},
+	"scalesOnMissedCall": {
+	  "infection": 8.0,
+	  "publicity": 8.0,
+	  "loyalty": -8.0
+	},
+	"scalesOnExpiredMarker": {
+	  "infection": 7.0,
+	  "publicity": 7.0,
+	  "loyalty": -7.0
+	},
+	"reports": {
+	  "": {
+		"success": "report_whole_stairwell_plain_success",
+		"failure": "report_whole_stairwell_plain_failure"
+	  },
+	  "relay": {
+		"success": "report_whole_stairwell_relay_success",
+		"failure": "report_whole_stairwell_relay_failure"
+	  },
+	  "soothe": {
+		"success": "report_whole_stairwell_soothe_success",
+		"failure": "report_whole_stairwell_soothe_failure"
+	  },
+	  "push_through": {
+		"success": "report_whole_stairwell_push_through_success",
+		"failure": "report_whole_stairwell_push_through_failure"
+	  }
+	}
+  },
+  {
+	"id": "m_infection_ward_audit",
+	"day": 4,
+	"tier": "Filler",
+	"consequenceCap": "Injury",
+	"zoneId": "z_center",
+	"creatureId": "",
+	"callId": "call_infection_ward_audit",
+	"missionEventId": "",
+	"requirements": {
+	  "strength": 5,
+	  "combat": 4
+	},
+	"primaryStat": "strength",
+	"squadLimit": 2,
+	"travelSeconds": 12.0,
+	"onSiteSeconds": 6.0,
+	"returnSeconds": 10.0,
+	"experienceOnSuccess": 60,
+	"experienceOnFailure": 15,
+	"injuryChance": 0.15,
+	"deathChance": 0.0,
+	"scalesOnSuccess": {
+	  "infection": -1.0,
+	  "publicity": 0.0,
+	  "loyalty": 1.0
+	},
+	"scalesOnFailure": {
+	  "infection": 2.0,
+	  "publicity": 1.0,
+	  "loyalty": -1.0
+	},
+	"scalesOnMissedCall": {
+	  "infection": 6.0,
+	  "publicity": 6.0,
+	  "loyalty": -6.0
+	},
+	"scalesOnExpiredMarker": {
+	  "infection": 5.0,
+	  "publicity": 5.0,
+	  "loyalty": -5.0
+	},
+	"reports": {
+	  "": {
+		"success": "report_infection_ward_audit_success",
+		"failure": "report_infection_ward_audit_failure"
+	  }
+	}
+  },
+  {
+	"id": "m_comms_outage",
+	"day": 4,
+	"tier": "Story",
+	"consequenceCap": "None",
+	"zoneId": "z_center",
+	"creatureId": "",
+	"callId": "call_comms_outage",
+	"missionEventId": "radio_comms_outage",
+	"requirements": {
+	  "charisma": 5,
+	  "intellect": 4
+	},
+	"primaryStat": "charisma",
+	"squadLimit": 2,
+	"travelSeconds": 12.0,
+	"onSiteSeconds": 6.0,
+	"returnSeconds": 10.0,
+	"experienceOnSuccess": 100,
+	"experienceOnFailure": 25,
+	"injuryChance": 0.0,
+	"deathChance": 0.0,
+	"scalesOnSuccess": {
+	  "infection": 0.0,
+	  "publicity": -2.0,
+	  "loyalty": 1.0
+	},
+	"scalesOnFailure": {
+	  "infection": 0.0,
+	  "publicity": 4.0,
+	  "loyalty": -2.0
+	},
+	"scalesOnMissedCall": {
+	  "infection": 6.0,
+	  "publicity": 6.0,
+	  "loyalty": -6.0
+	},
+	"scalesOnExpiredMarker": {
+	  "infection": 5.0,
+	  "publicity": 5.0,
+	  "loyalty": -5.0
+	},
+	"reports": {
+	  "": {
+		"success": "report_comms_outage_plain_success",
+		"failure": "report_comms_outage_plain_failure"
+	  },
+	  "persuade": {
+		"success": "report_comms_outage_persuade_success",
+		"failure": "report_comms_outage_persuade_failure"
+	  },
+	  "handle_it": {
+		"success": "report_comms_outage_handle_it_success",
+		"failure": "report_comms_outage_handle_it_failure"
 	  }
 	}
   }

@@ -1383,7 +1383,23 @@ public partial class KonturDebugOverlay : CanvasLayer
 			RadioOptionOffer offer = radioEvent.Options[i];
 			builder.Append("\n   ").Append(i + 1).Append(") ").Append(offer.Id);
 
-			// Закрытых вариантов нет: показываем, за что тут спросят.
+			if (!offer.IsAvailable)
+			{
+				// Снаряжения нет среди отправленного на этот вызов — кнопка вместо
+				// формулировки показывает, чего не хватает. Название вещи достаём из
+				// текстового движка по id, ядро прозы не несёт.
+				string itemName = Content.Instance?.GetEntry(offer.RequiredEquipmentId)?.Name;
+				if (string.IsNullOrEmpty(itemName))
+				{
+					itemName = offer.RequiredEquipmentId;
+				}
+
+				builder.Append("  [ЗАКРЫТО: для открытия этого варианта вам необходим ")
+					.Append(itemName).Append(']');
+				continue;
+			}
+
+			// Закрытых по характеристикам вариантов нет: показываем, за что тут спросят.
 			if (offer.Requirements.Total > 0)
 			{
 				builder.Append("  [проверка: ").Append(offer.Requirements).Append(']');

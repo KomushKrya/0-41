@@ -1553,7 +1553,7 @@ namespace Kontur.Harness
 			source.Add("abilities.json", "[]");
 			source.Add("equipment.json", "[]");
 			source.Add("creatures.json", "[]");
-			source.Add("mission_events.json", "[]");
+			source.Add("radio.json", "[]");
 			source.Add("employees.json", @"{
 				""startingRoster"": [
 					{ ""id"": ""emp_a"", ""name"": ""А"", ""level"": 1, ""stats"": { ""strength"": 6 } }
@@ -1660,7 +1660,7 @@ namespace Kontur.Harness
 				{ ""id"": ""eq_test_standard"", ""name"": ""Обычное"", ""kind"": ""Standard"", ""bonus"": { ""combat"": 1 } }
 			]");
 			source.Add("creatures.json", "[]");
-			source.Add("mission_events.json", "[]");
+			source.Add("radio.json", "[]");
 
 			source.Add("employees.json", @"{
 				""startingRoster"": [

@@ -24,7 +24,7 @@ namespace Kontur.Core.Content
 		public const string CreaturesFile = "creatures.json";
 		public const string RosterFile = "employees.json";
 		public const string MissionsFile = "missions.json";
-		public const string MissionEventsFile = "mission_events.json";
+		public const string MissionEventsFile = "radio.json";
 
 		private static readonly JsonSerializerOptions Options = CreateOptions();
 
@@ -386,7 +386,8 @@ namespace Kontur.Core.Content
 					: dto.InjuryChanceMultiplier.Value,
 				ExtraScales = dto == null || dto.ExtraScales == null ? ScaleDelta.Zero : dto.ExtraScales.ToModel(),
 				RevealsPropertyId = dto == null ? null : dto.RevealsPropertyId,
-				ConsequenceCapOverride = dto == null ? null : ParseOptionalCap(dto.ConsequenceCap, MissionEventsFile, textOption.Id)
+				ConsequenceCapOverride = dto == null ? null : ParseOptionalCap(dto.ConsequenceCap, MissionEventsFile, textOption.Id),
+				RequiresEquipmentId = dto == null ? null : dto.RequiresEquipmentId
 			};
 		}
 
@@ -505,7 +506,7 @@ namespace Kontur.Core.Content
 						$"(consequenceCap={mission.EffectiveCap}).");
 				}
 
-				ValidateOptionCaps(mission, missionEvent, errors);
+				ValidateOptionCaps(mission, missionEvent, database, errors);
 
 				if (mission.Requirements.Total == 0)
 				{
@@ -683,6 +684,7 @@ namespace Kontur.Core.Content
 		private static void ValidateOptionCaps(
 			MissionDefinition mission,
 			MissionEventDefinition? missionEvent,
+			ContentDatabase database,
 			List<string> errors)
 		{
 			if (missionEvent == null)
@@ -692,17 +694,21 @@ namespace Kontur.Core.Content
 
 			foreach (MissionEventOption option in missionEvent.Options)
 			{
-				if (option.ConsequenceCapOverride == null)
-				{
-					continue;
-				}
-
-				if (option.ConsequenceCapOverride.Value > mission.EffectiveCap)
+				if (option.ConsequenceCapOverride != null
+					&& option.ConsequenceCapOverride.Value > mission.EffectiveCap)
 				{
 					errors.Add(
 						$"Вмешательство '{missionEvent.Id}', вариант '{option.Id}': потолок " +
 						$"{option.ConsequenceCapOverride.Value} мягче, чем у миссии '{mission.Id}' " +
 						$"({mission.EffectiveCap}) — вариант может только ужесточать.");
+				}
+
+				if (!string.IsNullOrEmpty(option.RequiresEquipmentId)
+					&& database.FindEquipment(option.RequiresEquipmentId) == null)
+				{
+					errors.Add(
+						$"Вмешательство '{missionEvent.Id}', вариант '{option.Id}': неизвестное " +
+						$"снаряжение '{option.RequiresEquipmentId}' в requiresEquipmentId.");
 				}
 			}
 		}

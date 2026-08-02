@@ -116,7 +116,7 @@ def load_world(root: Path) -> dict:
     world = {
         "root": root,
         "missions": read_json(data / "missions.json"),
-        "events": read_json(data / "mission_events.json"),
+        "events": read_json(data / "radio.json"),
         "zones": read_json(data / "zones.json"),
         "creatures": read_json(data / "creatures.json"),
         "roster": read_json(data / "employees.json"),
@@ -384,7 +384,7 @@ def command_check(args) -> int:
                 problems.append(
                     f"{mid}: вмешательство по радио бывает только у сюжетных вызовов, а tier={tier}")
             if event_id not in events:
-                problems.append(f"{mid}: нет баланса вмешательства {event_id!r} в mission_events.json")
+                problems.append(f"{mid}: нет баланса вмешательства {event_id!r} в radio.json")
             if entries and event_id not in entries:
                 problems.append(missing_text(mid, "текст вмешательства", event_id))
 
@@ -452,7 +452,7 @@ def check_options(mission: dict, cap: str, events: dict, entries: dict) -> list[
     # нажать можно любой вариант — недобор бьёт по шансу, а не по доступности.
 
     # Сверять тип варианта с его ценой здесь больше нечего: и то, и другое живёт
-    # в mission_events.json, текст несёт только id, порядок и пороги доступности.
+    # в radio.json, текст несёт только id, порядок и пороги доступности.
 
     return problems
 
@@ -847,7 +847,7 @@ def write_mission_files(root: Path, world: dict, slug: str, mission: dict, optio
             # Тип диалога тоже здесь: в тексте варианта его больше нет.
             "options": {o["id"]: {"quality": o["quality"]} for o in options},
         })
-        write_json(data / "mission_events.json", events)
+        write_json(data / "radio.json", events)
 
     print()
     print("Создано:")
@@ -855,7 +855,7 @@ def write_mission_files(root: Path, world: dict, slug: str, mission: dict, optio
         print(f"  {path.relative_to(root).as_posix()}")
     print(f"  data/missions.json (+{mission['id']})")
     if options:
-        print(f"  data/mission_events.json (+{mission['missionEventId']})")
+        print(f"  data/radio.json (+{mission['missionEventId']})")
 
 
 def register_mission(path: Path, mission_id: str, name: str, day: int, written: list[Path]) -> None:

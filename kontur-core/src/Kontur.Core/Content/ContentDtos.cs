@@ -224,6 +224,13 @@ namespace Kontur.Core.Content
 
 		/// <summary>None | Injury | Death. Только ужесточает потолок миссии.</summary>
 		public string? ConsequenceCap { get; set; }
+
+		/// <summary>
+		/// Пусто — вариант всегда доступен. Иначе — id снаряжения (data/equipment.json),
+		/// без которого группа не может выбрать этот вариант: предмет должен быть среди
+		/// того, что отправлено именно на этот вызов (SquadDispatched.EquipmentIds).
+		/// </summary>
+		public string? RequiresEquipmentId { get; set; }
 	}
 
 	/// <summary>
