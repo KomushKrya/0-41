@@ -11,6 +11,8 @@
       "charisma": 4,
       "intellect": 4
     },
+    "primaryStat": "charisma",
+    "squadLimit": 2,
     "travelSeconds": 10.0,
     "onSiteSeconds": 6.0,
     "returnSeconds": 9.0,
@@ -55,8 +57,7 @@
         "success": "report_black_mold_reagent_success",
         "failure": "report_black_mold_reagent_failure"
       }
-    },
-    "primaryStat": "charisma"
+    }
   },
   {
     "id": "m_pensioner_door",
@@ -72,6 +73,8 @@
       "strength": 5,
       "combat": 4
     },
+    "primaryStat": "intellect",
+    "squadLimit": 2,
     "travelSeconds": 12.0,
     "onSiteSeconds": 6.0,
     "returnSeconds": 10.0,
@@ -116,13 +119,13 @@
         "success": "report_pensioner_door_left_turn_success",
         "failure": "report_pensioner_door_left_turn_failure"
       }
-    },
-    "primaryStat": "intellect"
+    }
   },
   {
     "id": "m_workshop_intro",
     "day": 1,
     "tier": "Story",
+    "consequenceCap": "None",
     "zoneId": "z_industrial",
     "creatureId": "",
     "callId": "call_workshop_intro",
@@ -131,6 +134,8 @@
       "intellect": 5,
       "charisma": 4
     },
+    "primaryStat": "intellect",
+    "squadLimit": 2,
     "travelSeconds": 12.0,
     "onSiteSeconds": 6.0,
     "returnSeconds": 10.0,
@@ -171,14 +176,13 @@
         "success": "report_workshop_intro_peace_success",
         "failure": "report_workshop_intro_peace_failure"
       }
-    },
-    "primaryStat": "intellect",
-    "consequenceCap": "None"
+    }
   },
   {
     "id": "m_workshop_truck",
     "day": 2,
     "tier": "Story",
+    "consequenceCap": "Injury",
     "zoneId": "z_industrial",
     "creatureId": "",
     "callId": "call_workshop_truck",
@@ -188,6 +192,8 @@
       "strength": 4,
       "combat": 4
     },
+    "primaryStat": "charisma",
+    "squadLimit": 2,
     "travelSeconds": 12.0,
     "onSiteSeconds": 6.0,
     "returnSeconds": 10.0,
@@ -228,14 +234,13 @@
         "success": "report_workshop_truck_seize_success",
         "failure": "report_workshop_truck_seize_failure"
       }
-    },
-    "primaryStat": "charisma",
-    "consequenceCap": "Injury"
+    }
   },
   {
     "id": "m_cement_night_shift",
     "day": 3,
     "tier": "Filler",
+    "consequenceCap": "Injury",
     "zoneId": "z_industrial",
     "creatureId": "",
     "callId": "call_cement_night_shift",
@@ -245,6 +250,8 @@
       "intellect": 3,
       "charisma": 3
     },
+    "primaryStat": "strength",
+    "squadLimit": 2,
     "travelSeconds": 12.0,
     "onSiteSeconds": 6.0,
     "returnSeconds": 10.0,
@@ -277,14 +284,13 @@
         "success": "report_cement_night_shift_success",
         "failure": "report_cement_night_shift_failure"
       }
-    },
-    "primaryStat": "strength",
-    "consequenceCap": "Injury"
+    }
   },
   {
     "id": "m_dense_flock",
     "day": 3,
     "tier": "Story",
+    "consequenceCap": "Death",
     "zoneId": "z_industrial",
     "creatureId": "creature_simulacre",
     "callId": "call_dense_flock",
@@ -295,6 +301,8 @@
       "combat": 4,
       "strength": 3
     },
+    "primaryStat": "combat",
+    "squadLimit": 2,
     "travelSeconds": 12.0,
     "onSiteSeconds": 6.0,
     "returnSeconds": 10.0,
@@ -339,14 +347,13 @@
         "success": "report_dense_flock_cordon_failure",
         "failure": "report_dense_flock_cordon_failure"
       }
-    },
-    "primaryStat": "combat",
-    "consequenceCap": "Death"
+    }
   },
   {
     "id": "m_dogs_at_grate",
     "day": 3,
     "tier": "Filler",
+    "consequenceCap": "Injury",
     "zoneId": "z_sleep",
     "creatureId": "",
     "callId": "call_dogs_at_grate",
@@ -356,6 +363,8 @@
       "strength": 3,
       "combat": 3
     },
+    "primaryStat": "intellect",
+    "squadLimit": 2,
     "travelSeconds": 12.0,
     "onSiteSeconds": 6.0,
     "returnSeconds": 10.0,
@@ -388,14 +397,13 @@
         "success": "report_dogs_at_grate_success",
         "failure": "report_dogs_at_grate_failure"
       }
-    },
-    "primaryStat": "intellect",
-    "consequenceCap": "Injury"
+    }
   },
   {
     "id": "m_dosimeter_yard",
     "day": 3,
     "tier": "Filler",
+    "consequenceCap": "None",
     "zoneId": "z_sleep",
     "creatureId": "",
     "callId": "call_dosimeter_yard",
@@ -405,6 +413,8 @@
       "combat": 3,
       "intellect": 3
     },
+    "primaryStat": "charisma",
+    "squadLimit": 2,
     "travelSeconds": 12.0,
     "onSiteSeconds": 6.0,
     "returnSeconds": 10.0,
@@ -437,14 +447,13 @@
         "success": "report_dosimeter_yard_success",
         "failure": "report_dosimeter_yard_failure"
       }
-    },
-    "primaryStat": "charisma",
-    "consequenceCap": "None"
+    }
   },
   {
     "id": "m_night_pharmacy",
     "day": 3,
     "tier": "Story",
+    "consequenceCap": "Injury",
     "zoneId": "z_center",
     "creatureId": "creature_mimic",
     "callId": "call_night_pharmacy",
@@ -453,6 +462,8 @@
       "charisma": 4,
       "combat": 4
     },
+    "primaryStat": "charisma",
+    "squadLimit": 2,
     "travelSeconds": 12.0,
     "onSiteSeconds": 6.0,
     "returnSeconds": 10.0,
@@ -497,14 +508,13 @@
         "success": "report_night_pharmacy_militia_failure",
         "failure": "report_night_pharmacy_militia_failure"
       }
-    },
-    "primaryStat": "charisma",
-    "consequenceCap": "Injury"
+    }
   },
   {
     "id": "m_ninth_silence",
     "day": 3,
     "tier": "Filler",
+    "consequenceCap": "Injury",
     "zoneId": "z_outskirts",
     "creatureId": "",
     "callId": "call_ninth_silence",
@@ -514,6 +524,8 @@
       "strength": 3,
       "combat": 3
     },
+    "primaryStat": "intellect",
+    "squadLimit": 2,
     "travelSeconds": 12.0,
     "onSiteSeconds": 6.0,
     "returnSeconds": 10.0,
@@ -546,14 +558,13 @@
         "success": "report_ninth_silence_success",
         "failure": "report_ninth_silence_failure"
       }
-    },
-    "primaryStat": "intellect",
-    "consequenceCap": "Injury"
+    }
   },
   {
     "id": "m_room_34",
     "day": 3,
     "tier": "Story",
+    "consequenceCap": "Death",
     "zoneId": "z_sleep",
     "creatureId": "creature_mimic",
     "callId": "call_room_34",
@@ -564,6 +575,8 @@
       "combat": 4,
       "strength": 3
     },
+    "primaryStat": "intellect",
+    "squadLimit": 2,
     "travelSeconds": 12.0,
     "onSiteSeconds": 6.0,
     "returnSeconds": 10.0,
@@ -608,14 +621,13 @@
         "success": "report_room_34_evacuate_success",
         "failure": "report_room_34_evacuate_failure"
       }
-    },
-    "primaryStat": "intellect",
-    "consequenceCap": "Death"
+    }
   },
   {
     "id": "m_shelter_basement",
     "day": 3,
     "tier": "Filler",
+    "consequenceCap": "Injury",
     "zoneId": "z_sleep",
     "creatureId": "",
     "callId": "call_shelter_basement",
@@ -624,6 +636,8 @@
       "strength": 4,
       "charisma": 3
     },
+    "primaryStat": "strength",
+    "squadLimit": 2,
     "travelSeconds": 12.0,
     "onSiteSeconds": 6.0,
     "returnSeconds": 10.0,
@@ -656,14 +670,13 @@
         "success": "report_shelter_basement_success",
         "failure": "report_shelter_basement_failure"
       }
-    },
-    "primaryStat": "strength",
-    "consequenceCap": "Injury"
+    }
   },
   {
     "id": "m_tram_last_run",
     "day": 3,
     "tier": "Story",
+    "consequenceCap": "Death",
     "zoneId": "z_station",
     "creatureId": "creature_mimic",
     "callId": "call_tram_last_run",
@@ -673,6 +686,8 @@
       "strength": 4,
       "intellect": 4
     },
+    "primaryStat": "combat",
+    "squadLimit": 2,
     "travelSeconds": 12.0,
     "onSiteSeconds": 6.0,
     "returnSeconds": 10.0,
@@ -717,14 +732,13 @@
         "success": "report_tram_last_run_power_success",
         "failure": "report_tram_last_run_power_failure"
       }
-    },
-    "primaryStat": "combat",
-    "consequenceCap": "Death"
+    }
   },
   {
     "id": "m_workshop_empty",
     "day": 3,
     "tier": "Story",
+    "consequenceCap": "None",
     "zoneId": "z_center",
     "creatureId": "",
     "callId": "call_workshop_empty",
@@ -733,6 +747,8 @@
       "strength": 3,
       "intellect": 4
     },
+    "primaryStat": "intellect",
+    "squadLimit": 2,
     "travelSeconds": 14.0,
     "onSiteSeconds": 10.0,
     "returnSeconds": 10.0,
@@ -773,14 +789,13 @@
         "success": "report_workshop_empty_abort_success",
         "failure": "report_workshop_empty_abort_failure"
       }
-    },
-    "primaryStat": "intellect",
-    "consequenceCap": "None"
+    }
   },
   {
     "id": "m_workshop_site",
     "day": 3,
     "tier": "Story",
+    "consequenceCap": "Death",
     "zoneId": "z_industrial",
     "creatureId": "",
     "callId": "call_workshop_site",
@@ -790,6 +805,8 @@
       "strength": 3,
       "charisma": 4
     },
+    "primaryStat": "intellect",
+    "squadLimit": 2,
     "travelSeconds": 12.0,
     "onSiteSeconds": 6.0,
     "returnSeconds": 10.0,
@@ -834,8 +851,6 @@
         "success": "report_workshop_site_cordon_failure",
         "failure": "report_workshop_site_cordon_failure"
       }
-    },
-    "primaryStat": "intellect",
-    "consequenceCap": "Death"
+    }
   }
 ]

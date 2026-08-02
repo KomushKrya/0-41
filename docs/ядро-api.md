@@ -152,7 +152,7 @@ using Kontur.Core.Model;    // StatBlock, IncidentPhase, EmployeeStatus, ScaleVa
 Обрывает текущую смену **без** события `ShiftEnded`: смена не доработана, а отменена,
 и интерфейс не должен принимать это за окончание дня и включать ролик. Затем чистится
 всё состояние: штат заново клонируется из контента, шкалы возвращаются к стартовым,
-энциклопедия и склад опустошаются, зоны сбрасываются к исходной штриховке.
+энциклопедия и склад опустошаются.
 
 События при этом почти не публикуются — перерисуйте интерфейс по `Get*`-снимкам сами.
 
@@ -174,8 +174,8 @@ using Kontur.Core.Model;    // StatBlock, IncidentPhase, EmployeeStatus, ScaleVa
 
 ```csharp
 DispatchEstimateView estimate = simulation.EstimateDispatch(incidentId, employeeIds, equipmentIds);
-// estimate.Requirements   — пороги с учётом дня, штриховки зоны и выбранного радио-варианта
-// estimate.SquadStats     — профиль группы: лучший по каждой характеристике
+// estimate.Requirements   — пороги с учётом дня и выбранного радио-варианта
+// estimate.SquadStats     — профиль группы: сумма характеристик отряда плюс снаряжение
 // estimate.Matches        — построчно: что нужно, кто закрывает, какая ступень
 // estimate.MatchScore     — 0..1, главная характеристика весит вдвое
 // estimate.SuccessChance  — 0..1
@@ -227,7 +227,6 @@ DispatchEstimateView estimate = simulation.EstimateDispatch(incidentId, employee
 | `SquadDispatched` | `IncidentId`, `EmployeeIds`, `EquipmentIds`, `TravelSeconds` | пунктирная линия к точке |
 | `SquadArrived` | `IncidentId`, `ZoneId`, `BuildingId` | линия дошла |
 | `SquadReturned` | `IncidentId`, `EmployeeIds` | линия обратно, убрать метку |
-| `ZoneStateChanged` | `ZoneId`, `OldState`, `NewState`, `Reason` | переключить слой штриховки |
 
 Прогресса маршрута ядро не отдаёт: берите `TravelSeconds` из события и интерполируйте
 у себя, либо `IncidentView.RemainingSeconds` в фазе `Travelling`.
@@ -236,8 +235,9 @@ DispatchEstimateView estimate = simulation.EstimateDispatch(incidentId, employee
 
 У вызова два адреса, и это не дублирование.
 
-**`ZoneId` — район.** Механический слой: штриховка, вес в подборе вызовов, надбавка
-к требованиям. У зоны есть `MapX`/`MapY` — условная точка для отрисовки.
+**`ZoneId` — район.** Задаёт, откуда вызов и как часто такие приходят: `baseWeight`
+в `data/zones.json` — вес района в подборе. Вес статичен, состояний у района нет.
+У зоны есть `MapX`/`MapY` — условная точка для отрисовки.
 
 **`BuildingId` — конкретный дом** из `data/buildings.json`, тот самый, что нарисован
 геометрией карты. Выбирается заново каждую смену, поэтому живёт на инциденте, а не
@@ -355,7 +355,6 @@ MissionResolved
   → EmployeeKilled / EmployeeInjured
   → EquipmentConsumed / EquipmentLost
   → ScalesChanged  (и, если порог достигнут, GameOverTriggered)
-  → ZoneStateChanged
   → EmployeeExperienceGained / EmployeeLeveledUp
   → CreatureIdentified / CreatureRevealed
   → MissionOutcomeReady          ← экран итога
@@ -459,8 +458,9 @@ private void OnOutcomeClosed(string incidentId)
 EmployeeView(Id, Name, RankTitle, Level, Stats, Experience, ExperienceToNextLevel,
              UnspentSkillPoints, Status, IsInjured, CurrentIncidentId, AbilityIds, PortraitId)
 
-IncidentView(Id, MissionId, CallId, ZoneId, MissionEventId, Tier, ConsequenceCap,
-             Phase, RemainingSeconds, Requirements, SquadEmployeeIds, EquipmentIds)
+IncidentView(Id, MissionId, CallId, ZoneId, BuildingId, MissionEventId, Tier,
+             ConsequenceCap, Phase, RemainingSeconds, Requirements, SquadLimit,
+             SquadEmployeeIds, EquipmentIds)
 
 ZoneView(Id, Name, State, MapX, MapY)
 EquipmentSlotView(Id, Name, Description, Kind, Quantity, IsShiftOnly)
@@ -471,6 +471,23 @@ DispatchEstimateView(Requirements, SquadStats, Coverage, SuccessChance, IsAutoSu
 ShiftStatusView(Day, IsShiftActive, ShiftTime, IsCallWindowClosed, OpenIncidents,
                 PendingCalls, StaffLimit, Scales, IsGameOver, GameOverReason)
 ```
+
+### Сколько человек берёт вызов
+
+`IncidentView.SquadLimit` — предел, заданный автором миссии (`squadLimit` в
+`data/missions.json`, по умолчанию 1). `DispatchSquad` отклоняет состав больше этого
+числа, так что экран отправки обязан ограничивать выбор сам: иначе игрок наберёт
+группу и получит отказ уже после нажатия «Отправить».
+
+```csharp
+if (picked.Count >= incident.SquadLimit)
+{
+    // остальные галочки гасим
+}
+```
+
+Предел существует потому, что характеристики группы **складываются**: без него на любой
+вызов было бы выгодно отправлять всех свободных, и выбор состава исчез бы.
 
 `GetActiveIncidents()` возвращает только незакрытые вызовы. `MapX`/`MapY` — нормализованные
 `0..1` координаты района на карте.
@@ -494,7 +511,7 @@ string text  = stats.ToString();       // «Сила 5 Интеллект 3» �
 string label = StatKinds.GetDisplayName(StatKind.Combat);  // «Боевая подготовка»
 ```
 
-`StatKind`: `Strength`, `Perception`, `Endurance`, `Agility`, `Composure`.
+`StatKind`: `Strength`, `Combat`, `Agility`, `Charisma`, `Intellect`.
 
 **`ScaleValues`** — `Infection`, `Publicity`, `Loyalty`, диапазон `0..100`.
 **`ScaleDelta`** — изменение; положительное значение = рост шкалы.
@@ -512,8 +529,6 @@ string label = StatKinds.GetDisplayName(StatKind.Combat);  // «Боевая п�
 
 **`EquipmentKind`** — `Consumable` (тратится всегда), `Standard` (возвращается после успеха),
 `Story` (теряется только при гибели всей группы).
-
-**`ZoneState`** — `Normal`, `Infected`, `Quarantine`, `Cleared`.
 
 **`MissionTier`** — `Story` (сюжетный вызов: радио, полные ставки) и `Filler`
 (фон смены: травмы есть, гибели нет, радио не бывает).
@@ -845,7 +860,7 @@ simulation.Events.Subscribe<TimeFreezeChanged>(e =>
 **Числа вариантов приходят из текста.** Единственное исключение из правила «в тексте нет
 чисел»: у варианта решения `requirement_modifier` и `canon` лежат в `.md` рядом
 с формулировкой, потому что автор правит их вместе. Ядро читает их через каталог,
-остальное — риски, шкалы, карантин — берёт из `data/mission_events.json`.
+остальное — риски и шкалы — берёт из `data/mission_events.json`.
 Наборы ключей вариантов в тексте и в данных обязаны совпадать.
 
 `requirement_modifier` — надбавка: **+N к каждой требуемой характеристике** миссии.

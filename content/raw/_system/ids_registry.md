@@ -137,6 +137,10 @@
 | `report_workshop_truck_seize_success` | report | content/raw/ru/missions/reports/chapter_1/shift_2/workshop_truck/workshop_truck_seize_success.md |
 | `report_workshop_truck_write_off_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_2/workshop_truck/workshop_truck_write_off_failure.md |
 | `report_workshop_truck_write_off_success` | report | content/raw/ru/missions/reports/chapter_1/shift_2/workshop_truck/workshop_truck_write_off_success.md |
+| `shift_note_day_1` | shift_note | content/raw/ru/shift_notes/day_1.md |
+| `shift_note_day_2` | shift_note | content/raw/ru/shift_notes/day_2.md |
+| `shift_note_day_3` | shift_note | content/raw/ru/shift_notes/day_3.md |
+| `shift_note_day_4` | shift_note | content/raw/ru/shift_notes/day_4.md |
 | `standard` | equipment_kind | content/raw/ru/UI/hover_footnote/equipment_kinds/standard.md |
 | `story` | equipment_kind | content/raw/ru/UI/hover_footnote/equipment_kinds/story.md |
 | `strength` | characteristic | content/raw/ru/UI/hover_footnote/characteristics/strength.md |

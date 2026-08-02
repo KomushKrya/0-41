@@ -183,9 +183,6 @@ namespace Kontur.Harness
 				case CreatureRevealed s:
 					return $"ЭНЦИКЛОПЕДИЯ: {s.CreatureId} — открыто свойство {s.PropertyId}";
 
-				case ZoneStateChanged s:
-					return $"КАРТА: зона {s.ZoneId} {s.OldState} -> {s.NewState} ({s.Reason})";
-
 				case EquipmentConsumed s:
 					return _verbose ? $"Расход: {s.EquipmentName}, осталось {s.RemainingQuantity}" : null;
 
