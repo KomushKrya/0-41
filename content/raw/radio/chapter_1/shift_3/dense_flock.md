@@ -1,9 +1,9 @@
 ---
 id: radio_dense_flock
 type: radio
-status: draft
+status: ready
 requirements:
-  -
+  - 
 properties:
   -
 ---

@@ -1,9 +1,9 @@
 ---
 id: radio_night_pharmacy
 type: radio
-status: draft
+status: ready
 requirements:
-  -
+  - 
 properties:
   -
 ---

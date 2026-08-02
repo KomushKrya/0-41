@@ -1,9 +1,9 @@
 ---
 id: radio_room_34
 type: radio
-status: draft
+status: ready
 requirements:
-  -
+  - 
 properties:
   -
 ---

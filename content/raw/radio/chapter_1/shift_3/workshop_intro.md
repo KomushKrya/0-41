@@ -1,9 +1,9 @@
 ---
 id: radio_workshop_intro
 type: radio
-status: draft
+status: ready
 requirements:
-  -
+  - 
 properties:
   -
 ---

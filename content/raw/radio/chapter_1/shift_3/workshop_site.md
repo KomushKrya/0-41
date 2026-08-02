@@ -1,7 +1,7 @@
 ---
 id: radio_workshop_site
 type: radio
-status: draft
+status: ready
 requirements:
   - flag_truck_written_off
 properties:

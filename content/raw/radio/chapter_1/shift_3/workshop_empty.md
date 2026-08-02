@@ -1,7 +1,7 @@
 ---
 id: radio_workshop_empty
 type: radio
-status: draft
+status: ready
 requirements:
   - flag_truck_seized
 properties:

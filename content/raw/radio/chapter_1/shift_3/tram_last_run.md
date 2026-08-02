@@ -1,9 +1,9 @@
 ---
 id: radio_tram_last_run
 type: radio
-status: draft
+status: ready
 requirements:
-  -
+  - 
 properties:
   -
 ---
