@@ -1,11 +1,49 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/interactables/map_marker/MapMissionMarker.cs" id="1_marker"]
 [ext_resource type="PackedScene" path="res://scenes/interactables/map_marker/MapPin.tscn" id="2_pin"]
+[ext_resource type="Script" path="res://scripts/interactables/map_marker/MapMissionMarkerInteractable.cs" id="3_interactable"]
+[ext_resource type="Script" path="res://scripts/interaction/InteractionOutline.cs" id="4_outline"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_interaction"]
+radius = 0.12
+height = 0.24
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_debug"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(0.9, 0.7, 0.18, 0.2)
+emission_enabled = true
+emission = Color(0.65, 0.45, 0.08, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_debug"]
+material = SubResource("StandardMaterial3D_debug")
+radius = 0.12
+height = 0.24
 
 [node name="MapMissionMarker" type="Node3D"]
 script = ExtResource("1_marker")
 
-[node name="MapPin" parent="." instance=ExtResource("2_pin")]
+[node name="VisualRoot" type="Node3D" parent="."]
+scale = Vector3(2, 2, 2)
 
-[node name="MissionRing" type="MeshInstance3D" parent="."]
+[node name="MapPin" parent="VisualRoot" instance=ExtResource("2_pin")]
+
+[node name="MissionRing" type="MeshInstance3D" parent="VisualRoot"]
+
+[node name="InteractionOutline" type="Node" parent="."]
+script = ExtResource("4_outline")
+VisualRootPath = NodePath("../VisualRoot")
+
+[node name="InteractionArea" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 0
+script = ExtResource("3_interactable")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionArea"]
+shape = SubResource("SphereShape3D_interaction")
+
+[node name="DebugInteractionSphere" type="MeshInstance3D" parent="."]
+visible = false
+cast_shadow = 0
+mesh = SubResource("SphereMesh_debug")

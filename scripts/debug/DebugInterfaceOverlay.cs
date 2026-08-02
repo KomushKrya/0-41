@@ -7,6 +7,8 @@ using Kontur.Core.Events;
 public partial class DebugInterfaceOverlay : CanvasLayer
 {
 	private const int MaxRecentCoreEvents = 8;
+	public static bool IsInteractionRayDebugEnabled { get; private set; }
+	public static event Action<bool> InteractionRayDebugChanged;
 
 	[Export] public NodePath PanelPath { get; set; } = new("Panel");
 	[Export] public NodePath PreviewPath { get; set; } = new("Panel/MarginContainer/VBoxContainer/Preview");
@@ -232,6 +234,8 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 	private void SetInteractionRayReadoutEnabled(bool isEnabled)
 	{
 		_isInteractionRayReadoutEnabled = isEnabled;
+		IsInteractionRayDebugEnabled = isEnabled;
+		InteractionRayDebugChanged?.Invoke(isEnabled);
 		_interactionReadout.Visible = isEnabled;
 		_centerRayMarker.Visible = isEnabled;
 
@@ -621,6 +625,6 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 		string areasState = _isInteractionAreaDebugEnabled ? "areas:on" : "areas:off";
 		string layoutState = _isMapLayoutDebugEnabled ? "map-layout:on" : "map-layout:off";
 		_title.Text = $"DEBUG INTERFACE: {_activeInterfaceName} | {areasState} | {layoutState}";
-		_help.Text = "F1: interaction ray | F2: session data | F3: debug on/off | F4: interaction areas | F5: map layout | F6: core simulation | F12: noclip | 1: PC | 2: MAP | 3: DOSSIER | 4: NOTEBOOK | Esc: close";
+		_help.Text = "F1: interaction ray + marker zones | F2: session data | F3: debug on/off | F4: interaction areas | F5: map layout | F6: core simulation | F12: noclip | 1: PC | 2: MAP | 3: DOSSIER | 4: NOTEBOOK | Esc: close";
 	}
 }

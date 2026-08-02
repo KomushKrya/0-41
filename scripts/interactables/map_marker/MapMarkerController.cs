@@ -67,6 +67,7 @@ public partial class MapMarkerController : Node
 				CreatePin(incident.Id, incident.BuildingId);
 				_markerDurations[incident.Id] = incident.RemainingSeconds;
 				_pins[incident.Id].ShowDispatchCountdown(incident.RemainingSeconds, incident.RemainingSeconds);
+				_pins[incident.Id].SetDispatchInteractive(true);
 			}
 		}
 	}
@@ -86,10 +87,15 @@ public partial class MapMarkerController : Node
 					&& _markerDurations.TryGetValue(incident.Id, out double duration))
 				{
 					marker.ShowDispatchCountdown(incident.RemainingSeconds, duration);
+					marker.SetDispatchInteractive(true);
 				}
 			}
 			else if (incident.Phase == IncidentPhase.Travelling)
 			{
+				if (_pins.TryGetValue(incident.Id, out MapMissionMarker marker))
+				{
+					marker.SetDispatchInteractive(false);
+				}
 				_mapUi.UpdateDispatchRoute(incident.Id, incident.RemainingSeconds);
 			}
 			else if (incident.Phase == IncidentPhase.Returning)
@@ -100,19 +106,21 @@ public partial class MapMarkerController : Node
 			{
 				if (_pins.TryGetValue(incident.Id, out MapMissionMarker marker))
 				{
+					marker.SetDispatchInteractive(false);
 					if (!_radioDurations.TryGetValue(incident.Id, out double duration))
 					{
 						duration = incident.RemainingSeconds;
 						_radioDurations[incident.Id] = duration;
 					}
 
-					marker.ShowMissionExecution(incident.RemainingSeconds, duration);
+					marker.ShowRadioCountdown(incident.RemainingSeconds, duration);
 				}
 			}
 			else if (incident.Phase == IncidentPhase.OnSite)
 			{
 				if (_pins.TryGetValue(incident.Id, out MapMissionMarker marker))
 				{
+					marker.SetDispatchInteractive(false);
 					if (!_executionDurations.TryGetValue(incident.Id, out double duration))
 					{
 						duration = incident.RemainingSeconds;
@@ -145,6 +153,7 @@ public partial class MapMarkerController : Node
 		if (_pins.TryGetValue(marker.IncidentId, out MapMissionMarker pin))
 		{
 			pin.ShowDispatchCountdown(marker.LifetimeSeconds, marker.LifetimeSeconds);
+			pin.SetDispatchInteractive(true);
 		}
 	}
 
@@ -175,6 +184,7 @@ public partial class MapMarkerController : Node
 
 		if (_pins.TryGetValue(dispatch.IncidentId, out MapMissionMarker pin))
 		{
+			pin.SetDispatchInteractive(false);
 			pin.ShowTravelling();
 		}
 		if (!_mapUi.StartDispatchRoute(dispatch.IncidentId, buildingId, dispatch.TravelSeconds))
@@ -198,7 +208,7 @@ public partial class MapMarkerController : Node
 		_radioDurations[radio.IncidentId] = radio.ResponseSeconds;
 		if (_pins.TryGetValue(radio.IncidentId, out MapMissionMarker pin))
 		{
-			pin.ShowMissionExecution(radio.ResponseSeconds, radio.ResponseSeconds);
+			pin.ShowRadioCountdown(radio.ResponseSeconds, radio.ResponseSeconds);
 		}
 	}
 

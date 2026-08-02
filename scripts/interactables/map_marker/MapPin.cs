@@ -15,4 +15,13 @@ public partial class MapPin : Node3D
 			interaction.IncidentId = incidentId;
 		}
 	}
+
+	public void SetInteractionEnabled(bool isEnabled)
+	{
+		Area3D interaction = GetNodeOrNull<Area3D>(InteractionPath);
+		if (interaction != null)
+		{
+			interaction.CollisionLayer = isEnabled ? 2u : 0u;
+		}
+	}
 }

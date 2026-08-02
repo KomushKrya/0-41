@@ -90,7 +90,13 @@ public partial class FlyPlayer : CharacterBody3D
 			return;
 		}
 
-		if (@event.IsActionPressed("interact") && _hoveredInteractable != null && _hoveredInteractable.CanInteract(this))
+		bool isMarkerLeftClick = @event is InputEventMouseButton mouseButton
+			&& mouseButton.Pressed
+			&& mouseButton.ButtonIndex == MouseButton.Left
+			&& _hoveredInteractable is MapMissionMarkerInteractable;
+		if ((@event.IsActionPressed("interact") || isMarkerLeftClick)
+			&& _hoveredInteractable != null
+			&& _hoveredInteractable.CanInteract(this))
 		{
 			_hoveredInteractable.Interact(this);
 			GetViewport().SetInputAsHandled();

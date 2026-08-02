@@ -1,12 +1,12 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://bgg3petoew7g7"]
 
-[ext_resource type="Script" path="res://scripts/computer/ComputerTerminalUI.cs" id="1_terminal_ui"]
+[ext_resource type="Script" uid="uid://befru7v8lu76m" path="res://scripts/computer/ComputerTerminalUI.cs" id="1_terminal_ui"]
 
 [sub_resource type="SystemFont" id="SystemFont_terminal"]
 font_names = PackedStringArray("Cascadia Mono", "Consolas", "Courier New")
 subpixel_positioning = 0
 
-[node name="ComputerUI" type="Control"]
+[node name="ComputerUI" type="Control" unique_id=1331519684]
 custom_minimum_size = Vector2(900, 600)
 layout_mode = 3
 anchors_preset = 15
@@ -16,7 +16,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_terminal_ui")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Background" type="ColorRect" parent="." unique_id=2026043530]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -25,9 +25,9 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.01, 0.025, 0.018, 1)
 
-[node name="Header" type="Label" parent="."]
+[node name="Header" type="Label" parent="." unique_id=799448699]
 layout_mode = 1
-anchors_preset = 0
+anchors_preset = -1
 anchor_left = 0.0644444
 anchor_top = 0.0566667
 anchor_right = 0.935556
@@ -39,9 +39,9 @@ theme_override_fonts/font = SubResource("SystemFont_terminal")
 theme_override_font_sizes/font_size = 44
 text = "К.О.Н.Т.У.Р-Д 1.0"
 
-[node name="Subtitle" type="Label" parent="."]
+[node name="Subtitle" type="Label" parent="." unique_id=1707984213]
 layout_mode = 1
-anchors_preset = 0
+anchors_preset = -1
 anchor_left = 0.0688889
 anchor_top = 0.17
 anchor_right = 0.888889
@@ -53,9 +53,9 @@ theme_override_fonts/font = SubResource("SystemFont_terminal")
 theme_override_font_sizes/font_size = 30
 text = "РАЙОННЫЙ ТЕРМИНАЛ"
 
-[node name="Separator" type="ColorRect" parent="."]
+[node name="Separator" type="ColorRect" parent="." unique_id=1863198384]
 layout_mode = 1
-anchors_preset = 0
+anchors_preset = -1
 anchor_left = 0.0666667
 anchor_top = 0.263333
 anchor_right = 0.933333
@@ -64,9 +64,9 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.14, 0.55, 0.25, 1)
 
-[node name="StatusLines" type="Label" parent="."]
+[node name="StatusLines" type="Label" parent="." unique_id=1491664]
 layout_mode = 1
-anchors_preset = 0
+anchors_preset = -1
 anchor_left = 0.0733333
 anchor_top = 0.326667
 anchor_right = 0.926667
@@ -81,9 +81,9 @@ text = "СЕАНС: ОПЕРАТОР 041
 АРХИВ: ДОСТУП ОГРАНИЧЕН
 СОСТОЯНИЕ: ТЕСТОВЫЙ ИНТЕРФЕЙС АКТИВЕН"
 
-[node name="TestPanel" type="ColorRect" parent="."]
+[node name="TestPanel" type="ColorRect" parent="." unique_id=862108145]
 layout_mode = 1
-anchors_preset = 0
+anchors_preset = -1
 anchor_left = 0.0733333
 anchor_top = 0.756667
 anchor_right = 0.44
@@ -92,9 +92,9 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.04, 0.21, 0.09, 1)
 
-[node name="TestPanelLabel" type="Label" parent="TestPanel"]
+[node name="TestPanelLabel" type="Label" parent="TestPanel" unique_id=2107207680]
 layout_mode = 1
-anchors_preset = 0
+anchors_preset = -1
 anchor_left = 0.0727273
 anchor_top = 0.3
 anchor_right = 0.945455
@@ -106,9 +106,9 @@ theme_override_fonts/font = SubResource("SystemFont_terminal")
 theme_override_font_sizes/font_size = 28
 text = "[ ПРОВЕРКА ЭКРАНА ]"
 
-[node name="StartShiftButton" type="Button" parent="."]
+[node name="StartShiftButton" type="Button" parent="." unique_id=1771427762]
 layout_mode = 1
-anchors_preset = 0
+anchors_preset = -1
 anchor_left = 0.64
 anchor_top = 0.756667
 anchor_right = 0.928889
@@ -119,10 +119,10 @@ theme_override_fonts/font = SubResource("SystemFont_terminal")
 theme_override_font_sizes/font_size = 26
 text = "ВЫПОЛНИТЬ"
 
-[node name="ComputerCursor" type="ColorRect" parent="."]
+[node name="ComputerCursor" type="ColorRect" parent="." unique_id=1870431950]
 visible = false
 layout_mode = 1
-anchors_preset = 0
+anchors_preset = -1
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.513333
