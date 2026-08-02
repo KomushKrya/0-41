@@ -30,6 +30,15 @@ namespace Kontur.Core.Content
 		/// Пустой список, если записи нет или вариантов у неё нет.
 		/// </summary>
 		IReadOnlyList<TextOption> GetOptions(string entryId);
+
+		/// <summary>
+		/// Кусочки досье в указанном слоте (`build`, `temper`, `family`, `note`), в порядке файла.
+		///
+		/// Ядру нужны только идентификаторы: фабрика собирает из них анкету кандидата,
+		/// а разворачивает фразы интерфейс. Перечислять их в data/employees.json было бы
+		/// вторым списком тех же id — он разошёлся бы с текстами на первой же правке.
+		/// </summary>
+		IReadOnlyList<string> GetBioLines(string slot);
 	}
 
 	/// <summary>

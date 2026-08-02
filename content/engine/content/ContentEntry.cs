@@ -17,6 +17,12 @@ public sealed class ContentEntry
 	/// </summary>
 	public string MissionId = string.Empty;
 
+	/// <summary>
+	/// Только у bio_line: в какое место анкеты встаёт фраза — build, temper,
+	/// family, note. Фабрика берёт по одной фразе из каждого слота.
+	/// </summary>
+	public string Slot = string.Empty;
+
 	public int Day;
 	public IReadOnlyList<string> Requirements = new List<string>();
 	public IReadOnlyList<string> Properties = new List<string>();

@@ -83,6 +83,7 @@
 
   "generator": {
 	"candidatesPerShift": 3,
+	"candidatesChoiceMargin": 2,
 
 	"minStat": 2,
 	"maxStat": 7,
@@ -96,12 +97,13 @@
 
 	"startingChoicePoolSize": 6,
 
-	"levelsByDay": [
-	  { "fromDay": 1, "minLevel": 1, "maxLevel": 1 },
-	  { "fromDay": 2, "minLevel": 1, "maxLevel": 2 },
-	  { "fromDay": 4, "minLevel": 2, "maxLevel": 3 },
-	  { "fromDay": 6, "minLevel": 2, "maxLevel": 4 }
-	],
+	"levelLagBehindDay": 1,
+	"levelSpread": 1,
+
+	"minAge": 24,
+	"maxAge": 52,
+	"bioSlots": ["build", "temper", "family", "note"],
+
 
 	"surnames": [
 	  "Аникеев", "Балуев", "Ветров", "Гусаров", "Дроздов", "Ерохин", "Жарков",
@@ -117,7 +119,12 @@
 	  "Т. Б.", "Ю. Я."
 	],
 
-	"portraits": ["port_generic_1", "port_generic_2", "port_generic_3", "port_generic_4"],
+	"portraits": [
+		"port_generic_1", "port_generic_2", "port_generic_3", "port_generic_4",
+		"port_generic_5", "port_generic_6", "port_generic_7", "port_generic_8",
+		"port_generic_9", "port_generic_10", "port_generic_11", "port_generic_12",
+		"port_generic_13", "port_generic_14"
+	],
 
 	"archetypes": [
 	  {
