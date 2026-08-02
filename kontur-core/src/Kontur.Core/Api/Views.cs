@@ -21,7 +21,10 @@ namespace Kontur.Core.Api
 		string? CurrentIncidentId,
 		/// <summary>Id перков. Названия достаёт слой Godot из текстового движка по этим id.</summary>
 		IReadOnlyList<string> AbilityIds,
-		string PortraitId);
+		string PortraitId,
+		int Age,
+		/// <summary>Кусочки досье: id фраз, разворачивает интерфейс через текстовый движок.</summary>
+		IReadOnlyList<string> BioIds);
 
 	/// <summary>
 	/// Вызов глазами интерфейса. Прозы нет: название и реплики звонящего разворачиваются
@@ -93,7 +96,9 @@ namespace Kontur.Core.Api
 		int Level,
 		StatBlock Stats,
 		IReadOnlyList<string> AbilityIds,
-		string PortraitId);
+		string PortraitId,
+		int Age,
+		IReadOnlyList<string> BioIds);
 
 	public sealed record ShiftStatusView(
 		int Day,

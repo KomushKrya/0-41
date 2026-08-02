@@ -39,6 +39,9 @@ namespace Kontur.Harness
 			TestExpiredMarkerIsAutoFailure(BuildTimerTestContent());
 			TestEquipmentSlotLimits(content);
 			TestStaffLimit(content);
+			TestShiftEndsAfterLastIncident(content);
+			TestHiringFillsRoster(content);
+			TestHiringAfterHeavyLosses(content);
 			TestEmployeeFactory(content);
 			TestOutcomeAndHiring(content);
 			TestSaveLoad(content);
@@ -181,10 +184,15 @@ namespace Kontur.Harness
 			Check("Радио 20 с", Math.Abs(content.Config.Timings.RadioSeconds - 20.0) < 1e-9);
 			Check("Окно вызовов 5 минут", Math.Abs(content.Config.Timings.ShiftCallWindowSeconds - 300.0) < 1e-9);
 			Check("Лимиты штата 3/4/5/6",
-				content.Config.GetDay(1).StaffLimit == 3
-				&& content.Config.GetDay(2).StaffLimit == 4
-				&& content.Config.GetDay(3).StaffLimit == 5
-				&& content.Config.GetDay(4).StaffLimit == 6);
+				content.Config.GetStaffLimit(1) == 3
+				&& content.Config.GetStaffLimit(2) == 4
+				&& content.Config.GetStaffLimit(3) == 5
+				&& content.Config.GetStaffLimit(4) == 6);
+
+			// Таблица дней кончается на четвёртом, а правило — нет. Раньше пятая смена
+			// молча получала лимит по умолчанию, и штат сжимался с шести человек до трёх.
+			Check("Правило работает за пределами таблицы дней",
+				content.Config.GetStaffLimit(5) == 7 && content.Config.GetStaffLimit(9) == 11);
 		}
 
 		private static void TestMissedCallIsAutoFailure(ContentDatabase content)
@@ -352,6 +360,163 @@ namespace Kontur.Harness
 			{
 				Check("Найм сверх лимита отклоняется", !simulation.HireEmployee(more[0].Id, 2).IsSuccess);
 			}
+		}
+
+		/// <summary>
+		/// Смена не заканчивается, пока не закрыт последний вызов.
+		///
+		/// Хвостов у смены три, и каждый закрывается по-своему: группа возвращается
+		/// по таймеру дороги, протухшая метка и пропущенный звонок закрываются сразу.
+		/// Ошибиться тут можно в обе стороны — оборвать смену, пока группа в пути,
+		/// или подвесить её навсегда на вызове, который никто не закрыл.
+		///
+		/// Проверяется порядок событий: ShiftEnded обязан прийти последним, после
+		/// всех IncidentClosed, и хотя бы один раз за прогон.
+		/// </summary>
+		private static void TestShiftEndsAfterLastIncident(ContentDatabase content)
+		{
+			var simulation = new KonturSimulation(content, 31);
+
+			var order = new List<string>();
+			int closed = 0;
+			int ended = 0;
+
+			simulation.Events.Subscribe<IncidentCreated>(e =>
+			{
+				simulation.AnswerCall(e.IncidentId);
+				simulation.ConfirmBriefing(e.IncidentId);
+			});
+
+			simulation.Events.Subscribe<MapMarkerSpawned>(e =>
+			{
+				IReadOnlyList<EmployeeView> roster = simulation.GetRoster();
+				var squad = new List<string>();
+				for (int i = 0; i < roster.Count && squad.Count < 1; i++)
+				{
+					if (roster[i].Status == EmployeeStatus.Available)
+					{
+						squad.Add(roster[i].Id);
+					}
+				}
+
+				if (squad.Count > 0)
+				{
+					simulation.DispatchSquad(e.IncidentId, squad, new List<string>());
+				}
+			});
+
+			simulation.Events.Subscribe<RadioTriggered>(e =>
+			{
+				if (e.Options.Count > 0)
+				{
+					simulation.AnswerRadio(e.IncidentId);
+					simulation.ChooseRadioOption(e.IncidentId, e.Options[0].Id);
+				}
+			});
+
+			simulation.Events.Subscribe<IncidentClosed>(e =>
+			{
+				closed++;
+				order.Add("closed");
+			});
+
+			simulation.Events.Subscribe<ShiftEnded>(e =>
+			{
+				ended++;
+				order.Add("ended");
+			});
+
+			simulation.StartShift(1);
+			for (int i = 0; i < 6000 && ended == 0; i++)
+			{
+				simulation.Tick(0.25);
+			}
+
+			Check("Смена завершилась", ended == 1);
+			Check("Хотя бы один вызов закрылся", closed > 0);
+
+			// Порядок важнее счёта: ShiftEnded посреди списка означает, что смена
+			// оборвалась, пока по какому-то вызову ещё шла работа.
+			bool endedIsLast = order.Count > 0 && order[order.Count - 1] == "ended";
+			Check("ShiftEnded пришло после всех IncidentClosed", endedIsLast);
+
+			// И ни одного незакрытого хвоста: всё, что открылось, доиграно.
+			int stillOpen = 0;
+			foreach (IncidentView incident in simulation.GetActiveIncidents())
+			{
+				stillOpen++;
+			}
+
+			Check($"Незакрытых вызовов не осталось ({stillOpen})", stillOpen == 0);
+		}
+
+		/// <summary>
+		/// Потерявший половину отдела должен иметь возможность восстановиться.
+		///
+		/// Раньше кандидатов выдавалось ровно candidatesPerShift независимо от потерь:
+		/// на четвёртой смене с четырьмя пустыми местами игрок добирал троих и доигрывал
+		/// неполным составом без всякой возможности это исправить.
+		///
+		/// Проверяем оба конца. Кандидатов должно хватать на все свободные места —
+		/// иначе штат не восстановить. И их должно быть больше, чем мест: список ровно
+		/// по числу мест превращает экран найма в кнопку «взять всех».
+		/// </summary>
+		private static void TestHiringFillsRoster(ContentDatabase content)
+		{
+			var simulation = new KonturSimulation(content, 23);
+
+			int alive = simulation.GetRoster().Count;
+			int limit = content.Config.GetStaffLimit(4);
+			int free = limit - alive;
+
+			Check($"На четвёртой смене мест {limit}, занято {alive}", free > 0);
+
+			IReadOnlyList<HireCandidateView> candidates = simulation.GetHireCandidates(4);
+			Check($"Кандидатов хватает на все места ({candidates.Count} на {free})",
+				candidates.Count >= free);
+			Check("Кандидатов больше, чем мест — есть из кого выбирать",
+				candidates.Count > free);
+
+			int hired = 0;
+			for (int i = 0; i < candidates.Count; i++)
+			{
+				if (simulation.HireEmployee(candidates[i].Id, 4).IsSuccess)
+				{
+					hired++;
+				}
+			}
+
+			Check($"Штат добран до предела ({alive + hired} из {limit})", alive + hired == limit);
+			Check("Сверх предела не взяли", simulation.GetRoster().Count == limit);
+		}
+
+		/// <summary>
+		/// Тот же сценарий, но с большой дырой в штате: на девятой смене мест
+		/// одиннадцать, а людей по-прежнему трое. Так проверяется именно случай
+		/// «потеряли много» — без него формула молча упиралась бы в candidatesPerShift.
+		/// </summary>
+		private static void TestHiringAfterHeavyLosses(ContentDatabase content)
+		{
+			var simulation = new KonturSimulation(content, 29);
+
+			const int Day = 9;
+			int alive = simulation.GetRoster().Count;
+			int free = content.Config.GetStaffLimit(Day) - alive;
+
+			Check($"Дыра в штате велика ({free} мест)", free >= 6);
+
+			IReadOnlyList<HireCandidateView> candidates = simulation.GetHireCandidates(Day);
+			Check($"Кандидатов хватает и на большую дыру ({candidates.Count} на {free})",
+				candidates.Count >= free);
+
+			var имена = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+			bool уникальны = true;
+			for (int i = 0; i < candidates.Count; i++)
+			{
+				уникальны &= имена.Add(candidates[i].Name);
+			}
+
+			Check("В большой пачке кандидатов нет двойников", уникальны);
 		}
 
 		/// <summary>

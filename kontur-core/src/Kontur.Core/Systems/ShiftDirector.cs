@@ -616,6 +616,14 @@ namespace Kontur.Core.Systems
 			// ДД, раздел 4: не автопровал — бросок с повышенным шансом провала.
 			incident.RadioWasMissed = true;
 			_bus.Publish(new RadioMissed(incident.Id));
+
+			// И сразу штраф по шкалам. Резать один только бросок мало: результат
+			// придёт через минуту вместе с исходом миссии, и игрок не свяжет его
+			// с тем, что промолчал в эфир. Шкалы дёргаются в тот же момент.
+			_scales.Apply(
+				_content.Config.MissionEvents.ScalesOnMissedRadio.ToDelta(),
+				"не ответили по рации");
+
 			incident.SetPhase(IncidentPhase.OnSite, incident.Mission.OnSiteSeconds);
 		}
 
@@ -728,6 +736,15 @@ namespace Kontur.Core.Systems
 			ApplyCasualties(incident, outcome);
 			ReturnOrConsumeEquipment(incident, equipment, outcome);
 			_scales.Apply(delta, outcome.IsSuccess ? "успешный вызов" : "провал вызова");
+
+			// Погиб последний живой — отдела больше нет, и работать некому. Управление
+			// такое не прощает: лояльность падает в ноль и срабатывает обычная концовка
+			// по лояльности. Отдельной причины проигрыша не заводим — игроку понятнее
+			// знакомый финал, чем ещё один экран про то же самое.
+			if (_roster.CountLiving() == 0)
+			{
+				_scales.DepleteLoyalty("отдел потерян: погиб последний оперативник");
+			}
 
 			_roster.GrantExperience(
 				outcome.EmployeeIds,

@@ -347,7 +347,9 @@ namespace Kontur.Core.Api
 					employee.IsInjured,
 					employee.CurrentIncidentId,
 					new List<string>(employee.AbilityIds),
-					employee.PortraitId));
+					employee.PortraitId,
+					employee.Age,
+					new List<string>(employee.BioIds)));
 			}
 
 			return result;
@@ -522,7 +524,9 @@ namespace Kontur.Core.Api
 					template.Level,
 					template.BaseStats,
 					template.AbilityIds.ToArray(),
-					template.PortraitId));
+					template.PortraitId,
+					template.Age,
+					template.BioIds.ToArray()));
 			}
 
 			return result;
@@ -564,7 +568,9 @@ namespace Kontur.Core.Api
 					template.Level,
 					template.BaseStats,
 					template.AbilityIds.ToArray(),
-					template.PortraitId));
+					template.PortraitId,
+					template.Age,
+					template.BioIds.ToArray()));
 			}
 
 			return result;

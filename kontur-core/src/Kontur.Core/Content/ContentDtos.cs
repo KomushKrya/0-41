@@ -144,6 +144,18 @@ namespace Kontur.Core.Content
 	{
 		public int CandidatesPerShift { get; set; }
 
+		public int CandidatesChoiceMargin { get; set; } = 2;
+
+		public int LevelLagBehindDay { get; set; } = 1;
+
+		public int LevelSpread { get; set; } = 1;
+
+		public int MinAge { get; set; } = 24;
+
+		public int MaxAge { get; set; } = 52;
+
+		public List<string>? BioSlots { get; set; }
+
 		public List<string>? Surnames { get; set; }
 
 		public List<string>? Initials { get; set; }

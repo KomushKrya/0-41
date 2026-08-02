@@ -38,6 +38,29 @@ namespace Kontur.Core.Config
 			return new DayConfig { Day = day };
 		}
 
+		/// <summary>
+		/// Лимит штата на смену: **номер смены плюс два** (ДД, раздел 5) — 3 / 4 / 5 / 6
+		/// за четыре дня демо.
+		///
+		/// Правило, а не таблица, потому что таблица кончается. День, который забыли
+		/// описать в конфиге, брал лимит по умолчанию, и на пятой смене штат внезапно
+		/// сжимался с шести человек до трёх.
+		///
+		/// Явный staffLimit у дня правило перебивает: контент всегда главнее кода.
+		/// </summary>
+		public int GetStaffLimit(int day)
+		{
+			for (int i = 0; i < Days.Count; i++)
+			{
+				if (Days[i].Day == day && Days[i].StaffLimit > 0)
+				{
+					return Days[i].StaffLimit;
+				}
+			}
+
+			return day + Employees.StaffLimitOffset;
+		}
+
 		public static SimulationConfig CreateDefault()
 		{
 			var config = new SimulationConfig();
@@ -162,6 +185,27 @@ namespace Kontur.Core.Config
 		public int ExperiencePerLevelStep { get; set; } = 100;
 
 		public int MaxStatValue { get; set; } = 20;
+
+		/// <summary>
+		/// Насколько лимит штата больше номера смены. Два: в первую смену три человека,
+		/// дальше по одному за день. См. SimulationConfig.GetStaffLimit.
+		/// </summary>
+		public int StaffLimitOffset { get; set; } = 2;
+	}
+
+	/// <summary>Изменение шкал в конфиге. Положительное — рост шкалы.</summary>
+	public sealed class ScaleDeltaConfig
+	{
+		public double Infection { get; set; }
+
+		public double Publicity { get; set; }
+
+		public double Loyalty { get; set; }
+
+		public Kontur.Core.Model.ScaleDelta ToDelta()
+		{
+			return new Kontur.Core.Model.ScaleDelta(Infection, Publicity, Loyalty);
+		}
 	}
 
 	public sealed class LootConfig
@@ -181,6 +225,23 @@ namespace Kontur.Core.Config
 	/// </summary>
 	public sealed class MissionEventConfig
 	{
+		/// <summary>
+		/// Цена того, что оператор не взял рацию, когда группа уже на объекте.
+		///
+		/// Отдельно от исхода миссии: бросок и так режется вдвое, но это отложенный
+		/// штраф, который игрок увидит через минуту и не свяжет с молчанием в эфире.
+		/// Шкалы дёргаются сразу — как при пропущенном звонке.
+		///
+		/// Мягче пропущенного звонка: там никто не выехал, здесь группа на месте
+		/// и действует по обстановке. Заражение и гласность вверх, лояльность вниз.
+		/// </summary>
+		public ScaleDeltaConfig ScalesOnMissedRadio { get; set; } = new ScaleDeltaConfig
+		{
+			Infection = 2.0,
+			Publicity = 2.0,
+			Loyalty = -3.0
+		};
+
 		public MissionEventQualityConfig Good { get; set; } =
 			new MissionEventQualityConfig { RequirementModifier = 0, RiskMultiplier = 1.0 };
 
@@ -213,8 +274,11 @@ namespace Kontur.Core.Config
 	{
 		public int Day { get; set; } = 1;
 
-		/// <summary>Лимит штата: 3 / 4 / 5 / 6 (ДД, раздел 5).</summary>
-		public int StaffLimit { get; set; } = 3;
+		/// <summary>
+		/// Лимит штата на этот день. Ноль — считать по правилу «номер смены плюс два»
+		/// (SimulationConfig.GetStaffLimit). Задавать здесь стоит только исключения.
+		/// </summary>
+		public int StaffLimit { get; set; }
 
 		/// <summary>ДД, раздел 3, п. 13: от 5 до 10 вызовов за смену.</summary>
 		public int MinCalls { get; set; } = 5;

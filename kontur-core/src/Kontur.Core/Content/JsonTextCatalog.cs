@@ -26,6 +26,7 @@ namespace Kontur.Core.Content
 			"cutscenes/cutscene.json",
 			"equipment/equipment.json",
 			"shift_notes/shift_note.json",
+			"personnel/bio/bio_line.json",
 			"UI/hover_footnote/perks/perk.json",
 			"UI/hover_footnote/characteristics/characteristic.json",
 			"UI/hover_footnote/equipment_kinds/equipment_kind.json",
@@ -39,6 +40,12 @@ namespace Kontur.Core.Content
 
 		private readonly Dictionary<string, List<TextOption>> _options =
 			new Dictionary<string, List<TextOption>>(StringComparer.OrdinalIgnoreCase);
+
+		/// <summary>Кусочки досье: слот -> id фраз в порядке файла.</summary>
+		private readonly Dictionary<string, List<string>> _bioLines =
+			new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+
+		private static readonly IReadOnlyList<string> NoBioLines = new List<string>();
 
 		private JsonTextCatalog()
 		{
@@ -119,8 +126,33 @@ namespace Kontur.Core.Content
 			}
 		}
 
+		public IReadOnlyList<string> GetBioLines(string slot)
+		{
+			List<string>? lines;
+			return _bioLines.TryGetValue(slot ?? string.Empty, out lines) ? lines : NoBioLines;
+		}
+
 		private void ReadEntry(string entryId, JsonElement entry)
 		{
+			// Кусочек досье: собираем по слотам, чтобы фабрика брала по одной фразе
+			// из каждого. Слот пуст — запись не досье, разбираем как обычную.
+			JsonElement slotValue;
+			if (entry.TryGetProperty("slot", out slotValue) && slotValue.ValueKind == JsonValueKind.String)
+			{
+				string slot = slotValue.GetString() ?? string.Empty;
+				if (slot.Length > 0)
+				{
+					List<string>? lines;
+					if (!_bioLines.TryGetValue(slot, out lines))
+					{
+						lines = new List<string>();
+						_bioLines[slot] = lines;
+					}
+
+					lines.Add(entryId);
+				}
+			}
+
 			var properties = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
 			JsonElement propertyList;

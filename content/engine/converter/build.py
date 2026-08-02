@@ -34,6 +34,7 @@ FOLDER_TYPES = {
     "UI/hover_footnote/characteristics": "characteristic",
     "UI/hover_footnote/equipment_kinds": "equipment_kind",
     "UI/hover_footnote/scales": "scale",
+    "personnel/bio": "bio_line",
 }
 
 # Поля, которые есть только у своего типа: имя -> значение по умолчанию.
@@ -49,6 +50,8 @@ TYPE_FIELDS = {
     "equipment": {"name": ""},
     "equipment_kind": {"name": ""},
     "scale": {"name": ""},
+    # Кусочек досье: slot говорит, в какое место анкеты фраза встаёт.
+    "bio_line": {"slot": ""},
 }
 
 # radio — вызов с вмешательством игрока, filler — одна проверка характеристик.

@@ -10,7 +10,7 @@ using Godot;
 public partial class MainMenu : Control
 {
 	private Button _continueButton;
-	private Panel _settingsPanel;
+	private SettingsScreen _settings;
 	private Label _hint;
 
 	public override void _Ready()
@@ -75,8 +75,10 @@ public partial class MainMenu : Control
 		};
 		column.AddChild(_hint);
 
-		_settingsPanel = BuildSettingsPanel();
-		AddChild(_settingsPanel);
+		// Экран настроек один на всю игру: тот же самый открывается из паузы.
+		// Держать в меню свою урезанную копию значило бы разойтись с ней на первой правке.
+		_settings = new SettingsScreen { Visible = false };
+		AddChild(_settings);
 	}
 
 	private Button AddButton(Container parent, string text, System.Action onPressed)
@@ -136,7 +138,14 @@ public partial class MainMenu : Control
 
 	private void OnToggleSettings()
 	{
-		_settingsPanel.Visible = !_settingsPanel.Visible;
+		if (_settings.Visible)
+		{
+			_settings.Close();
+		}
+		else
+		{
+			_settings.Open();
+		}
 	}
 
 	private void OnQuit()
@@ -147,100 +156,5 @@ public partial class MainMenu : Control
 	private void ShowHint(string text)
 	{
 		_hint.Text = text;
-	}
-
-	// ------------------------------------------------------------------ настройки
-
-	private Panel BuildSettingsPanel()
-	{
-		var panel = new Panel
-		{
-			Visible = false,
-			AnchorLeft = 1.0f,
-			AnchorRight = 1.0f,
-			OffsetLeft = -320.0f,
-			OffsetTop = 24.0f,
-			OffsetRight = -24.0f,
-			OffsetBottom = 260.0f
-		};
-
-		var column = new VBoxContainer
-		{
-			AnchorRight = 1.0f,
-			AnchorBottom = 1.0f,
-			OffsetLeft = 16.0f,
-			OffsetTop = 16.0f,
-			OffsetRight = -16.0f,
-			OffsetBottom = -16.0f
-		};
-		column.AddThemeConstantOverride("separation", 8);
-		panel.AddChild(column);
-
-		column.AddChild(new Label { Text = "НАСТРОЙКИ" });
-
-		column.AddChild(new Label { Text = "Громкость" });
-		var volume = new HSlider
-		{
-			MinValue = 0.0,
-			MaxValue = 1.0,
-			Step = 0.05,
-			Value = GetMasterVolume()
-		};
-		volume.ValueChanged += OnVolumeChanged;
-		column.AddChild(volume);
-
-		var fullscreen = new CheckBox
-		{
-			Text = "Полный экран",
-			ButtonPressed = DisplayServer.WindowGetMode() == DisplayServer.WindowMode.Fullscreen
-				|| DisplayServer.WindowGetMode() == DisplayServer.WindowMode.ExclusiveFullscreen
-		};
-		fullscreen.Toggled += OnFullscreenToggled;
-		column.AddChild(fullscreen);
-
-		return panel;
-	}
-
-	/// <summary>
-	/// Громкость шины хранится в децибелах, а ползунок линейный от нуля до единицы.
-	/// Перевод обязателен: без него первая четверть ползунка была бы неотличима
-	/// от тишины, а последняя — от максимума.
-	/// </summary>
-	private static double GetMasterVolume()
-	{
-		int bus = AudioServer.GetBusIndex("Master");
-		if (bus < 0)
-		{
-			return 1.0;
-		}
-
-		return Mathf.DbToLinear(AudioServer.GetBusVolumeDb(bus));
-	}
-
-	private void OnVolumeChanged(double value)
-	{
-		int bus = AudioServer.GetBusIndex("Master");
-		if (bus < 0)
-		{
-			return;
-		}
-
-		// Нулевая громкость в линейной шкале — это минус бесконечность в децибелах;
-		// шину в таком случае честнее заглушить, а не считать логарифм от нуля.
-		if (value <= 0.001)
-		{
-			AudioServer.SetBusMute(bus, true);
-			return;
-		}
-
-		AudioServer.SetBusMute(bus, false);
-		AudioServer.SetBusVolumeDb(bus, Mathf.LinearToDb((float)value));
-	}
-
-	private void OnFullscreenToggled(bool pressed)
-	{
-		DisplayServer.WindowSetMode(pressed
-			? DisplayServer.WindowMode.Fullscreen
-			: DisplayServer.WindowMode.Windowed);
 	}
 }
