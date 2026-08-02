@@ -66,6 +66,9 @@ namespace Kontur.Core.Persistence
 
 		public int HireOffersDay { get; set; } = -1;
 
+		/// <summary>Стартовый состав уже собран — экран выбора больше не показывать.</summary>
+		public bool StartingRosterConfirmed { get; set; }
+
 		/// <summary>Состояние смены. null — сохранение сделано между сменами.</summary>
 		public SavedShift? Shift { get; set; }
 	}

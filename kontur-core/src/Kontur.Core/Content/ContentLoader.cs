@@ -218,6 +218,7 @@ namespace Kontur.Core.Content
 			settings.StatPointsPerLevel = dto.StatPointsPerLevel;
 			settings.PrimaryWeight = dto.PrimaryWeight;
 			settings.SecondaryWeight = dto.SecondaryWeight;
+			settings.StartingChoicePoolSize = dto.StartingChoicePoolSize;
 			settings.AbilitiesBase = dto.AbilitiesBase;
 			settings.SecondAbilityFromLevel = dto.SecondAbilityFromLevel;
 

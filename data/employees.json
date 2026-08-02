@@ -94,6 +94,8 @@
 	"abilitiesBase": 1,
 	"secondAbilityFromLevel": 3,
 
+	"startingChoicePoolSize": 6,
+
 	"levelsByDay": [
 	  { "fromDay": 1, "minLevel": 1, "maxLevel": 1 },
 	  { "fromDay": 2, "minLevel": 1, "maxLevel": 2 },

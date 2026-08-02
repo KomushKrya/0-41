@@ -150,6 +150,8 @@ namespace Kontur.Core.Api
 			_state.HiredCandidateIds.Clear();
 			_state.HireOffers.Clear();
 			_state.HireOffersDay = -1;
+			_state.StartingChoice.Clear();
+			_state.StartingRosterConfirmed = false;
 			_state.Day = 0;
 
 			_scalesSystem.Reset();
@@ -537,6 +539,61 @@ namespace Kontur.Core.Api
 		public void RefreshHireCandidates(int day)
 		{
 			_rosterSystem.RefreshHireOffers(day);
+		}
+
+		// ------------------------------------------------------------------ стартовый состав
+
+		/// <summary>
+		/// Кандидаты для стартового выбора, из которых игрок собирает первую бригаду.
+		///
+		/// Пустой список — выбора нет: контент не задал пул, и штат берётся из
+		/// `startingRoster` как есть. Интерфейсу в этом случае экран показывать не нужно,
+		/// сразу к первой смене.
+		///
+		/// Набор фиксируется до подтверждения: список можно спрашивать хоть каждый кадр.
+		/// </summary>
+		public IReadOnlyList<HireCandidateView> GetStartingChoice()
+		{
+			var result = new List<HireCandidateView>();
+			IReadOnlyList<HireCandidate> candidates = _rosterSystem.GetStartingChoice();
+
+			for (int i = 0; i < candidates.Count; i++)
+			{
+				Employee template = candidates[i].Template;
+				result.Add(new HireCandidateView(
+					template.Id,
+					template.Name,
+					template.RankTitle,
+					template.Level,
+					template.BaseStats,
+					template.AbilityIds.ToArray(),
+					template.PortraitId));
+			}
+
+			return result;
+		}
+
+		/// <summary>Нужен ли экран стартового выбора. Ложь — сразу начинайте смену.</summary>
+		public bool NeedsStartingChoice
+		{
+			get { return !_state.StartingRosterConfirmed && _rosterSystem.GetStartingChoice().Count > 0; }
+		}
+
+		/// <summary>
+		/// Собрать стартовый состав из выбранных кандидатов. Заменяет штат целиком,
+		/// поэтому вызывается до первой смены и ровно один раз за партию.
+		/// </summary>
+		public CommandResult ConfirmStartingRoster(IReadOnlyList<string> candidateIds)
+		{
+			if (_director.IsShiftActive)
+			{
+				return CommandResult.Fail("Смена уже идёт — состав менять поздно.");
+			}
+
+			string error;
+			return _rosterSystem.TryConfirmStartingRoster(candidateIds, out error)
+				? CommandResult.Ok()
+				: CommandResult.Fail(error);
 		}
 
 		public IReadOnlyList<MissionReport> GetReports()

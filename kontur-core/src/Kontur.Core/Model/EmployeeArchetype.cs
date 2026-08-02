@@ -85,6 +85,14 @@ namespace Kontur.Core.Model
 		/// <summary>Во сколько раз чаще очко достаётся второстепенной. Прочие весят 1.</summary>
 		public double SecondaryWeight { get; set; } = 2.0;
 
+		/// <summary>
+		/// Сколько кандидатов показать при стартовом выборе состава.
+		/// 0 — выбора нет, штат берётся из startingRoster как есть.
+		///
+		/// Больше, чем мест в штате: смысл выбора в том, чтобы от кого-то отказаться.
+		/// </summary>
+		public int StartingChoicePoolSize { get; set; }
+
 		/// <summary>Сколько перков у кандидата первого уровня.</summary>
 		public int AbilitiesBase { get; set; } = 1;
 
