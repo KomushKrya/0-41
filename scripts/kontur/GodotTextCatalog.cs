@@ -20,6 +20,29 @@ public sealed class GodotTextCatalog : ITextCatalog
 	}
 
 	/// <summary>
+	/// Кусочки досье в слоте, в порядке загрузки. Ядро берёт из них id,
+	/// а разворачивает фразы уже интерфейс — как и с остальными текстами.
+	/// </summary>
+	public IReadOnlyList<string> GetBioLines(string slot)
+	{
+		var result = new List<string>();
+		if (string.IsNullOrEmpty(slot))
+		{
+			return result;
+		}
+
+		foreach (KeyValuePair<string, ContentEntry> pair in Content.Instance.Entries)
+		{
+			if (string.Equals(pair.Value.Slot, slot, System.StringComparison.OrdinalIgnoreCase))
+			{
+				result.Add(pair.Key);
+			}
+		}
+
+		return result;
+	}
+
+	/// <summary>
 	/// Варианты решения: ключ, порядок и характеристики, по которым идёт проверка.
 	/// Формулировки ядру не отдаются — их разворачивает текстовый бокс по тому же id.
 	///

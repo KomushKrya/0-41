@@ -122,7 +122,7 @@ namespace Kontur.Harness
 				}
 			}
 
-			int limit = _content.Config.GetDay(nextDay).StaffLimit;
+			int limit = _content.Config.GetStaffLimit(nextDay);
 			IReadOnlyList<HireCandidateView> candidates = _sim.GetHireCandidates(nextDay);
 
 			for (int i = 0; i < candidates.Count && living < limit; i++)

@@ -24,6 +24,7 @@ GameSession="*res://scripts/gameplay/GameSession.cs"
 Kontur="*res://scripts/kontur/KonturRuntime.cs"
 GameFlow="*res://scripts/flow/GameFlow.cs"
 DebugHotkeys="*res://scripts/debug/DebugHotkeys.cs"
+Pause="*res://scripts/ui/PauseMenu.cs"
 
 [display]
 

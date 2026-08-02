@@ -74,8 +74,16 @@ public partial class FlyPlayer : CharacterBody3D
 			{
 				StandUpFromSeat();
 			}
+			else if (PauseMenu.Instance != null)
+			{
+				// Ни в один предмет не смотрим и не сидим — значит Escape просится
+				// в паузу. Курсор она покажет сама и вернёт как было при закрытии.
+				PauseMenu.Instance.Open();
+			}
 			else
 			{
+				// Автозагрузки нет (отладочная сцена без Pause) — старое поведение,
+				// чтобы мышь всё-таки можно было освободить.
 				Input.MouseMode = Input.MouseMode == Input.MouseModeEnum.Captured
 					? Input.MouseModeEnum.Visible
 					: Input.MouseModeEnum.Captured;
@@ -100,9 +108,14 @@ public partial class FlyPlayer : CharacterBody3D
 
 		if (!_isViewFocused && @event is InputEventMouseMotion mouseMotion && Input.MouseMode == Input.MouseModeEnum.Captured)
 		{
-			RotateY(-mouseMotion.Relative.X * MouseSensitivity);
+			// Экспортное значение — базовая чувствительность сцены, множитель из
+			// настроек — то, что игрок покрутил под себя. Одно без другого не работает:
+			// в настройках нет понятия «радиан на пиксель», а в сцене — вкуса игрока.
+			float sensitivity = MouseSensitivity * SettingsScreen.MouseSensitivity;
 
-			_pitch -= mouseMotion.Relative.Y * MouseSensitivity;
+			RotateY(-mouseMotion.Relative.X * sensitivity);
+
+			_pitch -= mouseMotion.Relative.Y * sensitivity;
 			_pitch = Mathf.Clamp(_pitch, Mathf.DegToRad(-85.0f), Mathf.DegToRad(85.0f));
 			_head.Rotation = new Vector3(_pitch, _head.Rotation.Y, _head.Rotation.Z);
 		}

@@ -150,6 +150,7 @@ public partial class Content : Node
 			Outcome = ReadString(source, "outcome"),
 			MissionType = ReadString(source, "mission_type"),
 			MissionId = ReadString(source, "mission_id"),
+			Slot = ReadString(source, "slot"),
 			Day = source.TryGetValue("day", out Variant day) ? day.AsInt32() : 0,
 			Requirements = ReadStringList(source, "requirements"),
 			Properties = ReadStringList(source, "properties"),

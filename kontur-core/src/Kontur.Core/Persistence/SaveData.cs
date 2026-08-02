@@ -24,7 +24,12 @@ namespace Kontur.Core.Persistence
 		/// очищено) сняли вместе с механикой, и сохранения версии 1 несовместимы —
 		/// не потому, что поле лишнее, а потому что партия под ту механику балансировалась.
 		/// </summary>
-		public const int CurrentVersion = 2;
+		/// <summary>
+		/// Версия 3: у сотрудника появились возраст и досье. Старый снимок поднялся бы
+		/// с нулевым возрастом и пустой анкетой — в игре это выглядит как поломка,
+		/// поэтому честнее отказаться.
+		/// </summary>
+		public const int CurrentVersion = 3;
 
 		/// <summary>Метка времени в формате ISO — для списка сохранений в интерфейсе.</summary>
 		public string SavedAtUtc { get; set; } = string.Empty;
@@ -112,6 +117,10 @@ namespace Kontur.Core.Persistence
 		public string CurrentIncidentId { get; set; } = string.Empty;
 
 		public List<string> AbilityIds { get; set; } = new List<string>();
+
+		public int Age { get; set; }
+
+		public List<string> BioIds { get; set; } = new List<string>();
 
 		/// <summary>Для кандидатов: с какого дня доступен.</summary>
 		public int AvailableFromDay { get; set; } = 1;
