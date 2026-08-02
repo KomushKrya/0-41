@@ -105,7 +105,6 @@ namespace Kontur.Core.Content
 				{
 					Id = dto.Id,
 					Name = dto.Name,
-					State = ParseEnum(dto.State, ZoneState.Normal, ZonesFile, dto.Id, "state"),
 					BaseWeight = dto.BaseWeight,
 					MapX = dto.MapX,
 					MapY = dto.MapY
@@ -297,7 +296,7 @@ namespace Kontur.Core.Content
 				{
 					throw new ContentException(
 						$"Архетип '{archetypeId}', поле '{field}': неизвестная характеристика '{name}'. " +
-						"Допустимые: strength, perception, endurance, agility, composure.");
+						"Допустимые: strength, combat, agility, charisma, intellect.");
 				}
 
 				target.Add(kind);
@@ -341,7 +340,7 @@ namespace Kontur.Core.Content
 					foreach (KeyValuePair<string, MissionEventOptionDto> pair in balance)
 					{
 						missionEvent.Options.Add(ToOption(
-							new TextOption(pair.Key, MissionEventQuality.Neutral, null, StatBlock.Zero),
+							new TextOption(pair.Key, MissionEventQuality.Neutral, null, new List<StatKind>()),
 							pair.Value,
 							database.Config));
 					}
@@ -367,7 +366,7 @@ namespace Kontur.Core.Content
 			{
 				Id = textOption.Id,
 				Quality = textOption.Quality,
-				Requirements = textOption.Requirements,
+				CheckedStats = textOption.CheckedStats,
 				RequirementModifier = textOption.RequirementModifier ?? defaults.RequirementModifier,
 				DeathChanceMultiplier = dto == null || dto.DeathChanceMultiplier == null
 					? defaults.RiskMultiplier
@@ -375,7 +374,6 @@ namespace Kontur.Core.Content
 				InjuryChanceMultiplier = dto == null || dto.InjuryChanceMultiplier == null
 					? defaults.RiskMultiplier
 					: dto.InjuryChanceMultiplier.Value,
-				AppliesQuarantine = dto != null && dto.AppliesQuarantine,
 				ExtraScales = dto == null || dto.ExtraScales == null ? ScaleDelta.Zero : dto.ExtraScales.ToModel(),
 				RevealsPropertyId = dto == null ? null : dto.RevealsPropertyId,
 				ConsequenceCapOverride = dto == null ? null : ParseOptionalCap(dto.ConsequenceCap, MissionEventsFile, textOption.Id)
@@ -605,21 +603,22 @@ namespace Kontur.Core.Content
 					}
 				}
 
-				// Слабая группа не должна упереться в экран, где нечего нажать:
-				// таймер радио при этом идёт, и игрок остаётся без действия.
-				bool hasAlwaysOpen = false;
+				// Проверять, остался ли «вариант для слабых», незачем: выбрать можно любой.
+				// А вот проверка по характеристике, которой нет в требованиях миссии, —
+				// молчаливый автоуспех: порог подставится нулевой. Это ошибка данных.
 				foreach (MissionEventOption option in pair.Value.Options)
 				{
-					if (option.Requirements.Total == 0)
+					for (int i = 0; i < option.CheckedStats.Count; i++)
 					{
-						hasAlwaysOpen = true;
-						break;
+						StatKind kind = option.CheckedStats[i];
+						if (!EventStatIsRequired(database, pair.Key, kind))
+						{
+							errors.Add(
+								$"Вмешательство '{pair.Key}': вариант '{option.Id}' проверяет "
+								+ $"{StatKinds.GetDisplayName(kind)}, но у миссии нет такого требования — "
+								+ "подставится ноль и проверка станет бесплатной.");
+						}
 					}
-				}
-
-				if (!hasAlwaysOpen)
-				{
-					errors.Add($"Вмешательство '{pair.Key}': у всех вариантов есть требования — слабой группе нечего выбрать.");
 				}
 			}
 
@@ -633,6 +632,25 @@ namespace Kontur.Core.Content
 
 				throw new ContentException(builder.ToString());
 			}
+		}
+
+		/// <summary>
+		/// Есть ли у миссии, которая запускает это вмешательство, порог по такой характеристике.
+		/// Вариант берёт числа у своей миссии, поэтому проверка по «чужой» характеристике
+		/// оказалась бы бесплатной.
+		/// </summary>
+		private static bool EventStatIsRequired(ContentDatabase database, string eventId, StatKind kind)
+		{
+			foreach (KeyValuePair<string, MissionDefinition> pair in database.Missions)
+			{
+				if (string.Equals(pair.Value.MissionEventId, eventId, StringComparison.OrdinalIgnoreCase)
+					&& pair.Value.Requirements[kind] > 0)
+				{
+					return true;
+				}
+			}
+
+			return false;
 		}
 
 		/// <summary>

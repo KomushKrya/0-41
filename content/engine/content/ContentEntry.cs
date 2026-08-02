@@ -11,6 +11,12 @@ public sealed class ContentEntry
 	/// <summary>Только у call: "radio" — вмешательство по рации, "filler" — одна проверка.</summary>
 	public string MissionType = string.Empty;
 
+	/// <summary>
+	/// У call, radio и report: id миссии из mission_ids/. Название миссии живёт там
+	/// одно на всех, а тексты ссылаются на него, а не хранят своё.
+	/// </summary>
+	public string MissionId = string.Empty;
+
 	public int Day;
 	public IReadOnlyList<string> Requirements = new List<string>();
 	public IReadOnlyList<string> Properties = new List<string>();
@@ -27,7 +33,10 @@ public sealed class ContentChunk
 	/// <summary>Обычная реплика или абзац.</summary>
 	public const string KindText = "text";
 
-	/// <summary>Шапка звонка — [ЗВОНОК ПЕРЕНАПРАВЛЕН ...], рендерится отдельно.</summary>
+	/// <summary>
+	/// Шапка звонка — [ЗВОНОК ПЕРЕНАПРАВЛЕН ...]: откуда звонят и кто на линии.
+	/// Свой kind, чтобы интерфейс отделил её от реплик: это не слова собеседника.
+	/// </summary>
 	public const string KindCallMeta = "call_meta";
 
 	public const string HighlightColor = "#d27253";
@@ -91,7 +100,7 @@ public sealed class ContentChunk
 
 /// <summary>
 /// Отрезок куска. <c>Highlight</c> — ключевое слово вызова; какую характеристику оно
-/// подсказывает, не хранится нигде, кроме _system/Keywords.md. <c>Bold</c> — подписи.
+/// подсказывает, не хранится нигде, кроме content/raw/_system/keywords.md. <c>Bold</c> — подписи.
 /// </summary>
 public sealed class ContentSpan
 {
@@ -102,24 +111,16 @@ public sealed class ContentSpan
 
 public sealed class ContentOption
 {
-	/// <summary>Ключ варианта: по нему геймплей связывает выбор с отчётом и эффектами.</summary>
+	/// <summary>Ключ варианта. По нему геймплей связывает текст с отчётом и последствиями.</summary>
 	public string Id = string.Empty;
 
 	public string Name = string.Empty;
 
 	/// <summary>
-	/// Тип диалога: good, neutral, bad. Игроку не показывается — он восстанавливает
-	/// его по энциклопедии. Ядру нужен, чтобы знать умолчания по сложности и рискам.
+	/// Какие характеристики проверяются у этого варианта. Порог — требование миссии
+	/// по этой характеристике, он приходит из геймплейных данных. Пусто — проверки нет.
 	/// </summary>
-	public string Quality = string.Empty;
-
-	public int RequirementModifier;
-
-	/// <summary>
-	/// Порог по характеристикам, ниже которого вариант закрыт: «strength» -> 6.
-	/// Ключи латиницей, как в геймплейных данных. Пустой словарь — вариант открыт всем.
-	/// </summary>
-	public IReadOnlyDictionary<string, int> Requirements = new Dictionary<string, int>();
+	public IReadOnlyList<string> Requirements = new List<string>();
 
 	public IReadOnlyList<ContentChunk> Chunks = new List<ContentChunk>();
 }

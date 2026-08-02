@@ -31,19 +31,23 @@ namespace Kontur.Core.Systems
 
 		public StatBlock ComputeEffectiveRequirements(
 			MissionDefinition mission,
-			Zone? zone,
-			ZoneSystem zoneSystem,
 			MissionEventOption? chosenOption,
 			int day)
 		{
+			// Единственный множитель — дневной. Район на пороги не влияет: штриховку
+			// сняли, потому что провал делал следующие вызовы в том же районе тяжелее,
+			// и отыграться становилось нечем.
 			double multiplier = _config.GetDay(day).RequirementMultiplier;
 
-			if (zone != null)
-			{
-				multiplier *= zoneSystem.GetRequirementMultiplier(zone);
-			}
-
 			StatBlock requirements = mission.Requirements.Scale(multiplier);
+
+			// Вариант сужает проверку до тех характеристик, которые назвал текст: пороги
+			// берутся у миссии, но спрашивают только за то, чем игрок решил взять.
+			// Вариант без списка проверок оставляет требования миссии как есть.
+			if (chosenOption != null && chosenOption.CheckedStats.Count > 0)
+			{
+				requirements = chosenOption.ResolveRequirements(requirements);
+			}
 
 			// Вариант решения добавляет надбавку к каждой требуемой характеристике.
 			// Именно надбавку, а не множитель: так число из текста читается одинаково
@@ -66,15 +70,15 @@ namespace Kontur.Core.Systems
 		}
 
 		/// <summary>
-		/// Профиль группы: **лучшее значение в отряде по каждой характеристике**, а не сумма.
+		/// Профиль группы: **сумма характеристик отряда**.
 		///
-		/// Порог «Восприятие 6» закрывает тот, у кого восприятие не ниже шести. Трое
-		/// невнимательных не заменяют одного глазастого — поэтому состав собирают под
-		/// требования вызова, а не по принципу «отправить всех, кто свободен».
+		/// Порог «Интеллект 9» закрывают трое по три так же, как один с девяткой: миссию
+		/// тянет группа целиком, и численность — такой же ресурс, как отдельный специалист.
+		/// Поэтому отправить больше людей действительно помогает, а состав решает, чем
+		/// именно группа сильна.
 		///
-		/// Перки считаются частью профиля своего владельца: «+2 к силе против перекожников»
-		/// поднимает силу того, кто этим перком владеет, а не всей группы. Снаряжение
-		/// наоборот выдаётся на группу и добавляется поверх лучшего.
+		/// Способности считаются по каждому сотруднику отдельно и входят в сумму,
+		/// снаряжение наоборот выдаётся на группу и добавляется поверх суммы один раз.
 		/// </summary>
 		public StatBlock ComputeSquadStats(
 			IReadOnlyList<Employee> squad,
@@ -93,12 +97,6 @@ namespace Kontur.Core.Systems
 				equipmentIds.Add(equipment[i].Id);
 			}
 
-			// Характеристики группы складываются — так же, как в Dispatch: двое
-			// посредственных вместе закрывают порог, который не тянет один.
-			//
-			// Отправлять всех подряд это не делает бесплатным: оперативник занят,
-			// пока едет и работает на объекте, а вызовы накладываются. Цена решения —
-			// не арифметика, а люди, которых не останется на следующий звонок.
 			StatBlock total = StatBlock.Zero;
 
 			for (int i = 0; i < squad.Count; i++)
@@ -118,30 +116,13 @@ namespace Kontur.Core.Systems
 				total = total.Add(profile);
 			}
 
-			// Снаряжение действует на группу целиком, а не на каждого (ДД, раздел 6):
-			// прибавляется один раз, сколько бы человек ни поехало.
+			// Снаряжение действует на группу целиком (ДД, раздел 6).
 			for (int i = 0; i < equipment.Count; i++)
 			{
 				total = total.Add(equipment[i].GetEffectiveBonus());
 			}
 
 			return total;
-		}
-
-		private static StatBlock Max(StatBlock left, StatBlock right)
-		{
-			StatBlock result = left;
-
-			for (int i = 0; i < StatKinds.All.Length; i++)
-			{
-				StatKind kind = StatKinds.All[i];
-				if (right[kind] > result[kind])
-				{
-					result = result.With(kind, right[kind]);
-				}
-			}
-
-			return result;
 		}
 
 		/// <summary>
@@ -167,8 +148,8 @@ namespace Kontur.Core.Systems
 					continue;
 				}
 
-				int best = squadStats[kind];
-				int margin = best - required;
+				int available = squadStats[kind];
+				int margin = available - required;
 
 				StatMatchRating rating;
 				double score;
@@ -190,7 +171,7 @@ namespace Kontur.Core.Systems
 				}
 
 				bool isPrimary = primaryStat.HasValue && primaryStat.Value == kind;
-				results.Add(new StatMatch(kind, required, best, isPrimary, rating, score));
+				results.Add(new StatMatch(kind, required, available, isPrimary, rating, score));
 			}
 
 			return results;

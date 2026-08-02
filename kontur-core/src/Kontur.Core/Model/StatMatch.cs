@@ -6,7 +6,7 @@ namespace Kontur.Core.Model
 	/// </summary>
 	public enum StatMatchRating
 	{
-		/// <summary>Недобор: лучший в группе слабее порога.</summary>
+		/// <summary>Недобор: суммы группы не хватает до порога.</summary>
 		Below = 0,
 
 		/// <summary>Ровно дотянул или чуть выше — успех вероятен, но с осложнениями.</summary>
@@ -19,17 +19,17 @@ namespace Kontur.Core.Model
 	/// <summary>
 	/// Одна строка экрана отправки: что требуется, кто в группе это закрывает и насколько.
 	///
-	/// Сравнивается **сумма отряда**: порог «Восприятие 8» закрывают двое по четыре или
-	/// у кого восприятие не ниже шести. Трое невнимательных не заменяют одного глазастого —
-	/// именно поэтому состав собирают под требования, а не по принципу «отправить всех».
+	/// Сравнивается **сумма характеристик группы**: порог «Интеллект 9» закрывают и трое
+	/// по три, и один с девяткой. Численность — такой же ресурс, как отдельный специалист,
+	/// но сумма считается по каждой характеристике отдельно, поэтому состав всё равно решает.
 	/// </summary>
 	public sealed class StatMatch
 	{
-		public StatMatch(StatKind stat, int required, int best, bool isPrimary, StatMatchRating rating, double score)
+		public StatMatch(StatKind stat, int required, int available, bool isPrimary, StatMatchRating rating, double score)
 		{
 			Stat = stat;
 			Required = required;
-			Best = best;
+			Available = available;
 			IsPrimary = isPrimary;
 			Rating = rating;
 			Score = score;
@@ -40,7 +40,8 @@ namespace Kontur.Core.Model
 		public int Required { get; }
 
 		/// <summary>Лучшее значение в группе с учётом перков и снаряжения.</summary>
-		public int Best { get; }
+		/// <summary>Сколько у группы есть по этой характеристике: сумма по отряду плюс снаряжение.</summary>
+		public int Available { get; }
 
 		/// <summary>Главная характеристика вызова — весит вдвое.</summary>
 		public bool IsPrimary { get; }
@@ -52,7 +53,7 @@ namespace Kontur.Core.Model
 
 		public int Margin
 		{
-			get { return Best - Required; }
+			get { return Available - Required; }
 		}
 
 		/// <summary>Сколько не хватает. Ноль, если порог закрыт.</summary>

@@ -1,6 +1,7 @@
 ---
 id: report_
 type: report
+mission_id: m_
 status: draft
 outcome:
 properties:

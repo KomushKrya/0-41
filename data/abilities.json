@@ -18,7 +18,7 @@
 		"condition": "WithEquipment",
 		"conditionValue": "eq_filters",
 		"bonus": {
-			"endurance": 2,
+			"combat": 2,
 			"agility": 2
 		}
 	},
@@ -26,7 +26,7 @@
 		"id": "ab_calm",
 		"condition": "Always",
 		"bonus": {
-			"composure": 1
+			"charisma": 1
 		}
 	},
 	{
@@ -34,7 +34,7 @@
 		"condition": "AgainstCreatureTag",
 		"conditionValue": "каналотварь",
 		"bonus": {
-			"perception": 2
+			"intellect": 2
 		}
 	}
 ]

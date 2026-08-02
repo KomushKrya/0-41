@@ -42,9 +42,9 @@ namespace Kontur.Harness
 			var parts = new List<string>();
 			for (int i = 0; i < offers.Count; i++)
 			{
-				parts.Add(offers[i].IsUnlocked
+				parts.Add(offers[i].Requirements.Total == 0
 					? offers[i].Id
-					: $"{offers[i].Id} (закрыт: не хватает {offers[i].Shortfall})");
+					: $"{offers[i].Id} (проверка: {offers[i].Requirements})");
 			}
 
 			return string.Join(", ", parts);
@@ -182,9 +182,6 @@ namespace Kontur.Harness
 
 				case CreatureRevealed s:
 					return $"ЭНЦИКЛОПЕДИЯ: {s.CreatureId} — открыто свойство {s.PropertyId}";
-
-				case ZoneStateChanged s:
-					return $"КАРТА: зона {s.ZoneId} {s.OldState} -> {s.NewState} ({s.Reason})";
 
 				case EquipmentConsumed s:
 					return _verbose ? $"Расход: {s.EquipmentName}, осталось {s.RemainingQuantity}" : null;

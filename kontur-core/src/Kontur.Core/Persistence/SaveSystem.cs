@@ -91,17 +91,6 @@ namespace Kontur.Core.Persistence
 				data.Roster.Add(CaptureEmployee(state.Roster[i], 1));
 			}
 
-			foreach (KeyValuePair<string, Zone> pair in state.Zones)
-			{
-				data.Zones.Add(new SavedZone
-				{
-					Id = pair.Value.Id,
-					State = pair.Value.State.ToString(),
-					SuccessStreak = pair.Value.SuccessStreak,
-					FailStreak = pair.Value.FailStreak
-				});
-			}
-
 			foreach (KeyValuePair<string, EquipmentStack> pair in state.Inventory.Stacks)
 			{
 				data.Inventory.Add(new SavedStack
@@ -154,10 +143,10 @@ namespace Kontur.Core.Persistence
 				ArchetypeId = employee.ArchetypeId,
 				Level = employee.Level,
 				Strength = employee.BaseStats.Strength,
-				Perception = employee.BaseStats.Perception,
-				Endurance = employee.BaseStats.Endurance,
+				Intellect = employee.BaseStats.Intellect,
+				Combat = employee.BaseStats.Combat,
 				Agility = employee.BaseStats.Agility,
-				Composure = employee.BaseStats.Composure,
+				Charisma = employee.BaseStats.Charisma,
 				Experience = employee.Experience,
 				UnspentSkillPoints = employee.UnspentSkillPoints,
 				Status = employee.Status.ToString(),
@@ -249,8 +238,8 @@ namespace Kontur.Core.Persistence
 				state.Roster.Add(RestoreEmployee(data.Roster[i]));
 			}
 
-			// Зоны берутся из контента (там имя, вес, координаты), а из сохранения
-			// накладывается только то, что игрок наиграл: штриховка и серии.
+			// Районы целиком берутся из контента: играть в них нечего, состояний у
+			// них больше нет, поэтому в сохранении их и не было смысла держать.
 			state.Zones.Clear();
 			foreach (KeyValuePair<string, Zone> pair in content.Zones)
 			{
@@ -258,30 +247,10 @@ namespace Kontur.Core.Persistence
 				{
 					Id = pair.Value.Id,
 					Name = pair.Value.Name,
-					State = pair.Value.State,
 					BaseWeight = pair.Value.BaseWeight,
 					MapX = pair.Value.MapX,
 					MapY = pair.Value.MapY
 				};
-			}
-
-			for (int i = 0; i < data.Zones.Count; i++)
-			{
-				SavedZone savedZone = data.Zones[i];
-				Zone? zone = state.FindZone(savedZone.Id);
-				if (zone == null)
-				{
-					continue;
-				}
-
-				ZoneState zoneState;
-				if (Enum.TryParse<ZoneState>(savedZone.State, true, out zoneState))
-				{
-					zone.State = zoneState;
-				}
-
-				zone.SuccessStreak = savedZone.SuccessStreak;
-				zone.FailStreak = savedZone.FailStreak;
 			}
 
 			state.Inventory.Clear();
@@ -364,10 +333,10 @@ namespace Kontur.Core.Persistence
 				Level = saved.Level,
 				BaseStats = new StatBlock(
 					saved.Strength,
-					saved.Perception,
-					saved.Endurance,
+					saved.Intellect,
+					saved.Combat,
 					saved.Agility,
-					saved.Composure),
+					saved.Charisma),
 				Experience = saved.Experience,
 				UnspentSkillPoints = saved.UnspentSkillPoints,
 				IsInjured = saved.IsInjured,

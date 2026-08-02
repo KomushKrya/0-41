@@ -233,7 +233,9 @@ public partial class KonturDebugOverlay : CanvasLayer
 
 		AddDimLabel(_dispatchList, $"{selected.Id}   район: {selected.ZoneId}");
 		AddDimLabel(_dispatchList, "   " + StripBb(TierMark(selected)));
-		AddSectionLabel(_dispatchList, "ОПЕРАТИВНИКИ");
+		AddSectionLabel(_dispatchList, selected.SquadLimit == 1
+			? "ОПЕРАТИВНИКИ (мест: 1)"
+			: $"ОПЕРАТИВНИКИ (мест: {selected.SquadLimit})");
 
 		int available = 0;
 		for (int i = 0; i < roster.Count; i++)
@@ -427,7 +429,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 			builder.Append("[color=").Append(colour).Append(']')
 				.Append(match.IsPrimary ? "★ " : "  ")
 				.Append(StatKinds.GetDisplayName(match.Stat))
-				.Append(' ').Append(match.Best).Append(" / ").Append(match.Required);
+				.Append(' ').Append(match.Available).Append(" / ").Append(match.Required);
 
 			if (match.Shortfall > 0)
 			{
@@ -871,7 +873,9 @@ public partial class KonturDebugOverlay : CanvasLayer
 
 		var squad = new List<string>();
 		IReadOnlyList<EmployeeView> roster = _runtime.Simulation.GetRoster();
-		for (int i = 0; i < roster.Count && squad.Count < 3; i++)
+		// Слотов ровно столько, сколько разрешает миссия: с 3 «на глазок»
+		// быстрая отправка получала бы отказ на любом одиночном вызове.
+		for (int i = 0; i < roster.Count && squad.Count < incident.SquadLimit; i++)
 		{
 			if (roster[i].Status == EmployeeStatus.Available)
 			{
@@ -1295,9 +1299,10 @@ public partial class KonturDebugOverlay : CanvasLayer
 			RadioOptionOffer offer = radioEvent.Options[i];
 			builder.Append("\n   ").Append(i + 1).Append(") ").Append(offer.Id);
 
-			if (!offer.IsUnlocked)
+			// Закрытых вариантов нет: показываем, за что тут спросят.
+			if (offer.Requirements.Total > 0)
 			{
-				builder.Append("  [ЗАКРЫТ: не хватает ").Append(offer.Shortfall).Append(']');
+				builder.Append("  [проверка: ").Append(offer.Requirements).Append(']');
 			}
 		}
 

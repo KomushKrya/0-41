@@ -18,12 +18,13 @@ namespace Kontur.Core.Content
 		/// <summary>Раскладка совпадает с FOLDER_TYPES в content/engine/converter/build.py.</summary>
 		private static readonly string[] TypeFiles =
 		{
-			"calls/call.json",
+			"missions/calls/call.json",
+			"missions/mission_ids/mission_id.json",
+			"missions/radio/radio.json",
+			"missions/reports/report.json",
 			"creatures/creature.json",
 			"cutscenes/cutscene.json",
 			"equipment/equipment.json",
-			"mission_events/mission_event.json",
-			"reports/report.json",
 			"shift_notes/shift_note.json",
 			"UI/hover_footnote/perks/perk.json",
 			"UI/hover_footnote/characteristics/characteristic.json",
@@ -150,7 +151,7 @@ namespace Kontur.Core.Content
 					ReadString(option, "id"),
 					ParseQuality(ReadString(option, "quality")),
 					ReadOptionalInt(option, "requirement_modifier"),
-					ReadRequirements(option)));
+					ReadCheckedStats(option)));
 			}
 
 			_options[entryId] = options;
@@ -175,22 +176,27 @@ namespace Kontur.Core.Content
 				: MissionEventQuality.Neutral;
 		}
 
-		/// <summary>`requires` в собранном JSON — объект «характеристика: порог», ключи латиницей.</summary>
-		private static StatBlock ReadRequirements(JsonElement option)
+		/// <summary>
+		/// `requires` в собранном JSON — список характеристик латиницей, без чисел:
+		/// порог по каждой подставляется из требований миссии.
+		/// </summary>
+		private static List<StatKind> ReadCheckedStats(JsonElement option)
 		{
+			var result = new List<StatKind>();
+
 			JsonElement requires;
-			if (!option.TryGetProperty("requires", out requires) || requires.ValueKind != JsonValueKind.Object)
+			if (!option.TryGetProperty("requires", out requires) || requires.ValueKind != JsonValueKind.Array)
 			{
-				return StatBlock.Zero;
+				return result;
 			}
 
-			StatBlock result = StatBlock.Zero;
-			foreach (JsonProperty entry in requires.EnumerateObject())
+			foreach (JsonElement entry in requires.EnumerateArray())
 			{
 				StatKind kind;
-				if (StatKinds.TryParse(entry.Name, out kind) && entry.Value.ValueKind == JsonValueKind.Number)
+				string name = entry.ValueKind == JsonValueKind.String ? entry.GetString() ?? string.Empty : string.Empty;
+				if (StatKinds.TryParse(name, out kind))
 				{
-					result = result.With(kind, entry.Value.GetInt32());
+					result.Add(kind);
 				}
 			}
 

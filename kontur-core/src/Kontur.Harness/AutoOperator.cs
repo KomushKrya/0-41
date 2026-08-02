@@ -169,15 +169,8 @@ namespace Kontur.Harness
 		}
 
 		/// <summary>
-		/// Добирает людей, пока сумма отряда не покроет пороги.
-		///
-		/// На каждом шаге берётся тот, кто больше всех прибавляет к **недостающему**.
-		/// Считать общую сумму характеристик нельзя: тогда автопилот выбирал бы
-		/// крепышей на вызов про наблюдательность просто потому, что у них больше
-		/// цифр в сумме.
-		///
-		/// Остановка, как только пороги закрыты: лишний человек на этом вызове —
-		/// человек, которого не будет на следующем.
+		/// Берёт под каждый непокрытый порог того, кто добавляет больше всех, и копит сумму:
+		/// численность помогает, поэтому добор людей продолжается, пока пороги не закрыты.
 		/// </summary>
 		private List<string> PickSquad(StatBlock requirements, int squadLimit)
 		{
@@ -195,82 +188,54 @@ namespace Kontur.Harness
 			var picked = new List<string>();
 			StatBlock total = StatBlock.Zero;
 
-			// Сколько можно взять, решает вызов, а не автопилот: MaxSquadSize — только
-			// верхняя планка на случай, если контент разрешит слишком много.
+			// Сколько можно взять, решает вызов, а не автопилот: MaxSquadSize —
+			// только верхняя планка на случай, если контент разрешит слишком много.
 			int limit = Math.Min(squadLimit, MaxSquadSize);
 
-			while (picked.Count < limit && !Covers(total, requirements))
+			for (int i = 0; i < StatKinds.All.Length && picked.Count < limit; i++)
 			{
-				EmployeeView? bestCandidate = null;
-				int bestGain = 0;
-
-				for (int i = 0; i < available.Count; i++)
+				StatKind kind = StatKinds.All[i];
+				if (requirements[kind] <= 0 || total[kind] >= requirements[kind])
 				{
-					EmployeeView candidate = available[i];
-					if (picked.Contains(candidate.Id))
+					continue;
+				}
+
+				EmployeeView? candidate = null;
+				for (int j = 0; j < available.Count; j++)
+				{
+					if (picked.Contains(available[j].Id))
 					{
 						continue;
 					}
 
-					int gain = MissingGain(total, requirements, candidate.Stats);
-					if (bestCandidate == null || gain > bestGain)
+					if (candidate == null || available[j].Stats[kind] > candidate.Stats[kind])
 					{
-						bestCandidate = candidate;
-						bestGain = gain;
+						candidate = available[j];
 					}
 				}
 
-				// Никто больше не добавляет ничего полезного — дальше только тратить людей.
-				if (bestCandidate == null || bestGain <= 0)
+				if (candidate == null)
 				{
 					break;
 				}
 
-				picked.Add(bestCandidate.Id);
-				total = total.Add(bestCandidate.Stats);
+				picked.Add(candidate.Id);
+				total = total.Add(candidate.Stats);
+
+				// Порог мог остаться незакрытым: тогда берём ещё одного по той же характеристике.
+				if (total[kind] < requirements[kind] && picked.Count < limit)
+				{
+					i--;
+				}
 			}
 
-			// Пороги не закрыть никем — отправляем хоть кого-то, иначе метка истечёт.
+			// Ни одного порога не закрыть — отправляем хоть кого-то, иначе метка истечёт.
 			if (picked.Count == 0 && available.Count > 0)
 			{
 				picked.Add(available[0].Id);
 			}
 
 			return picked;
-		}
-
-		private static bool Covers(StatBlock total, StatBlock requirements)
-		{
-			for (int i = 0; i < StatKinds.All.Length; i++)
-			{
-				StatKind kind = StatKinds.All[i];
-				if (requirements[kind] > 0 && total[kind] < requirements[kind])
-				{
-					return false;
-				}
-			}
-
-			return true;
-		}
-
-		/// <summary>Сколько кандидат добирает именно там, где не хватает. Излишек не считается.</summary>
-		private static int MissingGain(StatBlock total, StatBlock requirements, StatBlock candidate)
-		{
-			int gain = 0;
-
-			for (int i = 0; i < StatKinds.All.Length; i++)
-			{
-				StatKind kind = StatKinds.All[i];
-				int missing = requirements[kind] - total[kind];
-				if (missing <= 0)
-				{
-					continue;
-				}
-
-				gain += Math.Min(missing, candidate[kind]);
-			}
-
-			return gain;
 		}
 
 
@@ -321,15 +286,11 @@ namespace Kontur.Harness
 			// Мир встаёт с момента, как радио взяли, — и идёт дальше после выбора.
 			_sim.AnswerRadio(incident.Id);
 
-			// Закрытые составом варианты автопилот не рассматривает — как и игрок.
+			// Закрытых вариантов нет: нажать можно любой, состав решает шанс, а не доступ.
 			var available = new List<MissionEventOption>();
 			IReadOnlyList<RadioOptionOffer> offers = _sim.GetRadioOptions(incident.Id);
 			for (int i = 0; i < offers.Count; i++)
 			{
-				if (!offers[i].IsUnlocked)
-				{
-					continue;
-				}
 
 				MissionEventOption? unlocked = missionEvent.FindOption(offers[i].Id);
 				if (unlocked != null)

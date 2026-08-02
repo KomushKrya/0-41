@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import argparse
+import itertools
 import json
 import re
 import sys
@@ -26,14 +27,20 @@ from pathlib import Path
 
 # --------------------------------------------------------------------------- модель
 
-STATS = ("strength", "perception", "endurance", "agility", "composure")
+STATS = ("strength", "combat", "agility", "charisma", "intellect")
+
+# Первая часть демо. Появится вторая — глава станет параметром команды new.
+CHAPTER = "chapter_1"
+
+# Исходники разложены по локалям: content/raw/<локаль>/...
+LOCALE = "ru"
 
 STAT_RU = {
     "strength": "Сила",
-    "perception": "Восприятие",
-    "endurance": "Выносливость",
+    "combat": "Боевая подготовка",
     "agility": "Ловкость",
-    "composure": "Хладнокровие",
+    "charisma": "Харизма",
+    "intellect": "Интеллект",
 }
 
 STAT_ALIASES = {ru.lower(): key for key, ru in STAT_RU.items()}
@@ -130,13 +137,7 @@ def load_world(root: Path) -> dict:
 
 
 def squad_profile(members: list[dict]) -> dict:
-    """Профиль группы — СУММА характеристик отряда, как в Dispatch.
-
-    Ни снаряжение, ни перки здесь не учитываются: инструмент показывает голый
-    состав, чтобы пороги подбирались по людям. В игре и то и другое прибавится
-    сверху и только облегчит проверку — значит, показанные проценты являются
-    нижней оценкой, и ошибиться можно только в сторону «слишком легко».
-    """
+    """Профиль группы — СУММА отряда по каждой характеристике."""
     return {stat: sum(m["stats"].get(stat, 0) for m in members) for stat in STATS}
 
 
@@ -184,19 +185,15 @@ def evaluate(requirements: dict, profile: dict, primary: str | None) -> tuple[li
 
 
 def scaled_requirements(mission: dict, world: dict) -> dict:
-    """Пороги с учётом множителя дня и штриховки зоны — то же, что сделает ядро."""
+    """Пороги с учётом множителя дня — то же, что сделает ядро.
+
+    Район на пороги не влияет: состояний у районов нет, они только задают
+    статичную частоту вызовов через baseWeight.
+    """
     import math
 
     day = next((d for d in world["config"]["days"] if d["day"] == mission.get("day", 1)), {})
     multiplier = day.get("requirementMultiplier", 1.0)
-
-    zone = next((z for z in world["zones"] if z["id"] == mission.get("zoneId")), {})
-    state = zone.get("state", "Normal")
-    zones_config = world["config"].get("zones", {})
-    if state == "Infected":
-        multiplier *= zones_config.get("infectedRequirementMultiplier", 1.2)
-    elif state == "Cleared":
-        multiplier *= zones_config.get("clearedRequirementMultiplier", 0.9)
 
     return {
         stat: math.ceil(value * multiplier)
@@ -230,26 +227,24 @@ def command_preview(args) -> int:
         primary = mission.get("primaryStat")
         requirements = scaled_requirements(mission, world)
 
+        limit = max(1, int(mission.get("squadLimit", 1)))
+
         print()
-        print(f"=== {mission['id']}  ({mission.get('tier', 'Filler')}, день {mission.get('day', 1)})")
+        print(f"=== {mission['id']}  ({mission.get('tier', 'Filler')}, "
+              f"день {mission.get('day', 1)}, мест: {limit})")
         print("    пороги: " + ", ".join(
             f"{STAT_RU[s]} {v}{' ★' if s == primary else ''}" for s, v in requirements.items()))
 
         event = events.get(mission.get("missionEventId", ""))
         text_options = world["entries"].get(mission.get("missionEventId", ""), {}).get("options", [])
 
-        # Составы перебираются только те, что влезают в лимит вызова. Показывать
-        # тройку на вызове для одного бессмысленно: игрок такую не соберёт,
-        # а автор решит, что порог занижен.
-        limit = max(1, int(mission.get("squadLimit", 1)))
-
-        combos = [([i], roster[i]["name"]) for i in range(len(roster))]
-        if limit >= 2 and len(roster) >= 2:
-            combos.append(([0, 1], "первый + второй"))
-        if limit >= 3 and len(roster) >= 3:
-            combos.append((list(range(len(roster))), "весь штат"))
-
-        print(f"  на вызов едет: {limit} чел.")
+        # Показываем ровно те составы, которые игрок сможет отправить: перебирать
+        # «весь штат» на вызове для одного бессмысленно — ядро такую отправку отклонит.
+        combos = []
+        for size in range(1, min(limit, len(roster)) + 1):
+            for indexes in itertools.combinations(range(len(roster)), size):
+                label = " + ".join(roster[i]["name"].split()[0] for i in indexes)
+                combos.append((list(indexes), label))
 
         for indexes, label in combos:
             profile = squad_profile([roster[i] for i in indexes])
@@ -261,14 +256,15 @@ def command_preview(args) -> int:
             )
             verdict = "АВТОУСПЕХ" if perfect else f"{score:.0%}"
 
-            open_options = [
-                o["id"] for o in text_options
-                if all(profile.get(k, 0) >= v for k, v in (o.get("requires") or {}).items())
+            # Варианты не запираются составом: показываем, чем каждый проверяется.
+            checks = [
+                f"{o['id']}({', '.join(STAT_RU[s].lower() for s in o.get('requires') or []) or 'без проверки'})"
+                for o in text_options
             ]
 
             line = f"  {label:22} {detail:46} → {verdict:>10}"
-            if event:
-                line += f"   варианты: {', '.join(open_options) if open_options else '—'}"
+            if event and checks:
+                line += f"   варианты: {', '.join(checks)}"
             print(line)
 
     print()
@@ -279,6 +275,10 @@ def command_preview(args) -> int:
 
 
 # --------------------------------------------------------------------------- check
+
+
+def primary_of(mission: dict) -> str | None:
+    return mission.get("primaryStat")
 
 
 def command_check(args) -> int:
@@ -318,6 +318,44 @@ def command_check(args) -> int:
         requirements = mission.get("requirements") or {}
         if not any(v > 0 for v in requirements.values()):
             problems.append(f"{mid}: не задано ни одного порога — вызов невозможно провалить")
+
+        limit = mission.get("squadLimit", 1)
+        if not isinstance(limit, int) or limit < 1:
+            problems.append(f"{mid}: squadLimit={limit!r} — отправить некого, минимум один")
+        else:
+            # Пороги и число мест — одна настройка, разнесённая по двум полям.
+            # Если их развели, вызов либо непроходим, либо решается автоматически.
+            scaled = scaled_requirements(mission, world)
+            roster = world["roster"]["startingRoster"]
+            best = 0.0
+            perfect_at = None
+            full = 0
+            full_perfect = 0
+            for size in range(1, min(limit, len(roster)) + 1):
+                for indexes in itertools.combinations(range(len(roster)), size):
+                    profile = squad_profile([roster[i] for i in indexes])
+                    _, score, perfect = evaluate(scaled, profile, primary_of(mission))
+                    best = max(best, score)
+                    if perfect and perfect_at is None:
+                        perfect_at = size
+                    if size == limit:
+                        full += 1
+                        full_perfect += 1 if perfect else 0
+
+            if best < 0.5:
+                notes.append(
+                    f"{mid}: лучший состав в пределах {limit} мест даёт {best:.0%} — "
+                    "пороги высоки для такого числа мест")
+            if perfect_at is not None and perfect_at < limit:
+                notes.append(
+                    f"{mid}: автоуспех достижим уже {perfect_at} людьми при {limit} местах — "
+                    "лишний слот снимает выбор состава")
+            elif full and full_perfect == full:
+                # Автоуспех «правильным» составом — норма. Автоуспех ЛЮБЫМ полным
+                # составом означает, что выбирать не из чего: игрок просто заполняет слоты.
+                notes.append(
+                    f"{mid}: любой состав из {limit} даёт автоуспех — "
+                    "пороги ниже суммы двух случайных, выбор состава не работает")
 
         primary = mission.get("primaryStat")
         if primary and requirements.get(primary, 0) <= 0:
@@ -409,19 +447,12 @@ def check_options(mission: dict, cap: str, events: dict, entries: dict) -> list[
                 f"{mission['id']}/{option_id}: потолок {option_cap} мягче миссии ({cap}) — "
                 f"вариант может только ужесточать")
 
-    if text_options and not any(not (o.get("requires") or {}) for o in text_options):
-        problems.append(
-            f"{event_id}: у всех вариантов есть requires — слабой группе будет нечего выбрать")
+    # Проверять, остался ли вариант «для слабой группы», больше не нужно: requires
+    # ничего не запирает. Он называет характеристики, по которым идёт бросок, а
+    # нажать можно любой вариант — недобор бьёт по шансу, а не по доступности.
 
-    written = {q: [o for o in text_options if o["quality"] == q and "requirement_modifier" in o]
-               for q in QUALITIES}
-    for harder, easier in (("neutral", "good"), ("bad", "neutral"), ("bad", "good")):
-        for tough in written[harder]:
-            for soft in written[easier]:
-                if tough["requirement_modifier"] < soft["requirement_modifier"]:
-                    problems.append(
-                        f"{event_id}: {tough['id']!r} помечен {harder}, но дешевле "
-                        f"{easier}-варианта {soft['id']!r} — тип и цена разошлись")
+    # Сверять тип варианта с его ценой здесь больше нечего: и то, и другое живёт
+    # в mission_events.json, текст несёт только id, порядок и пороги доступности.
 
     return problems
 
@@ -471,27 +502,8 @@ def ask(prompt: str, default: str = "", options: tuple[str, ...] | None = None) 
         print("    нужно ответить")
 
 
-def ask_int(prompt: str, default: int, minimum: int = 1) -> int:
-    while True:
-        raw = input(f"{prompt} [{default}]: ").strip()
-        if not raw:
-            return default
-
-        try:
-            value = int(raw)
-        except ValueError:
-            print("    нужно целое число")
-            continue
-
-        if value < minimum:
-            print(f"    не меньше {minimum}")
-            continue
-
-        return value
-
-
 def ask_stats(prompt: str) -> dict:
-    """«восприятие 5, ловкость 4» — так же, как пишется requires в тексте."""
+    """«интеллект 5, ловкость 4» — характеристики те же, что и в requires."""
     while True:
         raw = input(f"{prompt}: ").strip()
         if not raw:
@@ -543,18 +555,17 @@ def command_new(args) -> int:
     creature = ask("Существо (пусто — если статьи в энциклопедии нет)", "", creature_options)
 
     print()
-    print("Сколько оперативников можно отправить на этот вызов.")
-    print("Обычно один — как в Dispatch. Двое и больше только там, где это осмысленно:")
-    print("характеристики отряда складываются, и группа закрывает вдвое большие пороги.")
-    squad_limit = ask_int("Размер группы", 1)
+    print("Сколько человек берёт вызов. По умолчанию один — как в Dispatch.")
+    print("Характеристики отряда СКЛАДЫВАЮТСЯ, поэтому лимит и задаёт масштаб порогов:")
+    print("  1 — порог берёт специалист: 4–5 по главной;")
+    print("  2 — порог берёт только пара: 7–8.")
+    squad_limit = int(ask("Мест на вызове", "1"))
+    if squad_limit < 1:
+        raise ToolError("мест не может быть меньше одного")
 
     print()
-    print("Пороги по характеристикам. Формат: «восприятие 5, ловкость 4».")
-    if squad_limit == 1:
-        print("Едет один — порог должен закрывать специалист: 4-5 по главной.")
-    else:
-        print(f"Едут до {squad_limit} — характеристики складываются, порог считайте")
-        print("на всю группу, иначе вызов закроет один человек.")
+    print("Пороги по характеристикам. Формат: «интеллект 5, ловкость 4».")
+    print("Складываются характеристики всей группы, а не берётся лучший.")
     requirements = ask_stats("Пороги")
 
     primary = ask(
@@ -571,14 +582,15 @@ def command_new(args) -> int:
         options = ask_options()
 
     mission = build_mission(
-        mission_id, slug, tier, day, zone, creature, requirements, primary, cap, options)
+        mission_id, slug, tier, day, zone, creature, requirements, primary, cap, options,
+        squad_limit)
 
     write_mission_files(root, world, slug, mission, options)
 
     print()
     print(f"Готово: {mission_id}")
     print("Дальше:")
-    print("  1. Напишите тексты в content/raw/calls, mission_events, reports — там заготовки.")
+    print(f"  1. Напишите тексты в content/raw/{LOCALE}/missions/ — там заготовки.")
     print("  2. python content/engine/converter/build.py --include-drafts")
     print(f"  3. python content/engine/tools/mission.py preview {mission_id}")
     print("  4. python content/engine/tools/mission.py check")
@@ -637,6 +649,7 @@ def build_mission(
     primary: str,
     cap: str,
     options: list[dict],
+    squad_limit: int = 1,
 ) -> dict:
     """Геймплейная запись. Числа последствий — заготовка под правку дизайнером."""
     reports = {
@@ -658,7 +671,7 @@ def build_mission(
         "zoneId": zone,
         "creatureId": creature,
         "callId": f"call_{slug}",
-        "missionEventId": f"mission_event_{slug}" if options else "",
+        "missionEventId": f"radio_{slug}" if options else "",
         "requirements": requirements,
         "primaryStat": primary,
         "squadLimit": squad_limit,
@@ -689,6 +702,7 @@ def build_mission(
 CALL_TEMPLATE = """---
 id: call_{slug}
 type: call
+mission_id: m_{slug}
 status: draft
 requirements:
   -
@@ -710,8 +724,9 @@ properties:
 """
 
 EVENT_HEADER = """---
-id: mission_event_{slug}
-type: mission_event
+id: radio_{slug}
+type: radio
+mission_id: m_{slug}
 status: draft
 requirements:
   -
@@ -732,14 +747,27 @@ properties:
 EVENT_OPTION = """
 ## Вариант: {name}
 id: {option_id}
-quality: {quality}
 {requires_line}
 {text_hint}
+"""
+
+REGISTRY_TEMPLATE = """---
+type: mission_id
+status: draft
+day: {day}
+---
+
+<!-- Миссии {day}-й смены: id и название. id тот же, что в data/missions.json;
+     на него ссылаются call, radio и report полем mission_id. -->
+
+| id | название |
+|----|----------|
 """
 
 REPORT_TEMPLATE = """---
 id: {report_id}
 type: report
+mission_id: {mission_id}
 status: draft
 outcome: {outcome}
 properties:
@@ -753,12 +781,24 @@ properties:
 
 
 def write_mission_files(root: Path, world: dict, slug: str, mission: dict, options: list[dict]) -> None:
-    raw = root / "content" / "raw"
+    raw = root / "content" / "raw" / LOCALE
     thresholds = ", ".join(f"{STAT_RU[s]} {v}" for s, v in mission["requirements"].items())
     primary = STAT_RU.get(mission.get("primaryStat", ""), "—")
     written: list[Path] = []
 
-    call_path = raw / "calls" / f"{slug}.md"
+    # Тексты миссии разложены по типам, а внутри типа — по главам и сменам.
+    shift = f"shift_{mission['day']}"
+    missions_dir = raw / "missions"
+
+    register_mission(
+        missions_dir / "mission_ids" / CHAPTER / f"{shift}.md",
+        mission["id"],
+        mission.get("name", slug),
+        mission["day"],
+        written,
+    )
+
+    call_path = missions_dir / "calls" / CHAPTER / shift / f"{slug}.md"
     write_once(call_path, CALL_TEMPLATE.format(slug=slug, thresholds=thresholds, primary=primary), written)
 
     if options:
@@ -772,21 +812,25 @@ def write_mission_files(root: Path, world: dict, slug: str, mission: dict, optio
             body += EVENT_OPTION.format(
                 name=option["name"],
                 option_id=option["id"],
-                quality=option["quality"],
                 requires_line=requires_line,
                 text_hint=f"\nТекст варианта «{option['name']}».\n",
             )
 
-        write_once(raw / "mission_events" / f"{slug}.md", body, written)
+        write_once(missions_dir / "radio" / CHAPTER / shift / f"{slug}.md", body, written)
 
-    reports_dir = raw / "reports" / slug
+    reports_dir = missions_dir / "reports" / CHAPTER / shift / slug
     for key, pair in mission["reports"].items():
         label = key or "без вмешательства"
         for outcome in ("success", "failure"):
             report_id = pair[outcome]
             write_once(
                 reports_dir / f"{report_id.replace('report_', '')}.md",
-                REPORT_TEMPLATE.format(report_id=report_id, outcome=outcome, label=f"{label}, {outcome}"),
+                REPORT_TEMPLATE.format(
+                    report_id=report_id,
+                    mission_id=mission["id"],
+                    outcome=outcome,
+                    label=f"{label}, {outcome}",
+                ),
                 written,
             )
 
@@ -800,7 +844,8 @@ def write_mission_files(root: Path, world: dict, slug: str, mission: dict, optio
         events.append({
             "id": mission["missionEventId"],
             # Числа последствий — заготовка: правит дизайнер, не автор текста.
-            "options": {o["id"]: {} for o in options},
+            # Тип диалога тоже здесь: в тексте варианта его больше нет.
+            "options": {o["id"]: {"quality": o["quality"]} for o in options},
         })
         write_json(data / "mission_events.json", events)
 
@@ -811,6 +856,21 @@ def write_mission_files(root: Path, world: dict, slug: str, mission: dict, optio
     print(f"  data/missions.json (+{mission['id']})")
     if options:
         print(f"  data/mission_events.json (+{mission['missionEventId']})")
+
+
+def register_mission(path: Path, mission_id: str, name: str, day: int, written: list[Path]) -> None:
+    """Дописывает строку в реестр смены: файл общий, поэтому не write_once."""
+    if not path.exists():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(REGISTRY_TEMPLATE.format(day=day), encoding="utf-8")
+        written.append(path)
+
+    body = path.read_text(encoding="utf-8")
+    if re.search(rf"(?m)^\|\s*{re.escape(mission_id)}\s*\|", body):
+        print(f"  пропускаю (уже в реестре): {mission_id}")
+        return
+
+    path.write_text(body.rstrip("\n") + f"\n| {mission_id} | {name} |\n", encoding="utf-8")
 
 
 def write_once(path: Path, body: str, written: list[Path]) -> None:

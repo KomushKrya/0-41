@@ -142,7 +142,6 @@ if (kontur != null && kontur.IsReady)
 | `RadioTriggered` / `RadioMissed` | Радиостанция | треск, экран вариантов, индикатор 20 с |
 | `ScalesChanged` | Блокнот | анимация шкал (`NotebookDebugBars` уже умеет) |
 | `MissionReportReady` / `CreatureRevealed` | Компьютер | отчёт и новый абзац энциклопедии |
-| `ZoneStateChanged` | Карта | переключение слоя штриховки |
 | `EmployeeInjured` / `EmployeeKilled` | Досье | состояние портрета |
 | `ShiftStarted` | Записка сменщика | текст записки |
 | `ShiftEnded` | Менеджер сцен | пререндеренный ролик по `OutroCutsceneId` |

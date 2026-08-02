@@ -45,7 +45,7 @@ namespace Kontur.Core.Api
 		IReadOnlyList<string> SquadEmployeeIds,
 		IReadOnlyList<string> EquipmentIds);
 
-	public sealed record ZoneView(string Id, string Name, ZoneState State, double MapX, double MapY);
+	public sealed record ZoneView(string Id, string Name, double MapX, double MapY);
 
 	/// <summary>
 	/// Предпросмотр отправки: что получится, если послать именно этот состав с этим снаряжением.

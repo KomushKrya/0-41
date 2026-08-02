@@ -22,7 +22,6 @@ namespace Kontur.Core.Systems
 		private readonly IEventBus _bus;
 		private readonly IRandomSource _random;
 		private readonly ScalesSystem _scales;
-		private readonly ZoneSystem _zones;
 		private readonly RosterSystem _roster;
 		private readonly EncyclopediaSystem _encyclopedia;
 		private readonly MissionResolver _resolver;
@@ -53,7 +52,6 @@ namespace Kontur.Core.Systems
 			IEventBus bus,
 			IRandomSource random,
 			ScalesSystem scales,
-			ZoneSystem zones,
 			RosterSystem roster,
 			EncyclopediaSystem encyclopedia,
 			MissionResolver resolver,
@@ -64,7 +62,6 @@ namespace Kontur.Core.Systems
 			_bus = bus;
 			_random = random;
 			_scales = scales;
-			_zones = zones;
 			_roster = roster;
 			_encyclopedia = encyclopedia;
 			_resolver = resolver;
@@ -586,18 +583,17 @@ namespace Kontur.Core.Systems
 				return offers;
 			}
 
-			StatBlock squadStats = GetSquadStats(incident);
+			// Пороги миссии — те же, что пойдут в расчёт: вариант подставляет их
+			// в свои характеристики, чтобы интерфейс показал, за что тут спросят.
+			StatBlock missionRequirements = incident.Mission.Requirements;
 
 			for (int i = 0; i < incident.MissionEvent.Options.Count; i++)
 			{
 				MissionEventOption option = incident.MissionEvent.Options[i];
-				StatBlock shortfall = option.GetShortfall(squadStats);
 
 				offers.Add(new RadioOptionOffer(
 					option.Id,
-					shortfall.Total == 0,
-					option.Requirements,
-					shortfall));
+					option.ResolveRequirements(missionRequirements)));
 			}
 
 			return offers;
@@ -676,19 +672,12 @@ namespace Kontur.Core.Systems
 			_bus.Publish(new MissionResolved(outcome));
 			_scales.Apply(scaleDelta, reasonText);
 
-			Zone? zone = _state.FindZone(incident.Mission.ZoneId);
-			if (zone != null)
-			{
-				_zones.ApplyMissionResult(zone, false);
-			}
-
 			CloseIncident(incident, false);
 		}
 
 		private void ResolveMission(IncidentRuntime incident)
 		{
 			MissionDefinition mission = incident.Mission;
-			Zone? zone = _state.FindZone(mission.ZoneId);
 
 			List<Employee> squad = ResolveSquad(incident);
 			List<EquipmentDefinition> equipment = ResolveEquipment(incident);
@@ -696,8 +685,6 @@ namespace Kontur.Core.Systems
 
 			StatBlock requirements = _resolver.ComputeEffectiveRequirements(
 				mission,
-				zone,
-				_zones,
 				incident.ChosenOption,
 				_state.Day);
 
@@ -741,16 +728,6 @@ namespace Kontur.Core.Systems
 			ApplyCasualties(incident, outcome);
 			ReturnOrConsumeEquipment(incident, equipment, outcome);
 			_scales.Apply(delta, outcome.IsSuccess ? "успешный вызов" : "провал вызова");
-
-			if (zone != null)
-			{
-				_zones.ApplyMissionResult(zone, outcome.IsSuccess);
-
-				if (incident.ChosenOption != null && incident.ChosenOption.AppliesQuarantine)
-				{
-					_zones.ApplyQuarantine(zone);
-				}
-			}
 
 			_roster.GrantExperience(
 				outcome.EmployeeIds,
@@ -1028,11 +1005,11 @@ namespace Kontur.Core.Systems
 			return null;
 		}
 
-		/// <summary>Требования миссии с учётом дня, штриховки зоны и уже выбранного радио-варианта — для экрана отправки.</summary>
+		/// <summary>Требования миссии с учётом дня и уже выбранного радио-варианта — для экрана отправки.</summary>
 		public StatBlock GetCurrentRequirements(IncidentRuntime incident)
 		{
-			Zone? zone = _state.FindZone(incident.Mission.ZoneId);
-			return _resolver.ComputeEffectiveRequirements(incident.Mission, zone, _zones, incident.ChosenOption, _state.Day);
+			return _resolver.ComputeEffectiveRequirements(
+				incident.Mission, incident.ChosenOption, _state.Day);
 		}
 
 		/// <summary>
@@ -1357,14 +1334,6 @@ namespace Kontur.Core.Systems
 			if (option == null)
 			{
 				return CommandResult.Fail($"Вариант '{optionId}' не найден.");
-			}
-
-			// Вариант закрыт составом группы. Отказ с причиной, а не молчаливое игнорирование:
-			// интерфейс покажет игроку, чего не хватило, и в следующий раз он отправит другого.
-			StatBlock shortfall = option.GetShortfall(GetSquadStats(incident));
-			if (shortfall.Total > 0)
-			{
-				return CommandResult.Fail($"Группе не хватает: {shortfall}.");
 			}
 
 			// Решение принято — экран закрылся, мир пошёл дальше.
