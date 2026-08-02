@@ -476,7 +476,7 @@ ShiftStatusView(Day, IsShiftActive, ShiftTime, IsCallWindowClosed, OpenIncidents
 `0..1` координаты района на карте.
 
 `AbilityIds` — именно id, а не названия: текст перков лежит в текстовом движке
-(`content/raw/UI/perks`), и достаёт его слой Godot — `Content.Instance.GetEntry(id).Name`
+(`content/raw/ru/UI/perks`), и достаёт его слой Godot — `Content.Instance.GetEntry(id).Name`
 плюс `Content.Fill(...)` для чисел в описании. Ядро на GodotSharp не ссылается и текста
 не носит.
 

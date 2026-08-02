@@ -31,6 +31,9 @@ STATS = ("strength", "combat", "agility", "charisma", "intellect")
 # Первая часть демо. Появится вторая — глава станет параметром команды new.
 CHAPTER = "chapter_1"
 
+# Исходники разложены по локалям: content/raw/<локаль>/...
+LOCALE = "ru"
+
 STAT_RU = {
     "strength": "Сила",
     "combat": "Боевая подготовка",
@@ -532,7 +535,7 @@ def command_new(args) -> int:
     print()
     print(f"Готово: {mission_id}")
     print("Дальше:")
-    print("  1. Напишите тексты в content/raw/calls, mission_events, reports — там заготовки.")
+    print(f"  1. Напишите тексты в content/raw/{LOCALE}/missions/ — там заготовки.")
     print("  2. python content/engine/converter/build.py --include-drafts")
     print(f"  3. python content/engine/tools/mission.py preview {mission_id}")
     print("  4. python content/engine/tools/mission.py check")
@@ -721,7 +724,7 @@ properties:
 
 
 def write_mission_files(root: Path, world: dict, slug: str, mission: dict, options: list[dict]) -> None:
-    raw = root / "content" / "raw"
+    raw = root / "content" / "raw" / LOCALE
     thresholds = ", ".join(f"{STAT_RU[s]} {v}" for s, v in mission["requirements"].items())
     primary = STAT_RU.get(mission.get("primaryStat", ""), "—")
     written: list[Path] = []

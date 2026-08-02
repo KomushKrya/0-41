@@ -750,8 +750,14 @@ def main() -> int:
     args = parser.parse_args()
 
     repo_root = Path(__file__).resolve().parents[3]
-    raw_root = repo_root / "content" / "raw"
-    registry_path = raw_root / "_system" / "ids_registry.md"
+    # Исходники разложены по локалям: content/raw/<локаль>/<папка типа>/...
+    # _system лежит рядом с локалями, а не внутри: шаблоны и реестр id общие.
+    raw_root = repo_root / "content" / "raw" / args.locale
+    registry_path = repo_root / "content" / "raw" / "_system" / "ids_registry.md"
+
+    if not raw_root.is_dir():
+        print(f"Нет исходников локали {args.locale!r}: ожидается {raw_root}", file=sys.stderr)
+        return 1
 
     try:
         layout_errors, warnings = check_layout(raw_root)
