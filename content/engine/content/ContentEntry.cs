@@ -100,7 +100,7 @@ public sealed class ContentChunk
 
 /// <summary>
 /// Отрезок куска. <c>Highlight</c> — ключевое слово вызова; какую характеристику оно
-/// подсказывает, не хранится нигде, кроме _system/Keywords.md. <c>Bold</c> — подписи.
+/// подсказывает, не хранится нигде, кроме content/raw/_system/keywords.md. <c>Bold</c> — подписи.
 /// </summary>
 public sealed class ContentSpan
 {
