@@ -42,7 +42,8 @@ namespace Kontur.Core.Systems
 			int day,
 			int count,
 			IReadOnlyCollection<string> takenNames,
-			IReadOnlyCollection<string> takenIds)
+			IReadOnlyCollection<string> takenIds,
+			IReadOnlyCollection<string>? takenPortraits = null)
 		{
 			var result = new List<HireCandidate>();
 			EmployeeGeneratorSettings settings = _content.Generator;
@@ -70,11 +71,27 @@ namespace Kontur.Core.Systems
 				}
 			}
 
+			// Портреты не повторяются: два одинаковых лица на одном экране игрок
+			// читает как ошибку игры, а не как совпадение.
+			var usedPortraits = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+			if (takenPortraits != null)
+			{
+				foreach (string portrait in takenPortraits)
+				{
+					usedPortraits.Add(portrait);
+				}
+			}
+
 			for (int i = 0; i < count; i++)
 			{
-				Employee employee = BuildOne(settings, day, usedNames, usedIds);
+				Employee employee = BuildOne(settings, day, usedNames, usedIds, usedPortraits);
 				usedNames.Add(employee.Name);
 				usedIds.Add(employee.Id);
+				if (employee.PortraitId.Length > 0)
+				{
+					usedPortraits.Add(employee.PortraitId);
+				}
+
 				result.Add(new HireCandidate(employee, day));
 			}
 
@@ -85,7 +102,8 @@ namespace Kontur.Core.Systems
 			EmployeeGeneratorSettings settings,
 			int day,
 			HashSet<string> usedNames,
-			HashSet<string> usedIds)
+			HashSet<string> usedIds,
+			HashSet<string> usedPortraits)
 		{
 			EmployeeArchetype archetype = PickArchetype(settings);
 			int level = PickLevel(settings, day);
@@ -97,12 +115,47 @@ namespace Kontur.Core.Systems
 				Level = level,
 				RankTitle = archetype.RankTitle,
 				ArchetypeId = archetype.Id,
-				PortraitId = PickPortrait(settings, archetype),
+				PortraitId = PickPortrait(settings, archetype, usedPortraits),
+				Age = PickAge(settings),
 				BaseStats = RollStats(settings, archetype, level)
 			};
 
 			employee.AbilityIds.AddRange(PickAbilities(settings, archetype, level));
+			employee.BioIds.AddRange(PickBio(settings));
 			return employee;
+		}
+
+		/// <summary>Возраст — только для досье, на расчёты не влияет.</summary>
+		private int PickAge(EmployeeGeneratorSettings settings)
+		{
+			int min = settings.MinAge < 1 ? 1 : settings.MinAge;
+			int max = settings.MaxAge < min ? min : settings.MaxAge;
+			return min == max ? min : _random.NextInt(min, max + 1);
+		}
+
+		/// <summary>
+		/// По одной фразе на слот, в порядке слотов. Пустой слот пропускается молча:
+		/// без текстового движка (консольный прогон) досье просто не собирается,
+		/// и это не повод ронять генерацию.
+		/// </summary>
+		private List<string> PickBio(EmployeeGeneratorSettings settings)
+		{
+			var result = new List<string>();
+
+			for (int i = 0; i < settings.BioSlots.Count; i++)
+			{
+				List<string>? lines;
+				if (!settings.BioLinesBySlot.TryGetValue(settings.BioSlots[i], out lines)
+					|| lines == null
+					|| lines.Count == 0)
+				{
+					continue;
+				}
+
+				result.Add(_random.Pick(lines));
+			}
+
+			return result;
 		}
 
 		private EmployeeArchetype PickArchetype(EmployeeGeneratorSettings settings)
@@ -167,14 +220,50 @@ namespace Kontur.Core.Systems
 			return fallback;
 		}
 
-		private string PickPortrait(EmployeeGeneratorSettings settings, EmployeeArchetype archetype)
+		/// <summary>
+		/// Свободный портрет. Сначала из набора архетипа, потом из общего пула.
+		///
+		/// Если свободных не осталось, возвращается занятый: генерация не должна падать
+		/// из-за нехватки картинок. Что их хватает, проверяет загрузчик при старте —
+		/// там об этом можно сказать понятно, а не показывать близнецов посреди смены.
+		/// </summary>
+		private string PickPortrait(
+			EmployeeGeneratorSettings settings,
+			EmployeeArchetype archetype,
+			HashSet<string> usedPortraits)
 		{
+			string picked = PickFree(archetype.PortraitIds, usedPortraits);
+			if (picked.Length > 0)
+			{
+				return picked;
+			}
+
+			picked = PickFree(settings.PortraitIds, usedPortraits);
+			if (picked.Length > 0)
+			{
+				return picked;
+			}
+
 			if (archetype.PortraitIds.Count > 0)
 			{
 				return _random.Pick(archetype.PortraitIds);
 			}
 
 			return settings.PortraitIds.Count > 0 ? _random.Pick(settings.PortraitIds) : string.Empty;
+		}
+
+		private string PickFree(IReadOnlyList<string> pool, HashSet<string> used)
+		{
+			var free = new List<string>();
+			for (int i = 0; i < pool.Count; i++)
+			{
+				if (!used.Contains(pool[i]))
+				{
+					free.Add(pool[i]);
+				}
+			}
+
+			return free.Count > 0 ? _random.Pick(free) : string.Empty;
 		}
 
 		/// <summary>

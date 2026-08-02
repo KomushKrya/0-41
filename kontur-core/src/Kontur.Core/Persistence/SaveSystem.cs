@@ -140,6 +140,7 @@ namespace Kontur.Core.Persistence
 				Name = employee.Name,
 				RankTitle = employee.RankTitle,
 				PortraitId = employee.PortraitId,
+				Age = employee.Age,
 				ArchetypeId = employee.ArchetypeId,
 				Level = employee.Level,
 				Strength = employee.BaseStats.Strength,
@@ -156,6 +157,7 @@ namespace Kontur.Core.Persistence
 			};
 
 			saved.AbilityIds.AddRange(employee.AbilityIds);
+			saved.BioIds.AddRange(employee.BioIds);
 			return saved;
 		}
 
@@ -329,6 +331,7 @@ namespace Kontur.Core.Persistence
 				Name = saved.Name,
 				RankTitle = saved.RankTitle,
 				PortraitId = saved.PortraitId,
+				Age = saved.Age,
 				ArchetypeId = saved.ArchetypeId,
 				Level = saved.Level,
 				BaseStats = new StatBlock(
@@ -349,6 +352,7 @@ namespace Kontur.Core.Persistence
 				: EmployeeStatus.Available;
 
 			employee.AbilityIds.AddRange(saved.AbilityIds);
+			employee.BioIds.AddRange(saved.BioIds);
 			return employee;
 		}
 

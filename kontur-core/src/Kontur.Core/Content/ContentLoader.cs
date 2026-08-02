@@ -211,6 +211,16 @@ namespace Kontur.Core.Content
 		private static void LoadGenerator(GeneratorDto dto, EmployeeGeneratorSettings settings)
 		{
 			settings.CandidatesPerShift = dto.CandidatesPerShift;
+			settings.CandidatesChoiceMargin = dto.CandidatesChoiceMargin;
+			settings.LevelLagBehindDay = dto.LevelLagBehindDay;
+			settings.LevelSpread = dto.LevelSpread;
+			settings.MinAge = dto.MinAge;
+			settings.MaxAge = dto.MaxAge;
+
+			if (dto.BioSlots != null)
+			{
+				settings.BioSlots.AddRange(dto.BioSlots);
+			}
 			settings.MinStat = dto.MinStat;
 			settings.MaxStat = dto.MaxStat;
 			settings.StatPointsBase = dto.StatPointsBase;
@@ -565,6 +575,18 @@ namespace Kontur.Core.Content
 				}
 			}
 
+			ValidatePersonnelArt(database, textCatalog, errors);
+
+			// Лимит штата считается как номер смены плюс смещение. Смещение меньше
+			// нуля дало бы на первой смене штат из одного человека или пустой отдел,
+			// и игра встала бы на первом же вызове.
+			if (database.Config.GetStaffLimit(1) < 1)
+			{
+				errors.Add(
+					$"employees.staffLimitOffset={database.Config.Employees.StaffLimitOffset}: " +
+					"на первой смене в штате не остаётся никого.");
+			}
+
 			ValidateGenerator(database, errors);
 			ValidateBuildings(database, errors);
 
@@ -727,6 +749,81 @@ namespace Kontur.Core.Content
 		}
 
 		/// <summary>
+		/// Досье и портреты кандидатов.
+		///
+		/// Фразы досье живут в текстовом движке, а не в data/employees.json: второй
+		/// список тех же id разошёлся бы с текстами на первой правке. Здесь они
+		/// вытягиваются из каталога один раз при загрузке — фабрике движок уже не нужен.
+		///
+		/// Портреты проверяются на количество. Два одинаковых лица на экране игрок
+		/// читает как ошибку игры, поэтому лучше сказать художнику при старте, сколько
+		/// картинок не хватает, чем показать близнецов посреди смены.
+		/// </summary>
+		private static void ValidatePersonnelArt(
+			ContentDatabase database,
+			ITextCatalog? textCatalog,
+			List<string> errors)
+		{
+			EmployeeGeneratorSettings settings = database.Generator;
+			if (!settings.IsEnabled)
+			{
+				return;
+			}
+
+			if (textCatalog != null)
+			{
+				for (int i = 0; i < settings.BioSlots.Count; i++)
+				{
+					string slot = settings.BioSlots[i];
+					IReadOnlyList<string> lines = textCatalog.GetBioLines(slot);
+
+					if (lines.Count == 0)
+					{
+						errors.Add(
+							$"Досье: в слоте '{slot}' нет ни одной фразы. Ожидаются записи " +
+							$"типа bio_line в content/raw/<локаль>/personnel/bio/{slot}/.");
+						continue;
+					}
+
+					settings.BioLinesBySlot[slot] = new List<string>(lines);
+				}
+			}
+
+			// Худший случай: весь штат жив, и рядом полный список найма.
+			int needed = 0;
+			for (int day = 1; day <= database.Config.Days.Count; day++)
+			{
+				int limit = database.Config.GetStaffLimit(day);
+				int candidates = limit + settings.CandidatesChoiceMargin;
+				if (candidates < settings.CandidatesPerShift)
+				{
+					candidates = settings.CandidatesPerShift;
+				}
+
+				int onScreen = limit + candidates;
+				if (onScreen > needed)
+				{
+					needed = onScreen;
+				}
+			}
+
+			int available = settings.PortraitIds.Count;
+			for (int i = 0; i < settings.Archetypes.Count; i++)
+			{
+				available += settings.Archetypes[i].PortraitIds.Count;
+			}
+
+			if (available < needed)
+			{
+				errors.Add(
+					$"Портретов в пуле {available}, а на экране одновременно бывает до {needed} " +
+					"человек (штат плюс список найма в самый тяжёлый день). Не хватает " +
+					$"{needed - available}: либо добавьте картинки в generator.portraits, " +
+					"либо уменьшите candidatesChoiceMargin.");
+			}
+		}
+
+		/// <summary>
 		/// Проверки фабрики. Все они ловят ошибки, которые иначе всплыли бы не как падение,
 		/// а как странный баланс через час игры: кандидаты без перков, потолок ниже минимума,
 		/// бюджет, который некуда потратить.
@@ -743,6 +840,15 @@ namespace Kontur.Core.Content
 			if (settings.Archetypes.Count == 0)
 			{
 				errors.Add("Фабрика кандидатов: включена (candidatesPerShift > 0), но нет ни одного архетипа.");
+			}
+
+			// Отрицательный запас урезал бы список ниже числа свободных мест, и штат
+			// перестал бы добираться — ровно та поломка, ради которой запас и вводился.
+			if (settings.CandidatesChoiceMargin < 0)
+			{
+				errors.Add(
+					$"Фабрика кандидатов: candidatesChoiceMargin={settings.CandidatesChoiceMargin} — " +
+					"кандидатов станет меньше, чем свободных мест, и штат будет нечем добрать.");
 			}
 
 			if (settings.Surnames.Count == 0)

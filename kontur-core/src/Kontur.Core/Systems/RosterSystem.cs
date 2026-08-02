@@ -34,7 +34,7 @@ namespace Kontur.Core.Systems
 
 		public int GetStaffLimit(int day)
 		{
-			return _content.Config.GetDay(day).StaffLimit;
+			return _content.Config.GetStaffLimit(day);
 		}
 
 		public int CountLiving()
@@ -190,7 +190,7 @@ namespace Kontur.Core.Systems
 		/// Пересобирает предложения найма на указанный день.
 		///
 		/// Сначала идут прописанные вручную кандидаты — это сюжетные лица, они должны
-		/// попасть в список обязательно, а не по остаточному принципу. Свободные места
+		/// попасть в список обязательно, а не по остаточному принципу. Остальное
 		/// добирает фабрика.
 		/// </summary>
 		public void RefreshHireOffers(int day)
@@ -214,7 +214,7 @@ namespace Kontur.Core.Systems
 				_state.HireOffers.Add(candidate);
 			}
 
-			int missing = _content.Generator.CandidatesPerShift - _state.HireOffers.Count;
+			int missing = CountWantedCandidates(day) - _state.HireOffers.Count;
 			if (missing <= 0)
 			{
 				return;
@@ -226,7 +226,32 @@ namespace Kontur.Core.Systems
 				takenNames.Add(_state.HireOffers[i].Template.Name);
 			}
 
-			_state.HireOffers.AddRange(_factory.Generate(day, missing, takenNames, CollectIds()));
+			List<string> takenPortraits = CollectPortraits();
+			for (int i = 0; i < _state.HireOffers.Count; i++)
+			{
+				takenPortraits.Add(_state.HireOffers[i].Template.PortraitId);
+			}
+
+			_state.HireOffers.AddRange(
+				_factory.Generate(day, missing, takenNames, CollectIds(), takenPortraits));
+		}
+
+		/// <summary>
+		/// Сколько кандидатов показать на этот день: свободные места плюс запас на выбор.
+		///
+		/// Раньше их было ровно candidatesPerShift, и это ломалось ровно тогда, когда
+		/// помощь нужнее всего: потеряв на четвёртой смене четверых, игрок получал трёх
+		/// кандидатов на четыре места и доигрывал неполным составом без всякой
+		/// возможности это исправить.
+		///
+		/// Запас нужен, чтобы найм остался решением: список ровно по числу мест
+		/// превращает экран в кнопку «взять всех».
+		/// </summary>
+		public int CountWantedCandidates(int day)
+		{
+			EmployeeGeneratorSettings settings = _content.Generator;
+			int wanted = CountFreeSlots(day) + settings.CandidatesChoiceMargin;
+			return wanted < settings.CandidatesPerShift ? settings.CandidatesPerShift : wanted;
 		}
 
 		/// <summary>Сколько человек можно взять в штат на этот день.</summary>
@@ -262,7 +287,7 @@ namespace Kontur.Core.Systems
 				// Стартовый выбор идёт до первой смены, поэтому день первый:
 				// кандидаты должны быть такими же, каких видит игрок в начале игры.
 				_state.StartingChoice.AddRange(
-					_factory.Generate(1, poolSize, CollectNames(), CollectIds()));
+					_factory.Generate(1, poolSize, CollectNames(), CollectIds(), CollectPortraits()));
 			}
 
 			return _state.StartingChoice;
@@ -361,6 +386,24 @@ namespace Kontur.Core.Systems
 			}
 
 			return names;
+		}
+
+		/// <summary>
+		/// Портреты, которые уже заняты живыми. Погибшие не в счёт: их лицо освобождается,
+		/// и повторное появление через несколько смен игрок не свяжет с покойным.
+		/// </summary>
+		private List<string> CollectPortraits()
+		{
+			var portraits = new List<string>();
+			for (int i = 0; i < _state.Roster.Count; i++)
+			{
+				if (_state.Roster[i].IsAlive && _state.Roster[i].PortraitId.Length > 0)
+				{
+					portraits.Add(_state.Roster[i].PortraitId);
+				}
+			}
+
+			return portraits;
 		}
 
 		private List<string> CollectIds()

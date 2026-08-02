@@ -51,7 +51,50 @@ namespace Kontur.Core.Model
 	public sealed class EmployeeGeneratorSettings
 	{
 		/// <summary>Сколько кандидатов показывать в меню найма. 0 — фабрика выключена.</summary>
+		/// <summary>
+		/// Нижняя граница списка найма и выключатель фабрики: ноль означает, что
+		/// кандидатов вообще не генерируем и состав задан контентом.
+		/// </summary>
 		public int CandidatesPerShift { get; set; }
+
+		/// <summary>
+		/// Сколько кандидатов сверх свободных мест. Список найма — это выбор, а не
+		/// раздача: потеряв четверых, игрок должен добрать штат полностью, но при
+		/// этом от кого-то отказаться.
+		/// </summary>
+		public int CandidatesChoiceMargin { get; set; } = 2;
+
+		/// <summary>
+		/// На сколько уровней кандидаты отстают от номера смены. Единица: на четвёртой
+		/// смене приходят третьеуровневые, пока свои дорастают до третьего-четвёртого.
+		/// </summary>
+		public int LevelLagBehindDay { get; set; } = 1;
+
+		/// <summary>
+		/// Разброс уровней внутри одной пачки. Единица: рядом стоят второй и третий,
+		/// и видно, что кандидаты не одинаковые.
+		/// </summary>
+		public int LevelSpread { get; set; } = 1;
+
+		/// <summary>Границы возраста кандидата. На механику не влияет, только на досье.</summary>
+		public int MinAge { get; set; } = 24;
+
+		public int MaxAge { get; set; } = 52;
+
+		/// <summary>
+		/// Слоты досье в том порядке, в каком фразы встают в анкету. Сами фразы живут
+		/// в текстовом движке (`content/raw/<локаль>/personnel/bio/<слот>/`), здесь
+		/// только перечень слотов.
+		/// </summary>
+		public List<string> BioSlots { get; } = new List<string>();
+
+		/// <summary>
+		/// Идентификаторы фраз по слотам. Заполняет ContentLoader из текстового движка
+		/// при загрузке: у него есть каталог, а фабрика работает уже с готовым списком
+		/// и на движок не смотрит.
+		/// </summary>
+		public Dictionary<string, List<string>> BioLinesBySlot { get; } =
+			new Dictionary<string, List<string>>();
 
 		public List<string> Surnames { get; } = new List<string>();
 
@@ -105,18 +148,47 @@ namespace Kontur.Core.Model
 		}
 
 		/// <summary>Диапазон уровней для дня: последняя подходящая запись побеждает.</summary>
+		/// <summary>
+		/// Уровень кандидатов на этот день.
+		///
+		/// Правило: **на ступень ниже номера смены**. К четвёртой смене игрок доводит
+		/// своих до третьего уровня, и кандидат второго-третьего читается как «крепкий,
+		/// но не ровня ветерану». Отставание нужно, чтобы найм не обесценивал выживших:
+		/// человек, которого вели через три смены, должен быть лучше того, кто пришёл
+		/// с улицы.
+		///
+		/// Правило, а не таблица, по той же причине, что и лимит штата: таблица
+		/// кончается, а смены — нет. Непустой levelsByDay правило перебивает.
+		/// </summary>
 		public LevelRange GetLevelRange(int day)
 		{
-			LevelRange result = new LevelRange();
-			for (int i = 0; i < LevelsByDay.Count; i++)
+			if (LevelsByDay.Count > 0)
 			{
-				if (LevelsByDay[i].FromDay <= day)
+				LevelRange found = new LevelRange();
+				for (int i = 0; i < LevelsByDay.Count; i++)
 				{
-					result = LevelsByDay[i];
+					if (LevelsByDay[i].FromDay <= day)
+					{
+						found = LevelsByDay[i];
+					}
 				}
+
+				return found;
 			}
 
-			return result;
+			int max = day - LevelLagBehindDay;
+			if (max < 1)
+			{
+				max = 1;
+			}
+
+			int min = max - LevelSpread;
+			if (min < 1)
+			{
+				min = 1;
+			}
+
+			return new LevelRange { FromDay = day, MinLevel = min, MaxLevel = max };
 		}
 	}
 }

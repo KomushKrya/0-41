@@ -126,12 +126,23 @@ public partial class HiringScreen : Control
 		_title.AddThemeFontSizeOverride("font_size", 28);
 		column.AddChild(_title);
 
+		// Карточек бывает больше трёх: список найма растёт вместе с дырой в штате,
+		// и на поздних сменах их может быть вдвое больше мест. Без прокрутки
+		// HBoxContainer сжал бы их до нечитаемой ширины.
+		var scroll = new ScrollContainer
+		{
+			SizeFlagsVertical = SizeFlags.ExpandFill,
+			HorizontalScrollMode = ScrollContainer.ScrollMode.Auto,
+			VerticalScrollMode = ScrollContainer.ScrollMode.Disabled
+		};
+		column.AddChild(scroll);
+
 		_row = new HBoxContainer
 		{
 			SizeFlagsVertical = SizeFlags.ExpandFill
 		};
 		_row.AddThemeConstantOverride("separation", 12);
-		column.AddChild(_row);
+		scroll.AddChild(_row);
 
 		var footer = new HBoxContainer();
 		footer.AddThemeConstantOverride("separation", 12);
