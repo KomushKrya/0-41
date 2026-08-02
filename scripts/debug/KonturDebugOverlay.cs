@@ -233,7 +233,9 @@ public partial class KonturDebugOverlay : CanvasLayer
 
 		AddDimLabel(_dispatchList, $"{selected.Id}   район: {selected.ZoneId}");
 		AddDimLabel(_dispatchList, "   " + StripBb(TierMark(selected)));
-		AddSectionLabel(_dispatchList, "ОПЕРАТИВНИКИ");
+		AddSectionLabel(_dispatchList, selected.SquadLimit == 1
+			? "ОПЕРАТИВНИКИ (мест: 1)"
+			: $"ОПЕРАТИВНИКИ (мест: {selected.SquadLimit})");
 
 		int available = 0;
 		for (int i = 0; i < roster.Count; i++)
@@ -871,7 +873,9 @@ public partial class KonturDebugOverlay : CanvasLayer
 
 		var squad = new List<string>();
 		IReadOnlyList<EmployeeView> roster = _runtime.Simulation.GetRoster();
-		for (int i = 0; i < roster.Count && squad.Count < 3; i++)
+		// Слотов ровно столько, сколько разрешает миссия: с 3 «на глазок»
+		// быстрая отправка получала бы отказ на любом одиночном вызове.
+		for (int i = 0; i < roster.Count && squad.Count < incident.SquadLimit; i++)
 		{
 			if (roster[i].Status == EmployeeStatus.Available)
 			{

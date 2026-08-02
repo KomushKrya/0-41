@@ -5,6 +5,7 @@ using Kontur.Core.Api;
 using Kontur.Core.Content;
 using Kontur.Core.Events;
 using Kontur.Core.Model;
+using Kontur.Core.Persistence;
 using Kontur.Core.Simulation;
 using Kontur.Core.Systems;
 
@@ -291,11 +292,42 @@ namespace Kontur.Harness
 			CommandResult empty = simulation.DispatchSquad(incidentId, new List<string>(), new List<string>());
 			Check("Пустая группа — отказ", !empty.IsSuccess);
 
+			// Слотов на вызове столько, сколько задал автор миссии. Проверяем,
+			// что на один больше уже не пролезает: иначе игроку выгодно возить
+			// весь отдел на каждый филлер, ведь характеристики складываются.
+			IncidentView? current = FindIncident(simulation, incidentId);
+			if (current != null && roster.Count > current.SquadLimit)
+			{
+				var сверхЛимита = new List<string>();
+				for (int i = 0; i <= current.SquadLimit && i < roster.Count; i++)
+				{
+					сверхЛимита.Add(roster[i].Id);
+				}
+
+				CommandResult tooMany = simulation.DispatchSquad(
+					incidentId, сверхЛимита, new List<string>());
+				Check("Группа сверх слотов миссии — отказ", !tooMany.IsSuccess);
+			}
+
 			CommandResult ok = simulation.DispatchSquad(incidentId, squad, new List<string>());
 			Check("Корректная отправка принимается", ok.IsSuccess);
 
 			CommandResult twice = simulation.DispatchSquad(incidentId, squad, new List<string>());
 			Check("Повторная отправка по тому же вызову — отказ", !twice.IsSuccess);
+		}
+
+		private static IncidentView? FindIncident(KonturSimulation simulation, string incidentId)
+		{
+			IReadOnlyList<IncidentView> incidents = simulation.GetActiveIncidents();
+			for (int i = 0; i < incidents.Count; i++)
+			{
+				if (incidents[i].Id == incidentId)
+				{
+					return incidents[i];
+				}
+			}
+
+			return null;
 		}
 
 		private static void TestStaffLimit(ContentDatabase content)
@@ -712,7 +744,16 @@ namespace Kontur.Harness
 			Check("Пустой файл отклонён", !target.Load(string.Empty).IsSuccess);
 			Check("Мусор вместо JSON отклонён", !target.Load("{это не json").IsSuccess);
 
-			string wrongVersion = json.Replace("\"Version\": 1", "\"Version\": 999");
+			// Номер версии берём из ядра, а не числом в тексте: с прошлым его подъёмом
+			// подстановка перестала находить строку, сохранение грузилось, и три
+			// проверки разом покраснели, хотя ломалась одна.
+			string wrongVersion = json.Replace(
+				$"\"Version\": {SaveData.CurrentVersion}", "\"Version\": 999");
+
+			// Если подстановка промахнулась, дальше проверялась бы не чужая версия,
+			// а обычное сохранение — и провал показал бы совсем не то, что сломалось.
+			Check("Подмена версии в JSON сработала", wrongVersion != json);
+
 			CommandResult versionResult = target.Load(wrongVersion);
 			Check("Чужая версия отклонена", !versionResult.IsSuccess);
 			Check(
@@ -886,18 +927,16 @@ namespace Kontur.Harness
 			var option = new MissionEventOption { Id = "test", RequirementModifier = 2 };
 
 			var resolver = new MissionResolver(content, content.Config, new XorShiftRandom(1));
-			var state = new GameState();
-			var zones = new ZoneSystem(state, content.Config.Zones, new EventBus());
 			var mission = new MissionDefinition { Id = "m", Day = 1, Requirements = requirements };
 
-			StatBlock scaled = resolver.ComputeEffectiveRequirements(mission, null, zones, option, 1);
+			StatBlock scaled = resolver.ComputeEffectiveRequirements(mission, option, 1);
 
 			Check("Надбавка прибавилась к требуемым характеристикам",
 				scaled[StatKind.Strength] == 10 && scaled[StatKind.Combat] == 6);
 			Check("Нетребуемые характеристики остались нулевыми",
 				scaled[StatKind.Intellect] == 0 && scaled[StatKind.Agility] == 0 && scaled[StatKind.Charisma] == 0);
 
-			StatBlock plain = resolver.ComputeEffectiveRequirements(mission, null, zones, null, 1);
+			StatBlock plain = resolver.ComputeEffectiveRequirements(mission, null, 1);
 			Check("Без варианта требования не меняются", plain.Equals(requirements));
 		}
 

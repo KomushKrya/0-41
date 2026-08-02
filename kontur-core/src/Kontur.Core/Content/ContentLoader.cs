@@ -105,7 +105,6 @@ namespace Kontur.Core.Content
 				{
 					Id = dto.Id,
 					Name = dto.Name,
-					State = ParseEnum(dto.State, ZoneState.Normal, ZonesFile, dto.Id, "state"),
 					BaseWeight = dto.BaseWeight,
 					MapX = dto.MapX,
 					MapY = dto.MapY
@@ -375,7 +374,6 @@ namespace Kontur.Core.Content
 				InjuryChanceMultiplier = dto == null || dto.InjuryChanceMultiplier == null
 					? defaults.RiskMultiplier
 					: dto.InjuryChanceMultiplier.Value,
-				AppliesQuarantine = dto != null && dto.AppliesQuarantine,
 				ExtraScales = dto == null || dto.ExtraScales == null ? ScaleDelta.Zero : dto.ExtraScales.ToModel(),
 				RevealsPropertyId = dto == null ? null : dto.RevealsPropertyId,
 				ConsequenceCapOverride = dto == null ? null : ParseOptionalCap(dto.ConsequenceCap, MissionEventsFile, textOption.Id)
@@ -399,6 +397,7 @@ namespace Kontur.Core.Content
 					MissionEventId = dto.MissionEventId,
 					Requirements = dto.Requirements == null ? StatBlock.Zero : dto.Requirements.ToModel(),
 					PrimaryStat = ParsePrimaryStat(dto.PrimaryStat, dto.Id),
+					SquadLimit = dto.SquadLimit,
 					TravelSeconds = dto.TravelSeconds,
 					OnSiteSeconds = dto.OnSiteSeconds,
 					ReturnSeconds = dto.ReturnSeconds,
@@ -553,6 +552,17 @@ namespace Kontur.Core.Content
 			foreach (HireCandidate candidate in database.HirePool)
 			{
 				ValidateEmployeeAbilities(database, candidate.Template, errors);
+			}
+
+			foreach (KeyValuePair<string, MissionDefinition> pair in database.Missions)
+			{
+				MissionDefinition mission = pair.Value;
+				if (mission.SquadLimit < 1)
+				{
+					errors.Add(
+						$"Миссия '{mission.Id}': squadLimit={mission.SquadLimit} — " +
+						"отправить некого. Минимум один.");
+				}
 			}
 
 			ValidateGenerator(database, errors);

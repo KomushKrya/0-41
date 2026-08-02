@@ -29,7 +29,6 @@ namespace Kontur.Core.Api
 		/// </summary>
 		private readonly XorShiftRandom _random;
 		private readonly ScalesSystem _scalesSystem;
-		private readonly ZoneSystem _zoneSystem;
 		private readonly EmployeeFactory _employeeFactory;
 		private readonly RosterSystem _rosterSystem;
 		private readonly EncyclopediaSystem _encyclopediaSystem;
@@ -47,12 +46,11 @@ namespace Kontur.Core.Api
 			_random = new XorShiftRandom(seed);
 
 			_scalesSystem = new ScalesSystem(_state, content.Config.Scales, _bus);
-			_zoneSystem = new ZoneSystem(_state, content.Config.Zones, _bus);
 			_employeeFactory = new EmployeeFactory(content, _random);
 			_rosterSystem = new RosterSystem(_state, content, content.Config.Employees, _bus, _employeeFactory);
 			_encyclopediaSystem = new EncyclopediaSystem(_state, content, _bus);
 			_resolver = new MissionResolver(content, content.Config, _random);
-			_scheduler = new IncidentScheduler(content, _state, _zoneSystem, _random);
+			_scheduler = new IncidentScheduler(content, _state, _random);
 
 			_director = new ShiftDirector(
 				_state,
@@ -60,7 +58,6 @@ namespace Kontur.Core.Api
 				_bus,
 				_random,
 				_scalesSystem,
-				_zoneSystem,
 				_rosterSystem,
 				_encyclopediaSystem,
 				_resolver,
@@ -132,7 +129,6 @@ namespace Kontur.Core.Api
 				{
 					Id = pair.Value.Id,
 					Name = pair.Value.Name,
-					State = pair.Value.State,
 					BaseWeight = pair.Value.BaseWeight,
 					MapX = pair.Value.MapX,
 					MapY = pair.Value.MapY
@@ -382,6 +378,7 @@ namespace Kontur.Core.Api
 					incident.Phase,
 					incident.RemainingSeconds,
 					_director.GetCurrentRequirements(incident),
+					incident.Mission.SquadLimit,
 					incident.SquadEmployeeIds.ToArray(),
 					incident.EquipmentIds.ToArray()));
 			}
@@ -395,7 +392,7 @@ namespace Kontur.Core.Api
 			foreach (KeyValuePair<string, Zone> pair in _state.Zones)
 			{
 				Zone zone = pair.Value;
-				result.Add(new ZoneView(zone.Id, zone.Name, zone.State, zone.MapX, zone.MapY));
+				result.Add(new ZoneView(zone.Id, zone.Name, zone.MapX, zone.MapY));
 			}
 
 			return result;

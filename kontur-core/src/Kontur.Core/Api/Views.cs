@@ -40,10 +40,12 @@ namespace Kontur.Core.Api
 		IncidentPhase Phase,
 		double RemainingSeconds,
 		StatBlock Requirements,
+		/// <summary>Сколько человек берёт этот вызов. Обычно один.</summary>
+		int SquadLimit,
 		IReadOnlyList<string> SquadEmployeeIds,
 		IReadOnlyList<string> EquipmentIds);
 
-	public sealed record ZoneView(string Id, string Name, ZoneState State, double MapX, double MapY);
+	public sealed record ZoneView(string Id, string Name, double MapX, double MapY);
 
 	/// <summary>
 	/// Предпросмотр отправки: что получится, если послать именно этот состав с этим снаряжением.

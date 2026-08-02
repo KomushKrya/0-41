@@ -31,17 +31,13 @@ namespace Kontur.Core.Systems
 
 		public StatBlock ComputeEffectiveRequirements(
 			MissionDefinition mission,
-			Zone? zone,
-			ZoneSystem zoneSystem,
 			MissionEventOption? chosenOption,
 			int day)
 		{
+			// Единственный множитель — дневной. Район на пороги не влияет: штриховку
+			// сняли, потому что провал делал следующие вызовы в том же районе тяжелее,
+			// и отыграться становилось нечем.
 			double multiplier = _config.GetDay(day).RequirementMultiplier;
-
-			if (zone != null)
-			{
-				multiplier *= zoneSystem.GetRequirementMultiplier(zone);
-			}
 
 			StatBlock requirements = mission.Requirements.Scale(multiplier);
 

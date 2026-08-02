@@ -58,8 +58,6 @@ namespace Kontur.Core.Content
 
 		public string Name { get; set; } = string.Empty;
 
-		public string State { get; set; } = "Normal";
-
 		public double BaseWeight { get; set; } = 1.0;
 
 		public double MapX { get; set; }
@@ -208,8 +206,6 @@ namespace Kontur.Core.Content
 
 		public double? InjuryChanceMultiplier { get; set; }
 
-		public bool AppliesQuarantine { get; set; }
-
 		public ScaleDeltaDto? ExtraScales { get; set; }
 
 		public string? RevealsPropertyId { get; set; }
@@ -258,6 +254,9 @@ namespace Kontur.Core.Content
 
 		/// <summary>Главная характеристика вызова — весит вдвое. Пусто — все равнозначны.</summary>
 		public string? PrimaryStat { get; set; }
+
+		/// <summary>Сколько человек можно отправить. По умолчанию один, как в Dispatch.</summary>
+		public int SquadLimit { get; set; } = 1;
 
 		public double TravelSeconds { get; set; } = 12.0;
 

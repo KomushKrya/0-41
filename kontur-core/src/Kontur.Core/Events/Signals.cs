@@ -170,7 +170,6 @@ namespace Kontur.Core.Events
 	/// <summary>Существо опознано и добавлено в энциклопедию впервые.</summary>
 	public sealed record CreatureIdentified(string CreatureId) : IGameEvent;
 
-	public sealed record ZoneStateChanged(string ZoneId, ZoneState OldState, ZoneState NewState, string Reason) : IGameEvent;
 
 	public sealed record EquipmentConsumed(string EquipmentId, string EquipmentName, int RemainingQuantity) : IGameEvent;
 

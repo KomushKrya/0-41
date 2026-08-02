@@ -22,7 +22,6 @@ namespace Kontur.Core.Systems
 		private readonly IEventBus _bus;
 		private readonly IRandomSource _random;
 		private readonly ScalesSystem _scales;
-		private readonly ZoneSystem _zones;
 		private readonly RosterSystem _roster;
 		private readonly EncyclopediaSystem _encyclopedia;
 		private readonly MissionResolver _resolver;
@@ -53,7 +52,6 @@ namespace Kontur.Core.Systems
 			IEventBus bus,
 			IRandomSource random,
 			ScalesSystem scales,
-			ZoneSystem zones,
 			RosterSystem roster,
 			EncyclopediaSystem encyclopedia,
 			MissionResolver resolver,
@@ -64,7 +62,6 @@ namespace Kontur.Core.Systems
 			_bus = bus;
 			_random = random;
 			_scales = scales;
-			_zones = zones;
 			_roster = roster;
 			_encyclopedia = encyclopedia;
 			_resolver = resolver;
@@ -675,19 +672,12 @@ namespace Kontur.Core.Systems
 			_bus.Publish(new MissionResolved(outcome));
 			_scales.Apply(scaleDelta, reasonText);
 
-			Zone? zone = _state.FindZone(incident.Mission.ZoneId);
-			if (zone != null)
-			{
-				_zones.ApplyMissionResult(zone, false);
-			}
-
 			CloseIncident(incident, false);
 		}
 
 		private void ResolveMission(IncidentRuntime incident)
 		{
 			MissionDefinition mission = incident.Mission;
-			Zone? zone = _state.FindZone(mission.ZoneId);
 
 			List<Employee> squad = ResolveSquad(incident);
 			List<EquipmentDefinition> equipment = ResolveEquipment(incident);
@@ -695,8 +685,6 @@ namespace Kontur.Core.Systems
 
 			StatBlock requirements = _resolver.ComputeEffectiveRequirements(
 				mission,
-				zone,
-				_zones,
 				incident.ChosenOption,
 				_state.Day);
 
@@ -740,16 +728,6 @@ namespace Kontur.Core.Systems
 			ApplyCasualties(incident, outcome);
 			ReturnOrConsumeEquipment(incident, equipment, outcome);
 			_scales.Apply(delta, outcome.IsSuccess ? "успешный вызов" : "провал вызова");
-
-			if (zone != null)
-			{
-				_zones.ApplyMissionResult(zone, outcome.IsSuccess);
-
-				if (incident.ChosenOption != null && incident.ChosenOption.AppliesQuarantine)
-				{
-					_zones.ApplyQuarantine(zone);
-				}
-			}
 
 			_roster.GrantExperience(
 				outcome.EmployeeIds,
@@ -1027,11 +1005,11 @@ namespace Kontur.Core.Systems
 			return null;
 		}
 
-		/// <summary>Требования миссии с учётом дня, штриховки зоны и уже выбранного радио-варианта — для экрана отправки.</summary>
+		/// <summary>Требования миссии с учётом дня и уже выбранного радио-варианта — для экрана отправки.</summary>
 		public StatBlock GetCurrentRequirements(IncidentRuntime incident)
 		{
-			Zone? zone = _state.FindZone(incident.Mission.ZoneId);
-			return _resolver.ComputeEffectiveRequirements(incident.Mission, zone, _zones, incident.ChosenOption, _state.Day);
+			return _resolver.ComputeEffectiveRequirements(
+				incident.Mission, incident.ChosenOption, _state.Day);
 		}
 
 		/// <summary>
@@ -1266,6 +1244,17 @@ namespace Kontur.Core.Systems
 			if (employeeIds == null || employeeIds.Count == 0)
 			{
 				return CommandResult.Fail("Не выбран ни один сотрудник.");
+			}
+
+			// Сколько человек берёт вызов — решает автор миссии, а не игрок.
+			// Характеристики отряда складываются, поэтому без этого предела
+			// на любой вызов было бы выгодно отправлять всех свободных.
+			int squadLimit = incident.Mission.SquadLimit;
+			if (employeeIds.Count > squadLimit)
+			{
+				return CommandResult.Fail(squadLimit == 1
+					? "На этот вызов едет только один оперативник."
+					: $"На этот вызов можно отправить не больше {squadLimit}.");
 			}
 
 			var squad = new List<Employee>();

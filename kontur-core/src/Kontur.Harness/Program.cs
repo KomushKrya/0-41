@@ -113,7 +113,6 @@ namespace Kontur.Harness
 				}
 
 				PrintRoster(simulation);
-				PrintZones(simulation);
 
 				if (!gameOver && day < options.Days)
 				{
@@ -161,18 +160,6 @@ namespace Kontur.Harness
 				Console.WriteLine(
 					$"  {employee.Name,-20} ур.{employee.Level} [{employee.Stats}] опыт {employee.Experience}/{employee.ExperienceToNextLevel} — {status}");
 			}
-		}
-
-		private static void PrintZones(KonturSimulation simulation)
-		{
-			Console.WriteLine("КАРТА:");
-			IReadOnlyList<ZoneView> zones = simulation.GetZones();
-			for (int i = 0; i < zones.Count; i++)
-			{
-				Console.WriteLine($"  {zones[i].Name,-22} {zones[i].State}");
-			}
-
-			Console.WriteLine();
 		}
 
 		private static void PrintFinal(KonturSimulation simulation)

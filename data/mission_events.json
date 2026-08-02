@@ -9,7 +9,6 @@
         "consequenceCap": "Injury"
       },
       "resettle": {
-        "appliesQuarantine": true,
         "extraScales": {
           "publicity": 3.0,
           "infection": -4.0
@@ -45,7 +44,6 @@
         "injuryChanceMultiplier": 1.5
       },
       "cordon": {
-        "appliesQuarantine": true,
         "extraScales": {
           "infection": 6.0,
           "publicity": -2.0
@@ -211,7 +209,6 @@
         "injuryChanceMultiplier": 1.5
       },
       "cordon": {
-        "appliesQuarantine": true,
         "extraScales": {
           "infection": 5.0,
           "publicity": -3.0,

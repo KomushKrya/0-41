@@ -9,21 +9,19 @@ namespace Kontur.Core.Systems
 {
 	/// <summary>
 	/// Планирует расписание вызовов на смену (ДД, раздел 3, п. 13–14):
-	/// 5–10 вызовов, окно приёма — 5 минут, зона выбирается по весу штриховки (раздел 9).
+	/// 5–10 вызовов, окно приёма — 5 минут, зона выбирается по своему весу (раздел 9).
 	/// Расписание строится один раз в начале смены — так прогон детерминирован и его легко логировать.
 	/// </summary>
 	public sealed class IncidentScheduler
 	{
 		private readonly ContentDatabase _content;
 		private readonly GameState _state;
-		private readonly ZoneSystem _zoneSystem;
 		private readonly IRandomSource _random;
 
-		public IncidentScheduler(ContentDatabase content, GameState state, ZoneSystem zoneSystem, IRandomSource random)
+		public IncidentScheduler(ContentDatabase content, GameState state, IRandomSource random)
 		{
 			_content = content;
 			_state = state;
-			_zoneSystem = zoneSystem;
 			_random = random;
 		}
 
@@ -209,14 +207,15 @@ namespace Kontur.Core.Systems
 
 		private MissionDefinition? PickMission(IReadOnlyList<MissionDefinition> pool, HashSet<string> usedThisShift)
 		{
-			// Зона выбирается по весу штриховки, миссия — из числа привязанных к этой зоне.
+			// Зона выбирается по своему весу, миссия — из числа привязанных к этой зоне.
+			// Вес статичен: он задаёт характер района, а не реагирует на игру.
 			var zoneIds = new List<string>();
 			var weights = new List<double>();
 
 			foreach (KeyValuePair<string, Zone> pair in _state.Zones)
 			{
 				zoneIds.Add(pair.Key);
-				weights.Add(_zoneSystem.GetSpawnWeight(pair.Value));
+				weights.Add(pair.Value.BaseWeight);
 			}
 
 			for (int attempt = 0; attempt < 8 && zoneIds.Count > 0; attempt++)

@@ -19,7 +19,12 @@ namespace Kontur.Core.Persistence
 		/// </summary>
 		public int Version { get; set; } = CurrentVersion;
 
-		public const int CurrentVersion = 1;
+		/// <summary>
+		/// Версия 2: из снимка убраны состояния районов. Штриховку (заражено / карантин /
+		/// очищено) сняли вместе с механикой, и сохранения версии 1 несовместимы —
+		/// не потому, что поле лишнее, а потому что партия под ту механику балансировалась.
+		/// </summary>
+		public const int CurrentVersion = 2;
 
 		/// <summary>Метка времени в формате ISO — для списка сохранений в интерфейсе.</summary>
 		public string SavedAtUtc { get; set; } = string.Empty;
@@ -46,8 +51,6 @@ namespace Kontur.Core.Persistence
 		public string GameOverReason { get; set; } = string.Empty;
 
 		public List<SavedEmployee> Roster { get; set; } = new List<SavedEmployee>();
-
-		public List<SavedZone> Zones { get; set; } = new List<SavedZone>();
 
 		public List<SavedStack> Inventory { get; set; } = new List<SavedStack>();
 
@@ -112,18 +115,6 @@ namespace Kontur.Core.Persistence
 
 		/// <summary>Для кандидатов: с какого дня доступен.</summary>
 		public int AvailableFromDay { get; set; } = 1;
-	}
-
-	public sealed class SavedZone
-	{
-		public string Id { get; set; } = string.Empty;
-
-		/// <summary>Имя значения ZoneState.</summary>
-		public string State { get; set; } = "Normal";
-
-		public int SuccessStreak { get; set; }
-
-		public int FailStreak { get; set; }
 	}
 
 	public sealed class SavedStack

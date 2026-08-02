@@ -146,7 +146,7 @@ namespace Kontur.Harness
 			// прогон встанет насмерть и это будет выглядеть как зависание ядра.
 			_sim.OpenDispatchScreen(incident.Id);
 
-			List<string> squad = PickSquad(incident.Requirements);
+			List<string> squad = PickSquad(incident.Requirements, incident.SquadLimit);
 			if (squad.Count == 0)
 			{
 				_sim.CloseDispatchScreen(incident.Id);
@@ -172,7 +172,7 @@ namespace Kontur.Harness
 		/// Берёт под каждый непокрытый порог того, кто добавляет больше всех, и копит сумму:
 		/// численность помогает, поэтому добор людей продолжается, пока пороги не закрыты.
 		/// </summary>
-		private List<string> PickSquad(StatBlock requirements)
+		private List<string> PickSquad(StatBlock requirements, int squadLimit)
 		{
 			var available = new List<EmployeeView>();
 			IReadOnlyList<EmployeeView> roster = _sim.GetRoster();
@@ -188,7 +188,11 @@ namespace Kontur.Harness
 			var picked = new List<string>();
 			StatBlock total = StatBlock.Zero;
 
-			for (int i = 0; i < StatKinds.All.Length && picked.Count < MaxSquadSize; i++)
+			// Сколько можно взять, решает вызов, а не автопилот: MaxSquadSize —
+			// только верхняя планка на случай, если контент разрешит слишком много.
+			int limit = Math.Min(squadLimit, MaxSquadSize);
+
+			for (int i = 0; i < StatKinds.All.Length && picked.Count < limit; i++)
 			{
 				StatKind kind = StatKinds.All[i];
 				if (requirements[kind] <= 0 || total[kind] >= requirements[kind])
@@ -219,7 +223,7 @@ namespace Kontur.Harness
 				total = total.Add(candidate.Stats);
 
 				// Порог мог остаться незакрытым: тогда берём ещё одного по той же характеристике.
-				if (total[kind] < requirements[kind] && picked.Count < MaxSquadSize)
+				if (total[kind] < requirements[kind] && picked.Count < limit)
 				{
 					i--;
 				}
