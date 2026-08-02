@@ -487,8 +487,8 @@ ShiftStatusView(Day, IsShiftActive, ShiftTime, IsCallWindowClosed, OpenIncidents
 int strength = stats[StatKind.Strength];
 int total    = stats.Total;
 StatBlock sum = a + b;                 // поэлементно
-string text  = stats.ToString();       // «Сила 5 Восприятие 3» — нулевые опущены
-string label = StatKinds.GetDisplayName(StatKind.Composure);  // «Хладнокровие»
+string text  = stats.ToString();       // «Сила 5 Интеллект 3» — нулевые опущены
+string label = StatKinds.GetDisplayName(StatKind.Combat);  // «Боевая подготовка»
 ```
 
 `StatKind`: `Strength`, `Perception`, `Endurance`, `Agility`, `Composure`.
@@ -846,7 +846,7 @@ simulation.Events.Subscribe<TimeFreezeChanged>(e =>
 Наборы ключей вариантов в тексте и в данных обязаны совпадать.
 
 `requirement_modifier` — надбавка: **+N к каждой требуемой характеристике** миссии.
-Требование `[Сила 8, Ловкость 4]` с модификатором 2 превращается в `[Сила 10, Ловкость 6]`;
+Требование `[Сила 8, Интеллект 4]` с модификатором 2 превращается в `[Сила 10, Интеллект 6]`;
 нулевые характеристики не трогаются.
 
 ## 15. Сохранение партии

@@ -18,7 +18,7 @@
 * перечисления пишутся строками (`"Consumable"`, `"Infected"`, `"AgainstCreatureTag"`);
 * пропущенное поле = значение по умолчанию, `null` для необязательных ссылок;
 * блок характеристик — объект с любым подмножеством из пяти ключей:
-  `strength`, `perception`, `endurance`, `agility`, `composure`;
+  `strength`, `intellect`, `combat`, `agility`, `charisma`;
 * блок изменения шкал — объект с любым подмножеством: `infection`, `publicity`, `loyalty`
   (положительное = рост шкалы; для лояльности рост — это хорошо, для остальных — плохо);
 * комментарии `//` и висящие запятые допускаются.
@@ -149,7 +149,7 @@
 
 ```json
 { "id": "eq_armor", "name": "Бронежилет 6Б", "kind": "Standard",
-  "bonus": { "endurance": 3 }, "deathChanceMultiplier": 0.5 }
+  "bonus": { "combat": 3 }, "deathChanceMultiplier": 0.5 }
 ```
 
 `kind`: `Consumable` (тратится всегда) | `Standard` (возвращается после успеха) |
@@ -204,8 +204,8 @@
       "id": "arch_muscle",
       "weight": 3,
       "rankTitle": "оперативник",
-      "primary": ["strength", "endurance"],
-      "secondary": ["composure"],
+      "primary": ["strength", "combat"],
+      "secondary": ["charisma"],
       "abilities": ["ab_skin_breaker", "ab_calm"],
       "portraits": []
     }
@@ -290,7 +290,7 @@
   "creatureId": "creature_mimic",
   "callId": "call_pensioner_door",
   "missionEventId": "mission_event_pensioner_door",
-  "requirements": { "perception": 7, "agility": 5 },
+  "requirements": { "intellect": 7, "agility": 5 },
   "travelSeconds": 12, "onSiteSeconds": 6, "returnSeconds": 10,
   "scalesOnSuccess":       { "infection": -2, "publicity": -1, "loyalty":  2 },
   "scalesOnFailure":       { "infection":  5, "publicity":  4, "loyalty": -4 },
@@ -327,7 +327,7 @@
   не знает ни о миссии, ни о варианте. Один и тот же id можно указать дважды — так
   сделано в `m_black_mold`, где «Уксус и ковры» служит и исходом без вмешательства.
 * `requirements` — **пороги по отдельным характеристикам**, а не общая сложность.
-  Сравниваются с лучшим в группе по каждой характеристике: порог «Восприятие 5» закрывает
+  Сравниваются с лучшим в группе по каждой характеристике: порог «Интеллект 5» закрывает
   конкретный человек, а не сумма отряда. Ноль означает «характеристика на вызове не нужна».
   Задаются «как для базового дня»: множители дня и штриховки зоны, а также надбавку
   выбранного варианта ядро применит само.

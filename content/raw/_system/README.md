@@ -11,11 +11,12 @@
 
 | Папка | Тип | Шаблон |
 |---|---|---|
-| `calls/shift_N/` | `call` — входящие звонки | `Templates/call.md` |
-| `radio/` | `radio` — вмешательства по рации | `Templates/radio.md` |
+| `missions/mission_ids/chapter_N/shift_N.md` | `mission_id` — реестр названий миссий смены | `Templates/mission_id.md` |
+| `missions/calls/…` | `call` — входящие звонки | `Templates/call.md` |
+| `missions/radio/…` | `radio` — вмешательства по рации | `Templates/radio.md` |
+| `missions/reports/…/<миссия>/` | `report` — отчёты по исходам | `Templates/report.md` |
 | `cutscenes/` | `cutscene` — интро, переходы, финалы | `Templates/cutscene.md` |
 | `creatures/` | `creature` — энциклопедия | `Templates/creature.md` |
-| `reports/<миссия>/` | `report` — отчёты по исходам | `Templates/report.md` |
 | `shift_notes/` | `shift_note` — записки сменщика | `Templates/shift_note.md` |
 | `equipment/` | `equipment` — снаряжение | — |
 | `UI/hover_footnote/perks/` | `perk` — спецспособности | `Templates/perk.md` |
@@ -23,4 +24,13 @@
 | `UI/hover_footnote/equipment_kinds/` | `equipment_kind` — виды снаряжения | — |
 | `UI/hover_footnote/scales/` | `scale` — шкалы блокнота | — |
 
-Вложенность внутри папки типа свободная: конвертер обходит её рекурсивно.
+Вложенность внутри папки типа свободная: конвертер обходит её рекурсивно. У четырёх
+папок под `missions/` она не свободная, а договорная — `chapter_<N>/shift_<N>/`, чтобы
+все четыре текста одной миссии лежали на одинаковой глубине и находились глазами.
+
+Связь между ними — поле `mission_id` в `call`, `radio` и `report`. Оно указывает на
+строку реестра `missions/mission_ids/chapter_N/shift_N.md` — там таблица «id | название»,
+одна строка на миссию, и своего `id` у самого файла нет: их раздаёт таблица. Сборка
+падает, если `mission_id` пуст или ведёт в никуда. Название миссии не дублируется больше нигде,
+а `id` совпадает с `id` миссии в `data/missions.json` — одна миссия, один ключ на
+текстовую и геймплейную сторону.

@@ -42,12 +42,12 @@ namespace Kontur.Core.Content
 			string id,
 			MissionEventQuality quality,
 			int? requirementModifier,
-			StatBlock requirements)
+			IReadOnlyList<StatKind> checkedStats)
 		{
 			Id = id;
 			Quality = quality;
 			RequirementModifier = requirementModifier;
-			Requirements = requirements;
+			CheckedStats = checkedStats ?? new List<StatKind>();
 		}
 
 		public string Id { get; }
@@ -62,9 +62,10 @@ namespace Kontur.Core.Content
 		public int? RequirementModifier { get; }
 
 		/// <summary>
-		/// Порог, ниже которого вариант закрыт. Сравнивается с суммой характеристик
-		/// уже отправленной группы — состав решает, какие решения останутся доступны.
+		/// Характеристики, по которым идёт проверка этого варианта. Чисел текст не несёт:
+		/// порог по каждой — требование самой миссии, оно подставляется при расчёте.
+		/// Пустой список — проверять нечего, исход варианта предрешён.
 		/// </summary>
-		public StatBlock Requirements { get; }
+		public IReadOnlyList<StatKind> CheckedStats { get; }
 	}
 }

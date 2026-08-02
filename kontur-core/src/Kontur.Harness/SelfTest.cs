@@ -401,7 +401,7 @@ namespace Kontur.Harness
 		/// Проверка на средних по большой выборке, а не на одном кандидате: разброс
 		/// как раз и нужен, чтобы кандидаты отличались друг от друга. Ловится здесь
 		/// ровно одна ошибка, но зато невидимая — перекошенное распределение очков,
-		/// при котором «здоровяк» выходит самым хладнокровным в конторе.
+		/// при котором «здоровяк» выходит самым обаятельным в конторе.
 		/// </summary>
 		private static void TestArchetypeSilhouette(ContentDatabase content)
 		{
@@ -887,9 +887,9 @@ namespace Kontur.Harness
 			StatBlock scaled = resolver.ComputeEffectiveRequirements(mission, null, zones, option, 1);
 
 			Check("Надбавка прибавилась к требуемым характеристикам",
-				scaled[StatKind.Strength] == 10 && scaled[StatKind.Endurance] == 6);
+				scaled[StatKind.Strength] == 10 && scaled[StatKind.Combat] == 6);
 			Check("Нетребуемые характеристики остались нулевыми",
-				scaled[StatKind.Perception] == 0 && scaled[StatKind.Agility] == 0 && scaled[StatKind.Composure] == 0);
+				scaled[StatKind.Intellect] == 0 && scaled[StatKind.Agility] == 0 && scaled[StatKind.Charisma] == 0);
 
 			StatBlock plain = resolver.ComputeEffectiveRequirements(mission, null, zones, null, 1);
 			Check("Без варианта требования не меняются", plain.Equals(requirements));
@@ -1027,45 +1027,56 @@ namespace Kontur.Harness
 		}
 
 		/// <summary>
-		/// Вариант закрывается составом группы, а не случайностью. Проверяется и расчёт
-		/// нехватки, и отказ команды: молча проигнорированный выбор выглядел бы как баг.
+		/// Вариант не запирается составом: он подставляет требования своей миссии в те
+		/// характеристики, которые назвал текст. Проверяется именно подстановка —
+		/// молча обнулённый порог выглядел бы как бесплатная проверка.
 		/// </summary>
 		private static void TestOptionGating(ContentDatabase content)
 		{
 			var option = new MissionEventOption
 			{
 				Id = "clever",
-				Requirements = new StatBlock(0, 8, 0, 6, 0)
+				CheckedStats = new List<StatKind> { StatKind.Intellect, StatKind.Charisma }
 			};
 
-			var weak = new StatBlock(10, 4, 10, 6, 10);
-			var strong = new StatBlock(0, 8, 0, 6, 0);
+			var missionRequirements = new StatBlock(7, 8, 9, 6, 5);
+			StatBlock resolved = option.ResolveRequirements(missionRequirements);
 
-			Check("Сильной группе вариант открыт", option.IsUnlockedBy(strong));
-			Check("Слабой закрыт", !option.IsUnlockedBy(weak));
-
-			StatBlock shortfall = option.GetShortfall(weak);
-			Check("Нехватка считается по каждой характеристике",
-				shortfall[StatKind.Perception] == 4 && shortfall[StatKind.Agility] == 0);
-			Check("Избыток в нехватку не попадает", shortfall.Total == 4);
+			Check("Названная характеристика берёт порог миссии",
+				resolved[StatKind.Intellect] == 8 && resolved[StatKind.Charisma] == 5);
+			Check("Неназванные характеристики в проверку не входят",
+				resolved[StatKind.Strength] == 0 && resolved[StatKind.Combat] == 0);
+			Check("В проверке ровно то, что назвал текст", resolved.Total == 13);
 
 			var free = new MissionEventOption { Id = "plain" };
-			Check("Вариант без требований открыт любому", free.IsUnlockedBy(StatBlock.Zero));
+			Check("Вариант без списка проверок ничего не требует",
+				free.ResolveRequirements(missionRequirements).Total == 0);
 
-			// Каждое вмешательство в контенте обязано иметь хотя бы один открытый вариант.
-			bool everyEventHasOpen = true;
+			// Проверка по характеристике, которой нет в требованиях миссии, была бы
+			// бесплатной: порог подставился бы нулевой. Загрузчик обязан такое ловить.
+			bool everyCheckIsBacked = true;
 			foreach (KeyValuePair<string, MissionEventDefinition> pair in content.MissionEvents)
 			{
-				bool hasOpen = false;
-				foreach (MissionEventOption candidate in pair.Value.Options)
+				StatBlock requirements = StatBlock.Zero;
+				foreach (KeyValuePair<string, MissionDefinition> mission in content.Missions)
 				{
-					hasOpen |= candidate.Requirements.Total == 0;
+					if (string.Equals(mission.Value.MissionEventId, pair.Key, System.StringComparison.OrdinalIgnoreCase))
+					{
+						requirements = mission.Value.Requirements;
+						break;
+					}
 				}
 
-				everyEventHasOpen &= hasOpen;
+				foreach (MissionEventOption candidate in pair.Value.Options)
+				{
+					for (int i = 0; i < candidate.CheckedStats.Count; i++)
+					{
+						everyCheckIsBacked &= requirements[candidate.CheckedStats[i]] > 0;
+					}
+				}
 			}
 
-			Check("У каждого вмешательства есть вариант без требований", everyEventHasOpen);
+			Check("Каждая проверка варианта обеспечена требованием миссии", everyCheckIsBacked);
 
 			// Умолчания по типу диалога: хороший не дороже нейтрального, тот не дороже плохого.
 			bool orderHolds = true;
@@ -1436,16 +1447,16 @@ namespace Kontur.Harness
 			source.Add("abilities.json", "[]");
 			source.Add("equipment.json", @"[
 				{ ""id"": ""eq_test_consumable"", ""name"": ""Расходник"", ""kind"": ""Consumable"", ""bonus"": { ""strength"": 1 } },
-				{ ""id"": ""eq_test_standard"", ""name"": ""Обычное"", ""kind"": ""Standard"", ""bonus"": { ""endurance"": 1 } }
+				{ ""id"": ""eq_test_standard"", ""name"": ""Обычное"", ""kind"": ""Standard"", ""bonus"": { ""combat"": 1 } }
 			]");
 			source.Add("creatures.json", "[]");
 			source.Add("mission_events.json", "[]");
 
 			source.Add("employees.json", @"{
 				""startingRoster"": [
-					{ ""id"": ""emp_a"", ""name"": ""А"", ""level"": 1, ""stats"": { ""strength"": 4, ""endurance"": 4 } },
-					{ ""id"": ""emp_b"", ""name"": ""Б"", ""level"": 1, ""stats"": { ""strength"": 4, ""endurance"": 4 } },
-					{ ""id"": ""emp_c"", ""name"": ""В"", ""level"": 1, ""stats"": { ""strength"": 4, ""endurance"": 4 } }
+					{ ""id"": ""emp_a"", ""name"": ""А"", ""level"": 1, ""stats"": { ""strength"": 4, ""combat"": 4 } },
+					{ ""id"": ""emp_b"", ""name"": ""Б"", ""level"": 1, ""stats"": { ""strength"": 4, ""combat"": 4 } },
+					{ ""id"": ""emp_c"", ""name"": ""В"", ""level"": 1, ""stats"": { ""strength"": 4, ""combat"": 4 } }
 				],
 				""hirePool"": []
 			}");

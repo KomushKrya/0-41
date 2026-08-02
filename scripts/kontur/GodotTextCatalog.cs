@@ -20,8 +20,12 @@ public sealed class GodotTextCatalog : ITextCatalog
 	}
 
 	/// <summary>
-	/// Варианты решения для mission_event: ключ, тип диалога и числа сложности.
+	/// Варианты решения: ключ, порядок и характеристики, по которым идёт проверка.
 	/// Формулировки ядру не отдаются — их разворачивает текстовый бокс по тому же id.
+	///
+	/// Чисел текст не несёт вовсе: тип диалога и надбавка живут в mission_events.json,
+	/// а порог по каждой названной характеристике ядро подставляет из требований миссии.
+	/// Поэтому сюда уходят Neutral и null, а список характеристик — как есть.
 	/// </summary>
 	public IReadOnlyList<TextOption> GetOptions(string entryId)
 	{
@@ -37,39 +41,31 @@ public sealed class GodotTextCatalog : ITextCatalog
 		{
 			result.Add(new TextOption(
 				option.Id,
-				ParseQuality(option.Quality),
-				option.RequirementModifier,
-				ToStatBlock(option.Requirements)));
+				MissionEventQuality.Neutral,
+				null,
+				ToStatKinds(option.Requirements)));
 		}
 
 		return result;
 	}
 
 	/// <summary>
-	/// Неизвестный тип диалога — нейтральный. Ругаться здесь незачем: конвертер
-	/// уже проверил допустимые значения на сборке текста и без этого не собрался бы.
+	/// Названия характеристик из текста в вид, понятный ядру. Незнакомый ключ пропускается:
+	/// допустимые значения конвертер уже проверил на сборке текста.
 	/// </summary>
-	private static MissionEventQuality ParseQuality(string value)
+	private static List<StatKind> ToStatKinds(IReadOnlyList<string> names)
 	{
-		return System.Enum.TryParse(value, true, out MissionEventQuality parsed)
-			? parsed
-			: MissionEventQuality.Neutral;
-	}
-
-	/// <summary>Пороги из текста в вид, понятный ядру. Незнакомый ключ пропускается.</summary>
-	private static StatBlock ToStatBlock(IReadOnlyDictionary<string, int> requirements)
-	{
-		StatBlock result = StatBlock.Zero;
-		if (requirements == null)
+		var result = new List<StatKind>();
+		if (names == null)
 		{
 			return result;
 		}
 
-		foreach (KeyValuePair<string, int> pair in requirements)
+		for (int i = 0; i < names.Count; i++)
 		{
-			if (StatKinds.TryParse(pair.Key, out StatKind kind))
+			if (StatKinds.TryParse(names[i], out StatKind kind))
 			{
-				result = result.With(kind, pair.Value);
+				result.Add(kind);
 			}
 		}
 

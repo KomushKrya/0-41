@@ -6,11 +6,11 @@ namespace Kontur.Core.Model
 	/// <summary>
 	/// Геймплейная сторона варианта решения на выезде.
 	///
-	/// Числа поделены между двумя источниками намеренно. Тип диалога, надбавка к сложности
-	/// и порог доступности приходят из текста (`content/raw/mission_events`), потому что
-	/// автор правит их вместе с формулировкой варианта — держать их отдельно значило бы
-	/// разъезжаться при каждой вычитке. Всё остальное — риски, шкалы, карантин — чистый
-	/// баланс и живёт в data/mission_events.json.
+	/// Числа поделены между двумя источниками намеренно. Из текста
+	/// (`content/raw/missions/radio`) приходит только список проверяемых характеристик:
+	/// автор решает, чем берётся этот вариант, но не насколько он труден. Все числа —
+	/// тип диалога, надбавка, риски, шкалы, карантин — живут в data/mission_events.json,
+	/// а порог по каждой названной характеристике подставляется из требований миссии.
 	///
 	/// Совпадение наборов ключей между текстом и данными проверяет загрузчик.
 	/// </summary>
@@ -29,36 +29,34 @@ namespace Kontur.Core.Model
 		public MissionEventQuality Quality { get; set; } = MissionEventQuality.Neutral;
 
 		/// <summary>
-		/// Порог по сумме характеристик группы. Пусто — вариант открыт всегда.
-		/// Считается по уже отправленному отряду: слабый состав закрывает умные решения.
+		/// Характеристики, по которым проверяется этот вариант. Из текста, без чисел.
+		/// Пусто — проверять нечего: исход варианта предрешён.
 		/// </summary>
-		public StatBlock Requirements { get; set; } = StatBlock.Zero;
-
-		/// <summary>Доступен ли вариант такой группе.</summary>
-		public bool IsUnlockedBy(StatBlock squadStats)
-		{
-			return GetShortfall(squadStats).Total == 0;
-		}
+		public IReadOnlyList<StatKind> CheckedStats { get; set; } = new List<StatKind>();
 
 		/// <summary>
-		/// Чего не хватает до открытия, по характеристикам. Нули там, где хватает.
-		/// Интерфейс показывает это причиной блокировки: «нужна Ловкость 6, у группы 4».
+		/// Подставляет требования миссии в характеристики этого варианта.
+		///
+		/// Вариант не запирается составом группы: выбрать можно любой, а недобор бьёт
+		/// по шансу, а не по доступности. Поэтому от миссии берутся пороги только тех
+		/// характеристик, которые назвал текст, — остальные к этому решению не относятся.
+		/// Пустой список означает «проверки нет», и тогда требований не остаётся вовсе.
 		/// </summary>
-		public StatBlock GetShortfall(StatBlock squadStats)
+		public StatBlock ResolveRequirements(StatBlock missionRequirements)
 		{
-			StatBlock shortfall = StatBlock.Zero;
-
-			for (int i = 0; i < StatKinds.All.Length; i++)
+			if (CheckedStats.Count == 0)
 			{
-				StatKind kind = StatKinds.All[i];
-				int missing = Requirements[kind] - squadStats[kind];
-				if (missing > 0)
-				{
-					shortfall = shortfall.With(kind, missing);
-				}
+				return StatBlock.Zero;
 			}
 
-			return shortfall;
+			StatBlock resolved = StatBlock.Zero;
+			for (int i = 0; i < CheckedStats.Count; i++)
+			{
+				StatKind kind = CheckedStats[i];
+				resolved = resolved.With(kind, missionRequirements[kind]);
+			}
+
+			return resolved;
 		}
 
 		public double DeathChanceMultiplier { get; set; } = 1.0;

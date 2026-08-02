@@ -86,13 +86,13 @@ namespace Kontur.Core.Persistence
 
 		public int Strength { get; set; }
 
-		public int Perception { get; set; }
+		public int Intellect { get; set; }
 
-		public int Endurance { get; set; }
+		public int Combat { get; set; }
 
 		public int Agility { get; set; }
 
-		public int Composure { get; set; }
+		public int Charisma { get; set; }
 
 		public int Experience { get; set; }
 

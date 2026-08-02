@@ -1295,9 +1295,10 @@ public partial class KonturDebugOverlay : CanvasLayer
 			RadioOptionOffer offer = radioEvent.Options[i];
 			builder.Append("\n   ").Append(i + 1).Append(") ").Append(offer.Id);
 
-			if (!offer.IsUnlocked)
+			// Закрытых вариантов нет: показываем, за что тут спросят.
+			if (offer.Requirements.Total > 0)
 			{
-				builder.Append("  [ЗАКРЫТ: не хватает ").Append(offer.Shortfall).Append(']');
+				builder.Append("  [проверка: ").Append(offer.Requirements).Append(']');
 			}
 		}
 

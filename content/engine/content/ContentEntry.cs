@@ -11,6 +11,12 @@ public sealed class ContentEntry
 	/// <summary>Только у call: "radio" — вмешательство по рации, "filler" — одна проверка.</summary>
 	public string MissionType = string.Empty;
 
+	/// <summary>
+	/// У call, radio и report: id миссии из mission_ids/. Название миссии живёт там
+	/// одно на всех, а тексты ссылаются на него, а не хранят своё.
+	/// </summary>
+	public string MissionId = string.Empty;
+
 	public int Day;
 	public IReadOnlyList<string> Requirements = new List<string>();
 	public IReadOnlyList<string> Properties = new List<string>();
@@ -102,6 +108,16 @@ public sealed class ContentSpan
 
 public sealed class ContentOption
 {
+	/// <summary>Ключ варианта. По нему геймплей связывает текст с отчётом и последствиями.</summary>
+	public string Id = string.Empty;
+
 	public string Name = string.Empty;
+
+	/// <summary>
+	/// Какие характеристики проверяются у этого варианта. Порог — требование миссии
+	/// по этой характеристике, он приходит из геймплейных данных. Пусто — проверки нет.
+	/// </summary>
+	public IReadOnlyList<string> Requirements = new List<string>();
+
 	public IReadOnlyList<ContentChunk> Chunks = new List<ContentChunk>();
 }

@@ -283,15 +283,11 @@ namespace Kontur.Harness
 			// Мир встаёт с момента, как радио взяли, — и идёт дальше после выбора.
 			_sim.AnswerRadio(incident.Id);
 
-			// Закрытые составом варианты автопилот не рассматривает — как и игрок.
+			// Закрытых вариантов нет: нажать можно любой, состав решает шанс, а не доступ.
 			var available = new List<MissionEventOption>();
 			IReadOnlyList<RadioOptionOffer> offers = _sim.GetRadioOptions(incident.Id);
 			for (int i = 0; i < offers.Count; i++)
 			{
-				if (!offers[i].IsUnlocked)
-				{
-					continue;
-				}
 
 				MissionEventOption? unlocked = missionEvent.FindOption(offers[i].Id);
 				if (unlocked != null)

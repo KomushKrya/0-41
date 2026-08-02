@@ -26,14 +26,17 @@ from pathlib import Path
 
 # --------------------------------------------------------------------------- модель
 
-STATS = ("strength", "perception", "endurance", "agility", "composure")
+STATS = ("strength", "combat", "agility", "charisma", "intellect")
+
+# Первая часть демо. Появится вторая — глава станет параметром команды new.
+CHAPTER = "chapter_1"
 
 STAT_RU = {
     "strength": "Сила",
-    "perception": "Восприятие",
-    "endurance": "Выносливость",
+    "combat": "Боевая подготовка",
     "agility": "Ловкость",
-    "composure": "Хладнокровие",
+    "charisma": "Харизма",
+    "intellect": "Интеллект",
 }
 
 STAT_ALIASES = {ru.lower(): key for key, ru in STAT_RU.items()}
@@ -396,19 +399,12 @@ def check_options(mission: dict, cap: str, events: dict, entries: dict) -> list[
                 f"{mission['id']}/{option_id}: потолок {option_cap} мягче миссии ({cap}) — "
                 f"вариант может только ужесточать")
 
-    if text_options and not any(not (o.get("requires") or {}) for o in text_options):
-        problems.append(
-            f"{event_id}: у всех вариантов есть requires — слабой группе будет нечего выбрать")
+    # Проверять, остался ли вариант «для слабой группы», больше не нужно: requires
+    # ничего не запирает. Он называет характеристики, по которым идёт бросок, а
+    # нажать можно любой вариант — недобор бьёт по шансу, а не по доступности.
 
-    written = {q: [o for o in text_options if o["quality"] == q and "requirement_modifier" in o]
-               for q in QUALITIES}
-    for harder, easier in (("neutral", "good"), ("bad", "neutral"), ("bad", "good")):
-        for tough in written[harder]:
-            for soft in written[easier]:
-                if tough["requirement_modifier"] < soft["requirement_modifier"]:
-                    problems.append(
-                        f"{event_id}: {tough['id']!r} помечен {harder}, но дешевле "
-                        f"{easier}-варианта {soft['id']!r} — тип и цена разошлись")
+    # Сверять тип варианта с его ценой здесь больше нечего: и то, и другое живёт
+    # в mission_events.json, текст несёт только id, порядок и пороги доступности.
 
     return problems
 
@@ -459,7 +455,7 @@ def ask(prompt: str, default: str = "", options: tuple[str, ...] | None = None) 
 
 
 def ask_stats(prompt: str) -> dict:
-    """«восприятие 5, ловкость 4» — так же, как пишется requires в тексте."""
+    """«интеллект 5, ловкость 4» — характеристики те же, что и в requires."""
     while True:
         raw = input(f"{prompt}: ").strip()
         if not raw:
@@ -511,7 +507,7 @@ def command_new(args) -> int:
     creature = ask("Существо (пусто — если статьи в энциклопедии нет)", "", creature_options)
 
     print()
-    print("Пороги по характеристикам. Формат: «восприятие 5, ловкость 4».")
+    print("Пороги по характеристикам. Формат: «интеллект 5, ловкость 4».")
     print("Сравнивается ЛУЧШИЙ в группе по каждой — не сумма.")
     requirements = ask_stats("Пороги")
 
@@ -616,7 +612,7 @@ def build_mission(
         "zoneId": zone,
         "creatureId": creature,
         "callId": f"call_{slug}",
-        "missionEventId": f"mission_event_{slug}" if options else "",
+        "missionEventId": f"radio_{slug}" if options else "",
         "requirements": requirements,
         "primaryStat": primary,
         "travelSeconds": 12.0,
@@ -646,6 +642,7 @@ def build_mission(
 CALL_TEMPLATE = """---
 id: call_{slug}
 type: call
+mission_id: m_{slug}
 status: draft
 requirements:
   -
@@ -667,8 +664,9 @@ properties:
 """
 
 EVENT_HEADER = """---
-id: mission_event_{slug}
-type: mission_event
+id: radio_{slug}
+type: radio
+mission_id: m_{slug}
 status: draft
 requirements:
   -
@@ -689,14 +687,27 @@ properties:
 EVENT_OPTION = """
 ## Вариант: {name}
 id: {option_id}
-quality: {quality}
 {requires_line}
 {text_hint}
+"""
+
+REGISTRY_TEMPLATE = """---
+type: mission_id
+status: draft
+day: {day}
+---
+
+<!-- Миссии {day}-й смены: id и название. id тот же, что в data/missions.json;
+     на него ссылаются call, radio и report полем mission_id. -->
+
+| id | название |
+|----|----------|
 """
 
 REPORT_TEMPLATE = """---
 id: {report_id}
 type: report
+mission_id: {mission_id}
 status: draft
 outcome: {outcome}
 properties:
@@ -715,7 +726,19 @@ def write_mission_files(root: Path, world: dict, slug: str, mission: dict, optio
     primary = STAT_RU.get(mission.get("primaryStat", ""), "—")
     written: list[Path] = []
 
-    call_path = raw / "calls" / f"{slug}.md"
+    # Тексты миссии разложены по типам, а внутри типа — по главам и сменам.
+    shift = f"shift_{mission['day']}"
+    missions_dir = raw / "missions"
+
+    register_mission(
+        missions_dir / "mission_ids" / CHAPTER / f"{shift}.md",
+        mission["id"],
+        mission.get("name", slug),
+        mission["day"],
+        written,
+    )
+
+    call_path = missions_dir / "calls" / CHAPTER / shift / f"{slug}.md"
     write_once(call_path, CALL_TEMPLATE.format(slug=slug, thresholds=thresholds, primary=primary), written)
 
     if options:
@@ -729,21 +752,25 @@ def write_mission_files(root: Path, world: dict, slug: str, mission: dict, optio
             body += EVENT_OPTION.format(
                 name=option["name"],
                 option_id=option["id"],
-                quality=option["quality"],
                 requires_line=requires_line,
                 text_hint=f"\nТекст варианта «{option['name']}».\n",
             )
 
-        write_once(raw / "mission_events" / f"{slug}.md", body, written)
+        write_once(missions_dir / "radio" / CHAPTER / shift / f"{slug}.md", body, written)
 
-    reports_dir = raw / "reports" / slug
+    reports_dir = missions_dir / "reports" / CHAPTER / shift / slug
     for key, pair in mission["reports"].items():
         label = key or "без вмешательства"
         for outcome in ("success", "failure"):
             report_id = pair[outcome]
             write_once(
                 reports_dir / f"{report_id.replace('report_', '')}.md",
-                REPORT_TEMPLATE.format(report_id=report_id, outcome=outcome, label=f"{label}, {outcome}"),
+                REPORT_TEMPLATE.format(
+                    report_id=report_id,
+                    mission_id=mission["id"],
+                    outcome=outcome,
+                    label=f"{label}, {outcome}",
+                ),
                 written,
             )
 
@@ -757,7 +784,8 @@ def write_mission_files(root: Path, world: dict, slug: str, mission: dict, optio
         events.append({
             "id": mission["missionEventId"],
             # Числа последствий — заготовка: правит дизайнер, не автор текста.
-            "options": {o["id"]: {} for o in options},
+            # Тип диалога тоже здесь: в тексте варианта его больше нет.
+            "options": {o["id"]: {"quality": o["quality"]} for o in options},
         })
         write_json(data / "mission_events.json", events)
 
@@ -768,6 +796,21 @@ def write_mission_files(root: Path, world: dict, slug: str, mission: dict, optio
     print(f"  data/missions.json (+{mission['id']})")
     if options:
         print(f"  data/mission_events.json (+{mission['missionEventId']})")
+
+
+def register_mission(path: Path, mission_id: str, name: str, day: int, written: list[Path]) -> None:
+    """Дописывает строку в реестр смены: файл общий, поэтому не write_once."""
+    if not path.exists():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(REGISTRY_TEMPLATE.format(day=day), encoding="utf-8")
+        written.append(path)
+
+    body = path.read_text(encoding="utf-8")
+    if re.search(rf"(?m)^\|\s*{re.escape(mission_id)}\s*\|", body):
+        print(f"  пропускаю (уже в реестре): {mission_id}")
+        return
+
+    path.write_text(body.rstrip("\n") + f"\n| {mission_id} | {name} |\n", encoding="utf-8")
 
 
 def write_once(path: Path, body: str, written: list[Path]) -> None:

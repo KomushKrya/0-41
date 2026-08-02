@@ -42,9 +42,9 @@ namespace Kontur.Harness
 			var parts = new List<string>();
 			for (int i = 0; i < offers.Count; i++)
 			{
-				parts.Add(offers[i].IsUnlocked
+				parts.Add(offers[i].Requirements.Total == 0
 					? offers[i].Id
-					: $"{offers[i].Id} (закрыт: не хватает {offers[i].Shortfall})");
+					: $"{offers[i].Id} (проверка: {offers[i].Requirements})");
 			}
 
 			return string.Join(", ", parts);

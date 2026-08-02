@@ -22,12 +22,13 @@ from pathlib import Path
 # Папка контента -> поле type. Ключ — путь от content/raw, так что тип может лежать
 # и глубоко; промежуточные папки сами контент не держат.
 FOLDER_TYPES = {
-    "calls": "call",
+    "missions/calls": "call",
+    "missions/mission_ids": "mission_id",
+    "missions/radio": "radio",
+    "missions/reports": "report",
     "cutscenes": "cutscene",
-    "radio": "radio",
     "creatures": "creature",
     "shift_notes": "shift_note",
-    "reports": "report",
     "equipment": "equipment",
     "UI/hover_footnote/perks": "perk",
     "UI/hover_footnote/characteristics": "characteristic",
@@ -38,10 +39,11 @@ FOLDER_TYPES = {
 # Поля, которые есть только у своего типа: имя -> значение по умолчанию.
 # Тип значения задаёт и проверку: int по умолчанию требует целого во фронтматтере.
 TYPE_FIELDS = {
-    "call": {"mission_type": ""},
+    "call": {"mission_type": "", "mission_id": ""},
     "creature": {"name": ""},
+    "radio": {"mission_id": ""},
     "shift_note": {"day": 0},
-    "report": {"outcome": ""},
+    "report": {"outcome": "", "mission_id": ""},
     "perk": {"name": ""},
     "characteristic": {"name": ""},
     "equipment": {"name": ""},
@@ -73,9 +75,21 @@ CALL_META_RE = re.compile(r"^%%\s*call_meta:\s*(.+?)\s*%%$")
 REVEAL_OPEN_RE = re.compile(r"^%%\s*reveal:\s*([^\s%]+)\s*%%$")
 REVEAL_CLOSE_RE = re.compile(r"^%%\s*/\s*reveal\s*%%$")
 OPTION_RE = re.compile(r"^##\s*Вариант:\s*(.+?)\s*$")
-# Поле убрано: множители сложности задаются на стороне ядра, а не в тексте.
-# Проверка нужна, чтобы забытая строка не уехала в реплику варианта.
-RETIRED_OPTION_META_RE = re.compile(r"^requirement_modifier\s*:")
+OPTION_META_RE = re.compile(r"^(id|requires)\s*:\s*(.*)$")
+ID_RE = re.compile(r"^[a-z][a-z0-9_]*$")
+# Реестр названий миссий: файл на смену, строка таблицы — миссия. Разбирается не как
+# обычная запись, поэтому тип вынесен в константу.
+REGISTRY_TYPE = "mission_id"
+# Характеристики автор пишет по-русски — «интеллект, ловкость». Ядро знает
+# характеристики по английским ключам, поэтому перевод делается здесь, на сборке.
+STAT_ALIASES = {
+    "сила": "strength",
+    "боевая подготовка": "combat",
+    "ловкость": "agility",
+    "харизма": "charisma",
+    "интеллект": "intellect",
+}
+REQUIRES_NAME_RE = re.compile(r"^[А-Яа-яЁё]+(?:\s+[А-Яа-яЁё]+)*$")
 LINK_RE = re.compile(r"\[\[([a-z_]+):([a-z0-9_]+)\]\]")
 # Подстановка числа из геймплейных данных: «+{{bonus.strength}} к силе». Не %%,
 # потому что Обсидиан прячет %%...%%, а плейсхолдер должен быть виден автору.
@@ -291,18 +305,68 @@ def parse_chunks(lines: list[str], source: Path) -> list[dict]:
 
 
 def parse_option(name: str, lines: list[str], source: Path) -> dict:
-    """У варианта только название и текст: числа баланса живут в геймплейных данных."""
-    for raw_line in lines:
-        if RETIRED_OPTION_META_RE.match(raw_line.strip()):
-            raise BuildFailed(
-                f"{source}: у варианта {name!r} осталось поле requirement_modifier; "
-                f"баланс вариантов задаётся в геймплейных данных, строку надо убрать"
-            )
+    """Метаполя идут до первой строки текста, пустые строки перед текстом отбрасываются."""
+    meta: dict = {}
+    start = 0
+
+    for index, raw_line in enumerate(lines):
+        line = raw_line.strip()
+        if line:
+            match = OPTION_META_RE.match(line)
+            if not match:
+                break
+            meta[match.group(1)] = match.group(2).strip()
+        start = index + 1
+
+    option_id = meta.get("id", "")
+    if not ID_RE.match(option_id):
+        raise BuildFailed(
+            f"{source}: у варианта {name!r} нет поля id или оно не по формату "
+            f"(латиница, цифры и _, начиная с буквы) — по id вариант связан с отчётом"
+        )
 
     return {
         "name": name,
-        "chunks": parse_chunks(lines, source),
+        "id": option_id,
+        "requires": parse_requires(meta.get("requires", ""), option_id, source),
+        "chunks": parse_chunks(lines[start:], source),
     }
+
+
+def parse_requires(text: str, owner: str, source: Path) -> list[str]:
+    """«боевая подготовка, сила» — какие характеристики проверяются.
+
+    Только названия: сам порог — это требование миссии по этой характеристике,
+    и живёт оно в геймплейных данных. Текст отвечает на вопрос «что проверяем»,
+    а не «насколько трудно» — иначе число пришлось бы держать синхронным в двух местах.
+    """
+    requires: list[str] = []
+    text = text.strip()
+    if not text:
+        return requires
+
+    for part in text.split(","):
+        name = part.strip()
+        if not REQUIRES_NAME_RE.match(name):
+            raise BuildFailed(
+                f"{source}: у {owner!r} непонятная запись требования {name!r} — "
+                f"нужны только названия характеристик через запятую, без чисел "
+                f"(порог берётся из data/missions.json)"
+            )
+
+        stat = STAT_ALIASES.get(name.lower())
+        if stat is None:
+            raise BuildFailed(
+                f"{source}: у {owner!r} неизвестная характеристика {name!r}; "
+                f"допустимы {', '.join(sorted(STAT_ALIASES))}"
+            )
+
+        if stat in requires:
+            raise BuildFailed(f"{source}: у {owner!r} характеристика {name!r} указана дважды")
+
+        requires.append(stat)
+
+    return requires
 
 
 def parse_options(lines: list[str], source: Path) -> tuple[list[str], list[dict]]:
@@ -319,7 +383,21 @@ def parse_options(lines: list[str], source: Path) -> tuple[list[str], list[dict]
         else:
             intro.append(line)
 
-    return intro, [parse_option(name, body, source) for name, body in blocks]
+    options = [parse_option(name, body, source) for name, body in blocks]
+    check_option_ids(options, source)
+    return intro, options
+
+
+def check_option_ids(options: list[dict], source: Path) -> None:
+    """id — ключ связи с отчётом и последствиями, внутри файла он уникален."""
+    seen: dict[str, str] = {}
+    for option in options:
+        if option["id"] in seen:
+            raise BuildFailed(
+                f"{source}: id варианта {option['id']!r} занят вариантом "
+                f"{seen[option['id']]!r} — внутри файла id уникален"
+            )
+        seen[option["id"]] = option["name"]
 
 
 def collect_variables(entry: dict, source: Path) -> list[str]:
@@ -422,6 +500,18 @@ def parse_file(path: Path, expected_type: str, repo_root: Path) -> dict:
                     f"а тип {expected_type!r} показывается на своём экране"
                 )
 
+    if expected_type == "call":
+        # Пороги вызова: у филлера это единственная проверка смены, у сюжетного —
+        # порог на состав группы, поверх которого идут пороги вариантов из radio.
+        entry["requires"] = parse_requires(
+            frontmatter.get("requires", ""), entry["id"], path
+        )
+        if entry["mission_type"] == "filler" and len(entry["requires"]) < 2:
+            raise BuildFailed(
+                f"{path}: у филлера в requires меньше двух характеристик — "
+                f"вся миссия держится на одной проверке, она должна быть составной"
+            )
+
     if expected_type == "creature":
         declared = set(entry["properties"])
         revealed = {chunk["reveal"] for chunk in entry["chunks"] if chunk["reveal"]}
@@ -436,6 +526,82 @@ def parse_file(path: Path, expected_type: str, repo_root: Path) -> dict:
     return entry
 
 
+def parse_registry(path: Path, repo_root: Path) -> list[dict]:
+    """Реестр миссий: один файл на смену, строка таблицы — одна миссия.
+
+    Названия миссий держатся вместе намеренно: так их видно списком и не нужно
+    открывать пятнадцать файлов, чтобы понять, из чего состоит смена.
+    """
+    try:
+        raw_text = path.read_text(encoding="utf-8")
+    except UnicodeDecodeError as error:
+        raise BuildFailed(f"{path}: файл должен быть в UTF-8 ({error})") from None
+
+    frontmatter, body_lines = parse_frontmatter(raw_text, path)
+
+    for required in ("type", "status"):
+        if not frontmatter.get(required):
+            raise BuildFailed(f"{path}: во фронтматтере нет поля {required}")
+
+    if frontmatter["type"] != REGISTRY_TYPE:
+        raise BuildFailed(
+            f"{path}: type={frontmatter['type']!r}, но файл лежит в папке типа {REGISTRY_TYPE!r}"
+        )
+
+    if frontmatter["status"] not in KNOWN_STATUSES:
+        raise BuildFailed(
+            f"{path}: status={frontmatter['status']!r}, допустимы только "
+            f"{' и '.join(KNOWN_STATUSES)}"
+        )
+
+    entries: list[dict] = []
+    source = path.relative_to(repo_root).as_posix()
+
+    for line in body_lines:
+        row = line.strip()
+        if not row.startswith("|"):
+            continue
+
+        cells = [cell.strip() for cell in row.strip("|").split("|")]
+        if len(cells) != 2:
+            raise BuildFailed(
+                f"{path}: в строке {row!r} должно быть ровно две колонки — id и название"
+            )
+
+        mission_id, name = cells
+        # Шапка таблицы и разделитель под ней — не миссии.
+        if mission_id.lower() == "id" or set(mission_id) <= set("-: "):
+            continue
+
+        if not ID_RE.match(mission_id):
+            raise BuildFailed(
+                f"{path}: id миссии {mission_id!r} не по формату — латиница, цифры и _, "
+                f"начиная с буквы"
+            )
+
+        if not name:
+            raise BuildFailed(f"{path}: у миссии {mission_id!r} пустое название")
+
+        entries.append(
+            {
+                "id": mission_id,
+                "type": REGISTRY_TYPE,
+                "name": name,
+                "requirements": [],
+                "properties": [],
+                "variables": [],
+                "chunks": [],
+                "_status": frontmatter["status"],
+                "_source": source,
+            }
+        )
+
+    if not entries:
+        raise BuildFailed(f"{path}: в реестре нет ни одной строки таблицы «id | название»")
+
+    return entries
+
+
 def collect_entries(raw_root: Path, repo_root: Path) -> list[dict]:
     entries: list[dict] = []
     errors: list[str] = []
@@ -447,7 +613,10 @@ def collect_entries(raw_root: Path, repo_root: Path) -> list[dict]:
 
         for path in sorted(folder_path.rglob("*.md")):
             try:
-                entries.append(parse_file(path, content_type, repo_root))
+                if content_type == REGISTRY_TYPE:
+                    entries.extend(parse_registry(path, repo_root))
+                else:
+                    entries.append(parse_file(path, content_type, repo_root))
             except BuildFailed as error:
                 errors.append(str(error))
 
@@ -476,6 +645,24 @@ def validate(entries: list[dict]) -> None:
                     errors.append(
                         f"{entry['_source']}: ссылка [[{link_type}:{link_id}]] ведёт в никуда"
                     )
+
+    # Вызов, вмешательство и отчёты одной миссии должны сходиться на одном mission_id:
+    # иначе название миссии живёт в трёх местах и расходится при первой же правке.
+    missions = {entry["id"] for entry in entries if entry["type"] == "mission_id"}
+    for entry in entries:
+        if "mission_id" not in entry:
+            continue
+
+        if not entry["mission_id"]:
+            errors.append(
+                f"{entry['_source']}: не заполнен mission_id — по нему {entry['type']} "
+                f"связан с миссией из mission_ids/"
+            )
+        elif entry["mission_id"] not in missions:
+            errors.append(
+                f"{entry['_source']}: mission_id={entry['mission_id']!r} — такой миссии "
+                f"нет в mission_ids/"
+            )
 
     if errors:
         raise BuildFailed("\n".join(errors))

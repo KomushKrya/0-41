@@ -586,18 +586,17 @@ namespace Kontur.Core.Systems
 				return offers;
 			}
 
-			StatBlock squadStats = GetSquadStats(incident);
+			// Пороги миссии — те же, что пойдут в расчёт: вариант подставляет их
+			// в свои характеристики, чтобы интерфейс показал, за что тут спросят.
+			StatBlock missionRequirements = incident.Mission.Requirements;
 
 			for (int i = 0; i < incident.MissionEvent.Options.Count; i++)
 			{
 				MissionEventOption option = incident.MissionEvent.Options[i];
-				StatBlock shortfall = option.GetShortfall(squadStats);
 
 				offers.Add(new RadioOptionOffer(
 					option.Id,
-					shortfall.Total == 0,
-					option.Requirements,
-					shortfall));
+					option.ResolveRequirements(missionRequirements)));
 			}
 
 			return offers;
@@ -1346,14 +1345,6 @@ namespace Kontur.Core.Systems
 			if (option == null)
 			{
 				return CommandResult.Fail($"Вариант '{optionId}' не найден.");
-			}
-
-			// Вариант закрыт составом группы. Отказ с причиной, а не молчаливое игнорирование:
-			// интерфейс покажет игроку, чего не хватило, и в следующий раз он отправит другого.
-			StatBlock shortfall = option.GetShortfall(GetSquadStats(incident));
-			if (shortfall.Total > 0)
-			{
-				return CommandResult.Fail($"Группе не хватает: {shortfall}.");
 			}
 
 			// Решение принято — экран закрылся, мир пошёл дальше.

@@ -6,10 +6,12 @@
     "zoneId": "z_sleep",
     "creatureId": "creature_mimic",
     "callId": "call_pensioner_door",
-    "missionEventId": "mission_event_pensioner_door",
+    "missionEventId": "radio_pensioner_door",
     "requirements": {
-      "perception": 5,
-      "agility": 4
+      "intellect": 5,
+      "charisma": 4,
+      "strength": 5,
+      "combat": 4
     },
     "travelSeconds": 12.0,
     "onSiteSeconds": 6.0,
@@ -56,7 +58,7 @@
         "failure": "report_pensioner_door_left_turn_failure"
       }
     },
-    "primaryStat": "perception"
+    "primaryStat": "intellect"
   },
   {
     "id": "m_black_mold",
@@ -65,10 +67,10 @@
     "zoneId": "z_center",
     "creatureId": "",
     "callId": "call_black_mold",
-    "missionEventId": "mission_event_black_mold",
+    "missionEventId": "radio_black_mold",
     "requirements": {
-      "composure": 4,
-      "perception": 4
+      "charisma": 4,
+      "intellect": 4
     },
     "travelSeconds": 10.0,
     "onSiteSeconds": 6.0,
@@ -115,6 +117,6 @@
         "failure": "report_black_mold_reagent_failure"
       }
     },
-    "primaryStat": "composure"
+    "primaryStat": "charisma"
   }
 ]

@@ -1,6 +1,6 @@
 [
   {
-    "id": "mission_event_pensioner_door",
+    "id": "radio_pensioner_door",
     "options": {
       "pass_by": {
         "revealsPropertyId": "property_mimic_routine",
@@ -25,7 +25,7 @@
     }
   },
   {
-    "id": "mission_event_black_mold",
+    "id": "radio_black_mold",
     "options": {
       "carpets": {
         "extraScales": {

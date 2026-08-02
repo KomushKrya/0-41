@@ -9,10 +9,10 @@ namespace Kontur.Core.Model
 	public enum StatKind
 	{
 		Strength = 0,
-		Perception = 1,
-		Endurance = 2,
-		Agility = 3,
-		Composure = 4
+		Combat = 1,
+		Agility = 2,
+		Charisma = 3,
+		Intellect = 4
 	}
 
 	public static class StatKinds
@@ -22,19 +22,19 @@ namespace Kontur.Core.Model
 		public static readonly StatKind[] All =
 		{
 			StatKind.Strength,
-			StatKind.Perception,
-			StatKind.Endurance,
+			StatKind.Combat,
 			StatKind.Agility,
-			StatKind.Composure
+			StatKind.Charisma,
+			StatKind.Intellect
 		};
 
 		private static readonly Dictionary<StatKind, string> RussianNames = new Dictionary<StatKind, string>
 		{
 			{ StatKind.Strength, "Сила" },
-			{ StatKind.Perception, "Восприятие" },
-			{ StatKind.Endurance, "Выносливость" },
+			{ StatKind.Combat, "Боевая подготовка" },
 			{ StatKind.Agility, "Ловкость" },
-			{ StatKind.Composure, "Хладнокровие" }
+			{ StatKind.Charisma, "Харизма" },
+			{ StatKind.Intellect, "Интеллект" }
 		};
 
 		/// <summary>Отображаемое имя. В финальной игре заменяется ключом локализации.</summary>
