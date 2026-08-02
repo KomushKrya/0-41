@@ -73,7 +73,9 @@ CALL_META_RE = re.compile(r"^%%\s*call_meta:\s*(.+?)\s*%%$")
 REVEAL_OPEN_RE = re.compile(r"^%%\s*reveal:\s*([^\s%]+)\s*%%$")
 REVEAL_CLOSE_RE = re.compile(r"^%%\s*/\s*reveal\s*%%$")
 OPTION_RE = re.compile(r"^##\s*Вариант:\s*(.+?)\s*$")
-OPTION_META_RE = re.compile(r"^(requirement_modifier)\s*:\s*(.*)$")
+# Поле убрано: множители сложности задаются на стороне ядра, а не в тексте.
+# Проверка нужна, чтобы забытая строка не уехала в реплику варианта.
+RETIRED_OPTION_META_RE = re.compile(r"^requirement_modifier\s*:")
 LINK_RE = re.compile(r"\[\[([a-z_]+):([a-z0-9_]+)\]\]")
 # Подстановка числа из геймплейных данных: «+{{bonus.strength}} к силе». Не %%,
 # потому что Обсидиан прячет %%...%%, а плейсхолдер должен быть виден автору.
@@ -289,32 +291,17 @@ def parse_chunks(lines: list[str], source: Path) -> list[dict]:
 
 
 def parse_option(name: str, lines: list[str], source: Path) -> dict:
-    """Метаполя идут до первой строки текста, пустые строки перед текстом отбрасываются."""
-    meta: dict = {}
-    start = 0
-
-    for index, raw_line in enumerate(lines):
-        line = raw_line.strip()
-        if line:
-            match = OPTION_META_RE.match(line)
-            if not match:
-                break
-            meta[match.group(1)] = match.group(2).strip()
-        start = index + 1
-
-    modifier_text = meta.get("requirement_modifier", "0")
-    try:
-        modifier = int(modifier_text)
-    except ValueError:
-        raise BuildFailed(
-            f"{source}: requirement_modifier у варианта {name!r} должен быть целым, "
-            f"а не {modifier_text!r}"
-        ) from None
+    """У варианта только название и текст: числа баланса живут в геймплейных данных."""
+    for raw_line in lines:
+        if RETIRED_OPTION_META_RE.match(raw_line.strip()):
+            raise BuildFailed(
+                f"{source}: у варианта {name!r} осталось поле requirement_modifier; "
+                f"баланс вариантов задаётся в геймплейных данных, строку надо убрать"
+            )
 
     return {
         "name": name,
-        "requirement_modifier": modifier,
-        "chunks": parse_chunks(lines[start:], source),
+        "chunks": parse_chunks(lines, source),
     }
 
 

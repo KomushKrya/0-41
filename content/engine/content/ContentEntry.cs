@@ -103,6 +103,5 @@ public sealed class ContentSpan
 public sealed class ContentOption
 {
 	public string Name = string.Empty;
-	public int RequirementModifier;
 	public IReadOnlyList<ContentChunk> Chunks = new List<ContentChunk>();
 }

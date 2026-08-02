@@ -168,9 +168,6 @@ public partial class Content : Node
 			parsedOptions.Add(new ContentOption
 			{
 				Name = ReadString(optionData, "name"),
-				RequirementModifier = optionData.TryGetValue("requirement_modifier", out Variant modifier)
-					? modifier.AsInt32()
-					: 0,
 				Chunks = ReadChunks(optionData, "chunks")
 			});
 		}
