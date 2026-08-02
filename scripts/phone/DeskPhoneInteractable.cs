@@ -29,7 +29,7 @@ public partial class DeskPhoneInteractable : Area3D, IInteractable
 			return;
 		}
 
-		if (!_phone.TryAnswerNextCall(out string error))
+		if (!_phone.TryAnswerNextCall(player, out string error))
 		{
 			GD.PushWarning($"DeskPhone: {error}");
 		}

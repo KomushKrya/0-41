@@ -1,63 +1,89 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://vi1jtqeowack"]
 
-[ext_resource type="PackedScene" uid="uid://b5yfoidtc831t" path="res://scenes/ui/map/MapUI.tscn" id="1_map_ui"]
-[ext_resource type="Script" path="res://scripts/interaction/InteractionOutline.cs" id="2_outline"]
-[ext_resource type="Script" path="res://scripts/interaction/OutlineOnlyInteractable.cs" id="3_interactable"]
-[ext_resource type="Script" path="res://scripts/interaction/SubViewportSurfaceRenderer.cs" id="4_surface_renderer"]
+[ext_resource type="PackedScene" path="res://scenes/ui/map/MapUI.tscn" id="1_map_ui"]
+[ext_resource type="Script" uid="uid://d0fbn8kr5taka" path="res://scripts/interaction/InteractionOutline.cs" id="2_outline"]
+[ext_resource type="Script" uid="uid://bg1h1jf7kjf0c" path="res://scripts/interaction/OutlineOnlyInteractable.cs" id="3_interactable"]
+[ext_resource type="Script" uid="uid://dvqxuod1kiwne" path="res://scripts/interaction/SubViewportSurfaceRenderer.cs" id="4_surface_renderer"]
 [ext_resource type="PackedScene" path="res://scenes/interactables/map_marker/MapMissionMarker.tscn" id="5_map_pin"]
-[ext_resource type="Script" path="res://scripts/interactables/map_marker/MapMarkerController.cs" id="6_marker_controller"]
+[ext_resource type="Script" uid="uid://53qnsdfl8qu3" path="res://scripts/interactables/map_marker/MapMarkerController.cs" id="6_marker_controller"]
+[ext_resource type="Texture2D" path="res://assets/textures/test man.png" id="7_map_background"]
+[ext_resource type="Script" path="res://scripts/interactables/MapBackgroundLayout.cs" id="8_background_layout"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_map_texture"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_map_board"]
 albedo_color = Color(0.7019608, 0.6745098, 0.56078434, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_map_background"]
+albedo_texture = ExtResource("7_map_background")
+roughness = 0.9
+texture_filter = 1
 
 [sub_resource type="BoxMesh" id="BoxMesh_wall_map"]
-size = Vector3(2.5, 1.5, 0.06)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_wall_map"]
+material = SubResource("StandardMaterial3D_map_board")
 size = Vector3(2.5, 1.5, 0.06)
 
 [sub_resource type="QuadMesh" id="QuadMesh_map_surface"]
 size = Vector2(2.38, 1.38)
 
-[node name="WallMap" type="Node3D" groups=["interactive"]]
+[sub_resource type="QuadMesh" id="QuadMesh_map_background"]
+material = SubResource("StandardMaterial3D_map_background")
+size = Vector2(1, 1)
 
-[node name="VisualRoot" type="Node3D" parent="."]
+[sub_resource type="BoxShape3D" id="BoxShape3D_wall_map"]
+size = Vector3(2.5, 1.5, 0.06)
 
-[node name="Board" type="MeshInstance3D" parent="VisualRoot"]
-material_override = SubResource("StandardMaterial3D_map_texture")
+[node name="WallMap" type="Node3D" unique_id=707027791 groups=["interactive"]]
+
+[node name="VisualRoot" type="Node3D" parent="." unique_id=1790135576]
+
+[node name="Board" type="MeshInstance3D" parent="VisualRoot" unique_id=939752150]
 mesh = SubResource("BoxMesh_wall_map")
 
-[node name="ViewportSurface" type="MeshInstance3D" parent="VisualRoot"]
+[node name="ViewportSurface" type="MeshInstance3D" parent="VisualRoot" unique_id=741560710]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.031)
 mesh = SubResource("QuadMesh_map_surface")
 
-[node name="MapMarkers" type="Node3D" parent="VisualRoot"]
+[node name="MapBackgroundSurface" type="MeshInstance3D" parent="VisualRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.0305)
+mesh = SubResource("QuadMesh_map_background")
 
-[node name="InteractionOutline" type="Node" parent="."]
+[node name="MapMarkers" type="Node3D" parent="VisualRoot" unique_id=735861423]
+
+[node name="InteractionOutline" type="Node" parent="." unique_id=1404388790]
 script = ExtResource("2_outline")
 VisualRootPath = NodePath("../VisualRoot")
 
-[node name="InteractionArea" type="Area3D" parent="."]
+[node name="InteractionArea" type="Area3D" parent="." unique_id=1229338385]
 collision_layer = 2
 collision_mask = 0
 script = ExtResource("3_interactable")
 Label = "Map"
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionArea"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionArea" unique_id=260157031]
 shape = SubResource("BoxShape3D_wall_map")
 
-[node name="MapViewport" type="SubViewport" parent="."]
+[node name="MapViewport" type="SubViewport" parent="." unique_id=1319544814]
 disable_3d = true
+transparent_bg = true
 size = Vector2i(1024, 768)
 render_target_update_mode = 4
 
-[node name="MapUI" parent="MapViewport" instance=ExtResource("1_map_ui")]
+[node name="MapUI" parent="MapViewport" unique_id=421587365 instance=ExtResource("1_map_ui")]
 
-[node name="MapSurfaceRenderer" type="Node" parent="."]
+[node name="MapSurfaceRenderer" type="Node" parent="." unique_id=416234934]
 script = ExtResource("4_surface_renderer")
 SurfacePath = NodePath("../VisualRoot/ViewportSurface")
 ViewportPath = NodePath("../MapViewport")
 
-[node name="MapMarkerController" type="Node" parent="." groups=["map_marker_controller"]]
+[node name="MapMarkerController" type="Node" parent="." unique_id=1933632304 groups=["map_marker_controller"]]
 script = ExtResource("6_marker_controller")
 MapMissionMarkerScene = ExtResource("5_map_pin")
+
+[node name="MapBackgroundLayout" type="Node" parent="." unique_id=1404271327]
+script = ExtResource("8_background_layout")
+BackgroundSurfacePath = NodePath("../VisualRoot/MapBackgroundSurface")
+ViewportSurfacePath = NodePath("../VisualRoot/ViewportSurface")
+ViewportPath = NodePath("../MapViewport")
+BuildingLayerPath = NodePath("../MapViewport/MapUI/MapLayers/GeneratedMapGeometry/BuildingLayer")
+RoadLayerPath = NodePath("../MapViewport/MapUI/MapLayers/GeneratedMapGeometry/RoadLayer")
+BackgroundOffsetPixels = Vector2(-8, -12)

@@ -1,66 +1,278 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3 uid="uid://cftc4bvomwo1q"]
 
-[sub_resource type="SystemFont" id="SystemFont_terminal"]
-font_names = PackedStringArray("Cascadia Mono", "Consolas", "Courier New")
+[ext_resource type="Script" uid="uid://bixwhhh1vyeax" path="res://scripts/dossier/DossierDispatchUI.cs" id="1_dossier_ui"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_paper"]
+bg_color = Color(0.72, 0.65, 0.48, 1)
+border_width_left = 10
+border_width_top = 10
+border_width_right = 10
+border_width_bottom = 10
+border_color = Color(0.34, 0.25, 0.14, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="SystemFont" id="SystemFont_dossier"]
+font_names = PackedStringArray("Georgia", "Times New Roman", "Cambria")
 subpixel_positioning = 0
 
-[node name="DossierUI" type="Control"]
+[sub_resource type="StyleBoxFlat" id="StyleBox_photo"]
+bg_color = Color(0.19, 0.19, 0.16, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.27, 0.2, 0.12, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_spine"]
+bg_color = Color(0.25, 0.17, 0.1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_corner"]
+bg_color = Color(0.55, 0.48, 0.34, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[node name="DossierUI" type="Control" unique_id=1605303907]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_dossier_ui")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="LeftPage" type="Panel" parent="." unique_id=1435914254]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+anchors_preset = -1
+anchor_left = 0.025
+anchor_top = 0.035
+anchor_right = 0.49
+anchor_bottom = 0.965
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.12, 0.095, 0.055, 1)
+theme_override_styles/panel = SubResource("StyleBox_paper")
 
-[node name="Header" type="Label" parent="."]
+[node name="EmployeeName" type="Label" parent="LeftPage" unique_id=403302420]
 layout_mode = 1
-anchors_preset = 0
+anchors_preset = -1
 anchor_left = 0.08
-anchor_top = 0.06
+anchor_top = 0.07
 anchor_right = 0.92
-anchor_bottom = 0.15
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.95, 0.82, 0.58, 1)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 28
-text = "ДОСЬЕ СОТРУДНИКОВ / DEBUG"
+anchor_bottom = 0.16
+theme_override_colors/font_color = Color(0.11, 0.08, 0.04, 1)
+theme_override_fonts/font = SubResource("SystemFont_dossier")
+theme_override_font_sizes/font_size = 29
+horizontal_alignment = 1
+autowrap_mode = 2
 
-[node name="List" type="Label" parent="."]
+[node name="Level" type="Label" parent="LeftPage" unique_id=1470061432]
 layout_mode = 1
-anchors_preset = 0
+anchors_preset = -1
 anchor_left = 0.1
-anchor_top = 0.23
+anchor_top = 0.19
 anchor_right = 0.9
-anchor_bottom = 0.7
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.88, 0.78, 0.58, 1)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 22
-text = "01  ОПЕРАТИВНИК А-12  ГОТОВ
-02  ОПЕРАТИВНИК Б-04  ГОТОВ
-03  ОПЕРАТИВНИК В-19  НА ПРОВЕРКЕ"
-
-[node name="Footer" type="Label" parent="."]
-layout_mode = 1
-anchors_preset = 0
-anchor_left = 0.1
-anchor_top = 0.84
-anchor_right = 0.9
-anchor_bottom = 0.94
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.75, 0.62, 0.42, 1)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
+anchor_bottom = 0.29
+theme_override_colors/font_color = Color(0.16, 0.11, 0.05, 1)
+theme_override_fonts/font = SubResource("SystemFont_dossier")
 theme_override_font_sizes/font_size = 18
-text = "СОСТОЯНИЕ: ТЕСТОВЫЕ ДАННЫЕ"
+horizontal_alignment = 1
+
+[node name="PortraitButton" type="Button" parent="LeftPage" unique_id=1014347683]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.1
+anchor_top = 0.34
+anchor_right = 0.43
+anchor_bottom = 0.68
+theme_override_colors/font_color = Color(0.78, 0.72, 0.55, 1)
+theme_override_fonts/font = SubResource("SystemFont_dossier")
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBox_photo")
+
+[node name="Stats" type="Label" parent="LeftPage" unique_id=321300735]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.48
+anchor_top = 0.34
+anchor_right = 0.9
+anchor_bottom = 0.68
+theme_override_colors/font_color = Color(0.14, 0.1, 0.05, 1)
+theme_override_fonts/font = SubResource("SystemFont_dossier")
+theme_override_font_sizes/font_size = 14
+autowrap_mode = 2
+
+[node name="Traits" type="Label" parent="LeftPage" unique_id=580281967]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.1
+anchor_top = 0.73
+anchor_right = 0.9
+anchor_bottom = 0.81
+theme_override_colors/font_color = Color(0.15, 0.1, 0.05, 1)
+theme_override_fonts/font = SubResource("SystemFont_dossier")
+theme_override_font_sizes/font_size = 14
+autowrap_mode = 2
+
+[node name="Status" type="Label" parent="LeftPage" unique_id=2029038531]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.1
+anchor_top = 0.85
+anchor_right = 0.9
+anchor_bottom = 0.92
+theme_override_colors/font_color = Color(0.21, 0.15, 0.08, 1)
+theme_override_fonts/font = SubResource("SystemFont_dossier")
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Spine" type="Panel" parent="." unique_id=1836244114]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.485
+anchor_top = 0.03
+anchor_right = 0.515
+anchor_bottom = 0.97
+theme_override_styles/panel = SubResource("StyleBox_spine")
+
+[node name="RightPage" type="Panel" parent="." unique_id=37876306]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.51
+anchor_top = 0.035
+anchor_right = 0.975
+anchor_bottom = 0.965
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBox_paper")
+
+[node name="EmployeeName" type="Label" parent="RightPage" unique_id=1986302181]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.08
+anchor_top = 0.07
+anchor_right = 0.92
+anchor_bottom = 0.16
+theme_override_colors/font_color = Color(0.11, 0.08, 0.04, 1)
+theme_override_fonts/font = SubResource("SystemFont_dossier")
+theme_override_font_sizes/font_size = 29
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Level" type="Label" parent="RightPage" unique_id=627827689]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.1
+anchor_top = 0.19
+anchor_right = 0.9
+anchor_bottom = 0.29
+theme_override_colors/font_color = Color(0.16, 0.11, 0.05, 1)
+theme_override_fonts/font = SubResource("SystemFont_dossier")
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+
+[node name="PortraitButton" type="Button" parent="RightPage" unique_id=1780914598]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.1
+anchor_top = 0.34
+anchor_right = 0.43
+anchor_bottom = 0.68
+theme_override_colors/font_color = Color(0.78, 0.72, 0.55, 1)
+theme_override_fonts/font = SubResource("SystemFont_dossier")
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBox_photo")
+
+[node name="Stats" type="Label" parent="RightPage" unique_id=1615223320]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.48
+anchor_top = 0.34
+anchor_right = 0.9
+anchor_bottom = 0.68
+theme_override_colors/font_color = Color(0.14, 0.1, 0.05, 1)
+theme_override_fonts/font = SubResource("SystemFont_dossier")
+theme_override_font_sizes/font_size = 14
+autowrap_mode = 2
+
+[node name="Traits" type="Label" parent="RightPage" unique_id=1283068041]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.1
+anchor_top = 0.73
+anchor_right = 0.9
+anchor_bottom = 0.81
+theme_override_colors/font_color = Color(0.15, 0.1, 0.05, 1)
+theme_override_fonts/font = SubResource("SystemFont_dossier")
+theme_override_font_sizes/font_size = 14
+autowrap_mode = 2
+
+[node name="Status" type="Label" parent="RightPage" unique_id=2055836809]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.1
+anchor_top = 0.85
+anchor_right = 0.9
+anchor_bottom = 0.92
+theme_override_colors/font_color = Color(0.21, 0.15, 0.08, 1)
+theme_override_fonts/font = SubResource("SystemFont_dossier")
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="PreviousPage" type="Button" parent="." unique_id=24224818]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.037
+anchor_top = 0.062000003
+anchor_right = 0.098000005
+anchor_bottom = 0.147
+offset_left = -0.3600006
+offset_top = 0.3599968
+offset_right = -0.44000244
+offset_bottom = 0.16000366
+theme_override_fonts/font = SubResource("SystemFont_dossier")
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBox_corner")
+text = "<"
+
+[node name="NextPage" type="Button" parent="." unique_id=876022777]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.88000005
+anchor_top = 0.068
+anchor_right = 0.961
+anchor_bottom = 0.171
+offset_left = 0.5999756
+offset_top = 0.0399971
+offset_right = -0.48010254
+offset_bottom = -0.12000275
+theme_override_fonts/font = SubResource("SystemFont_dossier")
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBox_corner")
+text = ">"
+
+[node name="PageNumber" type="Label" parent="." unique_id=1564224464]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.43
+anchor_top = 0.93
+anchor_right = 0.57
+anchor_bottom = 0.98
+theme_override_colors/font_color = Color(0.86, 0.77, 0.58, 1)
+theme_override_fonts/font = SubResource("SystemFont_dossier")
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+
+[node name="DossierCursor" type="ColorRect" parent="." unique_id=1396324948]
+visible = false
+z_index = 10
+layout_mode = 0
+offset_right = 14.0
+offset_bottom = 24.0
+mouse_filter = 2
+color = Color(0.16, 0.08, 0.025, 0.95)

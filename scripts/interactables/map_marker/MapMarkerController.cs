@@ -62,13 +62,7 @@ public partial class MapMarkerController : Node
 
 		foreach (IncidentView incident in _runtime.Session.GetActiveIncidents())
 		{
-			if (incident.Phase == IncidentPhase.MarkerActive)
-			{
-				CreatePin(incident.Id, incident.BuildingId);
-				_markerDurations[incident.Id] = incident.RemainingSeconds;
-				_pins[incident.Id].ShowDispatchCountdown(incident.RemainingSeconds, incident.RemainingSeconds);
-				_pins[incident.Id].SetDispatchInteractive(true);
-			}
+			SyncPinState(incident);
 		}
 	}
 
@@ -81,55 +75,67 @@ public partial class MapMarkerController : Node
 
 		foreach (IncidentView incident in _runtime.Session.GetActiveIncidents())
 		{
-			if (incident.Phase == IncidentPhase.MarkerActive)
-			{
-				if (_pins.TryGetValue(incident.Id, out MapMissionMarker marker)
-					&& _markerDurations.TryGetValue(incident.Id, out double duration))
-				{
-					marker.ShowDispatchCountdown(incident.RemainingSeconds, duration);
-					marker.SetDispatchInteractive(true);
-				}
-			}
-			else if (incident.Phase == IncidentPhase.Travelling)
-			{
-				if (_pins.TryGetValue(incident.Id, out MapMissionMarker marker))
-				{
-					marker.SetDispatchInteractive(false);
-				}
-				_mapUi.UpdateDispatchRoute(incident.Id, incident.RemainingSeconds);
-			}
-			else if (incident.Phase == IncidentPhase.Returning)
+			SyncPinState(incident);
+			if (incident.Phase is IncidentPhase.Travelling or IncidentPhase.Returning)
 			{
 				_mapUi.UpdateDispatchRoute(incident.Id, incident.RemainingSeconds);
 			}
-			else if (incident.Phase == IncidentPhase.RadioPending)
-			{
-				if (_pins.TryGetValue(incident.Id, out MapMissionMarker marker))
-				{
-					marker.SetDispatchInteractive(false);
-					if (!_radioDurations.TryGetValue(incident.Id, out double duration))
-					{
-						duration = incident.RemainingSeconds;
-						_radioDurations[incident.Id] = duration;
-					}
+		}
+	}
 
-					marker.ShowRadioCountdown(incident.RemainingSeconds, duration);
-				}
-			}
-			else if (incident.Phase == IncidentPhase.OnSite)
-			{
-				if (_pins.TryGetValue(incident.Id, out MapMissionMarker marker))
-				{
-					marker.SetDispatchInteractive(false);
-					if (!_executionDurations.TryGetValue(incident.Id, out double duration))
-					{
-						duration = incident.RemainingSeconds;
-						_executionDurations[incident.Id] = duration;
-					}
+	private void SyncPinState(IncidentView incident)
+	{
+		if (incident.Phase is not (IncidentPhase.MarkerActive or IncidentPhase.Travelling or IncidentPhase.RadioPending or IncidentPhase.OnSite))
+		{
+			return;
+		}
 
-					marker.ShowMissionExecution(incident.RemainingSeconds, duration);
+		if (!_pins.ContainsKey(incident.Id))
+		{
+			CreatePin(incident.Id, incident.BuildingId);
+		}
+
+		if (!_pins.TryGetValue(incident.Id, out MapMissionMarker marker))
+		{
+			return;
+		}
+
+		switch (incident.Phase)
+		{
+			case IncidentPhase.MarkerActive:
+				if (!_markerDurations.TryGetValue(incident.Id, out double markerDuration))
+				{
+					markerDuration = incident.RemainingSeconds;
+					_markerDurations[incident.Id] = markerDuration;
 				}
-			}
+
+				marker.ShowDispatchCountdown(incident.RemainingSeconds, markerDuration);
+				marker.SetDispatchInteractive(true);
+				break;
+			case IncidentPhase.Travelling:
+				marker.SetDispatchInteractive(false);
+				marker.ShowTravelling();
+				break;
+			case IncidentPhase.RadioPending:
+				marker.SetDispatchInteractive(false);
+				if (!_radioDurations.TryGetValue(incident.Id, out double radioDuration))
+				{
+					radioDuration = incident.RemainingSeconds;
+					_radioDurations[incident.Id] = radioDuration;
+				}
+
+				marker.ShowRadioCountdown(incident.RemainingSeconds, radioDuration);
+				break;
+			case IncidentPhase.OnSite:
+				marker.SetDispatchInteractive(false);
+				if (!_executionDurations.TryGetValue(incident.Id, out double executionDuration))
+				{
+					executionDuration = incident.RemainingSeconds;
+					_executionDurations[incident.Id] = executionDuration;
+				}
+
+				marker.ShowMissionExecution(incident.RemainingSeconds, executionDuration);
+				break;
 		}
 	}
 

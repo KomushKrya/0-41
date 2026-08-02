@@ -468,6 +468,7 @@ public partial class MapBuildingEditor : Control
 		_mapGeometry.Scale = Vector2.One * scale;
 		_mapGeometry.Position = ((frameBounds.Size - scaledGeometrySize) * 0.5f)
 			- (geometryBounds.Position * scale);
+		GD.Print($"Map layout: frame={frameBounds}, geometry={geometryBounds}, scale={scale}, position={_mapGeometry.Position}.");
 	}
 
 	private bool TryGetMapGeometryBounds(out Rect2 bounds)

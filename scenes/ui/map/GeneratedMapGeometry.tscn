@@ -14,7 +14,7 @@ offset_top = -2.0
 offset_right = 358.0
 offset_bottom = 234.0
 mouse_filter = 2
-color = Color(0.72, 0.67, 0.54, 1)
+color = Color(0.72, 0.67, 0.54, 0)
 
 [node name="BuildingLayer" type="Control" parent="." unique_id=1970983002]
 anchors_preset = 0

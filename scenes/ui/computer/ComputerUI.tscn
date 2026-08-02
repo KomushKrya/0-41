@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://dd3xobbl8y0uc" path="res://scripts/computer/ComputerUI.cs" id="1_ui"]
 [ext_resource type="PackedScene" path="res://scenes/ui/computer/screens/ComputerHome.tscn" id="2_home"]
 [ext_resource type="PackedScene" path="res://scenes/ui/computer/screens/EmployeeSelection.tscn" id="3_employees"]
+[ext_resource type="PackedScene" path="res://scenes/ui/computer/screens/MissionDispatch.tscn" id="6_mission_dispatch"]
 [ext_resource type="PackedScene" path="res://scenes/ui/computer/screens/EquipmentSelection.tscn" id="4_equipment"]
 [ext_resource type="PackedScene" path="res://scenes/ui/computer/screens/Encyclopedia.tscn" id="5_encyclopedia"]
 
@@ -17,6 +18,7 @@ grow_vertical = 2
 script = ExtResource("1_ui")
 HomeScreenScene = ExtResource("2_home")
 EmployeesScreenScene = ExtResource("3_employees")
+MissionDispatchScreenScene = ExtResource("6_mission_dispatch")
 EquipmentScreenScene = ExtResource("4_equipment")
 EncyclopediaScreenScene = ExtResource("5_encyclopedia")
 

@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://biglmufdjusj5"]
 
 [ext_resource type="Script" uid="uid://ddn5p1xirvbik" path="res://scripts/computer/DeskComputerInteraction.cs" id="1_computer_interaction"]
-[ext_resource type="PackedScene" path="res://scenes/ui/computer/ComputerUI.tscn" id="2_computer_ui"]
+[ext_resource type="PackedScene" uid="uid://bm77c8pw658tt" path="res://scenes/ui/computer/ComputerUI.tscn" id="2_computer_ui"]
 [ext_resource type="Script" uid="uid://bjwfxhtauk3gn" path="res://scripts/computer/DeskComputerInteractable.cs" id="3_computer_interactable"]
 [ext_resource type="Script" uid="uid://cxbebiv6k1myu" path="res://scripts/interaction/SubViewportInputController.cs" id="4_viewport_input"]
 [ext_resource type="Script" uid="uid://d0fbn8kr5taka" path="res://scripts/interaction/InteractionOutline.cs" id="5_outline"]
@@ -11,7 +11,7 @@
 [sub_resource type="BoxShape3D" id="BoxShape3D_computer_interaction"]
 size = Vector3(2.1895263, 1.3523926, 1.8120117)
 
-[node name="DeskComputer" type="Node3D" unique_id=818038057 groups=["interactive", "desk_computer"]]
+[node name="DeskComputer" type="Node3D" unique_id=818038057 groups=["desk_computer", "interactive"]]
 script = ExtResource("1_computer_interaction")
 
 [node name="ComputerViewport" type="SubViewport" parent="." unique_id=1259416126]
@@ -41,6 +41,9 @@ shape = SubResource("BoxShape3D_computer_interaction")
 [node name="FocusCameraPose" type="Camera3D" parent="." unique_id=213447203]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 1.399182, 1.6710238, 0.044374406)
 
+[node name="DossierFocusCameraPose" type="Camera3D" parent="FocusCameraPose" unique_id=472999380]
+transform = Transform3D(1, 0, 0, 0, 0.9669223, 0.25507107, 0, -0.25507107, 0.9669223, 0.013785457, 0, 0.34628737)
+
 [node name="ScreenRenderer" type="Node3D" parent="." unique_id=1121600991]
 script = ExtResource("7_screen_renderer")
 ScreenPath = NodePath("VisualRoot/ComputerModel/Plane")
@@ -51,6 +54,11 @@ script = ExtResource("4_viewport_input")
 ViewportPath = NodePath("../ComputerViewport")
 CursorPath = NodePath("../ComputerViewport/ComputerUI/ComputerCursor")
 CursorBoundsPath = NodePath("../ComputerViewport/ComputerUI/SafeArea")
+
+[node name="DossierViewportInput" type="Node" parent="." unique_id=1326542766]
+script = ExtResource("4_viewport_input")
+ViewportPath = NodePath("../../EmployeeDossierFolder/DossierViewport")
+CursorPath = NodePath("../../EmployeeDossierFolder/DossierViewport/DossierUI/DossierCursor")
 
 [node name="InteractionOutline" type="Node" parent="." unique_id=1991097361]
 script = ExtResource("5_outline")

@@ -34,7 +34,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0.72, 0.67, 0.54, 1)
+color = Color(0.72, 0.67, 0.54, 0)
 
 [node name="MapLayers" type="Control" parent="."]
 clip_contents = true

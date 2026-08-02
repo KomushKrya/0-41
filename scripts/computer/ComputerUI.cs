@@ -6,6 +6,7 @@ public enum ComputerScreen
 {
 	Home,
 	Employees,
+	MissionDispatch,
 	Equipment,
 	Encyclopedia,
 }
@@ -22,6 +23,7 @@ public partial class ComputerUI : Control
 	[Export] public NodePath BackButtonPath { get; set; } = new("SafeArea/Header/BackButton");
 	[Export] public PackedScene HomeScreenScene { get; set; } = null!;
 	[Export] public PackedScene EmployeesScreenScene { get; set; } = null!;
+	[Export] public PackedScene MissionDispatchScreenScene { get; set; } = null!;
 	[Export] public PackedScene EquipmentScreenScene { get; set; } = null!;
 	[Export] public PackedScene EncyclopediaScreenScene { get; set; } = null!;
 
@@ -33,6 +35,10 @@ public partial class ComputerUI : Control
 	private bool _hasOpenScreen;
 	private string _dispatchIncidentId = string.Empty;
 	private System.Action _dispatchCompleted;
+	private readonly string[] _dispatchEmployeeIds = new string[3];
+	private MissionDispatchUI _missionDispatchUi = null!;
+
+	public event System.Action<int>? DispatchSlotRequested;
 
 	public bool IsDispatchSelectionActive => !string.IsNullOrEmpty(_dispatchIncidentId);
 
@@ -44,9 +50,17 @@ public partial class ComputerUI : Control
 
 		AddScreen(ComputerScreen.Home, HomeScreenScene);
 		AddScreen(ComputerScreen.Employees, EmployeesScreenScene);
+		AddScreen(ComputerScreen.MissionDispatch, MissionDispatchScreenScene);
 		AddScreen(ComputerScreen.Equipment, EquipmentScreenScene);
 		AddScreen(ComputerScreen.Encyclopedia, EncyclopediaScreenScene);
 		OpenScreen(ComputerScreen.Home, false);
+		if (_screens.TryGetValue(ComputerScreen.MissionDispatch, out Control dispatchScreen)
+			&& dispatchScreen is MissionDispatchUI missionDispatch)
+		{
+			_missionDispatchUi = missionDispatch;
+			_missionDispatchUi.EmployeeSlotRequested += OnDispatchSlotRequested;
+			_missionDispatchUi.DispatchRequested += OnDispatchRequested;
+		}
 	}
 
 	public override void _ExitTree()
@@ -72,17 +86,25 @@ public partial class ComputerUI : Control
 		OpenScreen(_navigationHistory.Count > 0 ? _navigationHistory.Pop() : ComputerScreen.Home, false);
 	}
 
-	public void BeginDispatchSelection(string incidentId, System.Action dispatchCompleted)
+	public void BeginDispatchSelection(
+		string incidentId,
+		System.Action dispatchCompleted,
+		string callTitle = null,
+		string callTranscript = null)
 	{
 		_dispatchIncidentId = incidentId;
 		_dispatchCompleted = dispatchCompleted;
+		System.Array.Clear(_dispatchEmployeeIds, 0, _dispatchEmployeeIds.Length);
 		_navigationHistory.Clear();
-		OpenScreen(ComputerScreen.Employees, false);
+		OpenScreen(ComputerScreen.MissionDispatch, false);
 		_backButton.Visible = false;
-		if (_screens.TryGetValue(ComputerScreen.Employees, out Control screen)
-			&& screen is EmployeeSelectionUI employeeSelection)
+		if (_missionDispatchUi != null)
 		{
-			employeeSelection.BeginDispatchSelection();
+			_missionDispatchUi.SetEmployeeNames(System.Array.Empty<string>());
+			_missionDispatchUi.SetFeedback(string.Empty);
+			_missionDispatchUi.SetCallDetails(
+				string.IsNullOrEmpty(callTitle) ? BuildDispatchTitle(incidentId) : callTitle,
+				string.IsNullOrEmpty(callTranscript) ? BuildDispatchTranscript(incidentId) : callTranscript);
 		}
 	}
 
@@ -125,11 +147,141 @@ public partial class ComputerUI : Control
 	public void CancelDispatchSelection()
 	{
 		_dispatchIncidentId = string.Empty;
+		System.Array.Clear(_dispatchEmployeeIds, 0, _dispatchEmployeeIds.Length);
 		if (_screens.TryGetValue(ComputerScreen.Employees, out Control screen)
 			&& screen is EmployeeSelectionUI employeeSelection)
 		{
 			employeeSelection.EndDispatchSelection();
 		}
+	}
+
+	public bool AssignEmployeeToDispatchSlot(int slotIndex, EmployeeView employee)
+	{
+		if (!IsDispatchSelectionActive || slotIndex < 0 || slotIndex >= _dispatchEmployeeIds.Length)
+		{
+			return false;
+		}
+
+		if (employee.Status != Kontur.Core.Model.EmployeeStatus.Available)
+		{
+			_missionDispatchUi?.SetFeedback("СОТРУДНИК НЕДОСТУПЕН");
+			return false;
+		}
+
+		for (int index = 0; index < _dispatchEmployeeIds.Length; index++)
+		{
+			if (index != slotIndex && _dispatchEmployeeIds[index] == employee.Id)
+			{
+				_dispatchEmployeeIds[index] = string.Empty;
+			}
+		}
+
+		_dispatchEmployeeIds[slotIndex] = employee.Id;
+		_missionDispatchUi?.SetEmployeeNames(GetDispatchEmployeeNames());
+		return true;
+	}
+
+	public bool IsEmployeeSelectedForDispatch(string employeeId)
+	{
+		for (int index = 0; index < _dispatchEmployeeIds.Length; index++)
+		{
+			if (_dispatchEmployeeIds[index] == employeeId)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private void OnDispatchSlotRequested(int slotIndex)
+	{
+		if (IsDispatchSelectionActive)
+		{
+			DispatchSlotRequested?.Invoke(slotIndex);
+		}
+	}
+
+	private void OnDispatchRequested()
+	{
+		var employeeIds = new List<string>();
+		for (int index = 0; index < _dispatchEmployeeIds.Length; index++)
+		{
+			if (!string.IsNullOrEmpty(_dispatchEmployeeIds[index]))
+			{
+				employeeIds.Add(_dispatchEmployeeIds[index]);
+			}
+		}
+
+		CommandResult result = DispatchSelectedEmployees(employeeIds);
+		if (!result.IsSuccess)
+		{
+			_missionDispatchUi?.SetFeedback(result.Error);
+		}
+	}
+
+	private IReadOnlyList<string> GetDispatchEmployeeNames()
+	{
+		GameRuntime runtime = GameRuntime.Get(this);
+		if (runtime == null || !runtime.IsReady)
+		{
+			return System.Array.Empty<string>();
+		}
+
+		var names = new string[_dispatchEmployeeIds.Length];
+		for (int index = 0; index < _dispatchEmployeeIds.Length; index++)
+		{
+			string employeeId = _dispatchEmployeeIds[index];
+			if (string.IsNullOrEmpty(employeeId))
+			{
+				continue;
+			}
+
+			foreach (EmployeeView employee in runtime.Session.GetRoster())
+			{
+				if (employee.Id == employeeId)
+				{
+					names[index] = employee.Name;
+					break;
+				}
+			}
+		}
+
+		return names;
+	}
+
+	private string BuildDispatchTitle(string incidentId)
+	{
+		GameRuntime runtime = GameRuntime.Get(this);
+		if (runtime != null && runtime.IsReady)
+		{
+			foreach (IncidentView incident in runtime.Session.GetActiveIncidents())
+			{
+				if (incident.Id == incidentId)
+				{
+					return $"ВХОДЯЩИЙ ВЫЗОВ: {incident.Title}";
+				}
+			}
+		}
+
+		return "ВХОДЯЩИЙ ВЫЗОВ";
+	}
+
+	private string BuildDispatchTranscript(string incidentId)
+	{
+		GameRuntime runtime = GameRuntime.Get(this);
+		if (runtime != null && runtime.IsReady)
+		{
+			foreach (IncidentView incident in runtime.Session.GetActiveIncidents())
+			{
+				if (incident.Id == incidentId)
+				{
+					return $"Вызов от: {incident.CallerName}. Требуется направить группу на объект: {incident.BuildingId}.";
+				}
+			}
+		}
+
+		return "Стенограмма вызова недоступна.";
 	}
 
 	private void AddScreen(ComputerScreen screen, PackedScene screenScene)

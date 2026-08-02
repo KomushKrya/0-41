@@ -3,28 +3,64 @@ using Godot;
 public partial class DeskComputerInteraction : Node3D
 {
 	[Export] public NodePath FocusCameraPosePath { get; set; } = new("FocusCameraPose");
+	[Export] public NodePath DossierFocusCameraPosePath { get; set; } = new("FocusCameraPose/DossierFocusCameraPose");
 	[Export] public NodePath ViewportInputPath { get; set; } = new("ViewportInput");
+	[Export] public NodePath DossierViewportInputPath { get; set; } = new("DossierViewportInput");
 	[Export] public NodePath ComputerUiPath { get; set; } = new("ComputerViewport/ComputerUI");
 
 	private Node3D _focusCameraPose = null!;
+	private Node3D _dossierFocusCameraPose = null!;
 	private SubViewportInputController _viewportInput = null!;
+	private SubViewportInputController _dossierViewportInput = null!;
 	private ComputerUI _computerUi = null!;
+	private DossierDispatchController _dossier = null!;
 	private FlyPlayer _activePlayer = null!;
 	private System.Action _onModeExit;
 	private bool _isComputerModeActive;
 	private bool _pausedRuntime;
+	private bool _isDossierMode;
 
 	public override void _Ready()
 	{
 		_focusCameraPose = GetNode<Node3D>(FocusCameraPosePath);
+		_dossierFocusCameraPose = GetNode<Node3D>(DossierFocusCameraPosePath);
 		_viewportInput = GetNode<SubViewportInputController>(ViewportInputPath);
+		_dossierViewportInput = GetNode<SubViewportInputController>(DossierViewportInputPath);
 		_computerUi = GetNode<ComputerUI>(ComputerUiPath);
+		_dossier = GetTree().GetFirstNodeInGroup("employee_dossier") as DossierDispatchController;
+		if (_dossier == null)
+		{
+			GD.PushError("DeskComputerInteraction: dispatch dossier is not available.");
+		}
+		else
+		{
+			_dossier.SelectionConfirmed += ExitDossierMode;
+		}
+
+		_computerUi.DispatchSlotRequested += EnterDossierMode;
 	}
 
 	public override void _Input(InputEvent @event)
 	{
 		if (!_isComputerModeActive)
 		{
+			return;
+		}
+
+		if (_isDossierMode)
+		{
+			if (@event.IsActionPressed("ui_cancel"))
+			{
+				ExitDossierMode();
+				GetViewport().SetInputAsHandled();
+				return;
+			}
+
+			if (_dossierViewportInput.HandleInput(@event))
+			{
+				GetViewport().SetInputAsHandled();
+			}
+
 			return;
 		}
 
@@ -58,11 +94,16 @@ public partial class DeskComputerInteraction : Node3D
 		_viewportInput.BeginInteraction();
 	}
 
-	public void EnterDispatchMode(FlyPlayer player, string incidentId, System.Action onModeExit)
+	public void EnterDispatchMode(
+		FlyPlayer player,
+		string incidentId,
+		System.Action onModeExit,
+		string callTitle = null,
+		string callTranscript = null)
 	{
 		_onModeExit = onModeExit;
 		EnterComputerMode(player);
-		_computerUi.BeginDispatchSelection(incidentId, ExitComputerMode);
+		_computerUi.BeginDispatchSelection(incidentId, ExitComputerMode, callTitle, callTranscript);
 	}
 
 	public void ExitComputerMode()
@@ -73,6 +114,7 @@ public partial class DeskComputerInteraction : Node3D
 		}
 
 		_isComputerModeActive = false;
+		ExitDossierMode();
 		_viewportInput.EndInteraction();
 		_computerUi.CancelDispatchSelection();
 
@@ -129,5 +171,39 @@ public partial class DeskComputerInteraction : Node3D
 		}
 
 		_pausedRuntime = false;
+	}
+
+	private void EnterDossierMode(int slotIndex)
+	{
+		if (!_isComputerModeActive || _isDossierMode || _dossier == null || _activePlayer == null)
+		{
+			return;
+		}
+
+		_isDossierMode = true;
+		_dossier.OpenForDispatch(_computerUi, slotIndex);
+		_dossierViewportInput.BeginInteraction();
+		_activePlayer.FocusViewAt(GetDossierFocusTransform());
+	}
+
+	private void ExitDossierMode()
+	{
+		if (!_isDossierMode)
+		{
+			return;
+		}
+
+		_isDossierMode = false;
+		_dossierViewportInput.EndInteraction();
+		_dossier?.CloseDispatch();
+		if (_isComputerModeActive && _activePlayer != null)
+		{
+			_activePlayer.FocusViewAt(_focusCameraPose.GlobalTransform);
+		}
+	}
+
+	private Transform3D GetDossierFocusTransform()
+	{
+		return _dossierFocusCameraPose.GlobalTransform;
 	}
 }

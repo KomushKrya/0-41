@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d32ck7ifvc1lf"
-path="res://.godot/imported/WallMapPreview.png-45a42cbaa00e59c6fe2eee329347a283.ctex"
+uid="uid://ddq40wgmvq780"
+path="res://.godot/imported/MissionDispatchPreview.png-6df95cfaf2594a0f6f1d55d9f784348e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://scenes/debug/WallMapPreview.png"
-dest_files=["res://.godot/imported/WallMapPreview.png-45a42cbaa00e59c6fe2eee329347a283.ctex"]
+source_file="res://scenes/debug/MissionDispatchPreview.png"
+dest_files=["res://.godot/imported/MissionDispatchPreview.png-6df95cfaf2594a0f6f1d55d9f784348e.ctex"]
 
 [params]
 

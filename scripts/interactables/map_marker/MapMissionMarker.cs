@@ -11,10 +11,10 @@ public partial class MapMissionMarker : Node3D
 	[Export] public float RingRadius { get; set; } = 0.02625f;
 	[Export] public float RingWidth { get; set; } = 0.023f;
 	[Export] public float RingOffset { get; set; } = 0.012f;
-	[Export] public Color DispatchCountdownColor { get; set; } = new(0.58f, 0.47f, 0.18f, 1.0f);
-	[Export] public Color RadioCountdownColor { get; set; } = new(0.58f, 0.31f, 0.13f, 1.0f);
-	[Export] public Color MissionExecutionColor { get; set; } = new(0.23f, 0.42f, 0.27f, 1.0f);
-	[Export] public Color TravellingColor { get; set; } = new(0.27f, 0.46f, 0.30f, 1.0f);
+	[Export] public Color DispatchCountdownColor { get; set; } = new(0.95f, 0.72f, 0.16f, 1.0f);
+	[Export] public Color RadioCountdownColor { get; set; } = new(0.9f, 0.34f, 0.12f, 1.0f);
+	[Export] public Color MissionExecutionColor { get; set; } = new(0.3f, 0.8f, 0.42f, 1.0f);
+	[Export] public Color TravellingColor { get; set; } = new(0.38f, 0.75f, 0.46f, 1.0f);
 
 	private MapPin _pin = null!;
 	private MeshInstance3D _ring = null!;
@@ -149,13 +149,13 @@ public partial class MapMissionMarker : Node3D
 
 	private ImmediateMesh BuildRingMesh(float progress, Color color)
 	{
-		Color translucentColor = new(color.R, color.G, color.B, color.A * 0.5f);
 		var material = new StandardMaterial3D
 		{
 			Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
-			AlbedoColor = translucentColor,
+			AlbedoColor = color,
 			EmissionEnabled = true,
-			Emission = translucentColor * 0.35f,
+			Emission = color,
+			EmissionEnergyMultiplier = 0.6f,
 			ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
 			CullMode = BaseMaterial3D.CullModeEnum.Disabled,
 		};

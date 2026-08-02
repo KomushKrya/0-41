@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/debug/MissionDispatchPreview.cs" id="1_preview"]
+[ext_resource type="PackedScene" path="res://scenes/ui/computer/screens/MissionDispatch.tscn" id="2_mission_dispatch"]
+
+[node name="MissionDispatchPreview" type="Node"]
+script = ExtResource("1_preview")
+
+[node name="Background" type="ColorRect" parent="."]
+offset_right = 1280.0
+offset_bottom = 720.0
+color = Color(0.025, 0.04, 0.033, 1)
+
+[node name="MissionDispatch" parent="." instance=ExtResource("2_mission_dispatch")]

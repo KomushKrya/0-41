@@ -39,7 +39,7 @@ public partial class DeskPhone : Node3D
 		}
 
 		_incidentCreatedSubscription = runtime.Session.Events.Subscribe<IncidentCreated>(OnIncidentCreated);
-		_callAnsweredSubscription = runtime.Session.Events.Subscribe<CallAnswered>(call => RemoveRingingCall(call.IncidentId));
+		_callAnsweredSubscription = runtime.Session.Events.Subscribe<CallAnswered>(OnCallAnswered);
 		_callMissedSubscription = runtime.Session.Events.Subscribe<CallMissed>(call => RemoveRingingCall(call.IncidentId));
 		_shiftEndedSubscription = runtime.Session.Events.Subscribe<ShiftEnded>(_ => ClearRingingCalls());
 
@@ -61,6 +61,11 @@ public partial class DeskPhone : Node3D
 	}
 
 	public bool TryAnswerNextCall(out string error)
+	{
+		return TryAnswerNextCall(null, out error);
+	}
+
+	public bool TryAnswerNextCall(FlyPlayer player, out string error)
 	{
 		error = string.Empty;
 		GameRuntime runtime = GameRuntime.Get(this);
@@ -119,7 +124,9 @@ public partial class DeskPhone : Node3D
 		if (!result.IsSuccess)
 		{
 			GD.PushWarning($"DeskPhone: {result.Error}");
+			return;
 		}
+
 	}
 
 	private void OnIncidentCreated(IncidentCreated incident)
@@ -142,6 +149,11 @@ public partial class DeskPhone : Node3D
 	{
 		_ringingIncidentIds.Remove(incidentId);
 		SetRingingVisual(IsRinging);
+	}
+
+	private void OnCallAnswered(CallAnswered call)
+	{
+		RemoveRingingCall(call.IncidentId);
 	}
 
 	private void ClearRingingCalls()
