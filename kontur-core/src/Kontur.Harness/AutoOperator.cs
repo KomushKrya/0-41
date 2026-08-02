@@ -286,11 +286,20 @@ namespace Kontur.Harness
 			// Мир встаёт с момента, как радио взяли, — и идёт дальше после выбора.
 			_sim.AnswerRadio(incident.Id);
 
-			// Закрытых вариантов нет: нажать можно любой, состав решает шанс, а не доступ.
+			// По характеристикам закрытых вариантов нет: нажать можно любой, состав
+			// решает шанс, а не доступ. Но IsAvailable — другое дело: если у варианта
+			// requiresEquipmentId и предмета нет среди отправленного на этот вызов,
+			// кнопки не существует вовсе (см. RadioOptionOffer в Events/Signals.cs), и
+			// автопилот обязан отфильтровать её так же, как это сделал бы настоящий UI —
+			// иначе ChooseRadioOption молча провалится, и инцидент зависнет в RadioPending.
 			var available = new List<MissionEventOption>();
 			IReadOnlyList<RadioOptionOffer> offers = _sim.GetRadioOptions(incident.Id);
 			for (int i = 0; i < offers.Count; i++)
 			{
+				if (!offers[i].IsAvailable)
+				{
+					continue;
+				}
 
 				MissionEventOption? unlocked = missionEvent.FindOption(offers[i].Id);
 				if (unlocked != null)
