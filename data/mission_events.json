@@ -1,5 +1,86 @@
 [
   {
+    "id": "radio_black_mold",
+    "options": {
+      "carpets": {
+        "extraScales": {
+          "infection": -1.0
+        },
+        "consequenceCap": "Injury"
+      },
+      "resettle": {
+        "appliesQuarantine": true,
+        "extraScales": {
+          "publicity": 3.0,
+          "infection": -4.0
+        },
+        "consequenceCap": "Injury"
+      },
+      "reagent": {
+        "extraScales": {
+          "infection": -6.0,
+          "loyalty": -3.0
+        },
+        "consequenceCap": "Injury"
+      }
+    }
+  },
+  {
+    "id": "radio_dense_flock",
+    "options": {
+      "perimeter": {
+        "revealsPropertyId": "property_simulacre_survival",
+        "extraScales": {
+          "infection": -3.0
+        },
+        "consequenceCap": "Injury"
+      },
+      "disperse": {
+        "revealsPropertyId": "property_simulacre_unpredictable",
+        "extraScales": {
+          "infection": -2.0,
+          "loyalty": 2.0
+        },
+        "deathChanceMultiplier": 1.8,
+        "injuryChanceMultiplier": 1.5
+      },
+      "cordon": {
+        "appliesQuarantine": true,
+        "extraScales": {
+          "infection": 6.0,
+          "publicity": -2.0
+        },
+        "consequenceCap": "None"
+      }
+    }
+  },
+  {
+    "id": "radio_night_pharmacy",
+    "options": {
+      "closed": {
+        "extraScales": {
+          "publicity": -3.0
+        },
+        "consequenceCap": "Injury"
+      },
+      "placebo": {
+        "revealsPropertyId": "property_mimic_speech",
+        "extraScales": {
+          "publicity": -2.0,
+          "loyalty": 2.0
+        },
+        "consequenceCap": "Injury"
+      },
+      "militia": {
+        "extraScales": {
+          "publicity": 6.0,
+          "infection": 3.0
+        },
+        "consequenceCap": "None"
+      }
+    }
+  },
+  {
     "id": "radio_pensioner_door",
     "options": {
       "pass_by": {
@@ -25,27 +106,137 @@
     }
   },
   {
-    "id": "radio_black_mold",
+    "id": "radio_room_34",
     "options": {
-      "carpets": {
+      "lists": {
         "extraScales": {
-          "infection": -1.0
+          "infection": -2.0,
+          "publicity": -1.0
         },
         "consequenceCap": "Injury"
       },
-      "resettle": {
-        "appliesQuarantine": true,
+      "routine": {
+        "revealsPropertyId": "property_mimic_routine",
         "extraScales": {
-          "publicity": 3.0,
-          "infection": -4.0
+          "infection": -3.0,
+          "loyalty": 2.0
+        },
+        "injuryChanceMultiplier": 1.5
+      },
+      "evacuate": {
+        "extraScales": {
+          "publicity": 3.0
         },
         "consequenceCap": "Injury"
-      },
-      "reagent": {
+      }
+    }
+  },
+  {
+    "id": "radio_tram_last_run",
+    "options": {
+      "route": {
+        "revealsPropertyId": "property_mimic_routine",
         "extraScales": {
-          "infection": -6.0,
+          "infection": -3.0
+        },
+        "consequenceCap": "Death"
+      },
+      "driver": {
+        "revealsPropertyId": "property_mimic_break",
+        "extraScales": {
+          "infection": 3.0,
+          "loyalty": 2.0
+        },
+        "deathChanceMultiplier": 2.0,
+        "injuryChanceMultiplier": 1.6
+      },
+      "power": {
+        "extraScales": {
+          "infection": -2.0,
           "loyalty": -3.0
         },
+        "consequenceCap": "Injury"
+      }
+    }
+  },
+  {
+    "id": "radio_workshop_empty",
+    "options": {
+      "search": {
+        "extraScales": {},
+        "consequenceCap": "None"
+      },
+      "abort": {
+        "extraScales": {
+          "loyalty": 1.0
+        },
+        "consequenceCap": "None"
+      }
+    }
+  },
+  {
+    "id": "radio_workshop_intro",
+    "options": {
+      "papers": {
+        "extraScales": {
+          "loyalty": 2.0
+        },
+        "consequenceCap": "None"
+      },
+      "peace": {
+        "extraScales": {
+          "publicity": -2.0,
+          "loyalty": -1.0
+        },
+        "consequenceCap": "None"
+      }
+    }
+  },
+  {
+    "id": "radio_workshop_site",
+    "options": {
+      "cut": {
+        "extraScales": {
+          "infection": -4.0,
+          "loyalty": 2.0
+        },
+        "consequenceCap": "Injury"
+      },
+      "lead_out": {
+        "extraScales": {
+          "publicity": 4.0,
+          "loyalty": 2.0
+        },
+        "deathChanceMultiplier": 1.8,
+        "injuryChanceMultiplier": 1.5
+      },
+      "cordon": {
+        "appliesQuarantine": true,
+        "extraScales": {
+          "infection": 5.0,
+          "publicity": -3.0,
+          "loyalty": -4.0
+        },
+        "consequenceCap": "None"
+      }
+    }
+  },
+  {
+    "id": "radio_workshop_truck",
+    "options": {
+      "write_off": {
+        "extraScales": {
+          "infection": 3.0,
+          "loyalty": -2.0
+        },
+        "consequenceCap": "Injury"
+      },
+      "seize": {
+        "extraScales": {
+          "infection": -4.0,
+          "loyalty": 2.0
+        },
+        "injuryChanceMultiplier": 1.4,
         "consequenceCap": "Injury"
       }
     }

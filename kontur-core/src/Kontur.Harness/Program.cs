@@ -225,17 +225,14 @@ namespace Kontur.Harness
 		}
 
 		/// <summary>
-		/// Ищет папку контента вверх по дереву.
+		/// Ищет контент игры: поднимается по дереву до корня — папки с project.godot —
+		/// и берёт data/ оттуда. Другого источника нет.
 		///
-		/// Сначала целиком проходим дерево в поисках корня игры — папки с project.godot —
-		/// и берём data/ оттуда. Только если корня нет (ядро выкачали отдельно от игры),
-		/// довольствуемся ближайшей папкой с config.json.
-		///
-		/// Порядок именно такой из-за грабель, на которые мы уже наступили: рядом с ядром
-		/// лежит своя копия контента (kontur-core/content), и она ближе к бинарнику, чем
-		/// корневая data/. Поиск «ближайшего подходящего» находил копию, харнесс гонял
-		/// баланс по ней, а игра — по data/. Расхождение обнаружилось только тогда,
-		/// когда в data/ появился раздел, которого в копии не было.
+		/// Раньше был запасной вариант «ближайшая папка с config.json», и рядом с ядром
+		/// лежала своя копия контента. Она оказывалась ближе к бинарнику, чем корневая
+		/// data/: харнесс гонял баланс по копии, игра шла по оригиналу, и расхождение
+		/// всплыло не сразу. Копия удалена, запасной поиск вместе с ней — лучше честно
+		/// не найти контент и попросить --content, чем молча взять не тот.
 		/// </summary>
 		private static string? FindContentDirectory()
 		{
@@ -249,23 +246,6 @@ namespace Kontur.Harness
 					if (File.Exists(Path.Combine(data, ContentLoader.ConfigFile)))
 					{
 						return data;
-					}
-				}
-
-				directory = directory.Parent;
-			}
-
-			string[] candidates = { "data", "content" };
-			directory = new DirectoryInfo(AppContext.BaseDirectory);
-
-			for (int depth = 0; depth < 8 && directory != null; depth++)
-			{
-				for (int i = 0; i < candidates.Length; i++)
-				{
-					string candidate = Path.Combine(directory.FullName, candidates[i]);
-					if (File.Exists(Path.Combine(candidate, ContentLoader.ConfigFile)))
-					{
-						return candidate;
 					}
 				}
 
