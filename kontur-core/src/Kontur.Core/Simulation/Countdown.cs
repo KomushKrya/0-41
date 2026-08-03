@@ -30,6 +30,16 @@ namespace Kontur.Core.Simulation
 			return new Countdown(durationSeconds);
 		}
 
+		public static Countdown Restore(double durationSeconds, double remainingSeconds, bool isRunning)
+		{
+			var countdown = new Countdown(durationSeconds)
+			{
+				Remaining = System.Math.Max(0.0, remainingSeconds),
+				IsRunning = isRunning && remainingSeconds > 0.0
+			};
+			return countdown;
+		}
+
 		/// <summary>Возвращает true ровно один раз — в тик, когда таймер истёк.</summary>
 		public bool Tick(double delta)
 		{

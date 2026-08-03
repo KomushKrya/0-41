@@ -30,11 +30,11 @@ namespace Kontur.Harness
 	/// </summary>
 	public sealed class AutoOperator
 	{
-		private readonly GameSession _session;
+		private readonly KonturSimulation _session;
 		private readonly ContentDatabase _content;
 		private readonly Random _random;
 
-		public AutoOperator(GameSession session, ContentDatabase content, RadioStrategy strategy, int seed)
+		public AutoOperator(KonturSimulation session, ContentDatabase content, RadioStrategy strategy, int seed)
 		{
 			_session = session;
 			_content = content;
@@ -71,6 +71,10 @@ namespace Kontur.Harness
 							_session.AnswerCall(incident.Id);
 						}
 
+						break;
+
+					case IncidentPhase.Briefing:
+						_session.ConfirmBriefing(incident.Id);
 						break;
 
 				case IncidentPhase.MarkerActive:
@@ -139,7 +143,9 @@ namespace Kontur.Harness
 		{
 			_session.OpenDispatchScreen(incident.Id);
 
-			List<string> squad = PickSquad(incident.Requirements);
+			MissionDefinition? mission = _content.FindMission(incident.MissionId);
+			int squadLimit = mission == null ? MaxSquadSize : Math.Min(MaxSquadSize, mission.SquadLimit);
+			List<string> squad = PickSquad(incident.Requirements, squadLimit);
 			if (squad.Count == 0)
 			{
 				return;
@@ -155,7 +161,7 @@ namespace Kontur.Harness
 			}
 		}
 
-		private List<string> PickSquad(StatBlock requirements)
+		private List<string> PickSquad(StatBlock requirements, int squadLimit)
 		{
 			var available = new List<EmployeeView>();
 			IReadOnlyList<EmployeeView> roster = _session.GetRoster();
@@ -174,7 +180,7 @@ namespace Kontur.Harness
 			var picked = new List<string>();
 			StatBlock total = StatBlock.Zero;
 
-			for (int i = 0; i < available.Count && picked.Count < MaxSquadSize; i++)
+			for (int i = 0; i < available.Count && picked.Count < squadLimit; i++)
 			{
 				if (MissionResolver.ComputeCoverage(requirements, total) >= 1.0)
 				{
@@ -242,45 +248,47 @@ namespace Kontur.Harness
 		private void ChooseRadio(IncidentView incident)
 		{
 			MissionDefinition? mission = _content.FindMission(incident.MissionId);
-			if (mission == null || mission.RadioEncounterId == null)
+			if (mission == null)
 			{
 				return;
 			}
 
-			RadioEncounter? encounter = _content.FindRadioEncounter(mission.RadioEncounterId);
-			if (encounter == null || encounter.Options.Count == 0)
+			MissionEventDefinition? missionEvent = mission.HasMissionEvent
+				? _content.FindMissionEvent(mission.MissionEventId!)
+				: null;
+			if (missionEvent == null || missionEvent.Options.Count == 0)
 			{
 				return;
 			}
 
-			RadioOption option;
+			MissionEventOption option;
 			switch (Strategy)
 			{
 				case RadioStrategy.Best:
-					option = FindByQuality(encounter, RadioOptionQuality.Best);
+					option = FindByQuality(missionEvent, MissionEventQuality.Good);
 					break;
 				case RadioStrategy.Worst:
-					option = FindByQuality(encounter, RadioOptionQuality.Bad);
+					option = FindByQuality(missionEvent, MissionEventQuality.Bad);
 					break;
 				default:
-					option = encounter.Options[_random.Next(encounter.Options.Count)];
+					option = missionEvent.Options[_random.Next(missionEvent.Options.Count)];
 					break;
 			}
 
 			_session.ChooseRadioOption(incident.Id, option.Id);
 		}
 
-		private static RadioOption FindByQuality(RadioEncounter encounter, RadioOptionQuality quality)
+		private static MissionEventOption FindByQuality(MissionEventDefinition missionEvent, MissionEventQuality quality)
 		{
-			for (int i = 0; i < encounter.Options.Count; i++)
+			for (int i = 0; i < missionEvent.Options.Count; i++)
 			{
-				if (encounter.Options[i].Quality == quality)
+				if (missionEvent.Options[i].Quality == quality)
 				{
-					return encounter.Options[i];
+					return missionEvent.Options[i];
 				}
 			}
 
-			return encounter.Options[0];
+			return missionEvent.Options[0];
 		}
 
 		private static StatKind FindWeakestStat(StatBlock stats)

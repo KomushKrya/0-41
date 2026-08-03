@@ -36,9 +36,9 @@ namespace Kontur.Core.Systems
 		public double OutboundTravelSeconds { get; set; }
 
 		/// <summary>Фактическая длительность пути, рассчитанная картой при отправке группы.</summary>
-		public RadioEncounter? Radio { get; set; }
+		public MissionEventDefinition? MissionEvent { get; set; }
 
-		public RadioOption? ChosenOption { get; set; }
+		public MissionEventOption? ChosenOption { get; set; }
 
 		public bool RadioWasTriggered { get; set; }
 

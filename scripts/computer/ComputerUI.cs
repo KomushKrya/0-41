@@ -259,7 +259,7 @@ public partial class ComputerUI : Control
 			{
 				if (incident.Id == incidentId)
 				{
-					return $"ВХОДЯЩИЙ ВЫЗОВ: {incident.Title}";
+					return $"ВХОДЯЩИЙ ВЫЗОВ: {ContentTextResolver.ResolveCallMeta(incident.CallId, incident.CallId)}";
 				}
 			}
 		}
@@ -276,7 +276,7 @@ public partial class ComputerUI : Control
 			{
 				if (incident.Id == incidentId)
 				{
-					return $"Вызов от: {incident.CallerName}. Требуется направить группу на объект: {incident.BuildingId}.";
+					return ContentTextResolver.ResolveEntryText(incident.CallId, incident.CallId);
 				}
 			}
 		}

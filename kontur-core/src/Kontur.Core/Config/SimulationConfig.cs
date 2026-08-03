@@ -19,6 +19,9 @@ namespace Kontur.Core.Config
 
 		public LootConfig Loot { get; set; } = new LootConfig();
 
+		public MissionEventConfig MissionEvents { get; set; } = new MissionEventConfig();
+		public StatMatchConfig Match { get; set; } = new StatMatchConfig();
+
 		public List<DayConfig> Days { get; set; } = new List<DayConfig>();
 
 		public DayConfig GetDay(int day)
@@ -32,6 +35,12 @@ namespace Kontur.Core.Config
 			}
 
 			return new DayConfig { Day = day };
+		}
+
+		public int GetStaffLimit(int day)
+		{
+			DayConfig configured = GetDay(day);
+			return configured.StaffLimit > 0 ? configured.StaffLimit : day + Employees.StaffLimitOffset;
 		}
 
 		public static SimulationConfig CreateDefault()
@@ -61,6 +70,9 @@ namespace Kontur.Core.Config
 
 		/// <summary>Минимальный зазор между запланированными звонками.</summary>
 		public double MinSecondsBetweenCalls { get; set; } = 12.0;
+
+		/// <summary>Короткий зазор после освобождения телефонной линии перед следующим звонком из очереди.</summary>
+		public double CallQueueGapSeconds { get; set; } = 2.0;
 
 		/// <summary>Пауза перед появлением отчёта после возвращения группы.</summary>
 		public double ReportDelaySeconds { get; set; } = 1.0;
@@ -112,6 +124,15 @@ namespace Kontur.Core.Config
 		public double RiskCoverageInfluence { get; set; } = 1.5;
 	}
 
+	public sealed class StatMatchConfig
+	{
+		public int ExceedsMargin { get; set; } = 2;
+		public double MeetsScore { get; set; } = 0.8;
+		public double BelowFalloff { get; set; } = 0.35;
+		public double PrimaryWeight { get; set; } = 2.0;
+		public double SecondaryWeight { get; set; } = 1.0;
+	}
+
 	public sealed class EmployeeConfig
 	{
 		/// <summary>Травма — дебафф до конца смены: минус столько к каждой характеристике.</summary>
@@ -128,6 +149,36 @@ namespace Kontur.Core.Config
 		public int ExperiencePerLevelStep { get; set; } = 100;
 
 		public int MaxStatValue { get; set; } = 20;
+
+		public int StaffLimitOffset { get; set; } = 2;
+	}
+
+	public sealed class MissionEventConfig
+	{
+		public ScaleDeltaConfig ScalesOnMissedRadio { get; set; } = new ScaleDeltaConfig { Infection = 2.0, Publicity = 2.0, Loyalty = -3.0 };
+		public MissionEventQualityConfig Good { get; set; } = new MissionEventQualityConfig { RequirementModifier = 0, RiskMultiplier = 1.0 };
+		public MissionEventQualityConfig Neutral { get; set; } = new MissionEventQualityConfig { RequirementModifier = 1, RiskMultiplier = 1.0 };
+		public MissionEventQualityConfig Bad { get; set; } = new MissionEventQualityConfig { RequirementModifier = 2, RiskMultiplier = 1.5 };
+		public MissionEventQualityConfig For(Kontur.Core.Model.MissionEventQuality quality) => quality switch
+		{
+			Kontur.Core.Model.MissionEventQuality.Good => Good,
+			Kontur.Core.Model.MissionEventQuality.Bad => Bad,
+			_ => Neutral
+		};
+	}
+
+	public sealed class MissionEventQualityConfig
+	{
+		public int RequirementModifier { get; set; }
+		public double RiskMultiplier { get; set; } = 1.0;
+	}
+
+	public sealed class ScaleDeltaConfig
+	{
+		public double Infection { get; set; }
+		public double Publicity { get; set; }
+		public double Loyalty { get; set; }
+		public Kontur.Core.Model.ScaleDelta ToDelta() => new Kontur.Core.Model.ScaleDelta(Infection, Publicity, Loyalty);
 	}
 
 	public sealed class LootConfig
@@ -146,7 +197,9 @@ namespace Kontur.Core.Config
 		public int Day { get; set; } = 1;
 
 		/// <summary>Лимит штата: 3 / 4 / 5 / 6 (ДД, раздел 5).</summary>
-		public int StaffLimit { get; set; } = 3;
+		// Ноль означает «день не описан в контенте»: GetStaffLimit применит
+		// формулу продолжения прогрессии вместо фиктивного стартового лимита.
+		public int StaffLimit { get; set; }
 
 		/// <summary>ДД, раздел 3, п. 13: от 5 до 10 вызовов за смену.</summary>
 		public int MinCalls { get; set; } = 5;

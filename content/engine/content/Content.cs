@@ -160,6 +160,7 @@ public partial class Content : Node
 			Name = ReadString(source, "name"),
 			Outcome = ReadString(source, "outcome"),
 			MissionType = ReadString(source, "mission_type"),
+			Slot = ReadString(source, "slot"),
 			Day = source.TryGetValue("day", out Variant day) ? day.AsInt32() : 0,
 			Requirements = ReadStringList(source, "requirements"),
 			Properties = ReadStringList(source, "properties"),
@@ -179,7 +180,9 @@ public partial class Content : Node
 			Godot.Collections.Dictionary optionData = option.AsGodotDictionary();
 			parsedOptions.Add(new ContentOption
 			{
+				Id = ReadString(optionData, "id"),
 				Name = ReadString(optionData, "name"),
+				Requirements = ReadStringList(optionData, "requires"),
 				RequirementModifier = optionData.TryGetValue("requirement_modifier", out Variant modifier)
 					? modifier.AsInt32()
 					: 0,

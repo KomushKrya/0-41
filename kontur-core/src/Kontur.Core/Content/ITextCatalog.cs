@@ -1,20 +1,29 @@
+using System.Collections.Generic;
+using Kontur.Core.Model;
+
 namespace Kontur.Core.Content
 {
-	/// <summary>
-	/// Порт в текстовый движок. Ядру проза не нужна — ни для баланса, ни для событий:
-	/// оно рассылает id, а разворачивает их в текст интерфейс. Единственное, что ядру
-	/// полезно знать, — существует ли то, на что ссылаются геймплейные данные, чтобы
-	/// опечатка в id падала при загрузке, а не оборачивалась пустым экраном на смене.
-	///
-	/// Реализация живёт на стороне движка (GodotTextCatalog). Если каталог не передан,
-	/// ContentLoader эти проверки пропускает — так ядро остаётся запускаемым без Godot.
-	/// </summary>
+	/// <summary>Порт текстового движка: ядро хранит только id и числа вариантов.</summary>
 	public interface ITextCatalog
 	{
-		/// <summary>Есть ли запись контента с таким id.</summary>
 		bool HasEntry(string entryId);
-
-		/// <summary>Есть ли внутри записи условный блок под это свойство (%% reveal %%).</summary>
 		bool HasProperty(string entryId, string propertyId);
+		IReadOnlyList<TextOption> GetOptions(string entryId);
+		IReadOnlyList<string> GetBioLines(string slot);
+	}
+
+	public sealed class TextOption
+	{
+		public TextOption(string id, MissionEventQuality quality, int? requirementModifier, IReadOnlyList<StatKind> checkedStats)
+		{
+			Id = id;
+			Quality = quality;
+			RequirementModifier = requirementModifier;
+			CheckedStats = checkedStats ?? new List<StatKind>();
+		}
+		public string Id { get; }
+		public MissionEventQuality Quality { get; }
+		public int? RequirementModifier { get; }
+		public IReadOnlyList<StatKind> CheckedStats { get; }
 	}
 }

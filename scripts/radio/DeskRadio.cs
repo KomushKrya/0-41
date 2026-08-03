@@ -21,6 +21,7 @@ public partial class DeskRadio : Node3D
 	private IDisposable _radioTriggeredSubscription = null!;
 	private IDisposable _radioMissedSubscription = null!;
 	private IDisposable _radioChosenSubscription = null!;
+	private IDisposable _missionOutcomeSubscription = null!;
 	private IDisposable _shiftEndedSubscription = null!;
 
 	public bool IsActive => FindMostUrgentRequest(out _, out _);
@@ -41,6 +42,12 @@ public partial class DeskRadio : Node3D
 		_radioTriggeredSubscription = _runtime.Session.Events.Subscribe<RadioTriggered>(OnRadioTriggered);
 		_radioMissedSubscription = _runtime.Session.Events.Subscribe<RadioMissed>(radio => RemoveRequest(radio.IncidentId));
 		_radioChosenSubscription = _runtime.Session.Events.Subscribe<RadioOptionChosen>(radio => RemoveRequest(radio.IncidentId));
+		_missionOutcomeSubscription = _runtime.Session.Events.Subscribe<MissionOutcomeReady>(outcome =>
+		{
+			if (!_decisionUi.Visible) return;
+			_runtime.Session.OpenMissionOutcome(outcome.IncidentId);
+			_decisionUi.ShowOutcome(outcome);
+		});
 		_shiftEndedSubscription = _runtime.Session.Events.Subscribe<ShiftEnded>(_ => ClearRequests());
 		RefreshActiveVisual();
 	}
@@ -50,6 +57,7 @@ public partial class DeskRadio : Node3D
 		_radioTriggeredSubscription?.Dispose();
 		_radioMissedSubscription?.Dispose();
 		_radioChosenSubscription?.Dispose();
+		_missionOutcomeSubscription?.Dispose();
 		_shiftEndedSubscription?.Dispose();
 	}
 
@@ -74,7 +82,19 @@ public partial class DeskRadio : Node3D
 			return false;
 		}
 
-		_decisionUi.ShowRadioDecision(incident.Id, incident.Title, request.SituationText, request.Options);
+		CommandResult answered = _runtime.Session.AnswerRadio(incident.Id);
+		if (!answered.IsSuccess)
+		{
+			error = answered.Error;
+			RefreshActiveVisual();
+			return false;
+		}
+
+		_decisionUi.ShowRadioDecision(
+			incident.Id,
+			ContentTextResolver.ResolveCallMeta(incident.CallId, incident.CallId),
+			request.Options,
+			request.MissionEventId);
 		return true;
 	}
 

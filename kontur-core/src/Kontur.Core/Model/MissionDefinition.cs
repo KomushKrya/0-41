@@ -1,7 +1,58 @@
+using System;
 using System.Collections.Generic;
 
 namespace Kontur.Core.Model
 {
+	/// <summary>Смысловой уровень вызова из нового контентного контракта.</summary>
+	public enum MissionTier
+	{
+		Filler = 0,
+		Story = 1
+	}
+
+	/// <summary>Максимальная тяжесть последствий, разрешённая сценарием.</summary>
+	public enum ConsequenceCap
+	{
+		None = 0,
+		Injury = 1,
+		Death = 2
+	}
+
+	public static class ConsequenceCaps
+	{
+		public static ConsequenceCap DefaultFor(MissionTier tier)
+		{
+			return tier == MissionTier.Story ? ConsequenceCap.Death : ConsequenceCap.Injury;
+		}
+
+		public static ConsequenceCap Tighten(ConsequenceCap first, ConsequenceCap second)
+		{
+			return first < second ? first : second;
+		}
+
+		public static bool AllowsInjury(ConsequenceCap cap)
+		{
+			return cap >= ConsequenceCap.Injury;
+		}
+
+		public static bool AllowsDeath(ConsequenceCap cap)
+		{
+			return cap >= ConsequenceCap.Death;
+		}
+	}
+
+	/// <summary>Пара текстов отчёта из нового data/missions.json.</summary>
+	public sealed class MissionReportPair
+	{
+		public string SuccessId { get; set; } = string.Empty;
+		public string FailureId { get; set; } = string.Empty;
+
+		public string Get(bool isSuccess)
+		{
+			return isSuccess ? SuccessId : FailureId;
+		}
+	}
+
 	/// <summary>
 	/// Авторский дизайн одного вызова. Приходит из JSON (текстовый пайплайн, ДД раздел 14).
 	/// Ядро не генерирует миссии процедурно — только выбирает из пула на день.
@@ -13,15 +64,29 @@ namespace Kontur.Core.Model
 		/// <summary>День демо (1..4), для которого миссия доступна.</summary>
 		public int Day { get; set; } = 1;
 
+		/// <summary>Story/Filler из нового ядра. Районы к этому полю не относятся.</summary>
+		public MissionTier Tier { get; set; } = MissionTier.Filler;
+
+		public ConsequenceCap? ConsequenceCapOverride { get; set; }
+
+		public ConsequenceCap EffectiveCap
+		{
+			get { return ConsequenceCapOverride ?? ConsequenceCaps.DefaultFor(Tier); }
+		}
+
 		public string CreatureId { get; set; } = string.Empty;
 
-		public string Title { get; set; } = string.Empty;
 
 		/// <summary>Кто звонит — для экрана телефона.</summary>
-		public string CallerName { get; set; } = string.Empty;
+
+		/// <summary>Id записи звонка в текстовом движке. Пустое значение оставляет совместимый старый текст.</summary>
+		public string CallId { get; set; } = string.Empty;
+
+		/// <summary>Нативное имя ссылки на запись звонка в новом ядре.</summary>
 
 		/// <summary>Краткое описание задания на экране после ответа на звонок.</summary>
-		public string BriefingText { get; set; } = string.Empty;
+
+		/// <summary>Id отдельного брифинга в текстовом движке.</summary>
 
 		/// <summary>Требуемые показатели, сравниваются с суммой характеристик группы (ДД, раздел 7).</summary>
 		public StatBlock Requirements { get; set; } = StatBlock.Zero;
@@ -39,7 +104,19 @@ namespace Kontur.Core.Model
 		/// Радио-энкаунтер. Если null — вмешательство игрока этой миссией не предусмотрено
 		/// (ДД, раздел 8: определяется дизайном задания, а не случайным шансом).
 		/// </summary>
-		public string? RadioEncounterId { get; set; }
+		/// <summary>Id MissionEvent в data и текстовом движке.</summary>
+		public string? MissionEventId { get; set; }
+
+		public bool HasMissionEvent
+		{
+			get { return !string.IsNullOrWhiteSpace(MissionEventId); }
+		}
+
+		/// <summary>Главная характеристика нового расчёта. Старый расчёт остаётся совместимым.</summary>
+		public StatKind? PrimaryStat { get; set; }
+
+		/// <summary>Максимум сотрудников в группе именно этого вызова.</summary>
+		public int SquadLimit { get; set; } = 1;
 
 		public ScaleDelta ScalesOnSuccess { get; set; } = ScaleDelta.Zero;
 
@@ -60,9 +137,34 @@ namespace Kontur.Core.Model
 
 		public double DeathChance { get; set; } = 0.08;
 
-		public string ReportSuccessText { get; set; } = string.Empty;
 
-		public string ReportFailureText { get; set; } = string.Empty;
+		/// <summary>Id отчёта при успешном завершении.</summary>
+
+
+		/// <summary>Id отчёта при неуспехе.</summary>
+
+		/// <summary>
+		/// Отчёты нового формата: ключ — выбранный вариант, пустой ключ — исход без радио.
+		/// Старые поля Report* остаются fallback-ом для ранее созданных миссий.
+		/// </summary>
+		public Dictionary<string, MissionReportPair> Reports { get; } =
+			new Dictionary<string, MissionReportPair>(StringComparer.OrdinalIgnoreCase);
+
+		public string ResolveReportId(string? optionId, bool isSuccess)
+		{
+			MissionReportPair? pair;
+			if (!string.IsNullOrEmpty(optionId) && Reports.TryGetValue(optionId, out pair))
+			{
+				return pair.Get(isSuccess);
+			}
+
+			if (Reports.TryGetValue(string.Empty, out pair))
+			{
+				return pair.Get(isSuccess);
+			}
+
+			return string.Empty;
+		}
 
 		/// <summary>
 		/// Свойства существа, которые проявляются именно на этой миссии.

@@ -1,190 +1,469 @@
 [
-	{
-		"id": "radio_mimic_school",
-		"situationText": "Группа на месте. Докладывают: в кабинете на втором этаже стоит вторая такая же парта, за ней — фигура в форме ученика. Не двигается. Часы на стене стоят.",
-		"options": [
-			{
-				"id": "opt_attack",
-				"text": "Работать по объекту на поражение, немедленно.",
-				"requirementMultiplier": 1.6,
-				"deathChanceMultiplier": 2.0,
-				"injuryChanceMultiplier": 1.5,
-				"quality": "Bad",
-				"extraScales": {
-					"publicity": 4.0
-				},
-				"revealsPropertyId": "property_mimic_break"
-			},
-			{
-				"id": "opt_blend",
-				"text": "Смешаться с потоком, пройти мимо и вывести людей из корпуса.",
-				"requirementMultiplier": 0.75,
-				"quality": "Good",
-				"revealsPropertyId": "property_mimic_routine"
-			},
-			{
-				"id": "opt_wait",
-				"text": "Всем замереть в подсобке и не двигаться пятнадцать минут.",
-				"requirementMultiplier": 0.4,
-				"deathChanceMultiplier": 0.3,
-				"quality": "Best",
-				"extraScales": {
-					"infection": -2.0
-				},
-				"revealsPropertyId": "property_mimic_speech"
-			}
-		]
-	},
-	{
-		"id": "radio_mimic_flat",
-		"situationText": "Квартира. Хозяйка на кухне и хозяйка в коридоре. Обе спокойны, обе называют одно имя. Настенные часы стоят на 6:40.",
-		"options": [
-			{
-				"id": "opt_separate",
-				"text": "Развести обеих по разным комнатам и работать по одной.",
-				"requirementMultiplier": 1.4,
-				"deathChanceMultiplier": 1.8,
-				"quality": "Bad"
-			},
-			{
-				"id": "opt_clock",
-				"text": "Сверить часы: которая из двух не заметит, что время стоит.",
-				"requirementMultiplier": 0.5,
-				"quality": "Best",
-				"revealsPropertyId": "property_mimic_routine"
-			},
-			{
-				"id": "opt_evacuate",
-				"text": "Вывести обеих на лестницу, изолировать площадку.",
-				"requirementMultiplier": 0.8,
-				"quality": "Good",
-				"extraScales": {
-					"publicity": 2.0,
-					"infection": -3.0
-				}
-			}
-		]
-	},
-	{
-		"id": "radio_skin_yard",
-		"situationText": "Двор, темно. Объект крупный, держится вдоль стены, на открытое место не выходит. Рядом заведённая техника.",
-		"options": [
-			{
-				"id": "opt_engine",
-				"text": "Заглушить двигатели и отвести технику со двора.",
-				"requirementMultiplier": 0.5,
-				"quality": "Best",
-				"revealsPropertyId": "property_perekozhnik_heartbeat"
-			},
-			{
-				"id": "opt_flare",
-				"text": "Работать ракетой в упор, заставить сбросить покров.",
-				"requirementMultiplier": 0.75,
-				"injuryChanceMultiplier": 1.3,
-				"quality": "Good",
-				"revealsPropertyId": "property_perekozhnik_eye_contact"
-			},
-			{
-				"id": "opt_chase",
-				"text": "Гнать объект в открытую часть двора и брать на прострел.",
-				"requirementMultiplier": 1.5,
-				"deathChanceMultiplier": 2.2,
-				"quality": "Bad",
-				"extraScales": {
-					"publicity": 5.0
-				}
-			}
-		]
-	},
-	{
-		"id": "radio_skin_depot",
-		"situationText": "Складской корпус. Объект внутри, ход один. Группа стоит в проёме.",
-		"options": [
-			{
-				"id": "opt_block",
-				"text": "Перекрыть проём и держать. Внутрь не входить.",
-				"requirementMultiplier": 0.45,
-				"deathChanceMultiplier": 0.4,
-				"quality": "Best",
-				"revealsPropertyId": "property_perekozhnik_distance"
-			},
-			{
-				"id": "opt_enter",
-				"text": "Заходить парами, работать по секторам.",
-				"requirementMultiplier": 1.3,
-				"deathChanceMultiplier": 1.7,
-				"quality": "Bad"
-			},
-			{
-				"id": "opt_smoke",
-				"text": "Выкурить объект наружу и брать на выходе.",
-				"requirementMultiplier": 0.85,
-				"quality": "Good",
-				"extraScales": {
-					"publicity": 2.0
-				}
-			}
-		]
-	},
-	{
-		"id": "radio_kanalotvar_boiler",
-		"situationText": "Котельная. Подвал затоплен, в трубе слышно движение. У решётки собрались собаки.",
-		"options": [
-			{
-				"id": "opt_all_in",
-				"text": "Заводить всю группу вниз и работать быстро.",
-				"requirementMultiplier": 1.5,
-				"injuryChanceMultiplier": 2.0,
-				"quality": "Bad",
-				"revealsPropertyId": "property_kanalotvar_lure"
-			},
-			{
-				"id": "opt_two",
-				"text": "Оставить снаружи всех, кроме двоих: работать молча, связь только светом.",
-				"requirementMultiplier": 0.5,
-				"injuryChanceMultiplier": 0.5,
-				"quality": "Best",
-				"revealsPropertyId": "property_kanalotvar_sound"
-			},
-			{
-				"id": "opt_vent",
-				"text": "Откачать воду насосом и ждать, пока сойдёт уровень.",
-				"requirementMultiplier": 0.8,
-				"quality": "Good"
-			}
-		]
-	},
-	{
-		"id": "radio_kanalotvar_tunnel",
-		"situationText": "Коллектор. Движение в трубе смещается в сторону жилых домов.",
-		"options": [
-			{
-				"id": "opt_follow",
-				"text": "Идти следом по коллектору, не отставать.",
-				"requirementMultiplier": 1.45,
-				"injuryChanceMultiplier": 1.6,
-				"quality": "Bad"
-			},
-			{
-				"id": "opt_seal",
-				"text": "Перекрыть сток впереди и остановить смещение.",
-				"requirementMultiplier": 0.45,
-				"quality": "Best",
-				"revealsPropertyId": "property_kanalotvar_water",
-				"extraScales": {
-					"infection": -3.0
-				}
-			},
-			{
-				"id": "opt_quarantine",
-				"text": "Закрыть квартал и вывести жильцов.",
-				"requirementMultiplier": 0.9,
-				"quality": "Good",
-				"extraScales": {
-					"publicity": 6.0,
-					"infection": -5.0
-				}
-			}
-		]
-	}
+  {
+    "id": "radio_black_mold",
+    "options": {
+      "carpets": {
+        "extraScales": {
+          "infection": -1.0
+        },
+        "consequenceCap": "Injury"
+      },
+      "resettle": {
+        "extraScales": {
+          "publicity": 3.0,
+          "infection": -4.0
+        },
+        "consequenceCap": "Injury"
+      },
+      "reagent": {
+        "extraScales": {
+          "infection": -6.0,
+          "loyalty": -3.0
+        },
+        "consequenceCap": "Injury"
+      }
+    }
+  },
+  {
+    "id": "radio_dense_flock",
+    "options": {
+      "perimeter": {
+        "revealsPropertyId": "property_simulacre_survival",
+        "extraScales": {
+          "infection": -3.0
+        },
+        "consequenceCap": "Injury"
+      },
+      "disperse": {
+        "revealsPropertyId": "property_simulacre_unpredictable",
+        "extraScales": {
+          "infection": -2.0,
+          "loyalty": 2.0
+        },
+        "deathChanceMultiplier": 1.8,
+        "injuryChanceMultiplier": 1.5
+      },
+      "cordon": {
+        "extraScales": {
+          "infection": 6.0,
+          "publicity": -2.0
+        },
+        "consequenceCap": "None"
+      }
+    }
+  },
+  {
+    "id": "radio_missing_daughter",
+    "options": {
+      "shoot": {
+        "extraScales": {
+          "publicity": 1.0
+        },
+        "deathChanceMultiplier": 1.8,
+        "injuryChanceMultiplier": 1.3
+      },
+      "pull": {
+        "extraScales": {
+          "publicity": -2.0
+        },
+        "injuryChanceMultiplier": 1.2,
+        "consequenceCap": "Injury"
+      },
+      "amputate": {
+        "revealsPropertyId": "property_perekozhnik_distance",
+        "deathChanceMultiplier": 2.5,
+        "injuryChanceMultiplier": 1.8
+      }
+    }
+  },
+  {
+    "id": "radio_brother_smile",
+    "options": {
+      "pull": {
+        "injuryChanceMultiplier": 1.6,
+        "consequenceCap": "Injury"
+      },
+      "doll": {
+        "extraScales": {
+          "loyalty": 1.0
+        }
+      },
+      "talk": {
+        "extraScales": {
+          "publicity": -1.0
+        }
+      }
+    }
+  },
+  {
+    "id": "radio_construction_intruders",
+    "options": {
+      "distract": {
+        "extraScales": {
+          "publicity": -1.0
+        }
+      },
+      "strike": {
+        "injuryChanceMultiplier": 1.3
+      }
+    }
+  },
+  {
+    "id": "radio_urgent_evacuation",
+    "options": {
+      "threaten": {
+        "extraScales": {
+          "loyalty": -1.0
+        }
+      },
+      "persuade": {
+        "extraScales": {
+          "loyalty": 1.0
+        }
+      }
+    }
+  },
+  {
+    "id": "radio_false_gas_alarm",
+    "options": {
+      "check": {
+        "consequenceCap": "None"
+      },
+      "seal": {
+        "consequenceCap": "None"
+      }
+    }
+  },
+  {
+    "id": "radio_night_pharmacy",
+    "options": {
+      "closed": {
+        "extraScales": {
+          "publicity": -3.0
+        },
+        "consequenceCap": "Injury"
+      },
+      "placebo": {
+        "revealsPropertyId": "property_mimic_speech",
+        "extraScales": {
+          "publicity": -2.0,
+          "loyalty": 2.0
+        },
+        "consequenceCap": "Injury"
+      },
+      "militia": {
+        "extraScales": {
+          "publicity": 6.0,
+          "infection": 3.0
+        },
+        "consequenceCap": "None"
+      }
+    }
+  },
+  {
+    "id": "radio_pensioner_door",
+    "options": {
+      "pass_by": {
+        "revealsPropertyId": "property_mimic_routine",
+        "extraScales": {
+          "publicity": -1.0
+        },
+        "consequenceCap": "Injury"
+      },
+      "capture": {
+        "revealsPropertyId": "property_mimic_break",
+        "deathChanceMultiplier": 2.2,
+        "injuryChanceMultiplier": 1.6,
+        "extraScales": {
+          "publicity": 4.0,
+          "loyalty": -2.0
+        }
+      },
+      "left_turn": {
+        "revealsPropertyId": "property_mimic_speech",
+        "injuryChanceMultiplier": 1.2
+      }
+    }
+  },
+  {
+    "id": "radio_room_34",
+    "options": {
+      "lists": {
+        "extraScales": {
+          "infection": -2.0,
+          "publicity": -1.0
+        },
+        "consequenceCap": "Injury"
+      },
+      "routine": {
+        "revealsPropertyId": "property_mimic_routine",
+        "extraScales": {
+          "infection": -3.0,
+          "loyalty": 2.0
+        },
+        "injuryChanceMultiplier": 1.5
+      },
+      "evacuate": {
+        "extraScales": {
+          "publicity": 3.0
+        },
+        "consequenceCap": "Injury"
+      }
+    }
+  },
+  {
+    "id": "radio_tram_last_run",
+    "options": {
+      "route": {
+        "revealsPropertyId": "property_mimic_routine",
+        "extraScales": {
+          "infection": -3.0
+        },
+        "consequenceCap": "Death"
+      },
+      "driver": {
+        "revealsPropertyId": "property_mimic_break",
+        "extraScales": {
+          "infection": 3.0,
+          "loyalty": 2.0
+        },
+        "deathChanceMultiplier": 2.0,
+        "injuryChanceMultiplier": 1.6
+      },
+      "power": {
+        "extraScales": {
+          "infection": -2.0,
+          "loyalty": -3.0
+        },
+        "consequenceCap": "Injury"
+      }
+    }
+  },
+  {
+    "id": "radio_workshop_empty",
+    "options": {
+      "search": {
+        "extraScales": {},
+        "consequenceCap": "None"
+      },
+      "abort": {
+        "extraScales": {
+          "loyalty": 1.0
+        },
+        "consequenceCap": "None"
+      }
+    }
+  },
+  {
+    "id": "radio_workshop_intro",
+    "options": {
+      "papers": {
+        "extraScales": {
+          "loyalty": 2.0
+        },
+        "consequenceCap": "None"
+      },
+      "peace": {
+        "extraScales": {
+          "publicity": -2.0,
+          "loyalty": -1.0
+        },
+        "consequenceCap": "None"
+      }
+    }
+  },
+  {
+    "id": "radio_workshop_site",
+    "options": {
+      "cut": {
+        "extraScales": {
+          "infection": -4.0,
+          "loyalty": 2.0
+        },
+        "consequenceCap": "Injury"
+      },
+      "lead_out": {
+        "extraScales": {
+          "publicity": 4.0,
+          "loyalty": 2.0
+        },
+        "deathChanceMultiplier": 1.8,
+        "injuryChanceMultiplier": 1.5
+      },
+      "cordon": {
+        "extraScales": {
+          "infection": 5.0,
+          "publicity": -3.0,
+          "loyalty": -4.0
+        },
+        "consequenceCap": "None"
+      }
+    }
+  },
+  {
+    "id": "radio_workshop_truck",
+    "options": {
+      "write_off": {
+        "extraScales": {
+          "infection": 3.0,
+          "loyalty": -2.0
+        },
+        "consequenceCap": "Injury"
+      },
+      "seize": {
+        "extraScales": {
+          "infection": -4.0,
+          "loyalty": 2.0
+        },
+        "injuryChanceMultiplier": 1.4,
+        "consequenceCap": "Injury"
+      }
+    }
+  },
+  {
+    "id": "radio_wall_infection",
+    "options": {
+      "dosimeter": {
+        "requiresEquipmentId": "eq_dosimeter",
+        "consequenceCap": "None"
+      },
+      "listen": {},
+      "brute": {
+        "extraScales": {
+          "publicity": 2.0
+        },
+        "injuryChanceMultiplier": 1.3
+      }
+    }
+  },
+  {
+    "id": "radio_flooded_basement",
+    "options": {
+      "shut_valve": {
+        "revealsPropertyId": "property_kanalotvar_water",
+        "extraScales": {
+          "infection": -1.0
+        },
+        "consequenceCap": "None"
+      },
+      "approach": {
+        "injuryChanceMultiplier": 1.5
+      }
+    }
+  },
+  {
+    "id": "radio_dogs_go_down",
+    "options": {
+      "follow": {
+        "revealsPropertyId": "property_kanalotvar_lure",
+        "extraScales": {
+          "infection": -1.0
+        }
+      },
+      "block": {
+        "extraScales": {
+          "loyalty": 1.0
+        },
+        "consequenceCap": "None"
+      }
+    }
+  },
+  {
+    "id": "radio_silent_collector",
+    "options": {
+      "call_out": {
+        "revealsPropertyId": "property_kanalotvar_sound",
+        "injuryChanceMultiplier": 1.4
+      },
+      "signal": {
+        "extraScales": {
+          "infection": -1.0,
+          "loyalty": 1.0
+        }
+      }
+    }
+  },
+  {
+    "id": "radio_dont_blink",
+    "options": {
+      "relieve": {
+        "revealsPropertyId": "property_perekozhnik_eye_contact",
+        "deathChanceMultiplier": 1.6,
+        "injuryChanceMultiplier": 1.4
+      },
+      "blind": {
+        "deathChanceMultiplier": 2.0,
+        "injuryChanceMultiplier": 1.7
+      }
+    }
+  },
+  {
+    "id": "radio_racing_pulse",
+    "options": {
+      "calm": {
+        "revealsPropertyId": "property_perekozhnik_heartbeat",
+        "extraScales": {
+          "loyalty": 1.0
+        }
+      },
+      "extract": {
+        "deathChanceMultiplier": 1.6,
+        "injuryChanceMultiplier": 1.5
+      }
+    }
+  },
+  {
+    "id": "radio_talking_dog",
+    "options": {
+      "listen": {
+        "revealsPropertyId": "property_simulacre_speech",
+        "injuryChanceMultiplier": 1.4
+      },
+      "ignore": {
+        "extraScales": {
+          "publicity": -1.0
+        }
+      }
+    }
+  },
+  {
+    "id": "radio_whole_stairwell",
+    "options": {
+      "relay": {
+        "extraScales": {
+          "loyalty": 1.0
+        }
+      },
+      "soothe": {
+        "injuryChanceMultiplier": 0.8,
+        "extraScales": {
+          "infection": -1.0
+        }
+      },
+      "push_through": {
+        "deathChanceMultiplier": 2.2,
+        "injuryChanceMultiplier": 1.8,
+        "extraScales": {
+          "publicity": 3.0
+        }
+      }
+    }
+  },
+  {
+    "id": "radio_comms_outage",
+    "options": {
+      "persuade": {
+        "extraScales": {
+          "loyalty": 1.0
+        },
+        "consequenceCap": "None"
+      },
+      "handle_it": {
+        "extraScales": {
+          "publicity": -1.0
+        },
+        "consequenceCap": "None"
+      }
+    }
+  }
 ]

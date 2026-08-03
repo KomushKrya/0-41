@@ -50,6 +50,8 @@ namespace Kontur.Core.Model
 		/// <summary>0..1 — насколько группа покрыла требования.</summary>
 		public double Coverage { get; set; }
 
+		public List<StatMatch> StatMatches { get; } = new List<StatMatch>();
+
 		public double SuccessChance { get; set; }
 
 		public double Roll { get; set; } = -1.0;
@@ -86,12 +88,14 @@ namespace Kontur.Core.Model
 
 		public string MissionId { get; set; } = string.Empty;
 
-		public string Title { get; set; } = string.Empty;
 
-		public string Text { get; set; } = string.Empty;
+		/// <summary>Id отчёта в текстовом движке; Text остаётся fallback-ом для старых интерфейсов.</summary>
+		public string ReportId { get; set; } = string.Empty;
 
 		/// <summary>Существо, с которым столкнулась группа. Пусто, если никто не вернулся.</summary>
 		public string CreatureId { get; set; } = string.Empty;
+
+		public string ChosenOptionId { get; set; } = string.Empty;
 
 		public bool IsSuccess { get; set; }
 

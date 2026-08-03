@@ -21,6 +21,16 @@ namespace Kontur.Core.Simulation
 
 		public int Seed { get; }
 
+		public ulong State
+		{
+			get { return _state; }
+		}
+
+		public void RestoreState(ulong state)
+		{
+			_state = state == 0UL ? 0x9E3779B97F4A7C15UL : state;
+		}
+
 		public double NextDouble()
 		{
 			ulong value = NextUInt64();

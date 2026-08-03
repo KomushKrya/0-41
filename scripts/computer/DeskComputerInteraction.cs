@@ -83,11 +83,14 @@ public partial class DeskComputerInteraction : Node3D
 		}
 	}
 
-	public void EnterComputerMode(FlyPlayer player)
+	public void EnterComputerMode(FlyPlayer player, bool pauseSimulation = true)
 	{
 		_activePlayer = player;
 		_isComputerModeActive = true;
-		PauseSimulationForComputer();
+		if (pauseSimulation)
+		{
+			PauseSimulationForComputer();
+		}
 
 		_activePlayer.FocusViewAt(_focusCameraPose.GlobalTransform);
 		_activePlayer.SetMovementEnabled(false);
@@ -102,7 +105,9 @@ public partial class DeskComputerInteraction : Node3D
 		string callTranscript = null)
 	{
 		_onModeExit = onModeExit;
-		EnterComputerMode(player);
+		// Экран отправки уже удерживает время через KonturSimulation.OpenDispatchScreen.
+		// Обычный компьютер продолжает пользоваться своим отдельным владельцем паузы.
+		EnterComputerMode(player, false);
 		_computerUi.BeginDispatchSelection(incidentId, ExitComputerMode, callTitle, callTranscript);
 	}
 

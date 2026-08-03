@@ -400,8 +400,9 @@ current = true
 
 [node name="InteractionRay" type="RayCast3D" parent="Player/Head/Camera3D" unique_id=1797604442]
 target_position = Vector3(0, 0, -5)
-collision_mask = 2
+collision_mask = 3
 collide_with_areas = true
+collide_with_bodies = true
 
 [node name="KonturDebug" parent="." unique_id=1184622803 instance=ExtResource("24_kontur_debug")]
 

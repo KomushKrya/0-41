@@ -34,7 +34,10 @@ namespace Kontur.Harness
 			ContentDatabase content;
 			try
 			{
-				content = ContentLoader.Load(new DirectoryContentSource(contentPath));
+				ITextCatalog? texts = Directory.Exists("content/localisation/ru")
+					? JsonTextCatalog.Load(new DirectoryContentSource("content/localisation/ru"))
+					: null;
+				content = ContentLoader.Load(new DirectoryContentSource(contentPath), texts);
 			}
 			catch (ContentException exception)
 			{
@@ -52,7 +55,7 @@ namespace Kontur.Harness
 
 		private static int RunShifts(ContentDatabase content, HarnessOptions options)
 		{
-			var session = new GameSession(content, options.Seed);
+			var session = new KonturSimulation(content, options.Seed);
 
 			double clock = 0.0;
 			var log = new ConsoleEventLog(() => clock, options.Verbose);
@@ -120,11 +123,11 @@ namespace Kontur.Harness
 				options.Strategy);
 			Console.WriteLine(
 				$"контент: зон {content.Buildings.Count}, существ {content.Creatures.Count}, миссий {content.Missions.Count}, "
-				+ $"радио-сцен {content.RadioEncounters.Count}, снаряжения {content.Equipment.Count}");
+				+ $"событий по радио {content.MissionEvents.Count}, снаряжения {content.Equipment.Count}");
 			Console.WriteLine(new string('=', 78));
 		}
 
-		private static void PrintRoster(GameSession session)
+		private static void PrintRoster(KonturSimulation session)
 		{
 			Console.WriteLine();
 			Console.WriteLine("ШТАТ:");
@@ -142,7 +145,7 @@ namespace Kontur.Harness
 			}
 		}
 
-		private static void PrintFinal(GameSession session)
+		private static void PrintFinal(KonturSimulation session)
 		{
 			ShiftStatusView status = session.GetStatus();
 

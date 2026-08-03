@@ -6,7 +6,7 @@
 	  "rankTitle": "старший оперативник",
 	  "level": 2,
 	  "portraitId": "port_gorin",
-	  "stats": { "strength": 5, "perception": 3, "endurance": 4, "charisma": 3, "composure": 3 },
+	  "stats": { "strength": 5, "intellect": 3, "combat": 4, "agility": 3, "charisma": 3 },
 	  "abilities": ["ab_skin_breaker"]
 	},
 	{
@@ -15,7 +15,7 @@
 	  "rankTitle": "оперативник",
 	  "level": 1,
 	  "portraitId": "port_vasnetsova",
-	  "stats": { "strength": 3, "perception": 5, "endurance": 3, "charisma": 4, "composure": 3 },
+	  "stats": { "strength": 3, "intellect": 5, "combat": 3, "agility": 4, "charisma": 3 },
 	  "abilities": ["ab_mimic_hunter"]
 	},
 	{
@@ -24,7 +24,7 @@
 	  "rankTitle": "оперативник",
 	  "level": 1,
 	  "portraitId": "port_lyadov",
-	  "stats": { "strength": 4, "perception": 3, "endurance": 4, "charisma": 3, "composure": 4 },
+	  "stats": { "strength": 4, "intellect": 3, "combat": 4, "agility": 3, "charisma": 4 },
 	  "abilities": ["ab_calm"]
 	}
   ],
@@ -36,7 +36,7 @@
 	  "level": 1,
 	  "portraitId": "port_shubin",
 	  "availableFromDay": 2,
-	  "stats": { "strength": 4, "perception": 4, "endurance": 4, "charisma": 3, "composure": 3 },
+	  "stats": { "strength": 4, "intellect": 4, "combat": 4, "agility": 3, "charisma": 3 },
 	  "abilities": ["ab_filter_master"]
 	},
 	{
@@ -46,7 +46,7 @@
 	  "level": 1,
 	  "portraitId": "port_teplova",
 	  "availableFromDay": 2,
-	  "stats": { "strength": 3, "perception": 5, "endurance": 3, "charisma": 5, "composure": 3 },
+	  "stats": { "strength": 3, "intellect": 5, "combat": 3, "agility": 5, "charisma": 3 },
 	  "abilities": ["ab_signal"]
 	},
 	{
@@ -56,7 +56,7 @@
 	  "level": 2,
 	  "portraitId": "port_karnaukh",
 	  "availableFromDay": 3,
-	  "stats": { "strength": 6, "perception": 4, "endurance": 5, "charisma": 3, "composure": 4 },
+	  "stats": { "strength": 6, "intellect": 4, "combat": 5, "agility": 3, "charisma": 4 },
 	  "abilities": ["ab_skin_breaker", "ab_calm"]
 	},
 	{
@@ -66,7 +66,7 @@
 	  "level": 2,
 	  "portraitId": "port_prus",
 	  "availableFromDay": 3,
-	  "stats": { "strength": 4, "perception": 6, "endurance": 4, "charisma": 5, "composure": 4 },
+	  "stats": { "strength": 4, "intellect": 6, "combat": 4, "agility": 5, "charisma": 4 },
 	  "abilities": ["ab_mimic_hunter"]
 	},
 	{
@@ -76,8 +76,89 @@
 	  "level": 3,
 	  "portraitId": "port_zhilin",
 	  "availableFromDay": 4,
-	  "stats": { "strength": 6, "perception": 5, "endurance": 6, "charisma": 4, "composure": 6 },
+	  "stats": { "strength": 6, "intellect": 5, "combat": 6, "agility": 4, "charisma": 6 },
 	  "abilities": ["ab_calm", "ab_signal"]
 	}
-  ]
+  ],
+
+  "generator": {
+	"candidatesPerShift": 3,
+	"candidatesChoiceMargin": 2,
+
+	"minStat": 2,
+	"maxStat": 7,
+	"statPointsBase": 8,
+	"statPointsPerLevel": 4,
+	"primaryWeight": 3,
+	"secondaryWeight": 2,
+
+	"abilitiesBase": 1,
+	"secondAbilityFromLevel": 3,
+
+	"startingChoicePoolSize": 6,
+
+	"levelLagBehindDay": 1,
+	"levelSpread": 1,
+
+	"minAge": 24,
+	"maxAge": 52,
+	"bioSlots": ["build", "temper", "family", "note"],
+
+
+	"surnames": [
+	  "Аникеев", "Балуев", "Ветров", "Гусаров", "Дроздов", "Ерохин", "Жарков",
+	  "Заславский", "Ильюшин", "Кожемяко", "Лаптев", "Мещеряков", "Нестеров",
+	  "Опалев", "Пантелеев", "Рогачёв", "Сафронов", "Тихомиров", "Ушаков",
+	  "Фомичёв", "Хабаров", "Цыганков", "Чернышов", "Шаталов", "Щербаков",
+	  "Юдин", "Ямпольский"
+	],
+
+	"initials": [
+	  "А. В.", "Б. Н.", "В. С.", "Г. Т.", "Д. И.", "Е. К.", "З. Л.", "И. О.",
+	  "К. Р.", "Л. А.", "М. Е.", "Н. Ф.", "О. П.", "П. Д.", "Р. Г.", "С. М.",
+	  "Т. Б.", "Ю. Я."
+	],
+
+	"portraits": [
+		"port_generic_1", "port_generic_2", "port_generic_3", "port_generic_4",
+		"port_generic_5", "port_generic_6", "port_generic_7", "port_generic_8",
+		"port_generic_9", "port_generic_10", "port_generic_11", "port_generic_12",
+		"port_generic_13", "port_generic_14"
+	],
+
+	"archetypes": [
+	  {
+		"id": "arch_muscle",
+		"weight": 3,
+		"rankTitle": "оперативник",
+		"primary": ["strength", "combat"],
+		"secondary": ["charisma"],
+		"abilities": ["ab_skin_breaker", "ab_calm"]
+	  },
+	  {
+		"id": "arch_scout",
+		"weight": 3,
+		"rankTitle": "оперативник",
+		"primary": ["intellect", "agility"],
+		"secondary": ["charisma"],
+		"abilities": ["ab_mimic_hunter", "ab_signal"]
+	  },
+	  {
+		"id": "arch_technician",
+		"weight": 2,
+		"rankTitle": "техник-оперативник",
+		"primary": ["combat", "intellect"],
+		"secondary": ["agility"],
+		"abilities": ["ab_filter_master", "ab_signal"]
+	  },
+	  {
+		"id": "arch_veteran",
+		"weight": 1,
+		"rankTitle": "старший оперативник",
+		"primary": ["charisma", "strength"],
+		"secondary": ["combat", "intellect"],
+		"abilities": ["ab_calm", "ab_skin_breaker", "ab_mimic_hunter"]
+	  }
+	]
+  }
 }

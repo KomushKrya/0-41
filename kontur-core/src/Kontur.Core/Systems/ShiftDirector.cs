@@ -5,6 +5,7 @@ using Kontur.Core.Config;
 using Kontur.Core.Content;
 using Kontur.Core.Events;
 using Kontur.Core.Model;
+using Kontur.Core.Persistence;
 using Kontur.Core.Simulation;
 
 namespace Kontur.Core.Systems
@@ -30,6 +31,7 @@ namespace Kontur.Core.Systems
 		private readonly List<IncidentRuntime> _pending = new List<IncidentRuntime>();
 
 		private double _shiftTime;
+		private double _callQueueCooldown;
 		private bool _callWindowClosed;
 		private int _spawnedCount;
 		private ShiftCounters _counters = new ShiftCounters();
@@ -84,6 +86,7 @@ namespace Kontur.Core.Systems
 		{
 			_state.Day = day;
 			_shiftTime = 0.0;
+			_callQueueCooldown = 0.0;
 			_callWindowClosed = false;
 			_spawnedCount = 0;
 			_counters = new ShiftCounters();
@@ -116,8 +119,13 @@ namespace Kontur.Core.Systems
 			}
 
 			_shiftTime += delta;
+			if (_callQueueCooldown > 0.0)
+			{
+				_callQueueCooldown = Math.Max(0.0, _callQueueCooldown - delta);
+			}
 
 			SpawnDueIncidents();
+			PromoteQueuedCall();
 
 			// Копия списка: обработчики событий могут закрывать инциденты.
 			IncidentRuntime[] snapshot = _incidents.ToArray();
@@ -166,16 +174,23 @@ namespace Kontur.Core.Systems
 				_pending.RemoveAt(0);
 				_incidents.Add(incident);
 				_spawnedCount++;
+				if (isSequential && _spawnedCount == dayConfig.SequentialCallCount)
+				{
+					RebaseRemainingSchedule();
+				}
 
-				double ringSeconds = GetTimer(dayConfig, _content.Config.Timings.PhoneRingSeconds);
-				incident.SetPhase(IncidentPhase.Ringing, ringSeconds > 0.0 ? ringSeconds : (double?)null);
+				if (IsPhoneLineBusy() || _callQueueCooldown > 0.0)
+				{
+					incident.SetPhase(IncidentPhase.Queued, null);
+					_bus.Publish(new IncidentQueued(
+						incident.Id,
+						incident.Mission.Id,
+						incident.BuildingId,
+						CountQueuedIncidents()));
+					continue;
+				}
 
-				_bus.Publish(new IncidentCreated(
-					incident.Id,
-					incident.Mission.Id,
-					incident.BuildingId,
-					incident.Mission.CallerName,
-					ringSeconds));
+				StartRinging(incident, dayConfig);
 
 				// Сценарная часть закончилась — остаток расписания сдвигаем от текущего момента,
 				// иначе давно просроченные времена выпустили бы все вызовы разом.
@@ -184,6 +199,70 @@ namespace Kontur.Core.Systems
 					RebaseRemainingSchedule();
 				}
 			}
+		}
+
+		private void PromoteQueuedCall()
+		{
+			if (IsPhoneLineBusy() || _callQueueCooldown > 0.0)
+			{
+				return;
+			}
+
+			for (int i = 0; i < _incidents.Count; i++)
+			{
+				if (_incidents[i].Phase != IncidentPhase.Queued)
+				{
+					continue;
+				}
+
+				StartRinging(_incidents[i], _content.Config.GetDay(_state.Day));
+				return;
+			}
+		}
+
+		private void StartRinging(IncidentRuntime incident, DayConfig dayConfig)
+		{
+			double ringSeconds = GetTimer(dayConfig, _content.Config.Timings.PhoneRingSeconds);
+			incident.SetPhase(IncidentPhase.Ringing, ringSeconds > 0.0 ? ringSeconds : (double?)null);
+			_bus.Publish(new IncidentCreated(
+				incident.Id,
+				incident.Mission.Id,
+				incident.BuildingId,
+				incident.Mission.CallId,
+				ringSeconds));
+		}
+
+		private bool IsPhoneLineBusy()
+		{
+			for (int i = 0; i < _incidents.Count; i++)
+			{
+				IncidentPhase phase = _incidents[i].Phase;
+				if (phase == IncidentPhase.Ringing || phase == IncidentPhase.Briefing)
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		private int CountQueuedIncidents()
+		{
+			int count = 0;
+			for (int i = 0; i < _incidents.Count; i++)
+			{
+				if (_incidents[i].Phase == IncidentPhase.Queued)
+				{
+					count++;
+				}
+			}
+
+			return count;
+		}
+
+		private void StartCallQueueCooldown()
+		{
+			_callQueueCooldown = Math.Max(_callQueueCooldown, _content.Config.Timings.CallQueueGapSeconds);
 		}
 
 		private void RebaseRemainingSchedule()
@@ -234,11 +313,169 @@ namespace Kontur.Core.Systems
 		{
 			IsShiftActive = false;
 			_shiftTime = 0.0;
+			_callQueueCooldown = 0.0;
 			_callWindowClosed = false;
 			_spawnedCount = 0;
 			_counters = new ShiftCounters();
 			_incidents.Clear();
 			_pending.Clear();
+		}
+
+		/// <summary>Снимает точный снимок смены; UI после загрузки восстанавливается по View-методам.</summary>
+		public SavedShift CaptureShift()
+		{
+			var saved = new SavedShift
+			{
+				IsActive = IsShiftActive,
+				ShiftTime = _shiftTime,
+				CallQueueCooldown = _callQueueCooldown,
+				CallWindowClosed = _callWindowClosed,
+				SpawnedCount = _spawnedCount,
+				TotalIncidents = _counters.TotalIncidents,
+				Successes = _counters.Successes,
+				Failures = _counters.Failures,
+				MissedCalls = _counters.MissedCalls,
+				ExpiredMarkers = _counters.ExpiredMarkers,
+				Injuries = _counters.Injuries,
+				Deaths = _counters.Deaths
+			};
+
+			foreach (IncidentRuntime incident in _pending)
+			{
+				saved.Pending.Add(CaptureIncident(incident));
+			}
+
+			foreach (IncidentRuntime incident in _incidents)
+			{
+				saved.Incidents.Add(CaptureIncident(incident));
+			}
+
+			return saved;
+		}
+
+		public void RestoreShift(SavedShift? saved)
+		{
+			AbortShift();
+			if (saved == null)
+			{
+				return;
+			}
+
+			IsShiftActive = saved.IsActive;
+			_shiftTime = saved.ShiftTime;
+			_callQueueCooldown = saved.CallQueueCooldown;
+			_callWindowClosed = saved.CallWindowClosed;
+			_spawnedCount = saved.SpawnedCount;
+			_counters = new ShiftCounters
+			{
+				TotalIncidents = saved.TotalIncidents,
+				Successes = saved.Successes,
+				Failures = saved.Failures,
+				MissedCalls = saved.MissedCalls,
+				ExpiredMarkers = saved.ExpiredMarkers,
+				Injuries = saved.Injuries,
+				Deaths = saved.Deaths
+			};
+
+			foreach (SavedIncident item in saved.Pending)
+			{
+				IncidentRuntime? incident = RestoreIncident(item);
+				if (incident != null) _pending.Add(incident);
+			}
+
+			foreach (SavedIncident item in saved.Incidents)
+			{
+				IncidentRuntime? incident = RestoreIncident(item);
+				if (incident != null) _incidents.Add(incident);
+			}
+		}
+
+		private static SavedIncident CaptureIncident(IncidentRuntime incident)
+		{
+			var saved = new SavedIncident
+			{
+				Id = incident.Id,
+				MissionId = incident.Mission.Id,
+				BuildingId = incident.BuildingId,
+				Phase = incident.Phase.ToString(),
+				ScheduledAtSeconds = incident.ScheduledAtSeconds,
+				OutboundTravelSeconds = incident.OutboundTravelSeconds,
+				HasTimer = incident.Timer != null,
+				MissionEventId = incident.MissionEvent?.Id ?? string.Empty,
+				ChosenOptionId = incident.ChosenOption?.Id ?? string.Empty,
+				RadioWasTriggered = incident.RadioWasTriggered,
+				RadioWasMissed = incident.RadioWasMissed,
+				HasOutcome = incident.Outcome != null,
+				OutcomeWasSuccess = incident.Outcome?.IsSuccess ?? false,
+				Report = incident.Report == null ? null : SaveSystem.CaptureReport(incident.Report)
+			};
+
+			if (incident.Timer != null)
+			{
+				saved.TimerDuration = incident.Timer.Duration;
+				saved.TimerRemaining = incident.Timer.Remaining;
+				saved.TimerRunning = incident.Timer.IsRunning;
+			}
+
+			saved.SquadEmployeeIds.AddRange(incident.SquadEmployeeIds);
+			saved.EquipmentIds.AddRange(incident.EquipmentIds);
+			return saved;
+		}
+
+		private IncidentRuntime? RestoreIncident(SavedIncident saved)
+		{
+			MissionDefinition? mission = _content.FindMission(saved.MissionId);
+			if (mission == null)
+			{
+				return null;
+			}
+
+			var incident = new IncidentRuntime(saved.Id, mission, saved.BuildingId)
+			{
+				ScheduledAtSeconds = saved.ScheduledAtSeconds,
+				OutboundTravelSeconds = saved.OutboundTravelSeconds,
+				RadioWasTriggered = saved.RadioWasTriggered,
+				RadioWasMissed = saved.RadioWasMissed
+			};
+
+			incident.Phase = Enum.TryParse(saved.Phase, true, out IncidentPhase phase)
+				? phase
+				: IncidentPhase.Scheduled;
+			incident.Timer = saved.HasTimer
+				? Countdown.Restore(saved.TimerDuration, saved.TimerRemaining, saved.TimerRunning)
+				: null;
+			incident.SquadEmployeeIds.AddRange(saved.SquadEmployeeIds);
+			incident.EquipmentIds.AddRange(saved.EquipmentIds);
+
+			if (!string.IsNullOrEmpty(saved.MissionEventId))
+			{
+				incident.MissionEvent = _content.FindMissionEvent(saved.MissionEventId);
+			}
+
+			if (incident.MissionEvent != null && !string.IsNullOrEmpty(saved.ChosenOptionId))
+			{
+				incident.ChosenOption = incident.MissionEvent.FindOption(saved.ChosenOptionId);
+			}
+
+			if (saved.Report != null)
+			{
+				incident.Report = SaveSystem.RestoreReport(saved.Report);
+			}
+
+			if (saved.HasOutcome)
+			{
+				incident.Outcome = new MissionOutcome
+				{
+					IncidentId = incident.Id,
+					MissionId = mission.Id,
+					BuildingId = incident.BuildingId,
+					CreatureId = mission.CreatureId,
+					Kind = saved.OutcomeWasSuccess ? MissionResultKind.Success : MissionResultKind.Failure
+				};
+				incident.Outcome.EmployeeIds.AddRange(saved.SquadEmployeeIds);
+			}
+
+			return incident;
 		}
 
 		public void EndShift()
@@ -259,6 +496,20 @@ namespace Kontur.Core.Systems
 				: dayConfig.OutroCutsceneId;
 
 			_bus.Publish(new ShiftEnded(_state.Day, cutscene, _counters.ToSummary()));
+			OpenHiring();
+		}
+
+		private void OpenHiring()
+		{
+			if (_state.IsGameOver) return;
+			int nextDay = _state.Day + 1;
+			int freeSlots = _roster.CountFreeSlots(nextDay);
+			if (freeSlots <= 0) return;
+			IReadOnlyList<HireCandidate> candidates = _roster.GetAvailableCandidates(nextDay);
+			if (candidates.Count == 0) return;
+			var ids = new List<string>(candidates.Count);
+			for (int i = 0; i < candidates.Count; i++) ids.Add(candidates[i].Template.Id);
+			_bus.Publish(new HiringOpened(nextDay, _roster.GetStaffLimit(nextDay), _roster.CountLiving(), freeSlots, ids));
 		}
 
 		private int CountOpenIncidents()
@@ -315,6 +566,7 @@ namespace Kontur.Core.Systems
 		private void HandleCallMissed(IncidentRuntime incident)
 		{
 			_counters.MissedCalls++;
+			StartCallQueueCooldown();
 			_bus.Publish(new CallMissed(incident.Id, incident.Mission.Id));
 			ResolveAutoFailure(incident, MissionResolutionReason.CallMissed, incident.Mission.ScalesOnMissedCall, "пропущен звонок");
 		}
@@ -330,11 +582,11 @@ namespace Kontur.Core.Systems
 		{
 			_bus.Publish(new SquadArrived(incident.Id, incident.BuildingId));
 
-			RadioEncounter? encounter = incident.Mission.RadioEncounterId == null
+			MissionEventDefinition? missionEvent = string.IsNullOrWhiteSpace(incident.Mission.MissionEventId)
 				? null
-				: _content.FindRadioEncounter(incident.Mission.RadioEncounterId);
+				: _content.FindMissionEvent(incident.Mission.MissionEventId);
 
-			if (encounter == null)
+			if (missionEvent == null)
 			{
 				BeginMissionExecution(incident);
 				return;
@@ -344,17 +596,23 @@ namespace Kontur.Core.Systems
 				_content.Config.GetDay(_state.Day),
 				_content.Config.Timings.RadioSeconds);
 
-			incident.Radio = encounter;
+			incident.MissionEvent = missionEvent;
 			incident.RadioWasTriggered = true;
 			incident.SetPhase(IncidentPhase.RadioPending, radioSeconds > 0.0 ? radioSeconds : (double?)null);
 
-			var views = new List<RadioOptionView>();
-			for (int i = 0; i < encounter.Options.Count; i++)
-			{
-				views.Add(new RadioOptionView(encounter.Options[i].Id, encounter.Options[i].Text));
-			}
+			_bus.Publish(new RadioTriggered(incident.Id, missionEvent.Id, BuildOffers(incident), radioSeconds));
+		}
 
-			_bus.Publish(new RadioTriggered(incident.Id, encounter.SituationText, views, radioSeconds));
+		public IReadOnlyList<RadioOptionOffer> BuildOffers(IncidentRuntime incident)
+		{
+			var offers = new List<RadioOptionOffer>();
+			if (incident.MissionEvent == null) return offers;
+			foreach (MissionEventOption option in incident.MissionEvent.Options)
+			{
+				bool isAvailable = string.IsNullOrEmpty(option.RequiresEquipmentId) || incident.EquipmentIds.Contains(option.RequiresEquipmentId);
+				offers.Add(new RadioOptionOffer(option.Id, option.ResolveRequirements(incident.Mission.Requirements), isAvailable, option.RequiresEquipmentId ?? string.Empty));
+			}
+			return offers;
 		}
 
 		private void HandleRadioMissed(IncidentRuntime incident)
@@ -491,6 +749,22 @@ namespace Kontur.Core.Systems
 
 			incident.Report = BuildReport(incident, outcome, creature, revealed);
 
+			double returnSeconds = incident.OutboundTravelSeconds > 0.0
+				? incident.OutboundTravelSeconds
+				: mission.ReturnSeconds;
+			_bus.Publish(new MissionOutcomeReady(
+				incident.Id,
+				mission.Id,
+				outcome.IsSuccess,
+				outcome.Reason,
+				incident.Report.ReportId,
+				outcome.SquadWiped ? string.Empty : outcome.CreatureId,
+				outcome.SquadWiped ? Array.Empty<string>() : outcome.EmployeeIds.ToArray(),
+				outcome.InjuredEmployeeIds.ToArray(),
+				outcome.KilledEmployeeIds.ToArray(),
+				returnSeconds,
+				outcome.SquadWiped));
+
 			if (outcome.SquadWiped)
 			{
 				// Возвращаться некому — отчёт всё равно фиксируется, но без опознания существа.
@@ -504,9 +778,6 @@ namespace Kontur.Core.Systems
 				return;
 			}
 
-			double returnSeconds = incident.OutboundTravelSeconds > 0.0
-				? incident.OutboundTravelSeconds
-				: mission.ReturnSeconds;
 			incident.SetPhase(IncidentPhase.Returning, returnSeconds);
 			_bus.Publish(new SquadReturning(incident.Id, incident.BuildingId, returnSeconds));
 		}
@@ -544,9 +815,9 @@ namespace Kontur.Core.Systems
 			{
 				IncidentId = incident.Id,
 				MissionId = incident.Mission.Id,
-				Title = incident.Mission.Title,
 				IsSuccess = outcome.IsSuccess,
-				Text = outcome.IsSuccess ? incident.Mission.ReportSuccessText : incident.Mission.ReportFailureText
+				ReportId = incident.Mission.ResolveReportId(outcome.ChosenRadioOptionId, outcome.IsSuccess),
+				ChosenOptionId = outcome.ChosenRadioOptionId ?? string.Empty
 			};
 
 			if (!outcome.SquadWiped && creature != null)
@@ -764,13 +1035,14 @@ namespace Kontur.Core.Systems
 			CreatureDefinition? creature = _content.FindCreature(incident.Mission.CreatureId);
 			StatBlock squadStats = _resolver.ComputeSquadStats(squad, equipment, creature);
 
-			double coverage = MissionResolver.ComputeCoverage(requirements, squadStats);
-			bool isAutoSuccess = coverage >= 1.0;
+			IReadOnlyList<StatMatch> matches = _resolver.EvaluateMatches(requirements, squadStats, incident.Mission.PrimaryStat);
+			double matchScore = _resolver.ComputeMatchScore(matches);
+			bool isAutoSuccess = MissionResolver.IsPerfectMatch(matches);
 			double chance = isAutoSuccess
 				? 1.0
-				: _resolver.ComputeSuccessChance(coverage, equipment, incident.RadioWasMissed);
+				: _resolver.ComputeSuccessChance(matchScore, equipment, incident.RadioWasMissed);
 
-			return new DispatchEstimateView(requirements, squadStats, coverage, chance, isAutoSuccess);
+			return new DispatchEstimateView(requirements, squadStats, matches, matchScore, chance, isAutoSuccess);
 		}
 
 		public CommandResult AnswerCall(string incidentId)
@@ -786,16 +1058,32 @@ namespace Kontur.Core.Systems
 				return CommandResult.Fail("Телефон по этому вызову не звонит.");
 			}
 
+			incident.SetPhase(IncidentPhase.Briefing, null);
+			StartCallQueueCooldown();
+			_bus.Publish(new CallAnswered(incident.Id, incident.Mission.Id, incident.Mission.CallId));
+
+			return CommandResult.Ok();
+		}
+
+		/// <summary>Подтверждает прочтение брифинга и только после этого показывает цель на карте.</summary>
+		public CommandResult ConfirmBriefing(string incidentId)
+		{
+			IncidentRuntime? incident = FindIncident(incidentId);
+			if (incident == null)
+			{
+				return CommandResult.Fail("Вызов не найден.");
+			}
+
+			if (incident.Phase != IncidentPhase.Briefing)
+			{
+				return CommandResult.Fail("Брифинг по этому вызову сейчас не открыт.");
+			}
+
 			double markerSeconds = GetTimer(
 				_content.Config.GetDay(_state.Day),
 				_content.Config.Timings.MapMarkerSeconds);
-
 			incident.SetPhase(IncidentPhase.MarkerActive, markerSeconds > 0.0 ? markerSeconds : (double?)null);
-			_bus.Publish(new CallAnswered(
-				incident.Id,
-				incident.Mission.Id,
-				incident.Mission.Title,
-				incident.Mission.BriefingText));
+			_bus.Publish(new BriefingConfirmed(incident.Id, incident.Mission.Id, incident.BuildingId, markerSeconds));
 			_bus.Publish(new MapMarkerSpawned(incident.Id, incident.BuildingId, markerSeconds));
 
 			return CommandResult.Ok();
@@ -861,6 +1149,12 @@ namespace Kontur.Core.Systems
 			if (employeeIds == null || employeeIds.Count == 0)
 			{
 				return CommandResult.Fail("Не выбран ни один сотрудник.");
+			}
+
+			if (employeeIds.Count > incident.Mission.SquadLimit)
+			{
+				return CommandResult.Fail(
+					$"На вызов '{incident.Mission.Id}' можно отправить не более {incident.Mission.SquadLimit} сотрудников.");
 			}
 
 			var squad = new List<Employee>();
@@ -930,19 +1224,25 @@ namespace Kontur.Core.Systems
 				return CommandResult.Fail("Вызов не найден.");
 			}
 
-			if (incident.Phase != IncidentPhase.RadioPending || incident.Radio == null)
+			if (incident.Phase != IncidentPhase.RadioPending || incident.MissionEvent == null)
 			{
 				return CommandResult.Fail("Радио по этому вызову не активно.");
 			}
 
-			RadioOption? option = incident.Radio.FindOption(optionId);
+			MissionEventOption? option = incident.MissionEvent.FindOption(optionId);
 			if (option == null)
 			{
 				return CommandResult.Fail($"Вариант '{optionId}' не найден.");
 			}
 
+			if (!string.IsNullOrEmpty(option.RequiresEquipmentId)
+				&& !incident.EquipmentIds.Contains(option.RequiresEquipmentId))
+			{
+				return CommandResult.Fail($"Для варианта нужен предмет '{option.RequiresEquipmentId}'.");
+			}
+
 			incident.ChosenOption = option;
-			_bus.Publish(new RadioOptionChosen(incident.Id, option.Id, option.Text));
+			_bus.Publish(new RadioOptionChosen(incident.Id, incident.MissionEvent.Id, option.Id));
 
 			BeginMissionExecution(incident);
 			return CommandResult.Ok();

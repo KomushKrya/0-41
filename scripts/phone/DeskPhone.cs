@@ -86,14 +86,21 @@ public partial class DeskPhone : Node3D
 			IncidentView incident = FindIncident(runtime, incidentId);
 			if (incident != null && incident.Phase == IncidentPhase.Ringing)
 			{
-				string description = $"Входящий вызов от: {incident.CallerName}.\n"
-					+ $"Инцидент: {incident.Title}.\n\n"
-					+ "Подтвердите принятие вызова, чтобы открыть задание на карте.";
+				// Поднятие трубки и есть вход в брифинг: отдельного промежуточного экрана нет.
+				CommandResult answer = runtime.Session.AnswerCall(incidentId);
+				if (!answer.IsSuccess)
+				{
+					error = answer.Error;
+					return false;
+				}
+
+				string title = ContentTextResolver.ResolveCallMeta(incident.CallId, incident.CallId);
+				string description = ContentTextResolver.ResolveEntryText(incident.CallId, incident.CallId);
 				_callAcceptanceUi.ShowCallAcceptance(
-					"ВХОДЯЩИЙ ВЫЗОВ",
+					title,
 					description,
 					null,
-					() => ConfirmAnswer(runtime, incidentId));
+					() => ConfirmBriefing(runtime, incidentId));
 				return true;
 			}
 
@@ -118,15 +125,13 @@ public partial class DeskPhone : Node3D
 		return null!;
 	}
 
-	private void ConfirmAnswer(GameRuntime runtime, string incidentId)
+	private void ConfirmBriefing(GameRuntime runtime, string incidentId)
 	{
-		CommandResult result = runtime.Session.AnswerCall(incidentId);
+		CommandResult result = runtime.Session.ConfirmBriefing(incidentId);
 		if (!result.IsSuccess)
 		{
 			GD.PushWarning($"DeskPhone: {result.Error}");
-			return;
 		}
-
 	}
 
 	private void OnIncidentCreated(IncidentCreated incident)

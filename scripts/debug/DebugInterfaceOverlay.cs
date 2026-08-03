@@ -33,6 +33,7 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 	private Control _centerRayMarker = null!;
 	private FlyPlayer _player = null!;
 	private RayCast3D _interactionRay = null!;
+	private InteractionHitboxDebugRenderer _interactionHitboxDebug = null!;
 	private SubViewport _activeViewport = null!;
 	private Control _interactionAreaDebugRoot = null!;
 	private ColorRect _viewportAreaRect = null!;
@@ -60,6 +61,8 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 		_centerRayMarker = GetNode<Control>(CenterRayMarkerPath);
 		_player = GetNodeOrNull<FlyPlayer>(PlayerPath);
 		_interactionRay = GetNodeOrNull<RayCast3D>(InteractionRayPath);
+		_interactionHitboxDebug = new InteractionHitboxDebugRenderer();
+		AddChild(_interactionHitboxDebug);
 
 		CreateInteractionAreaDebugOverlay();
 		_panel.Visible = false;
@@ -236,6 +239,7 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 		_isInteractionRayReadoutEnabled = isEnabled;
 		IsInteractionRayDebugEnabled = isEnabled;
 		InteractionRayDebugChanged?.Invoke(isEnabled);
+		_interactionHitboxDebug?.SetEnabled(isEnabled);
 		_interactionReadout.Visible = isEnabled;
 		_centerRayMarker.Visible = isEnabled;
 
@@ -625,6 +629,6 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 		string areasState = _isInteractionAreaDebugEnabled ? "areas:on" : "areas:off";
 		string layoutState = _isMapLayoutDebugEnabled ? "map-layout:on" : "map-layout:off";
 		_title.Text = $"DEBUG INTERFACE: {_activeInterfaceName} | {areasState} | {layoutState}";
-		_help.Text = "F1: interaction ray + marker zones | F2: session data | F3: debug on/off | F4: interaction areas | F5: map layout | F6: core simulation | F12: noclip | 1: PC | 2: MAP | 3: DOSSIER | 4: NOTEBOOK | Esc: close";
+		_help.Text = "F1: interaction ray + all hitboxes | F2: session data | F3: debug on/off | F4: interaction areas | F5: map layout | F6: core simulation | F12: noclip | 1: PC | 2: MAP | 3: DOSSIER | 4: NOTEBOOK | Esc: close";
 	}
 }

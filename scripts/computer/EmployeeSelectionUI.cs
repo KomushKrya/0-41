@@ -3,7 +3,7 @@ using Godot;
 using Kontur.Core.Api;
 using Kontur.Core.Model;
 
-/// <summary>Экран выбора сотрудников. До подтверждения отправки выбор существует только в UI.</summary>
+/// <summary>Р­РєСЂР°РЅ РІС‹Р±РѕСЂР° СЃРѕС‚СЂСѓРґРЅРёРєРѕРІ. Р”Рѕ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ РѕС‚РїСЂР°РІРєРё РІС‹Р±РѕСЂ СЃСѓС‰РµСЃС‚РІСѓРµС‚ С‚РѕР»СЊРєРѕ РІ UI.</summary>
 public partial class EmployeeSelectionUI : Control, IComputerScreen
 {
 	[Export] public NodePath RosterListPath { get; set; } = new("RosterScroll/RosterList");
@@ -68,8 +68,8 @@ public partial class EmployeeSelectionUI : Control, IComputerScreen
 		GameRuntime runtime = GameRuntime.Get(this);
 		if (runtime == null || !runtime.IsReady)
 		{
-			_rosterList.AddChild(new Label { Text = "ЯДРО НЕДОСТУПНО" });
-			_selectionSummary.Text = "СОСТАВ: —";
+			_rosterList.AddChild(new Label { Text = "РЇР”Р Рћ РќР•Р”РћРЎРўРЈРџРќРћ" });
+			_selectionSummary.Text = "РЎРћРЎРўРђР’: вЂ”";
 			return;
 		}
 
@@ -85,7 +85,7 @@ public partial class EmployeeSelectionUI : Control, IComputerScreen
 		_selectedEmployeeIds.RemoveWhere(id => !knownIds.Contains(id));
 		if (roster.Count == 0)
 		{
-			_rosterList.AddChild(new Label { Text = "СОТРУДНИКОВ НЕТ" });
+			_rosterList.AddChild(new Label { Text = "РЎРћРўР РЈР”РќРРљРћР’ РќР•Рў" });
 		}
 
 		UpdateSelectionSummary();
@@ -111,10 +111,10 @@ public partial class EmployeeSelectionUI : Control, IComputerScreen
 		card.AddChild(check);
 
 		string state = isAvailable
-			? employee.IsInjured ? "AVAILABLE · INJURED" : "AVAILABLE"
+			? employee.IsInjured ? "AVAILABLE В· INJURED" : "AVAILABLE"
 			: employee.Status == EmployeeStatus.Dead ? "DEAD" : "ON MISSION";
-		string stats = $"STR {employee.Stats.Strength}  PER {employee.Stats.Perception}  END {employee.Stats.Endurance}  " +
-			$"CHA {employee.Stats.Charisma}  COM {employee.Stats.Composure}";
+		string stats = $"STR {employee.Stats.Strength}  PER {employee.Stats.Intellect}  END {employee.Stats.Combat}  " +
+			$"CHA {employee.Stats.Charisma}  COM {employee.Stats.Agility}";
 		card.AddChild(new Label
 		{
 			Text = $"   {state}   |   {stats}",
@@ -141,8 +141,8 @@ public partial class EmployeeSelectionUI : Control, IComputerScreen
 	private void UpdateSelectionSummary()
 	{
 		_selectionSummary.Text = _selectedEmployeeIds.Count == 0
-			? "СОСТАВ: НЕ ВЫБРАН"
-			: $"ВЫБРАНО СОТРУДНИКОВ: {_selectedEmployeeIds.Count}";
+			? "РЎРћРЎРўРђР’: РќР• Р’Р«Р‘Р РђРќ"
+			: $"Р’Р«Р‘Р РђРќРћ РЎРћРўР РЈР”РќРРљРћР’: {_selectedEmployeeIds.Count}";
 	}
 
 	private void DispatchSelectedEmployees()
@@ -160,7 +160,7 @@ public partial class EmployeeSelectionUI : Control, IComputerScreen
 
 		if (current is not ComputerUI computerUi)
 		{
-			_dispatchFeedback.Text = "ИНТЕРФЕЙС ОТПРАВКИ НЕДОСТУПЕН";
+			_dispatchFeedback.Text = "РРќРўР•Р Р¤Р•Р™РЎ РћРўРџР РђР’РљР РќР•Р”РћРЎРўРЈРџР•Рќ";
 			return;
 		}
 

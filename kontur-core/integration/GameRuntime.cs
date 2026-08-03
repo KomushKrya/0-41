@@ -26,12 +26,12 @@ namespace Kontur.Integration
 
 		private IDisposable? _logSubscription;
 
-		public GameSession Session { get; private set; } = null!;
+		public KonturSimulation Session { get; private set; } = null!;
 
 		public override void _Ready()
 		{
 			ContentDatabase content = ContentLoader.Load(new GodotContentSource(ContentRoot));
-			Session = new GameSession(content, Seed);
+			Session = new KonturSimulation(content, Seed);
 
 			// Единый лог всех сигналов ядра в Output — первое, что стоит смотреть при отладке.
 			_logSubscription = Session.Events.SubscribeAll(e => GD.Print("[KONTUR] ", e.GetType().Name, " ", e));

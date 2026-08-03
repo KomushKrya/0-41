@@ -10,6 +10,8 @@ public sealed class ContentEntry
 
 	/// <summary>Чем заканчивается вызов: "radio" — вмешательство по рации, "filler" — только проверка. Только у call.</summary>
 	public string MissionType = string.Empty;
+	/// <summary>Секция био-досье: build, temper, family или note.</summary>
+	public string Slot = string.Empty;
 
 	public int Day;
 	public IReadOnlyList<string> Requirements = new List<string>();
@@ -98,7 +100,10 @@ public sealed class ContentSpan
 
 public sealed class ContentOption
 {
+	public string Id = string.Empty;
 	public string Name = string.Empty;
 	public int RequirementModifier;
+	/// <summary>Характеристики, указанные автором варианта в текстовом движке.</summary>
+	public IReadOnlyList<string> Requirements = new List<string>();
 	public IReadOnlyList<ContentChunk> Chunks = new List<ContentChunk>();
 }

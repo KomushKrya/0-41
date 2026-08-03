@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Kontur.Core.Content;
 using Kontur.Core.Model;
 
 namespace Kontur.Core.Systems
@@ -29,6 +30,13 @@ namespace Kontur.Core.Systems
 
 		/// <summary>Кандидаты, уже нанятые в предыдущие дни — повторно не предлагаются.</summary>
 		public HashSet<string> HiredCandidateIds { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+		/// <summary>Зафиксированный на день список найма; не пересобирается при перерисовке UI.</summary>
+		public List<HireCandidate> HireOffers { get; } = new List<HireCandidate>();
+		public int HireOffersDay { get; set; } = -1;
+
+		public List<HireCandidate> StartingChoice { get; } = new List<HireCandidate>();
+		public bool StartingRosterConfirmed { get; set; }
 
 		/// <summary>Отчёты на компьютере — накапливаются за партию.</summary>
 		public List<MissionReport> Reports { get; } = new List<MissionReport>();

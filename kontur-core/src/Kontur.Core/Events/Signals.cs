@@ -13,9 +13,15 @@ namespace Kontur.Core.Events
 
 	public sealed record ShiftEnded(int Day, string OutroCutsceneId, ShiftSummary Summary) : IGameEvent;
 
-	public sealed record IncidentCreated(string IncidentId, string MissionId, string BuildingId, string CallerName, double RingSeconds) : IGameEvent;
+	public sealed record IncidentCreated(string IncidentId, string MissionId, string BuildingId, string CallId, double RingSeconds) : IGameEvent;
+		/// <summary>Id звонка в текстовом движке. CallerName остаётся совместимым fallback-ом.</summary>
 
-	public sealed record CallAnswered(string IncidentId, string MissionId, string Title, string BriefingText) : IGameEvent;
+	/// <summary>Звонок ожидает свободной линии; здание уже выбрано и закреплено за инцидентом.</summary>
+	public sealed record IncidentQueued(string IncidentId, string MissionId, string BuildingId, int Position) : IGameEvent;
+
+	public sealed record CallAnswered(string IncidentId, string MissionId, string CallId) : IGameEvent;
+
+	public sealed record BriefingConfirmed(string IncidentId, string MissionId, string BuildingId, double MarkerSeconds) : IGameEvent;
 
 	public sealed record CallMissed(string IncidentId, string MissionId) : IGameEvent;
 
@@ -25,6 +31,7 @@ namespace Kontur.Core.Events
 
 	/// <summary>Игрок нажал на метку — компьютер должен открыть экран отправки.</summary>
 	public sealed record DispatchScreenRequested(string IncidentId, string MissionId) : IGameEvent;
+	public sealed record DispatchScreenClosed(string IncidentId) : IGameEvent;
 
 	public sealed record SquadDispatched(
 		string IncidentId,
@@ -38,15 +45,35 @@ namespace Kontur.Core.Events
 
 	public sealed record RadioTriggered(
 		string IncidentId,
-		string SituationText,
-		IReadOnlyList<RadioOptionView> Options,
+		string MissionEventId,
+		IReadOnlyList<RadioOptionOffer> Options,
 		double ResponseSeconds) : IGameEvent;
 
-	public sealed record RadioMissed(string IncidentId) : IGameEvent;
+	public sealed record RadioOptionOffer(string Id, StatBlock Requirements, bool IsAvailable, string RequiredEquipmentId);
 
-	public sealed record RadioOptionChosen(string IncidentId, string OptionId, string OptionText) : IGameEvent;
+	public sealed record RadioMissed(string IncidentId) : IGameEvent;
+	public sealed record RadioAnswered(string IncidentId, string MissionEventId) : IGameEvent;
+
+	public sealed record RadioOptionChosen(string IncidentId, string MissionEventId, string OptionId) : IGameEvent;
 
 	public sealed record MissionResolved(MissionOutcome Outcome) : IGameEvent;
+
+	/// <summary>
+	/// Результат миссии, подготовленный для цельного модального экрана. Ядро
+	/// передаёт только игровые id: текст и изображение выбирает UI.
+	/// </summary>
+	public sealed record MissionOutcomeReady(
+		string IncidentId,
+		string MissionId,
+		bool IsSuccess,
+		MissionResolutionReason Reason,
+		string SummaryContentId,
+		string CreatureId,
+		IReadOnlyList<string> ReturningEmployeeIds,
+		IReadOnlyList<string> InjuredEmployeeIds,
+		IReadOnlyList<string> KilledEmployeeIds,
+		double ReturnSeconds,
+		bool SquadWiped) : IGameEvent;
 
 	public sealed record SquadReturning(string IncidentId, string BuildingId, double ReturnSeconds) : IGameEvent;
 
@@ -63,6 +90,13 @@ namespace Kontur.Core.Events
 	public sealed record EmployeeStatsChanged(string EmployeeId, StatBlock Stats, int UnspentSkillPoints) : IGameEvent;
 
 	public sealed record EmployeeHired(string EmployeeId, string EmployeeName, int Day) : IGameEvent;
+
+	public sealed record HiringOpened(
+		int NextDay,
+		int StaffLimit,
+		int LivingStaff,
+		int FreeSlots,
+		IReadOnlyList<string> CandidateIds) : IGameEvent;
 
 	public sealed record SquadReturned(string IncidentId, IReadOnlyList<string> EmployeeIds) : IGameEvent;
 
@@ -95,7 +129,8 @@ namespace Kontur.Core.Events
 	/// Вариант ответа по радио в том виде, в каком его видит игрок.
 	/// Намеренно НЕ содержит Quality и множителей: подсказок в интерфейсе быть не должно (ДД, раздел 8).
 	/// </summary>
-	public sealed record RadioOptionView(string Id, string Text);
+	/// <summary>Состояние симуляции приостановлено одним или несколькими владельцами модальных экранов.</summary>
+	public sealed record TimeFreezeChanged(bool IsFrozen, IReadOnlyCollection<string> Owners) : IGameEvent;
 
 	public sealed record ShiftSummary(
 		int TotalIncidents,

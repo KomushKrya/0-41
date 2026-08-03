@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using Godot;
 using Kontur.Core.Content;
+using Kontur.Core.Model;
 
 /// <summary>
 /// Реализация порта <see cref="ITextCatalog"/> поверх автозагрузки Content.
@@ -11,6 +13,18 @@ using Kontur.Core.Content;
 /// </summary>
 public sealed class GodotTextCatalog : ITextCatalog
 {
+	public IReadOnlyList<string> GetBioLines(string slot)
+	{
+		var result = new List<string>();
+		Content content = Content.Instance;
+		if (content == null || string.IsNullOrWhiteSpace(slot)) return result;
+		foreach (KeyValuePair<string, ContentEntry> pair in content.Entries)
+		{
+			if (string.Equals(pair.Value.Slot, slot, System.StringComparison.OrdinalIgnoreCase)) result.Add(pair.Key);
+		}
+		return result;
+	}
+
 	public bool HasEntry(string entryId)
 	{
 		Content content = Content.Instance;
@@ -39,5 +53,31 @@ public sealed class GodotTextCatalog : ITextCatalog
 		}
 
 		return false;
+	}
+
+	public IReadOnlyList<TextOption> GetOptions(string entryId)
+	{
+		var result = new List<TextOption>();
+		Content content = Content.Instance;
+		if (content == null || !content.TryGetEntry(entryId, out ContentEntry entry))
+		{
+			return result;
+		}
+
+		foreach (ContentOption option in entry.Options)
+		{
+			var stats = new List<StatKind>();
+			foreach (string statId in option.Requirements)
+			{
+				if (StatKinds.TryParse(statId, out StatKind stat))
+				{
+					stats.Add(stat);
+				}
+			}
+
+			result.Add(new TextOption(option.Id, MissionEventQuality.Neutral, null, stats));
+		}
+
+		return result;
 	}
 }

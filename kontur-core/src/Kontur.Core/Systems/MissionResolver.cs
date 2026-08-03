@@ -31,17 +31,29 @@ namespace Kontur.Core.Systems
 
 		public StatBlock ComputeEffectiveRequirements(
 			MissionDefinition mission,
-			RadioOption? chosenOption,
+			MissionEventOption? chosenOption,
 			int day)
 		{
 			double multiplier = _config.GetDay(day).RequirementMultiplier;
 
-			if (chosenOption != null)
+			StatBlock requirements = mission.Requirements.Scale(multiplier);
+			if (chosenOption != null && chosenOption.CheckedStats.Count > 0)
 			{
-				multiplier *= chosenOption.RequirementMultiplier;
+				requirements = chosenOption.ResolveRequirements(requirements);
 			}
 
-			return mission.Requirements.Scale(multiplier);
+			if (chosenOption != null && chosenOption.RequirementModifier != 0)
+			{
+				foreach (StatKind stat in StatKinds.All)
+				{
+					if (requirements[stat] > 0)
+					{
+						requirements = requirements.Add(stat, chosenOption.RequirementModifier);
+					}
+				}
+			}
+
+			return requirements.ClampMin(0);
 		}
 
 		public StatBlock ComputeSquadStats(
@@ -118,11 +130,49 @@ namespace Kontur.Core.Systems
 			return Math.Max(0.0, Math.Min(1.0, coverage));
 		}
 
+		public IReadOnlyList<StatMatch> EvaluateMatches(StatBlock requirements, StatBlock squadStats, StatKind? primaryStat)
+		{
+			var results = new List<StatMatch>();
+			StatMatchConfig config = _config.Match;
+			foreach (StatKind kind in StatKinds.All)
+			{
+				int required = requirements[kind];
+				if (required <= 0) continue;
+				int available = squadStats[kind];
+				int margin = available - required;
+				StatMatchRating rating;
+				double score;
+				if (margin >= config.ExceedsMargin) { rating = StatMatchRating.Exceeds; score = 1.0; }
+				else if (margin >= 0) { rating = StatMatchRating.Meets; score = config.MeetsScore; }
+				else { rating = StatMatchRating.Below; score = config.MeetsScore * Math.Pow(config.BelowFalloff, -margin); }
+				results.Add(new StatMatch(kind, required, available, primaryStat.HasValue && primaryStat.Value == kind, rating, score));
+			}
+			return results;
+		}
+
+		public double ComputeMatchScore(IReadOnlyList<StatMatch> matches)
+		{
+			if (matches.Count == 0) return 1.0;
+			double weighted = 0.0, totalWeight = 0.0;
+			foreach (StatMatch match in matches)
+			{
+				double weight = match.IsPrimary ? _config.Match.PrimaryWeight : _config.Match.SecondaryWeight;
+				weighted += match.Score * weight; totalWeight += weight;
+			}
+			return totalWeight <= 0 ? 1.0 : weighted / totalWeight;
+		}
+
+		public static bool IsPerfectMatch(IReadOnlyList<StatMatch> matches)
+		{
+			foreach (StatMatch match in matches) if (match.Rating != StatMatchRating.Exceeds) return false;
+			return true;
+		}
+
 		public double ComputeSuccessChance(double coverage, IReadOnlyList<EquipmentDefinition> equipment, bool radioMissed)
 		{
 			ResolutionConfig resolution = _config.Resolution;
 
-			double chance = Math.Pow(coverage, resolution.CoverageExponent);
+			double chance = coverage;
 
 			for (int i = 0; i < equipment.Count; i++)
 			{
@@ -163,11 +213,13 @@ namespace Kontur.Core.Systems
 				outcome.EquipmentIds.Add(request.Equipment[i].Id);
 			}
 
-			double coverage = ComputeCoverage(request.EffectiveRequirements, request.SquadStats);
+			IReadOnlyList<StatMatch> matches = EvaluateMatches(request.EffectiveRequirements, request.SquadStats, request.Mission.PrimaryStat);
+			double coverage = ComputeMatchScore(matches);
 			outcome.Coverage = coverage;
+			outcome.StatMatches.AddRange(matches);
 
 			bool isSuccess;
-			if (coverage >= 1.0)
+			if (IsPerfectMatch(matches))
 			{
 				isSuccess = true;
 				outcome.SuccessChance = 1.0;
@@ -220,8 +272,17 @@ namespace Kontur.Core.Systems
 				deathMultiplier *= request.Equipment[i].DeathChanceMultiplier;
 			}
 
-			double injuryChance = request.Mission.InjuryChance * injuryMultiplier;
-			double deathChance = request.Mission.DeathChance * deathMultiplier;
+				double injuryChance = request.Mission.InjuryChance * injuryMultiplier;
+				double deathChance = request.Mission.DeathChance * deathMultiplier;
+
+				ConsequenceCap cap = request.Mission.EffectiveCap;
+				if (request.ChosenOption != null && request.ChosenOption.ConsequenceCapOverride.HasValue)
+				{
+					cap = ConsequenceCaps.Tighten(cap, request.ChosenOption.ConsequenceCapOverride.Value);
+				}
+
+				if (!ConsequenceCaps.AllowsDeath(cap)) deathChance = 0.0;
+				if (!ConsequenceCaps.AllowsInjury(cap)) injuryChance = 0.0;
 
 			for (int i = 0; i < request.Squad.Count; i++)
 			{
@@ -258,7 +319,7 @@ namespace Kontur.Core.Systems
 
 		public StatBlock SquadStats { get; set; } = StatBlock.Zero;
 
-		public RadioOption? ChosenOption { get; set; }
+		public MissionEventOption? ChosenOption { get; set; }
 
 		public bool RadioWasTriggered { get; set; }
 

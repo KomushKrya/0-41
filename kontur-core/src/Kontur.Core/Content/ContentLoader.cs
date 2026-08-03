@@ -23,6 +23,9 @@ namespace Kontur.Core.Content
 		public const string RosterFile = "employees.json";
 		public const string MissionsFile = "missions.json";
 		public const string RadioFile = "radio.json";
+		// В новом ядре файл radio.json хранит баланс MissionEvent. Название осталось
+		// radio.json хранит баланс MissionEvent; текст решений остаётся в Content.
+		public const string MissionEventsFile = RadioFile;
 		public const string ShiftNotesFile = "shift_notes.json";
 
 		private static readonly JsonSerializerOptions Options = CreateOptions();
@@ -51,7 +54,8 @@ namespace Kontur.Core.Content
 			LoadEquipment(source, database);
 			LoadCreatures(source, database);
 			LoadRoster(source, database);
-			LoadRadio(source, database);
+			LoadMissionEvents(source, database, textCatalog);
+			LoadGeneratorBioLines(database, textCatalog);
 			LoadMissions(source, database);
 			LoadShiftNotes(source, database);
 
@@ -164,38 +168,60 @@ namespace Kontur.Core.Content
 					database.HirePool.Add(new HireCandidate(ToEmployee(dto), dto.AvailableFromDay));
 				}
 			}
+
+			if (roster.Generator != null)
+			{
+				LoadGenerator(roster.Generator, database.Generator);
+			}
 		}
 
-		private static void LoadRadio(IContentSource source, ContentDatabase database)
+		private static void LoadGenerator(GeneratorDto dto, EmployeeGeneratorSettings settings)
 		{
-			List<RadioEncounterDto> encounters = ReadList<RadioEncounterDto>(source, RadioFile);
-			foreach (RadioEncounterDto dto in encounters)
+			settings.CandidatesPerShift = dto.CandidatesPerShift;
+			settings.CandidatesChoiceMargin = dto.CandidatesChoiceMargin;
+			settings.LevelLagBehindDay = dto.LevelLagBehindDay;
+			settings.LevelSpread = dto.LevelSpread;
+			settings.MinAge = dto.MinAge; settings.MaxAge = dto.MaxAge;
+			settings.MinStat = dto.MinStat; settings.MaxStat = dto.MaxStat;
+			settings.StatPointsBase = dto.StatPointsBase; settings.StatPointsPerLevel = dto.StatPointsPerLevel;
+			settings.PrimaryWeight = dto.PrimaryWeight; settings.SecondaryWeight = dto.SecondaryWeight;
+			settings.StartingChoicePoolSize = dto.StartingChoicePoolSize;
+			settings.AbilitiesBase = dto.AbilitiesBase; settings.SecondAbilityFromLevel = dto.SecondAbilityFromLevel;
+			if (dto.BioSlots != null) settings.BioSlots.AddRange(dto.BioSlots);
+			if (dto.Surnames != null) settings.Surnames.AddRange(dto.Surnames);
+			if (dto.Initials != null) settings.Initials.AddRange(dto.Initials);
+			if (dto.Portraits != null) settings.PortraitIds.AddRange(dto.Portraits);
+			if (dto.LevelsByDay != null) foreach (LevelRangeDto range in dto.LevelsByDay) settings.LevelsByDay.Add(new LevelRange { FromDay = range.FromDay, MinLevel = range.MinLevel, MaxLevel = range.MaxLevel });
+			if (dto.Archetypes == null) return;
+			foreach (ArchetypeDto source in dto.Archetypes)
 			{
-				var encounter = new RadioEncounter
-				{
-					Id = dto.Id,
-					SituationText = dto.SituationText
-				};
+				var archetype = new EmployeeArchetype { Id = source.Id, Weight = source.Weight, RankTitle = source.RankTitle };
+				AddGeneratorStats(source.Primary, archetype.PrimaryStats, source.Id, "primary");
+				AddGeneratorStats(source.Secondary, archetype.SecondaryStats, source.Id, "secondary");
+				if (source.Abilities != null) archetype.AbilityIds.AddRange(source.Abilities);
+				if (source.Portraits != null) archetype.PortraitIds.AddRange(source.Portraits);
+				settings.Archetypes.Add(archetype);
+			}
+		}
 
-				if (dto.Options != null)
-				{
-					foreach (RadioOptionDto optionDto in dto.Options)
-					{
-						encounter.Options.Add(new RadioOption
-						{
-							Id = optionDto.Id,
-							Text = optionDto.Text,
-							RequirementMultiplier = optionDto.RequirementMultiplier,
-							DeathChanceMultiplier = optionDto.DeathChanceMultiplier,
-							InjuryChanceMultiplier = optionDto.InjuryChanceMultiplier,
-							ExtraScales = optionDto.ExtraScales == null ? ScaleDelta.Zero : optionDto.ExtraScales.ToModel(),
-							RevealsPropertyId = optionDto.RevealsPropertyId,
-							Quality = ParseEnum(optionDto.Quality, RadioOptionQuality.Good, RadioFile, optionDto.Id, "quality")
-						});
-					}
-				}
+		private static void AddGeneratorStats(List<string>? names, List<StatKind> target, string archetypeId, string field)
+		{
+			if (names == null) return;
+			foreach (string name in names)
+			{
+				if (!StatKinds.TryParse(name, out StatKind kind)) throw new ContentException($"Архетип '{archetypeId}', поле '{field}': неизвестная характеристика '{name}'.");
+				target.Add(kind);
+			}
+		}
 
-				database.RadioEncounters[encounter.Id] = encounter;
+		/// <summary>Био-строки принадлежат текстовому движку; ядро хранит только их id.</summary>
+		private static void LoadGeneratorBioLines(ContentDatabase database, ITextCatalog? textCatalog)
+		{
+			if (textCatalog == null || !database.Generator.IsEnabled) return;
+			foreach (string slot in database.Generator.BioSlots)
+			{
+				IReadOnlyList<string> lines = textCatalog.GetBioLines(slot);
+				if (lines.Count > 0) database.Generator.BioLinesBySlot[slot] = new List<string>(lines);
 			}
 		}
 
@@ -208,15 +234,17 @@ namespace Kontur.Core.Content
 				{
 					Id = dto.Id,
 					Day = dto.Day,
+					Tier = ParseEnum(dto.Tier, MissionTier.Filler, MissionsFile, dto.Id, "tier"),
+					ConsequenceCapOverride = ParseOptionalCap(dto.ConsequenceCap, MissionsFile, dto.Id),
 					CreatureId = dto.CreatureId,
-					Title = dto.Title,
-					CallerName = dto.CallerName,
-					BriefingText = dto.BriefingText,
+					CallId = dto.CallId,
 					Requirements = dto.Requirements == null ? StatBlock.Zero : dto.Requirements.ToModel(),
+					PrimaryStat = ParsePrimaryStat(dto.PrimaryStat, dto.Id),
+					SquadLimit = dto.SquadLimit,
 					TravelSeconds = dto.TravelSeconds,
 					OnSiteSeconds = dto.OnSiteSeconds,
 					ReturnSeconds = dto.ReturnSeconds,
-					RadioEncounterId = string.IsNullOrWhiteSpace(dto.RadioEncounterId) ? null : dto.RadioEncounterId,
+					MissionEventId = string.IsNullOrWhiteSpace(dto.MissionEventId) ? null : dto.MissionEventId,
 					ScalesOnSuccess = ToDelta(dto.ScalesOnSuccess),
 					ScalesOnFailure = ToDelta(dto.ScalesOnFailure),
 					ScalesOnMissedCall = ToDelta(dto.ScalesOnMissedCall),
@@ -224,10 +252,20 @@ namespace Kontur.Core.Content
 					ExperienceOnSuccess = dto.ExperienceOnSuccess,
 					ExperienceOnFailure = dto.ExperienceOnFailure,
 					InjuryChance = dto.InjuryChance,
-					DeathChance = dto.DeathChance,
-					ReportSuccessText = dto.ReportSuccessText,
-					ReportFailureText = dto.ReportFailureText
+					DeathChance = dto.DeathChance
 				};
+
+				if (dto.Reports != null)
+				{
+					foreach (KeyValuePair<string, ReportPairDto> report in dto.Reports)
+					{
+						mission.Reports[report.Key] = new MissionReportPair
+						{
+							SuccessId = report.Value.Success,
+							FailureId = report.Value.Failure
+						};
+					}
+				}
 
 				if (dto.ManifestedPropertyIds != null)
 				{
@@ -236,6 +274,52 @@ namespace Kontur.Core.Content
 
 				database.Missions[mission.Id] = mission;
 			}
+		}
+
+		private static void LoadMissionEvents(IContentSource source, ContentDatabase database, ITextCatalog? textCatalog)
+		{
+			foreach (MissionEventDto dto in ReadList<MissionEventDto>(source, MissionEventsFile))
+			{
+				var definition = new MissionEventDefinition { Id = dto.Id };
+				Dictionary<string, MissionEventOptionDto> balance = dto.Options ?? new Dictionary<string, MissionEventOptionDto>();
+				IReadOnlyList<TextOption> textOptions = textCatalog == null
+					? Array.Empty<TextOption>()
+					: textCatalog.GetOptions(dto.Id);
+
+				if (textOptions.Count > 0)
+				{
+					for (int i = 0; i < textOptions.Count; i++)
+					{
+						MissionEventOptionDto? balanceOption;
+						balance.TryGetValue(textOptions[i].Id, out balanceOption);
+						definition.Options.Add(ToMissionEventOption(textOptions[i], balanceOption, database.Config));
+					}
+				}
+				else foreach (KeyValuePair<string, MissionEventOptionDto> pair in balance)
+				{
+					definition.Options.Add(ToMissionEventOption(new TextOption(pair.Key, MissionEventQuality.Neutral, null, Array.Empty<StatKind>()), pair.Value, database.Config));
+				}
+
+				database.MissionEvents[definition.Id] = definition;
+			}
+		}
+
+		private static MissionEventOption ToMissionEventOption(TextOption textOption, MissionEventOptionDto? dto, SimulationConfig config)
+		{
+			MissionEventQualityConfig defaults = config.MissionEvents.For(textOption.Quality);
+			return new MissionEventOption
+			{
+				Id = textOption.Id,
+				Quality = textOption.Quality,
+				CheckedStats = textOption.CheckedStats,
+				RequirementModifier = textOption.RequirementModifier ?? defaults.RequirementModifier,
+				DeathChanceMultiplier = dto?.DeathChanceMultiplier ?? defaults.RiskMultiplier,
+				InjuryChanceMultiplier = dto?.InjuryChanceMultiplier ?? defaults.RiskMultiplier,
+				ExtraScales = dto?.ExtraScales == null ? ScaleDelta.Zero : ToDelta(dto.ExtraScales),
+				RevealsPropertyId = dto?.RevealsPropertyId,
+				ConsequenceCapOverride = dto == null ? null : ParseOptionalCap(dto.ConsequenceCap, MissionEventsFile, textOption.Id),
+				RequiresEquipmentId = dto?.RequiresEquipmentId
+			};
 		}
 
 		private static void LoadShiftNotes(IContentSource source, ContentDatabase database)
@@ -289,12 +373,14 @@ namespace Kontur.Core.Content
 			{
 				MissionDefinition mission = pair.Value;
 
-				CreatureDefinition? creature = database.FindCreature(mission.CreatureId);
-				if (creature == null)
+				CreatureDefinition? creature = string.IsNullOrWhiteSpace(mission.CreatureId)
+					? null
+					: database.FindCreature(mission.CreatureId);
+				if (!string.IsNullOrWhiteSpace(mission.CreatureId) && creature == null)
 				{
 					errors.Add($"Миссия '{mission.Id}': неизвестное существо '{mission.CreatureId}'.");
 				}
-				else
+				else if (creature != null)
 				{
 					foreach (string propertyId in mission.ManifestedPropertyIds)
 					{
@@ -305,10 +391,11 @@ namespace Kontur.Core.Content
 					}
 				}
 
-				if (mission.RadioEncounterId != null && !database.RadioEncounters.ContainsKey(mission.RadioEncounterId))
+				if (mission.HasMissionEvent && !database.MissionEvents.ContainsKey(mission.MissionEventId!))
 				{
-					errors.Add($"Миссия '{mission.Id}': неизвестный радио-энкаунтер '{mission.RadioEncounterId}'.");
+					errors.Add($"Миссия '{mission.Id}': неизвестное событие миссии '{mission.MissionEventId}'.");
 				}
+
 			}
 
 			foreach (KeyValuePair<string, CreatureDefinition> pair in database.Creatures)
@@ -353,13 +440,12 @@ namespace Kontur.Core.Content
 				ValidateEmployeeAbilities(database, candidate.Template, errors);
 			}
 
-			foreach (KeyValuePair<string, RadioEncounter> pair in database.RadioEncounters)
-			{
-				if (pair.Value.Options.Count == 0)
-				{
-					errors.Add($"Радио-энкаунтер '{pair.Key}': нет вариантов ответа.");
-				}
-			}
+			ValidateGenerator(database, textCatalog, errors);
+			ValidateMissionEvents(database, textCatalog, errors);
+			ValidateMissionRules(database, textCatalog, errors);
+			ValidatePersonnelArt(database, textCatalog, errors);
+			if (database.Config.GetStaffLimit(1) < 1) errors.Add("employees: first-day staff limit must be at least one.");
+			ValidateTextReferences(database, textCatalog, errors);
 
 			if (errors.Count > 0)
 			{
@@ -370,6 +456,144 @@ namespace Kontur.Core.Content
 				}
 
 				throw new ContentException(builder.ToString());
+			}
+		}
+
+		private static void ValidateTextReferences(
+			ContentDatabase database,
+			ITextCatalog? textCatalog,
+			List<string> errors)
+		{
+			if (textCatalog == null)
+			{
+				return;
+			}
+
+			foreach (KeyValuePair<string, MissionDefinition> pair in database.Missions)
+			{
+				MissionDefinition mission = pair.Value;
+				ValidateTextEntry(textCatalog, mission.CallId, $"mission '{mission.Id}', callId", errors);
+			}
+
+		}
+
+		private static void ValidateGenerator(ContentDatabase database, ITextCatalog? textCatalog, List<string> errors)
+		{
+			EmployeeGeneratorSettings generator = database.Generator;
+			if (generator.CandidatesPerShift <= 0) return;
+			if (generator.Archetypes.Count == 0) errors.Add("employee generator: no archetypes.");
+			if (generator.Surnames.Count == 0) errors.Add("employee generator: no surnames.");
+			if (generator.CandidatesChoiceMargin < 0) errors.Add("employee generator: negative choice margin.");
+			if (generator.MaxAge < generator.MinAge) errors.Add("employee generator: invalid age range.");
+			if (generator.MaxStat < generator.MinStat) errors.Add("employee generator: invalid stat range.");
+			if (generator.PrimaryWeight < generator.SecondaryWeight) errors.Add("employee generator: primary weight is below secondary weight.");
+			int maxLevel = 1;
+			foreach (LevelRange range in generator.LevelsByDay) maxLevel = Math.Max(maxLevel, range.MaxLevel);
+			int capacity = (generator.MaxStat - generator.MinStat) * StatKinds.Count;
+			int budget = generator.StatPointsBase + generator.StatPointsPerLevel * (maxLevel - 1);
+			if (budget > capacity) errors.Add("employee generator: stat budget exceeds available stat capacity.");
+			for (int i = 0; i < generator.Archetypes.Count; i++)
+			{
+				EmployeeArchetype archetype = generator.Archetypes[i];
+				if (string.IsNullOrWhiteSpace(archetype.Id) || archetype.Weight <= 0 || archetype.PrimaryStats.Count == 0)
+					errors.Add($"employee generator: invalid archetype at index {i}.");
+				foreach (string abilityId in archetype.AbilityIds)
+					if (!database.Abilities.ContainsKey(abilityId)) errors.Add($"employee generator: unknown ability '{abilityId}' in '{archetype.Id}'.");
+			}
+			foreach (LevelRange range in generator.LevelsByDay)
+				if (range.FromDay < 1 || range.MinLevel < 1 || range.MaxLevel < range.MinLevel)
+					errors.Add("employee generator: invalid level range.");
+			if (textCatalog != null)
+				foreach (string slot in generator.BioSlots)
+					if (textCatalog.GetBioLines(slot).Count == 0) errors.Add($"employee generator: no bio text for slot '{slot}'.");
+		}
+
+		private static void ValidateMissionEvents(ContentDatabase database, ITextCatalog? textCatalog, List<string> errors)
+		{
+			foreach (KeyValuePair<string, MissionEventDefinition> pair in database.MissionEvents)
+			{
+				MissionEventDefinition missionEvent = pair.Value;
+				if (missionEvent.Options.Count == 0) errors.Add($"mission event '{missionEvent.Id}' has no options.");
+				var ids = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+				foreach (MissionEventOption option in missionEvent.Options)
+				{
+					if (string.IsNullOrWhiteSpace(option.Id) || !ids.Add(option.Id)) errors.Add($"mission event '{missionEvent.Id}' has an invalid option id.");
+					if (!string.IsNullOrWhiteSpace(option.RequiresEquipmentId) && !database.Equipment.ContainsKey(option.RequiresEquipmentId))
+						errors.Add($"mission event '{missionEvent.Id}': unknown equipment '{option.RequiresEquipmentId}'.");
+				}
+				if (textCatalog == null) continue;
+				ValidateTextEntry(textCatalog, missionEvent.Id, $"mission event '{missionEvent.Id}'", errors);
+				IReadOnlyList<TextOption> textOptions = textCatalog.GetOptions(missionEvent.Id);
+				foreach (MissionEventOption option in missionEvent.Options)
+				{
+					bool found = false;
+					for (int i = 0; i < textOptions.Count; i++) if (string.Equals(textOptions[i].Id, option.Id, StringComparison.OrdinalIgnoreCase)) { found = true; break; }
+					if (!found) errors.Add($"mission event '{missionEvent.Id}': no text option '{option.Id}'.");
+				}
+			}
+		}
+
+		private static void ValidateMissionRules(ContentDatabase database, ITextCatalog? textCatalog, List<string> errors)
+		{
+			foreach (KeyValuePair<string, MissionDefinition> pair in database.Missions)
+			{
+				MissionDefinition mission = pair.Value;
+				MissionEventDefinition? missionEvent = mission.HasMissionEvent ? database.FindMissionEvent(mission.MissionEventId!) : null;
+				if (mission.ManifestedPropertyIds.Count > 0 && string.IsNullOrWhiteSpace(mission.CreatureId)) errors.Add($"mission '{mission.Id}': properties require a creature.");
+				if (mission.HasMissionEvent && mission.Tier != MissionTier.Story) errors.Add($"mission '{mission.Id}': radio event is only allowed for Story tier.");
+				if (mission.Tier != MissionTier.Story && ConsequenceCaps.AllowsDeath(mission.EffectiveCap)) errors.Add($"mission '{mission.Id}': Filler tier cannot allow death.");
+				if (mission.Requirements.Total == 0) errors.Add($"mission '{mission.Id}': at least one stat requirement is required.");
+				if (mission.PrimaryStat.HasValue && mission.Requirements[mission.PrimaryStat.Value] <= 0) errors.Add($"mission '{mission.Id}': primary stat must be in requirements.");
+				if (mission.SquadLimit < 1) errors.Add($"mission '{mission.Id}': squad limit must be at least one.");
+				foreach (KeyValuePair<string, MissionReportPair> report in mission.Reports)
+				{
+					if (report.Key.Length > 0 && (missionEvent == null || missionEvent.FindOption(report.Key) == null)) errors.Add($"mission '{mission.Id}': report references an unknown option '{report.Key}'.");
+					if (textCatalog != null)
+					{
+						ValidateTextEntry(textCatalog, report.Value.SuccessId, $"mission '{mission.Id}', success report", errors);
+						ValidateTextEntry(textCatalog, report.Value.FailureId, $"mission '{mission.Id}', failure report", errors);
+					}
+				}
+				if (missionEvent == null) continue;
+				foreach (MissionEventOption option in missionEvent.Options)
+				{
+					if (option.ConsequenceCapOverride.HasValue && option.ConsequenceCapOverride.Value > mission.EffectiveCap) errors.Add($"mission event '{missionEvent.Id}', option '{option.Id}': consequence cap cannot loosen the mission cap.");
+					foreach (StatKind kind in option.CheckedStats)
+						if (!EventStatIsRequired(database, missionEvent.Id, kind)) errors.Add($"mission event '{missionEvent.Id}', option '{option.Id}': checked stat is not required by a linked mission.");
+				}
+			}
+		}
+
+		private static bool EventStatIsRequired(ContentDatabase database, string eventId, StatKind kind)
+		{
+			foreach (KeyValuePair<string, MissionDefinition> pair in database.Missions)
+				if (string.Equals(pair.Value.MissionEventId, eventId, StringComparison.OrdinalIgnoreCase) && pair.Value.Requirements[kind] > 0) return true;
+			return false;
+		}
+
+		private static void ValidatePersonnelArt(ContentDatabase database, ITextCatalog? textCatalog, List<string> errors)
+		{
+			EmployeeGeneratorSettings settings = database.Generator;
+			if (!settings.IsEnabled) return;
+			if (textCatalog != null)
+				foreach (string slot in settings.BioSlots)
+				{
+					IReadOnlyList<string> lines = textCatalog.GetBioLines(slot);
+					if (lines.Count == 0) errors.Add($"personnel bio: no lines for slot '{slot}'.");
+					else settings.BioLinesBySlot[slot] = new List<string>(lines);
+				}
+			int needed = 0;
+			for (int day = 1; day <= database.Config.Days.Count; day++) needed = Math.Max(needed, database.Config.GetStaffLimit(day) + Math.Max(settings.CandidatesPerShift, database.Config.GetStaffLimit(day) + settings.CandidatesChoiceMargin));
+			int portraits = settings.PortraitIds.Count;
+			foreach (EmployeeArchetype archetype in settings.Archetypes) portraits += archetype.PortraitIds.Count;
+			if (portraits < needed) errors.Add($"personnel portraits: {portraits} available but {needed} can be visible at once.");
+		}
+
+		private static void ValidateTextEntry(ITextCatalog textCatalog, string contentId, string owner, List<string> errors)
+		{
+			if (!string.IsNullOrWhiteSpace(contentId) && !textCatalog.HasEntry(contentId))
+			{
+				errors.Add($"{owner}: missing text entry '{contentId}'.");
 			}
 		}
 
@@ -424,6 +648,20 @@ namespace Kontur.Core.Content
 			}
 
 			throw new ContentException($"{file}: запись '{id}', поле '{field}' — недопустимое значение '{value}'.");
+		}
+
+		private static StatKind? ParsePrimaryStat(string? value, string missionId)
+		{
+			if (string.IsNullOrWhiteSpace(value)) return null;
+			if (StatKinds.TryParse(value, out StatKind parsed)) return parsed;
+			throw new ContentException($"Миссия '{missionId}': неизвестная главная характеристика '{value}'.");
+		}
+
+		private static ConsequenceCap? ParseOptionalCap(string? value, string file, string id)
+		{
+			return string.IsNullOrWhiteSpace(value)
+				? null
+				: ParseEnum(value, ConsequenceCap.Death, file, id, "consequenceCap");
 		}
 
 		private static T ReadRequired<T>(IContentSource source, string fileName)

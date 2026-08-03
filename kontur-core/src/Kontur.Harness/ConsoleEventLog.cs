@@ -59,10 +59,10 @@ namespace Kontur.Harness
 						+ $"Травм {s.Summary.Injuries}, погибло {s.Summary.Deaths}. Ролик: {s.OutroCutsceneId}";
 
 				case IncidentCreated s:
-					return $"ТЕЛЕФОН звонит — {s.IncidentId} ({s.BuildingId}), звонит {s.CallerName}. {s.RingSeconds:0} с на ответ";
+					return $"ТЕЛЕФОН звонит — {s.IncidentId} ({s.BuildingId}), call {s.CallId}. {s.RingSeconds:0} с на ответ";
 
 				case CallAnswered s:
-					return $"Трубка снята — {s.IncidentId}: {s.Title}";
+					return $"Трубка снята — {s.IncidentId}: {s.CallId}";
 
 				case CallMissed s:
 					return $"!! ЗВОНОК ПРОПУЩЕН — {s.IncidentId}";
@@ -83,13 +83,13 @@ namespace Kontur.Harness
 					return $"Группа на месте — {s.IncidentId}";
 
 				case RadioTriggered s:
-					return $"РАДИО {s.IncidentId}: {s.SituationText} | вариантов: {s.Options.Count}, {s.ResponseSeconds:0} с";
+					return $"РАДИО {s.IncidentId}: {s.MissionEventId} | вариантов: {s.Options.Count}, {s.ResponseSeconds:0} с";
 
 				case RadioMissed s:
 					return $"!! РАДИО БЕЗ ОТВЕТА — {s.IncidentId} (бросок с повышенным риском)";
 
 				case RadioOptionChosen s:
-					return $"Выбор по радио {s.IncidentId}: {s.OptionText}";
+					return $"Выбор по радио {s.IncidentId}: {s.OptionId}";
 
 				case MissionResolved s:
 					return FormatOutcome(s.Outcome);

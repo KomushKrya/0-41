@@ -27,6 +27,11 @@ namespace Kontur.Core.Model
 
 		public string PortraitId { get; set; } = string.Empty;
 
+		/// <summary>Возраст и кусочки досье — данные для UI, не для боевого расчёта.</summary>
+		public int Age { get; set; }
+		public string ArchetypeId { get; set; } = string.Empty;
+		public List<string> BioIds { get; } = new List<string>();
+
 		public StatBlock BaseStats { get; set; } = StatBlock.Zero;
 
 		public List<string> AbilityIds { get; } = new List<string>();
@@ -74,6 +79,8 @@ namespace Kontur.Core.Model
 				Level = Level,
 				RankTitle = RankTitle,
 				PortraitId = PortraitId,
+				Age = Age,
+				ArchetypeId = ArchetypeId,
 				BaseStats = BaseStats,
 				Experience = Experience,
 				UnspentSkillPoints = UnspentSkillPoints,
@@ -83,6 +90,7 @@ namespace Kontur.Core.Model
 			};
 
 			copy.AbilityIds.AddRange(AbilityIds);
+			copy.BioIds.AddRange(BioIds);
 			return copy;
 		}
 	}

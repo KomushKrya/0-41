@@ -7,7 +7,6 @@ public partial class MapMissionMarker : Node3D
 	[Export] public NodePath RingPath { get; set; } = new("VisualRoot/MissionRing");
 	[Export] public NodePath InteractionAreaPath { get; set; } = new("InteractionArea");
 	[Export] public NodePath InteractionOutlinePath { get; set; } = new("InteractionOutline");
-	[Export] public NodePath DebugSpherePath { get; set; } = new("DebugInteractionSphere");
 	[Export] public float RingRadius { get; set; } = 0.02625f;
 	[Export] public float RingWidth { get; set; } = 0.023f;
 	[Export] public float RingOffset { get; set; } = 0.012f;
@@ -20,7 +19,6 @@ public partial class MapMissionMarker : Node3D
 	private MeshInstance3D _ring = null!;
 	private Area3D _interactionArea = null!;
 	private InteractionOutline _interactionOutline = null!;
-	private MeshInstance3D _debugSphere = null!;
 
 	public bool IsDispatchInteractive { get; private set; }
 
@@ -30,19 +28,11 @@ public partial class MapMissionMarker : Node3D
 		_ring = GetNode<MeshInstance3D>(RingPath);
 		_interactionArea = GetNode<Area3D>(InteractionAreaPath);
 		_interactionOutline = GetNode<InteractionOutline>(InteractionOutlinePath);
-		_debugSphere = GetNode<MeshInstance3D>(DebugSpherePath);
 		_ring.Position = new Vector3(0.0f, 0.0f, RingOffset);
 		_ring.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off;
 		_pin.SetInteractionEnabled(false);
 		SetDispatchInteractive(false);
-		DebugInterfaceOverlay.InteractionRayDebugChanged += SetInteractionDebugVisible;
-		SetInteractionDebugVisible(DebugInterfaceOverlay.IsInteractionRayDebugEnabled);
 		HideIndicator();
-	}
-
-	public override void _ExitTree()
-	{
-		DebugInterfaceOverlay.InteractionRayDebugChanged -= SetInteractionDebugVisible;
 	}
 
 	public void Initialize(string incidentId)
@@ -59,7 +49,6 @@ public partial class MapMissionMarker : Node3D
 			_interactionOutline.SetHighlighted(false);
 		}
 
-		SetInteractionDebugVisible(DebugInterfaceOverlay.IsInteractionRayDebugEnabled);
 	}
 
 	public void SetHovered(bool isHovered)
@@ -90,14 +79,11 @@ public partial class MapMissionMarker : Node3D
 			return;
 		}
 
-		bool resumeSimulationAfterExit = !runtime.IsPaused;
-		runtime.IsPaused = true;
 		computer.EnterDispatchMode(player, _pin.IncidentId, () =>
 		{
-			if (resumeSimulationAfterExit)
-			{
-				runtime.IsPaused = false;
-			}
+			// Отправка могла не состояться: тогда снимаем именно удержание этого
+			// экрана, не затрагивая паузу телефона, рации или другого интерфейса.
+			runtime.Session.CloseDispatchScreen(_pin.IncidentId);
 		});
 	}
 
@@ -178,11 +164,4 @@ public partial class MapMissionMarker : Node3D
 		return mesh;
 	}
 
-	private void SetInteractionDebugVisible(bool isRayDebugEnabled)
-	{
-		if (_debugSphere != null)
-		{
-			_debugSphere.Visible = isRayDebugEnabled && IsDispatchInteractive;
-		}
-	}
 }

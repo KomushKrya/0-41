@@ -21,7 +21,27 @@ public partial class GameRuntime : Node
 	[Export] public int Seed { get; set; } = 41;
 
 	/// <summary>Пауза симуляции — для меню, роликов и отладки.</summary>
-	[Export] public bool IsPaused { get; set; }
+	private bool _isPaused;
+
+	/// <summary>
+	/// Совместимый флаг для старых сцен. Реальная пауза хранится в ядре как владелец
+	/// <c>godot.runtime</c>, поэтому новая модалка не может случайно снять чужую паузу.
+	/// </summary>
+	[Export]
+	public bool IsPaused
+	{
+		get => _isPaused;
+		set
+		{
+			if (_isPaused == value)
+			{
+				return;
+			}
+
+			_isPaused = value;
+			Session?.SetTimeFreeze("godot.runtime", value);
+		}
+	}
 
 	/// <summary>Ускорение прогона. 1 — реальное время, 10 — смена за 30 секунд.</summary>
 	[Export] public float TimeScale { get; set; } = 1.0f;
@@ -32,7 +52,7 @@ public partial class GameRuntime : Node
 	private IDisposable _logSubscription;
 
 	/// <summary>Ядро. Null, если контент не загрузился — проверяйте IsReady.</summary>
-	public GameSession Session { get; private set; }
+	public KonturSimulation Session { get; private set; }
 
 	/// <summary>Ядро загрузилось и готово принимать команды.</summary>
 	public bool IsReady => Session != null;
@@ -58,7 +78,8 @@ public partial class GameRuntime : Node
 			}
 
 			ContentDatabase content = ContentLoader.Load(new GodotContentSource(ContentRoot), textCatalog);
-			Session = new GameSession(content, Seed);
+			Session = new KonturSimulation(content, Seed);
+			Session.SetTimeFreeze("godot.runtime", _isPaused);
 		}
 		catch (ContentException exception)
 		{
@@ -79,7 +100,7 @@ public partial class GameRuntime : Node
 
 	public override void _Process(double delta)
 	{
-		if (Session == null || IsPaused)
+		if (Session == null)
 		{
 			return;
 		}

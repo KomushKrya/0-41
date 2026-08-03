@@ -5,6 +5,7 @@ using Kontur.Core.Config;
 using Kontur.Core.Content;
 using Kontur.Core.Events;
 using Kontur.Core.Model;
+using Kontur.Core.Persistence;
 using Kontur.Core.Simulation;
 using Kontur.Core.Systems;
 
@@ -18,19 +19,21 @@ namespace Kontur.Core.Api
 	///   • всё, что произошло, приходит подписчику через Events;
 	///   • ни одного обращения к движку — ядро собирается и запускается без Godot.
 	/// </summary>
-	public sealed class GameSession
+	public sealed class KonturSimulation
 	{
 		private readonly EventBus _bus;
 		private readonly GameState _state;
-		private readonly IRandomSource _random;
+		private readonly XorShiftRandom _random;
 		private readonly ScalesSystem _scalesSystem;
+		private readonly EmployeeFactory _employeeFactory;
 		private readonly RosterSystem _rosterSystem;
 		private readonly EncyclopediaSystem _encyclopediaSystem;
 		private readonly MissionResolver _resolver;
 		private readonly IncidentScheduler _scheduler;
 		private readonly ShiftDirector _director;
+		private readonly HashSet<string> _timeFreezeOwners = new HashSet<string>(StringComparer.Ordinal);
 
-		public GameSession(ContentDatabase content, int seed)
+		public KonturSimulation(ContentDatabase content, int seed)
 		{
 			Content = content ?? throw new ArgumentNullException(nameof(content));
 			Seed = seed;
@@ -40,7 +43,8 @@ namespace Kontur.Core.Api
 			_random = new XorShiftRandom(seed);
 
 			_scalesSystem = new ScalesSystem(_state, content.Config.Scales, _bus);
-			_rosterSystem = new RosterSystem(_state, content, content.Config.Employees, _bus);
+			_employeeFactory = new EmployeeFactory(content, _random);
+			_rosterSystem = new RosterSystem(_state, content, content.Config.Employees, _bus, _employeeFactory);
 			_encyclopediaSystem = new EncyclopediaSystem(_state, content, _bus);
 			_resolver = new MissionResolver(content, content.Config, _random);
 			_scheduler = new IncidentScheduler(content, _state, _random);
@@ -83,6 +87,17 @@ namespace Kontur.Core.Api
 			get { return _director.IsShiftActive; }
 		}
 
+		/// <summary>Истина, пока хотя бы один модальный интерфейс или внешний слой удерживает время.</summary>
+		public bool IsTimeFrozen
+		{
+			get { return _timeFreezeOwners.Count > 0; }
+		}
+
+		public IReadOnlyCollection<string> TimeFreezeOwners
+		{
+			get { return _timeFreezeOwners; }
+		}
+
 		public int Day
 		{
 			get { return _state.Day; }
@@ -115,6 +130,10 @@ namespace Kontur.Core.Api
 			_state.Reports.Clear();
 			_state.UsedMissionIds.Clear();
 			_state.HiredCandidateIds.Clear();
+			_state.HireOffers.Clear();
+			_state.HireOffersDay = -1;
+			_state.StartingChoice.Clear();
+			_state.StartingRosterConfirmed = false;
 			_state.Day = 0;
 
 			_scalesSystem.Reset();
@@ -139,12 +158,78 @@ namespace Kontur.Core.Api
 		/// <summary>Продвинуть симуляцию. delta — секунды. В Godot вызывается из _Process.</summary>
 		public void Tick(double deltaSeconds)
 		{
+			if (IsTimeFrozen)
+			{
+				return;
+			}
+
 			_director.Tick(deltaSeconds);
+		}
+
+		/// <summary>Добавляет владельца паузы. Повторный вызов тем же ключом безопасен.</summary>
+		public void FreezeTime(string owner)
+		{
+			SetTimeFreeze(owner, true);
+		}
+
+		/// <summary>Снимает паузу только указанного владельца, не затрагивая остальные модальные экраны.</summary>
+		public void UnfreezeTime(string owner)
+		{
+			SetTimeFreeze(owner, false);
+		}
+
+		public void SetTimeFreeze(string owner, bool frozen)
+		{
+			if (string.IsNullOrWhiteSpace(owner))
+			{
+				throw new ArgumentException("Нужен непустой идентификатор владельца паузы.", nameof(owner));
+			}
+
+			bool changed = frozen ? _timeFreezeOwners.Add(owner) : _timeFreezeOwners.Remove(owner);
+			if (changed)
+			{
+				_bus.Publish(new TimeFreezeChanged(IsTimeFrozen, _timeFreezeOwners.ToArray()));
+			}
 		}
 
 		public void ForceEndShift()
 		{
 			_director.EndShift();
+		}
+
+		/// <summary>
+		/// Сериализует партию в любой фазе, включая таймеры и маршруты активной смены.
+		/// </summary>
+		public string Save(string label = "")
+		{
+			return SaveSystem.ToJson(SaveSystem.Capture(_state, _director, Seed, _random.State, label));
+		}
+
+		public CommandResult Load(string json)
+		{
+			SaveData? data = SaveSystem.FromJson(json, out string error);
+			if (data == null)
+			{
+				return CommandResult.Fail(error);
+			}
+
+			if (!SaveSystem.Validate(data, Content, out error))
+			{
+				return CommandResult.Fail(error);
+			}
+
+			ResetToNewGame();
+			SaveSystem.Apply(data, _state);
+			_random.RestoreState(data.RandomState);
+			_director.RestoreShift(data.Shift);
+			FreezeTime("load");
+			return CommandResult.Ok();
+		}
+
+		/// <summary>Вызывается UI после восстановления кадров карты и интерфейсов.</summary>
+		public void ResumeAfterLoad()
+		{
+			UnfreezeTime("load");
 		}
 
 		// ------------------------------------------------------------------ команды игрока
@@ -154,9 +239,23 @@ namespace Kontur.Core.Api
 			return _director.AnswerCall(incidentId);
 		}
 
+		public CommandResult ConfirmBriefing(string incidentId)
+		{
+			return _director.ConfirmBriefing(incidentId);
+		}
+
 		public CommandResult OpenDispatchScreen(string incidentId)
 		{
-			return _director.OpenDispatchScreen(incidentId);
+			CommandResult result = _director.OpenDispatchScreen(incidentId);
+			if (result.IsSuccess) FreezeTime("dispatch:" + incidentId);
+			return result;
+		}
+
+		public CommandResult CloseDispatchScreen(string incidentId)
+		{
+			UnfreezeTime("dispatch:" + incidentId);
+			_bus.Publish(new DispatchScreenClosed(incidentId));
+			return CommandResult.Ok();
 		}
 
 		public CommandResult DispatchSquad(
@@ -164,7 +263,9 @@ namespace Kontur.Core.Api
 			IReadOnlyList<string> employeeIds,
 			IReadOnlyList<string> equipmentIds)
 		{
-			return _director.DispatchSquad(incidentId, employeeIds, equipmentIds);
+			CommandResult result = _director.DispatchSquad(incidentId, employeeIds, equipmentIds);
+			if (result.IsSuccess) CloseDispatchScreen(incidentId);
+			return result;
 		}
 
 	/// <summary>
@@ -177,12 +278,66 @@ namespace Kontur.Core.Api
 			IReadOnlyList<string> equipmentIds,
 			double travelSeconds)
 		{
-			return _director.DispatchSquad(incidentId, employeeIds, equipmentIds, travelSeconds);
+			CommandResult result = _director.DispatchSquad(incidentId, employeeIds, equipmentIds, travelSeconds);
+			if (result.IsSuccess) CloseDispatchScreen(incidentId);
+			return result;
+		}
+
+		/// <summary>Игрок поднял рацию: таймер решения останавливается в ядре.</summary>
+		public CommandResult AnswerRadio(string incidentId)
+		{
+			for (int i = 0; i < _director.Incidents.Count; i++)
+			{
+				IncidentRuntime incident = _director.Incidents[i];
+				if (!string.Equals(incident.Id, incidentId, StringComparison.OrdinalIgnoreCase)) continue;
+				if (incident.Phase != IncidentPhase.RadioPending || incident.MissionEvent == null)
+				{
+					return CommandResult.Fail("Радио по этому вызову не активно.");
+				}
+
+				FreezeTime("radio:" + incidentId);
+				_bus.Publish(new RadioAnswered(incidentId, incident.MissionEvent.Id));
+				return CommandResult.Ok();
+			}
+
+			return CommandResult.Fail("Вызов не найден.");
+		}
+
+		public CommandResult CloseRadio(string incidentId)
+		{
+			UnfreezeTime("radio:" + incidentId);
+			return CommandResult.Ok();
 		}
 
 		public CommandResult ChooseRadioOption(string incidentId, string optionId)
 		{
-			return _director.ChooseRadioOption(incidentId, optionId);
+			CommandResult result = _director.ChooseRadioOption(incidentId, optionId);
+			if (result.IsSuccess) CloseRadio(incidentId);
+			return result;
+		}
+
+		public IReadOnlyList<RadioOptionOffer> GetRadioOptions(string incidentId)
+		{
+			for (int i = 0; i < _director.Incidents.Count; i++)
+			{
+				IncidentRuntime incident = _director.Incidents[i];
+				if (string.Equals(incident.Id, incidentId, StringComparison.OrdinalIgnoreCase)) return _director.BuildOffers(incident);
+			}
+			return Array.Empty<RadioOptionOffer>();
+		}
+
+		public CommandResult OpenMissionOutcome(string incidentId)
+		{
+			if (string.IsNullOrWhiteSpace(incidentId)) return CommandResult.Fail("Не указан вызов.");
+			FreezeTime("outcome:" + incidentId);
+			return CommandResult.Ok();
+		}
+
+		public CommandResult CloseMissionOutcome(string incidentId)
+		{
+			if (string.IsNullOrWhiteSpace(incidentId)) return CommandResult.Fail("Не указан вызов.");
+			UnfreezeTime("outcome:" + incidentId);
+			return CommandResult.Ok();
 		}
 
 		/// <summary>
@@ -221,6 +376,26 @@ namespace Kontur.Core.Api
 
 			string error;
 			return _rosterSystem.TryHire(candidateId, day, out error)
+				? CommandResult.Ok()
+				: CommandResult.Fail(error);
+		}
+
+		/// <summary>Явно обновляет фиксированный список найма между сменами.</summary>
+		public void RefreshHireCandidates(int day)
+		{
+			_rosterSystem.RefreshHireOffers(day);
+		}
+
+		public bool NeedsStartingChoice
+		{
+			get { return !_state.StartingRosterConfirmed && _rosterSystem.GetStartingChoice().Count > 0; }
+		}
+
+		public CommandResult ConfirmStartingRoster(IReadOnlyList<string> candidateIds)
+		{
+			if (_director.IsShiftActive) return CommandResult.Fail("Cannot change the roster during a shift.");
+			string error;
+			return _rosterSystem.TryConfirmStartingRoster(candidateIds, out error)
 				? CommandResult.Ok()
 				: CommandResult.Fail(error);
 		}
@@ -272,7 +447,9 @@ namespace Kontur.Core.Api
 					employee.IsInjured,
 					employee.CurrentIncidentId,
 					new List<string>(employee.AbilityIds),
-					employee.PortraitId));
+					employee.PortraitId,
+					employee.Age,
+					new List<string>(employee.BioIds)));
 			}
 
 			return result;
@@ -294,14 +471,19 @@ namespace Kontur.Core.Api
 				result.Add(new IncidentView(
 					incident.Id,
 					incident.Mission.Id,
-					incident.Mission.Title,
+					incident.Mission.CallId,
 					incident.BuildingId,
-					incident.Mission.CallerName,
+					incident.Mission.MissionEventId ?? string.Empty,
+					incident.Mission.Tier,
+					incident.Mission.EffectiveCap,
 					incident.Phase,
 					incident.RemainingSeconds,
 					_director.GetCurrentRequirements(incident),
+					incident.Mission.SquadLimit,
 					incident.SquadEmployeeIds.ToArray(),
-					incident.EquipmentIds.ToArray()));
+					incident.EquipmentIds.ToArray())
+				{
+				});
 			}
 
 			return result;
@@ -425,9 +607,26 @@ namespace Kontur.Core.Api
 					template.Name,
 					template.RankTitle,
 					template.Level,
-					template.BaseStats));
+					template.BaseStats,
+					template.AbilityIds.ToArray(),
+					template.PortraitId,
+					template.Age,
+					template.BioIds.ToArray()));
 			}
 
+			return result;
+		}
+
+		public IReadOnlyList<HireCandidateView> GetStartingChoice()
+		{
+			var result = new List<HireCandidateView>();
+			IReadOnlyList<HireCandidate> candidates = _rosterSystem.GetStartingChoice();
+			for (int i = 0; i < candidates.Count; i++)
+			{
+				Employee employee = candidates[i].Template;
+				result.Add(new HireCandidateView(employee.Id, employee.Name, employee.RankTitle, employee.Level,
+					employee.BaseStats, employee.AbilityIds.ToArray(), employee.PortraitId, employee.Age, employee.BioIds.ToArray()));
+			}
 			return result;
 		}
 

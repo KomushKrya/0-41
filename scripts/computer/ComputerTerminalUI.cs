@@ -60,7 +60,7 @@ public partial class ComputerTerminalUI : Control
 			return;
 		}
 
-		GameSession session = _runtime.Session;
+		KonturSimulation session = _runtime.Session;
 		CommandResult result = session.StartShift(GetSelectedShiftDay());
 
 		if (!result.IsSuccess)
@@ -79,7 +79,7 @@ public partial class ComputerTerminalUI : Control
 			return;
 		}
 
-		GameSession session = _runtime.Session;
+		KonturSimulation session = _runtime.Session;
 		ShiftStatusView status = session.GetStatus();
 		int selectedDay = GetSelectedShiftDay();
 

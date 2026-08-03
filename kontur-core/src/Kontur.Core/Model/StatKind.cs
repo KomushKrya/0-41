@@ -2,55 +2,42 @@ using System.Collections.Generic;
 
 namespace Kontur.Core.Model
 {
-	/// <summary>
-	/// Характеристики сотрудника (ДД, раздел 5 — «4–5 характеристик по типу S.P.E.C.I.A.L.»).
-	/// Порядок значений enum зафиксирован: он используется как индекс в StatBlock и в JSON-контенте.
-	/// </summary>
+	/// <summary>Единая номенклатура характеристик из main.</summary>
 	public enum StatKind
 	{
 		Strength = 0,
-		Perception = 1,
-		Endurance = 2,
+		Combat = 1,
+		Agility = 2,
 		Charisma = 3,
-		Composure = 4
+		Intellect = 4
 	}
 
 	public static class StatKinds
 	{
 		public const int Count = 5;
-
 		public static readonly StatKind[] All =
 		{
-			StatKind.Strength,
-			StatKind.Perception,
-			StatKind.Endurance,
-			StatKind.Charisma,
-			StatKind.Composure
+			StatKind.Strength, StatKind.Combat, StatKind.Agility,
+			StatKind.Charisma, StatKind.Intellect
 		};
 
-		private static readonly Dictionary<StatKind, string> Ids = new Dictionary<StatKind, string>
+		private static readonly Dictionary<StatKind, string> Names = new()
 		{
-			{ StatKind.Strength, "strength" },
-			{ StatKind.Perception, "perception" },
-			{ StatKind.Endurance, "endurance" },
-			{ StatKind.Charisma, "charisma" },
-			{ StatKind.Composure, "composure" }
+			{ StatKind.Strength, "Сила" },
+			{ StatKind.Combat, "Боевая подготовка" },
+			{ StatKind.Agility, "Ловкость" },
+			{ StatKind.Charisma, "Харизма" },
+			{ StatKind.Intellect, "Интеллект" }
 		};
 
-		/// <summary>
-		/// Id характеристики — он же id записи контента с её названием и описанием
-		/// (content/raw/UI/characteristics). Названий ядро не знает: показывать
-		/// «Наблюдательность» или «Perception» — дело интерфейса и локали.
-		/// </summary>
-		public static string GetId(StatKind kind)
+		public static string GetDisplayName(StatKind kind)
 		{
-			string id;
-			return Ids.TryGetValue(kind, out id) ? id : kind.ToString().ToLowerInvariant();
+			return Names.TryGetValue(kind, out string? name) ? name : kind.ToString();
 		}
 
 		public static bool TryParse(string value, out StatKind kind)
 		{
-			return System.Enum.TryParse<StatKind>(value, true, out kind);
+			return System.Enum.TryParse(value, true, out kind);
 		}
 	}
 }

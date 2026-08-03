@@ -31,6 +31,9 @@ namespace Kontur.Core.Model
 		Returning = 7,
 
 		/// <summary>Отчёт доступен на компьютере, вызов закрыт.</summary>
-		Closed = 8
+		Closed = 8,
+
+		/// <summary>Вызов уже назначен на конкретное здание, но ожидает свободной телефонной линии.</summary>
+		Queued = 9
 	}
 }

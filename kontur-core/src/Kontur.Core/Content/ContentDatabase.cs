@@ -20,13 +20,15 @@ namespace Kontur.Core.Content
 
 		public Dictionary<string, MissionDefinition> Missions { get; } = new Dictionary<string, MissionDefinition>(StringComparer.OrdinalIgnoreCase);
 
-		public Dictionary<string, RadioEncounter> RadioEncounters { get; } = new Dictionary<string, RadioEncounter>(StringComparer.OrdinalIgnoreCase);
+		public Dictionary<string, MissionEventDefinition> MissionEvents { get; } = new Dictionary<string, MissionEventDefinition>(StringComparer.OrdinalIgnoreCase);
 
 		public Dictionary<int, ShiftNoteDto> ShiftNotes { get; } = new Dictionary<int, ShiftNoteDto>();
 
 		public List<Employee> StartingRoster { get; } = new List<Employee>();
 
 		public List<HireCandidate> HirePool { get; } = new List<HireCandidate>();
+
+		public EmployeeGeneratorSettings Generator { get; } = new EmployeeGeneratorSettings();
 
 		public IReadOnlyList<MissionDefinition> GetMissionsForDay(int day)
 		{
@@ -73,10 +75,10 @@ namespace Kontur.Core.Content
 			return Abilities.TryGetValue(abilityId, out ability) ? ability : null;
 		}
 
-		public RadioEncounter? FindRadioEncounter(string encounterId)
+		public MissionEventDefinition? FindMissionEvent(string eventId)
 		{
-			RadioEncounter? encounter;
-			return RadioEncounters.TryGetValue(encounterId, out encounter) ? encounter : null;
+			MissionEventDefinition? missionEvent;
+			return MissionEvents.TryGetValue(eventId, out missionEvent) ? missionEvent : null;
 		}
 	}
 

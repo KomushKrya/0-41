@@ -9,18 +9,6 @@
 radius = 0.12
 height = 0.24
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_debug"]
-transparency = 1
-shading_mode = 0
-albedo_color = Color(0.9, 0.7, 0.18, 0.2)
-emission_enabled = true
-emission = Color(0.65, 0.45, 0.08, 1)
-
-[sub_resource type="SphereMesh" id="SphereMesh_debug"]
-material = SubResource("StandardMaterial3D_debug")
-radius = 0.12
-height = 0.24
-
 [node name="MapMissionMarker" type="Node3D"]
 script = ExtResource("1_marker")
 
@@ -42,8 +30,3 @@ script = ExtResource("3_interactable")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionArea"]
 shape = SubResource("SphereShape3D_interaction")
-
-[node name="DebugInteractionSphere" type="MeshInstance3D" parent="."]
-visible = false
-cast_shadow = 0
-mesh = SubResource("SphereMesh_debug")
