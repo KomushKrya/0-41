@@ -168,12 +168,12 @@ public partial class MapMarkerController : Node
 		if (!_pinBuildingIds.TryGetValue(incidentId, out string buildingId)
 			|| !_mapUi.TryGetTravelSeconds(buildingId, out double travelSeconds))
 		{
-			return CommandResult.Fail("Для этого задания не удалось построить маршрут на карте.");
+			return CommandResult.Fail(Content.Label("ui_map_no_route"));
 		}
 
 		KonturRuntime runtime = KonturRuntime.Get(this);
 		return runtime == null || !runtime.IsReady
-			? CommandResult.Fail("Симуляция ещё не готова.")
+			? CommandResult.Fail(Content.Label("ui_sim_not_ready"))
 			: runtime.Simulation.DispatchSquad(incidentId, employeeIds, equipmentIds);
 	}
 

@@ -51,7 +51,7 @@ public partial class HiringScreen : Control
 		KonturSimulation simulation = GameFlow.Instance?.Simulation;
 		if (simulation == null)
 		{
-			_title.Text = "Ядро недоступно";
+			_title.Text = Content.Label("ui_hiring_no_core");
 			return;
 		}
 
@@ -68,8 +68,8 @@ public partial class HiringScreen : Control
 			: CountFreeSlots(simulation, status);
 
 		_title.Text = _isStartingChoice
-			? "Соберите бригаду"
-			: $"Набор на смену {_day}";
+			? Content.Label("ui_hiring_title_starting")
+			: Content.Label("ui_hiring_title_day", "day", _day.ToString());
 
 		// Брать некого — экран показывать незачем, сразу дальше.
 		if (_candidates.Count == 0 || _slots <= 0)
@@ -122,7 +122,7 @@ public partial class HiringScreen : Control
 		column.AddThemeConstantOverride("separation", 16);
 		AddChild(column);
 
-		_title = new Label { Text = "Набор" };
+		_title = new Label { Text = Content.Label("ui_hiring_title") };
 		_title.AddThemeFontSizeOverride("font_size", 28);
 		column.AddChild(_title);
 
@@ -153,7 +153,7 @@ public partial class HiringScreen : Control
 
 		_confirm = new Button
 		{
-			Text = "Готово",
+			Text = Content.Label("ui_hiring_confirm"),
 			CustomMinimumSize = new Vector2(160.0f, 40.0f)
 		};
 		_confirm.Pressed += OnConfirm;
@@ -205,14 +205,17 @@ public partial class HiringScreen : Control
 
 		column.AddChild(new Label
 		{
-			Text = $"{candidate.RankTitle}, уровень {candidate.Level}",
+			Text = Content.Label("ui_hiring_candidate_rank",
+				"rank", candidate.RankTitle,
+				"level", candidate.Level.ToString()),
 			Modulate = new Color(1.0f, 1.0f, 1.0f, 0.6f)
 		});
 
 		column.AddChild(new HSeparator());
 
-		// Характеристики. Название берётся у ядра, а не пишется здесь строкой:
-		// иначе переименование характеристики пришлось бы ловить по всему проекту.
+		// Характеристики. Подпись берётся из текстового движка, а не пишется здесь
+		// строкой: id записи characteristic совпадает с именем StatKind, поэтому
+		// переименование правится в одном месте — в content/raw.
 		for (int i = 0; i < StatKinds.All.Length; i++)
 		{
 			StatKind kind = StatKinds.All[i];
@@ -220,7 +223,7 @@ public partial class HiringScreen : Control
 			var line = new HBoxContainer();
 			line.AddChild(new Label
 			{
-				Text = StatKinds.GetDisplayName(kind),
+				Text = Content.NameOf(kind.ToString().ToLowerInvariant()),
 				SizeFlagsHorizontal = SizeFlags.ExpandFill
 			});
 			line.AddChild(new Label { Text = candidate.Stats[kind].ToString() });
@@ -230,7 +233,7 @@ public partial class HiringScreen : Control
 		column.AddChild(new HSeparator());
 		column.AddChild(new Label
 		{
-			Text = "ОСОБЕННОСТИ",
+			Text = Content.Label("ui_hiring_abilities"),
 			Modulate = new Color(1.0f, 1.0f, 1.0f, 0.6f)
 		});
 
@@ -238,7 +241,7 @@ public partial class HiringScreen : Control
 		{
 			column.AddChild(new Label
 			{
-				Text = "нет",
+				Text = Content.Label("ui_hiring_abilities_none"),
 				Modulate = new Color(1.0f, 1.0f, 1.0f, 0.4f)
 			});
 		}
@@ -254,7 +257,7 @@ public partial class HiringScreen : Control
 
 		var pick = new Button
 		{
-			Text = "Взять",
+			Text = Content.Label("ui_hiring_take"),
 			ToggleMode = true,
 			CustomMinimumSize = new Vector2(0.0f, 36.0f)
 		};
@@ -332,13 +335,17 @@ public partial class HiringScreen : Control
 	private void RefreshCounter()
 	{
 		_counter.Text = _isStartingChoice
-			? $"Выбрано {_picked.Count} из {_slots}"
-			: $"Взято {_picked.Count}, свободных мест {_slots}";
+			? Content.Label("ui_hiring_picked_starting",
+				"picked", _picked.Count.ToString(), "slots", _slots.ToString())
+			: Content.Label("ui_hiring_picked",
+				"picked", _picked.Count.ToString(), "slots", _slots.ToString());
 
 		// При стартовом выборе бригада должна быть укомплектована полностью:
 		// выйти на смену вдвоём вместо троих — не решение игрока, а недосмотр.
 		_confirm.Disabled = _isStartingChoice && _picked.Count != _slots;
-		_confirm.Text = _picked.Count == 0 && !_isStartingChoice ? "Пропустить" : "Готово";
+		_confirm.Text = _picked.Count == 0 && !_isStartingChoice
+			? Content.Label("ui_hiring_skip")
+			: Content.Label("ui_hiring_confirm");
 	}
 
 	// ------------------------------------------------------------------ подтверждение

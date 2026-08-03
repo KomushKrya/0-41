@@ -109,16 +109,16 @@ public partial class PauseMenu : CanvasLayer
 		column.AddThemeConstantOverride("separation", 12);
 		_root.AddChild(column);
 
-		var title = new Label { Text = "ПАУЗА", HorizontalAlignment = HorizontalAlignment.Center };
+		var title = new Label { Text = Content.Label("ui_pause_title"), HorizontalAlignment = HorizontalAlignment.Center };
 		title.AddThemeFontSizeOverride("font_size", 32);
 		column.AddChild(title);
 
 		column.AddChild(new Control { CustomMinimumSize = new Vector2(0.0f, 16.0f) });
 
-		AddButton(column, "Возобновить", Close);
-		_loadButton = AddButton(column, "Загрузка", OnLoad);
-		AddButton(column, "Настройки", OnSettings);
-		AddButton(column, "Главное меню", OnMainMenu);
+		AddButton(column, Content.Label("ui_pause_resume"), Close);
+		_loadButton = AddButton(column, Content.Label("ui_pause_load"), OnLoad);
+		AddButton(column, Content.Label("ui_pause_settings"), OnSettings);
+		AddButton(column, Content.Label("ui_pause_main_menu"), OnMainMenu);
 
 		_hint = new Label
 		{
@@ -159,7 +159,7 @@ public partial class PauseMenu : CanvasLayer
 
 		_hint.Text = string.Empty;
 		_loadButton.Disabled = !HasSave();
-		_loadButton.TooltipText = HasSave() ? string.Empty : "Сохранений пока нет";
+		_loadButton.TooltipText = HasSave() ? string.Empty : Content.Label("ui_hint_no_saves");
 
 		_root.Visible = true;
 		GetTree().Paused = true;
@@ -196,7 +196,7 @@ public partial class PauseMenu : CanvasLayer
 	{
 		if (GameFlow.Instance == null)
 		{
-			_hint.Text = "Поток игры не запущен.";
+			_hint.Text = Content.Label("ui_hint_no_flow");
 			return;
 		}
 
@@ -207,7 +207,7 @@ public partial class PauseMenu : CanvasLayer
 		if (!GameFlow.Instance.ContinueGame())
 		{
 			Open();
-			_hint.Text = "Не удалось загрузить сохранение, подробности в Output.";
+			_hint.Text = Content.Label("ui_hint_load_failed");
 		}
 	}
 
@@ -215,7 +215,7 @@ public partial class PauseMenu : CanvasLayer
 	{
 		if (GameFlow.Instance == null)
 		{
-			_hint.Text = "Поток игры не запущен.";
+			_hint.Text = Content.Label("ui_hint_no_flow");
 			return;
 		}
 

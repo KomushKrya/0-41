@@ -68,8 +68,8 @@ public partial class EmployeeSelectionUI : Control, IComputerScreen
 		KonturRuntime runtime = KonturRuntime.Get(this);
 		if (runtime == null || !runtime.IsReady)
 		{
-			_rosterList.AddChild(new Label { Text = "ЯДРО НЕДОСТУПНО" });
-			_selectionSummary.Text = "СОСТАВ: —";
+			_rosterList.AddChild(new Label { Text = Content.Label("ui_roster_no_core") });
+			_selectionSummary.Text = Content.Label("ui_roster_squad_none");
 			return;
 		}
 
@@ -85,7 +85,7 @@ public partial class EmployeeSelectionUI : Control, IComputerScreen
 		_selectedEmployeeIds.RemoveWhere(id => !knownIds.Contains(id));
 		if (roster.Count == 0)
 		{
-			_rosterList.AddChild(new Label { Text = "СОТРУДНИКОВ НЕТ" });
+			_rosterList.AddChild(new Label { Text = Content.Label("ui_roster_empty") });
 		}
 
 		UpdateSelectionSummary();
@@ -141,8 +141,8 @@ public partial class EmployeeSelectionUI : Control, IComputerScreen
 	private void UpdateSelectionSummary()
 	{
 		_selectionSummary.Text = _selectedEmployeeIds.Count == 0
-			? "СОСТАВ: НЕ ВЫБРАН"
-			: $"ВЫБРАНО СОТРУДНИКОВ: {_selectedEmployeeIds.Count}";
+			? Content.Label("ui_roster_squad_unset")
+			: Content.Label("ui_roster_squad_picked", "count", _selectedEmployeeIds.Count.ToString());
 	}
 
 	private void DispatchSelectedEmployees()
@@ -160,7 +160,7 @@ public partial class EmployeeSelectionUI : Control, IComputerScreen
 
 		if (current is not ComputerUI computerUi)
 		{
-			_dispatchFeedback.Text = "ИНТЕРФЕЙС ОТПРАВКИ НЕДОСТУПЕН";
+			_dispatchFeedback.Text = Content.Label("ui_roster_dispatch_missing");
 			return;
 		}
 

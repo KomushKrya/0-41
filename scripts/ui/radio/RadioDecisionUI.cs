@@ -111,7 +111,7 @@ public partial class RadioDecisionUI : Control
 	{
 		_incidentId = incidentId;
 		_options = options ?? Array.Empty<RadioOptionOffer>();
-		_header.Text = $"К.О.Н.Т.У.Р.-Д  /  РАДИО: {missionTitle}";
+		_header.Text = Content.Label("ui_radio_header", "title", missionTitle);
 		ContentEntry entry = FindRadioEntry(missionEventId);
 		_situationLabel.Text = BuildSituationText(entry, missionEventId);
 

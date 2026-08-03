@@ -71,7 +71,7 @@ public partial class DeskPhone : Node3D
 		KonturRuntime runtime = KonturRuntime.Get(this);
 		if (runtime == null || !runtime.IsReady)
 		{
-			error = "Симуляция ещё не готова.";
+			error = Content.Label("ui_sim_not_ready");
 			return false;
 		}
 
@@ -86,11 +86,12 @@ public partial class DeskPhone : Node3D
 			IncidentView incident = FindIncident(runtime, incidentId);
 			if (incident != null && incident.Phase == IncidentPhase.Ringing)
 			{
-				string description = $"Входящий вызов от: {KonturUiText.CallerName(incident)}.\n"
-					+ $"Инцидент: {KonturUiText.MissionTitle(incident)}.\n\n"
-					+ "Подтвердите принятие вызова, чтобы открыть задание на карте.";
+				string description =
+					Content.Label("ui_phone_call_from", "caller", KonturUiText.CallerName(incident)) + "\n"
+					+ Content.Label("ui_phone_call_incident", "title", KonturUiText.MissionTitle(incident)) + "\n\n"
+					+ Content.Label("ui_phone_call_confirm");
 				_callAcceptanceUi.ShowCallAcceptance(
-					"ВХОДЯЩИЙ ВЫЗОВ",
+					Content.Label("ui_computer_incoming"),
 					description,
 					null,
 					() => ConfirmAnswer(runtime, incidentId));
@@ -101,7 +102,7 @@ public partial class DeskPhone : Node3D
 		}
 
 		SetRingingVisual(false);
-		error = "Нет входящих звонков.";
+		error = Content.Label("ui_phone_no_calls");
 		return false;
 	}
 

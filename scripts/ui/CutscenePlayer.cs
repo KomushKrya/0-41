@@ -86,7 +86,7 @@ public partial class CutscenePlayer : Control
 
 		_prompt = new Label
 		{
-			Text = "Пробел — дальше    ·    Esc — пропустить",
+			Text = Content.Label("ui_cutscene_hint_next"),
 			HorizontalAlignment = HorizontalAlignment.Center,
 			AnchorLeft = 0.0f,
 			AnchorTop = 1.0f,
@@ -178,8 +178,8 @@ public partial class CutscenePlayer : Control
 
 		bool last = _chunkIndex >= _entry.Chunks.Count - 1;
 		_prompt.Text = last
-			? "Пробел — продолжить    ·    Esc — пропустить"
-			: "Пробел — дальше    ·    Esc — пропустить";
+			? Content.Label("ui_cutscene_hint_last")
+			: Content.Label("ui_cutscene_hint_next");
 	}
 
 	// ------------------------------------------------------------------ ввод

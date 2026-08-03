@@ -34,6 +34,7 @@ FOLDER_TYPES = {
     "UI/hover_footnote/characteristics": "characteristic",
     "UI/hover_footnote/equipment_kinds": "equipment_kind",
     "UI/hover_footnote/scales": "scale",
+    "UI/labels": "ui_label",
     "personnel/bio": "bio_line",
 }
 
@@ -87,6 +88,17 @@ ID_RE = re.compile(r"^[a-z][a-z0-9_]*$")
 # Реестр названий миссий: файл на смену, строка таблицы — миссия. Разбирается не как
 # обычная запись, поэтому тип вынесен в константу.
 REGISTRY_TYPE = "mission_id"
+
+# Типы, которые пишутся таблицей «id | текст», а не файлом на запись. Общее у них
+# то, что запись — короткая строка без тела: держать её отдельным файлом дороже,
+# чем строкой в таблице, и списком такие строки видно целиком.
+#
+# ui_label — подписи интерфейса: заголовки экранов, кнопки, статусы. Один файл на
+# экран. Текст едет в поле name, тело пустое: подписи нечего пояснять, а игре нужна
+# ровно одна строка. Числа подставляются через {{имя}} на стороне игры (Content.Fill).
+REGISTRY_TYPES = (REGISTRY_TYPE, "ui_label")
+# Как назвать вторую колонку в сообщении об ошибке — таблицы одинаковые, смысл разный.
+REGISTRY_COLUMN = {REGISTRY_TYPE: "название", "ui_label": "текст"}
 # Характеристики автор пишет по-русски — «интеллект, ловкость». Ядро знает
 # характеристики по английским ключам, поэтому перевод делается здесь, на сборке.
 STAT_ALIASES = {
@@ -532,12 +544,13 @@ def parse_file(path: Path, expected_type: str, repo_root: Path) -> dict:
     return entry
 
 
-def parse_registry(path: Path, repo_root: Path) -> list[dict]:
-    """Реестр миссий: один файл на смену, строка таблицы — одна миссия.
+def parse_registry(path: Path, repo_root: Path, content_type: str = REGISTRY_TYPE) -> list[dict]:
+    """Таблица «id | текст»: один файл на смену (миссии) или на экран (подписи).
 
-    Названия миссий держатся вместе намеренно: так их видно списком и не нужно
-    открывать пятнадцать файлов, чтобы понять, из чего состоит смена.
+    Записи держатся вместе намеренно: так их видно списком и не нужно открывать
+    пятнадцать файлов, чтобы понять, из чего состоит смена или экран.
     """
+    column = REGISTRY_COLUMN.get(content_type, "название")
     try:
         raw_text = path.read_text(encoding="utf-8")
     except UnicodeDecodeError as error:
@@ -549,9 +562,9 @@ def parse_registry(path: Path, repo_root: Path) -> list[dict]:
         if not frontmatter.get(required):
             raise BuildFailed(f"{path}: во фронтматтере нет поля {required}")
 
-    if frontmatter["type"] != REGISTRY_TYPE:
+    if frontmatter["type"] != content_type:
         raise BuildFailed(
-            f"{path}: type={frontmatter['type']!r}, но файл лежит в папке типа {REGISTRY_TYPE!r}"
+            f"{path}: type={frontmatter['type']!r}, но файл лежит в папке типа {content_type!r}"
         )
 
     if frontmatter["status"] not in KNOWN_STATUSES:
@@ -571,31 +584,31 @@ def parse_registry(path: Path, repo_root: Path) -> list[dict]:
         cells = [cell.strip() for cell in row.strip("|").split("|")]
         if len(cells) != 2:
             raise BuildFailed(
-                f"{path}: в строке {row!r} должно быть ровно две колонки — id и название"
+                f"{path}: в строке {row!r} должно быть ровно две колонки — id и {column}"
             )
 
-        mission_id, name = cells
-        # Шапка таблицы и разделитель под ней — не миссии.
-        if mission_id.lower() == "id" or set(mission_id) <= set("-: "):
+        entry_id, name = cells
+        # Шапка таблицы и разделитель под ней — не записи.
+        if entry_id.lower() == "id" or set(entry_id) <= set("-: "):
             continue
 
-        if not ID_RE.match(mission_id):
+        if not ID_RE.match(entry_id):
             raise BuildFailed(
-                f"{path}: id миссии {mission_id!r} не по формату — латиница, цифры и _, "
+                f"{path}: id {entry_id!r} не по формату — латиница, цифры и _, "
                 f"начиная с буквы"
             )
 
         if not name:
-            raise BuildFailed(f"{path}: у миссии {mission_id!r} пустое название")
+            raise BuildFailed(f"{path}: у записи {entry_id!r} пустое поле «{column}»")
 
         entries.append(
             {
-                "id": mission_id,
-                "type": REGISTRY_TYPE,
+                "id": entry_id,
+                "type": content_type,
                 "name": name,
                 "requirements": [],
                 "properties": [],
-                "variables": [],
+                "variables": sorted(set(VARIABLE_RE.findall(name))),
                 "chunks": [],
                 "_status": frontmatter["status"],
                 "_source": source,
@@ -603,7 +616,7 @@ def parse_registry(path: Path, repo_root: Path) -> list[dict]:
         )
 
     if not entries:
-        raise BuildFailed(f"{path}: в реестре нет ни одной строки таблицы «id | название»")
+        raise BuildFailed(f"{path}: в таблице нет ни одной строки «id | {column}»")
 
     return entries
 
@@ -619,8 +632,8 @@ def collect_entries(raw_root: Path, repo_root: Path) -> list[dict]:
 
         for path in sorted(folder_path.rglob("*.md")):
             try:
-                if content_type == REGISTRY_TYPE:
-                    entries.extend(parse_registry(path, repo_root))
+                if content_type in REGISTRY_TYPES:
+                    entries.extend(parse_registry(path, repo_root, content_type))
                 else:
                     entries.append(parse_file(path, content_type, repo_root))
             except BuildFailed as error:

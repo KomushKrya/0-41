@@ -82,6 +82,54 @@ public partial class Content : Node
 	}
 
 	/// <summary>
+	/// Подпись записи для интерфейса: поле name у characteristic, equipment, perk.
+	/// Возвращает сам id, если записи нет или подписи у неё нет — на экране будет
+	/// видно, что подпись потерялась, а не пустое место.
+	///
+	/// Нужен, чтобы интерфейс не звал StatKinds.GetDisplayName из ядра: там таблица
+	/// имён живёт для сообщений об ошибках и консольного харнесса, и держать её
+	/// синхронной с текстами пришлось бы руками.
+	/// </summary>
+	public static string NameOf(string id)
+	{
+		if (Instance == null || string.IsNullOrEmpty(id))
+		{
+			return id;
+		}
+
+		ContentEntry entry = Instance.GetEntry(id);
+		return entry != null && entry.Name.Length > 0 ? entry.Name : id;
+	}
+
+	/// <summary>
+	/// Подпись интерфейса (тип ui_label) с подстановкой чисел: пары идут подряд,
+	/// «имя, значение». Без пар — просто текст подписи.
+	///
+	/// <code>Content.Label("ui_dossier_level", "level", "3", "rank", "Стажёр")</code>
+	/// </summary>
+	public static string Label(string id, params string[] values)
+	{
+		string text = NameOf(id);
+		if (values == null || values.Length == 0 || !HasVariables(text))
+		{
+			return text;
+		}
+
+		return Fill(text, name =>
+		{
+			for (int i = 0; i + 1 < values.Length; i += 2)
+			{
+				if (values[i] == name)
+				{
+					return values[i + 1];
+				}
+			}
+
+			return null;
+		});
+	}
+
+	/// <summary>
 	/// Подставляет значения вместо {{имя}}. Числа приходят через resolve — движок их
 	/// не знает. Неразрешённое имя остаётся в тексте видимым: пустое место прочиталось
 	/// бы как опечатка автора. Ругаться на пропажу — дело вызывающего.

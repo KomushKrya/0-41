@@ -96,7 +96,7 @@ public partial class DossierScreen : Control
 		column.AddThemeConstantOverride("separation", 12);
 		AddChild(column);
 
-		var header = new Label { Text = "ДОСЬЕ СОТРУДНИКОВ" };
+		var header = new Label { Text = Content.Label("ui_dossier_title") };
 		header.AddThemeFontSizeOverride("font_size", 30);
 		column.AddChild(header);
 
@@ -168,7 +168,7 @@ public partial class DossierScreen : Control
 
 		if (_roster.Count == 0)
 		{
-			_spread.AddChild(new Label { Text = "В штате никого." });
+			_spread.AddChild(new Label { Text = Content.Label("ui_dossier_empty") });
 			_pager.Text = string.Empty;
 			_prev.Disabled = true;
 			_next.Disabled = true;
@@ -190,7 +190,10 @@ public partial class DossierScreen : Control
 		}
 
 		int last = System.Math.Min(_firstOnSpread + PagesPerSpread, _roster.Count);
-		_pager.Text = $"{_firstOnSpread + 1}–{last} из {_roster.Count}";
+		_pager.Text = Content.Label("ui_dossier_pager",
+			"first", (_firstOnSpread + 1).ToString(),
+			"last", last.ToString(),
+			"total", _roster.Count.ToString());
 		_prev.Disabled = _firstOnSpread == 0;
 		_next.Disabled = last >= _roster.Count;
 	}
@@ -213,7 +216,9 @@ public partial class DossierScreen : Control
 
 		var experience = new Label
 		{
-			Text = $"ОПЫТ СОТРУДНИКА: {employee.Experience}/{employee.ExperienceToNextLevel}",
+			Text = Content.Label("ui_dossier_experience",
+				"current", employee.Experience.ToString(),
+				"next", employee.ExperienceToNextLevel.ToString()),
 			HorizontalAlignment = HorizontalAlignment.Right
 		};
 		column.AddChild(experience);
@@ -234,7 +239,9 @@ public partial class DossierScreen : Control
 
 		var rank = new Label
 		{
-			Text = $"УРОВЕНЬ: {employee.Level}   {employee.RankTitle}",
+			Text = Content.Label("ui_dossier_level",
+				"level", employee.Level.ToString(),
+				"rank", employee.RankTitle),
 			HorizontalAlignment = HorizontalAlignment.Center,
 			Modulate = new Color(1.0f, 1.0f, 1.0f, 0.7f)
 		};
@@ -247,7 +254,8 @@ public partial class DossierScreen : Control
 		{
 			var badge = new Label
 			{
-				Text = $"▲ ПОВЫШЕНИЕ: нераспределённых очков {employee.UnspentSkillPoints}",
+				Text = Content.Label("ui_dossier_promotion",
+					"points", employee.UnspentSkillPoints.ToString()),
 				HorizontalAlignment = HorizontalAlignment.Center,
 				Modulate = new Color(1.0f, 0.78f, 0.35f)
 			};
@@ -255,8 +263,8 @@ public partial class DossierScreen : Control
 		}
 
 		string state = employee.Status == EmployeeStatus.Dead
-			? "ПОГИБ"
-			: employee.IsInjured ? "ТРАВМИРОВАН" : string.Empty;
+			? Content.Label("ui_dossier_status_dead")
+			: employee.IsInjured ? Content.Label("ui_dossier_status_injured") : string.Empty;
 
 		if (state.Length > 0)
 		{
@@ -296,7 +304,7 @@ public partial class DossierScreen : Control
 		{
 			frame.AddChild(new Label
 			{
-				Text = employee.PortraitId.Length > 0 ? employee.PortraitId : "без фото",
+				Text = employee.PortraitId.Length > 0 ? employee.PortraitId : Content.Label("ui_dossier_no_photo"),
 				HorizontalAlignment = HorizontalAlignment.Center,
 				VerticalAlignment = VerticalAlignment.Center,
 				CustomMinimumSize = new Vector2(128.0f, 96.0f),
@@ -309,7 +317,7 @@ public partial class DossierScreen : Control
 
 	private void BuildStats(Container column, EmployeeView employee)
 	{
-		column.AddChild(new Label { Text = "ХАРАКТЕРИСТИКИ" });
+		column.AddChild(new Label { Text = Content.Label("ui_dossier_stats") });
 
 		var grid = new GridContainer { Columns = 3 };
 		grid.AddThemeConstantOverride("h_separation", 12);
@@ -324,7 +332,7 @@ public partial class DossierScreen : Control
 
 			grid.AddChild(new Label
 			{
-				Text = StatKinds.GetDisplayName(kind) + ':',
+				Text = StatName(kind) + ':',
 				SizeFlagsHorizontal = SizeFlags.ExpandFill
 			});
 
@@ -348,7 +356,7 @@ public partial class DossierScreen : Control
 			{
 				Text = "+",
 				CustomMinimumSize = new Vector2(32.0f, 28.0f),
-				TooltipText = $"Вложить очко в «{StatKinds.GetDisplayName(kind)}»"
+				TooltipText = Content.Label("ui_dossier_spend_hint", "stat", StatName(kind))
 			};
 
 			string employeeId = employee.Id;
@@ -365,7 +373,7 @@ public partial class DossierScreen : Control
 			return;
 		}
 
-		column.AddChild(new Label { Text = "ОСОБЫЕ НАВЫКИ" });
+		column.AddChild(new Label { Text = Content.Label("ui_dossier_abilities") });
 
 		for (int i = 0; i < employee.AbilityIds.Count; i++)
 		{
@@ -381,7 +389,7 @@ public partial class DossierScreen : Control
 			return;
 		}
 
-		column.AddChild(new Label { Text = "ДРУГИЕ ДАННЫЕ" });
+		column.AddChild(new Label { Text = Content.Label("ui_dossier_bio") });
 
 		var parts = new List<string>();
 		if (employee.Age > 0)
@@ -415,7 +423,8 @@ public partial class DossierScreen : Control
 
 		var label = new Label
 		{
-			Text = $"ДОСТУПНЫ ОЧКИ ХАРАКТЕРИСТИК: {employee.UnspentSkillPoints}",
+			Text = Content.Label("ui_dossier_points_available",
+				"points", employee.UnspentSkillPoints.ToString()),
 			HorizontalAlignment = HorizontalAlignment.Center,
 			Modulate = new Color(1.0f, 0.78f, 0.35f)
 		};
@@ -452,20 +461,32 @@ public partial class DossierScreen : Control
 	/// </summary>
 	private static string FormatAge(int years)
 	{
+		string number = years.ToString();
+
 		int tail = years % 100;
 		if (tail >= 11 && tail <= 14)
 		{
-			return $"{years} лет.";
+			return Content.Label("ui_dossier_age_many", "years", number);
 		}
 
 		switch (years % 10)
 		{
-			case 1: return $"{years} год.";
+			case 1: return Content.Label("ui_dossier_age_one", "years", number);
 			case 2:
 			case 3:
-			case 4: return $"{years} года.";
-			default: return $"{years} лет.";
+			case 4: return Content.Label("ui_dossier_age_few", "years", number);
+			default: return Content.Label("ui_dossier_age_many", "years", number);
 		}
+	}
+
+	/// <summary>
+	/// Подпись характеристики берётся из текстового движка: id записи типа
+	/// characteristic совпадает с именем StatKind. Таблица имён в ядре осталась
+	/// для сообщений об ошибках и харнесса — на экран она больше не идёт.
+	/// </summary>
+	private static string StatName(StatKind kind)
+	{
+		return Content.NameOf(kind.ToString().ToLowerInvariant());
 	}
 
 	private static string ResolveName(string entryId)

@@ -47,7 +47,7 @@ public partial class MainMenu : Control
 
 		var title = new Label
 		{
-			Text = "К.О.Н.Т.У.Р.",
+			Text = Content.Label("ui_menu_title"),
 			HorizontalAlignment = HorizontalAlignment.Center
 		};
 		title.AddThemeFontSizeOverride("font_size", 42);
@@ -55,7 +55,7 @@ public partial class MainMenu : Control
 
 		var subtitle = new Label
 		{
-			Text = "объект 0-41 · диспетчерская",
+			Text = Content.Label("ui_menu_subtitle"),
 			HorizontalAlignment = HorizontalAlignment.Center,
 			Modulate = new Color(1.0f, 1.0f, 1.0f, 0.55f)
 		};
@@ -63,10 +63,10 @@ public partial class MainMenu : Control
 
 		column.AddChild(new Control { CustomMinimumSize = new Vector2(0.0f, 24.0f) });
 
-		_continueButton = AddButton(column, "Продолжить", OnContinue);
-		AddButton(column, "Новая игра", OnNewGame);
-		AddButton(column, "Настройки", OnToggleSettings);
-		AddButton(column, "Выход", OnQuit);
+		_continueButton = AddButton(column, Content.Label("ui_menu_continue"), OnContinue);
+		AddButton(column, Content.Label("ui_menu_new_game"), OnNewGame);
+		AddButton(column, Content.Label("ui_menu_settings"), OnToggleSettings);
+		AddButton(column, Content.Label("ui_menu_quit"), OnQuit);
 
 		_hint = new Label
 		{
@@ -105,7 +105,7 @@ public partial class MainMenu : Control
 			&& GameFlow.Instance.Runtime.HasSlot(GameFlow.QuickSlot);
 
 		_continueButton.Disabled = !hasSave;
-		_continueButton.TooltipText = hasSave ? string.Empty : "Сохранений пока нет";
+		_continueButton.TooltipText = hasSave ? string.Empty : Content.Label("ui_hint_no_saves");
 	}
 
 	// ------------------------------------------------------------------ действия
@@ -114,7 +114,7 @@ public partial class MainMenu : Control
 	{
 		if (GameFlow.Instance == null)
 		{
-			ShowHint("Поток игры не запущен — проверьте автозагрузку GameFlow.");
+			ShowHint(Content.Label("ui_hint_no_flow_autoload"));
 			return;
 		}
 
@@ -125,13 +125,13 @@ public partial class MainMenu : Control
 	{
 		if (GameFlow.Instance == null)
 		{
-			ShowHint("Поток игры не запущен.");
+			ShowHint(Content.Label("ui_hint_no_flow"));
 			return;
 		}
 
 		if (!GameFlow.Instance.ContinueGame())
 		{
-			ShowHint("Не удалось загрузить сохранение, подробности в Output.");
+			ShowHint(Content.Label("ui_hint_load_failed"));
 			RefreshContinueButton();
 		}
 	}

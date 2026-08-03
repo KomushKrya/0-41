@@ -112,18 +112,18 @@ public partial class ComputerUI : Control
 	{
 		if (string.IsNullOrEmpty(_dispatchIncidentId))
 		{
-			return CommandResult.Fail("Нет активного вызова для отправки.");
+			return CommandResult.Fail(Content.Label("ui_computer_no_incident"));
 		}
 
 		if (employeeIds.Count == 0)
 		{
-			return CommandResult.Fail("Выберите хотя бы одного сотрудника.");
+			return CommandResult.Fail(Content.Label("ui_computer_no_employees"));
 		}
 
 		MapMarkerController mapController = GetTree().GetFirstNodeInGroup("map_marker_controller") as MapMarkerController;
 		if (mapController == null)
 		{
-			return CommandResult.Fail("Контроллер маршрута карты недоступен.");
+			return CommandResult.Fail(Content.Label("ui_computer_no_route"));
 		}
 
 		CommandResult result = mapController.TryDispatchSquad(
@@ -164,7 +164,7 @@ public partial class ComputerUI : Control
 
 		if (employee.Status != Kontur.Core.Model.EmployeeStatus.Available)
 		{
-			_missionDispatchUi?.SetFeedback("СОТРУДНИК НЕДОСТУПЕН");
+			_missionDispatchUi?.SetFeedback(Content.Label("ui_computer_employee_unavailable"));
 			return false;
 		}
 
@@ -259,12 +259,12 @@ public partial class ComputerUI : Control
 			{
 				if (incident.Id == incidentId)
 				{
-					return $"ВХОДЯЩИЙ ВЫЗОВ: {KonturUiText.MissionTitle(incident)}";
+					return Content.Label("ui_computer_incoming_named", "title", KonturUiText.MissionTitle(incident));
 				}
 			}
 		}
 
-		return "ВХОДЯЩИЙ ВЫЗОВ";
+		return Content.Label("ui_computer_incoming");
 	}
 
 	private string BuildDispatchTranscript(string incidentId)
@@ -276,12 +276,14 @@ public partial class ComputerUI : Control
 			{
 				if (incident.Id == incidentId)
 				{
-					return $"Вызов от: {KonturUiText.CallerName(incident)}. Требуется направить группу на объект: {incident.BuildingId}.";
+					return Content.Label("ui_computer_transcript",
+						"caller", KonturUiText.CallerName(incident),
+						"building", incident.BuildingId);
 				}
 			}
 		}
 
-		return "Стенограмма вызова недоступна.";
+		return Content.Label("ui_computer_transcript_none");
 	}
 
 	private void AddScreen(ComputerScreen screen, PackedScene screenScene)

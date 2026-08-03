@@ -19,11 +19,11 @@ public partial class SettingsScreen : Control
 	/// Шины звука. Master есть всегда, остальные — если их завели в проекте.
 	/// Отсутствующая шина не ошибка: ползунок для неё просто не появится.
 	/// </summary>
-	private static readonly (string Bus, string Label)[] Buses =
+	private static readonly (string Bus, string LabelId)[] Buses =
 	{
-		("Master", "Общая громкость"),
-		("Music", "Музыка"),
-		("SFX", "Эффекты")
+		("Master", "ui_settings_bus_master"),
+		("Music", "ui_settings_bus_music"),
+		("SFX", "ui_settings_bus_sfx")
 	};
 
 	private static readonly Vector2I[] Resolutions =
@@ -119,7 +119,7 @@ public partial class SettingsScreen : Control
 		column.AddThemeConstantOverride("separation", 10);
 		AddChild(column);
 
-		var title = new Label { Text = "НАСТРОЙКИ", HorizontalAlignment = HorizontalAlignment.Center };
+		var title = new Label { Text = Content.Label("ui_settings_title"), HorizontalAlignment = HorizontalAlignment.Center };
 		title.AddThemeFontSizeOverride("font_size", 28);
 		column.AddChild(title);
 
@@ -133,7 +133,7 @@ public partial class SettingsScreen : Control
 
 		column.AddChild(new Control { CustomMinimumSize = new Vector2(0.0f, 12.0f) });
 
-		var close = new Button { Text = "Закрыть", CustomMinimumSize = new Vector2(0.0f, 40.0f) };
+		var close = new Button { Text = Content.Label("ui_settings_close"), CustomMinimumSize = new Vector2(0.0f, 40.0f) };
 		close.Pressed += Close;
 		column.AddChild(close);
 	}
@@ -150,7 +150,7 @@ public partial class SettingsScreen : Control
 				continue;
 			}
 
-			column.AddChild(new Label { Text = Buses[i].Label });
+			column.AddChild(new Label { Text = Content.Label(Buses[i].LabelId) });
 
 			var slider = new HSlider
 			{
@@ -174,7 +174,7 @@ public partial class SettingsScreen : Control
 
 	private void BuildVideo(Container column)
 	{
-		column.AddChild(new Label { Text = "Разрешение" });
+		column.AddChild(new Label { Text = Content.Label("ui_settings_resolution") });
 
 		_resolution = new OptionButton();
 		Vector2I current = DisplayServer.WindowGetSize();
@@ -190,19 +190,19 @@ public partial class SettingsScreen : Control
 		_resolution.ItemSelected += OnResolutionSelected;
 		column.AddChild(_resolution);
 
-		column.AddChild(new Label { Text = "Режим окна" });
+		column.AddChild(new Label { Text = Content.Label("ui_settings_window_mode") });
 
 		_windowMode = new OptionButton();
-		_windowMode.AddItem("Окно", (int)DisplayServer.WindowMode.Windowed);
-		_windowMode.AddItem("Полный экран", (int)DisplayServer.WindowMode.Fullscreen);
-		_windowMode.AddItem("Во весь экран без рамки", (int)DisplayServer.WindowMode.ExclusiveFullscreen);
+		_windowMode.AddItem(Content.Label("ui_settings_window_windowed"), (int)DisplayServer.WindowMode.Windowed);
+		_windowMode.AddItem(Content.Label("ui_settings_window_fullscreen"), (int)DisplayServer.WindowMode.Fullscreen);
+		_windowMode.AddItem(Content.Label("ui_settings_window_borderless"), (int)DisplayServer.WindowMode.ExclusiveFullscreen);
 		_windowMode.Select(_windowMode.GetItemIndex((int)DisplayServer.WindowGetMode()));
 		_windowMode.ItemSelected += OnWindowModeSelected;
 		column.AddChild(_windowMode);
 
 		var vsync = new CheckBox
 		{
-			Text = "Вертикальная синхронизация",
+			Text = Content.Label("ui_settings_vsync"),
 			ButtonPressed = DisplayServer.WindowGetVsyncMode() != DisplayServer.VSyncMode.Disabled
 		};
 		vsync.Toggled += OnVsyncToggled;
@@ -211,7 +211,7 @@ public partial class SettingsScreen : Control
 
 	private void BuildInput(Container column)
 	{
-		column.AddChild(new Label { Text = "Чувствительность мыши" });
+		column.AddChild(new Label { Text = Content.Label("ui_settings_mouse_sensitivity") });
 
 		var slider = new HSlider
 		{

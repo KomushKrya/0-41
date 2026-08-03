@@ -58,7 +58,7 @@ public partial class DeskRadio : Node3D
 		error = string.Empty;
 		if (_runtime == null || !_runtime.IsReady)
 		{
-			error = "Симуляция ещё не готова.";
+			error = Content.Label("ui_sim_not_ready");
 			return false;
 		}
 
@@ -69,7 +69,7 @@ public partial class DeskRadio : Node3D
 
 		if (!FindMostUrgentRequest(out IncidentView incident, out RadioTriggered request))
 		{
-			error = "Нет ожидающих ответов по рации.";
+			error = Content.Label("ui_radio_no_pending");
 			RefreshActiveVisual();
 			return false;
 		}

@@ -61,7 +61,7 @@ public partial class MissionDispatchUI : Control, IComputerScreen
 		{
 			_employeeNames[index].Text = index < employeeNames.Count && !string.IsNullOrEmpty(employeeNames[index])
 				? employeeNames[index]
-				: "СЛОТ СВОБОДЕН";
+				: Content.Label("ui_computer_slot_free");
 		}
 	}
 
