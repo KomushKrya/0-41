@@ -13,6 +13,20 @@ using Kontur.Core.Model;
 /// отчёты на компьютере выглядят по-разному, общее у них только две вещи: откуда берётся
 /// текст и какие куски сейчас видны. Наследнику достаточно переопределить Render().
 ///
+/// <para>
+/// <b>Что откуда брать.</b> Тело записи — <see cref="Chunks"/> (у любого типа), подпись —
+/// <see cref="EntryName"/> (существо, предмет, перк, характеристика), шапка звонка —
+/// <see cref="CallMeta"/> (только <c>call</c>), варианты вмешательства — <see cref="Options"/>
+/// и <see cref="ChunksOf"/> (только <c>radio</c>). Всё это уже отфильтровано по
+/// <c>%% reveal %%</c> и с подставленными <c>{{имя}}</c>.
+/// </para>
+/// <para>
+/// <b>Мимо базового класса ходить не надо.</b> Если взять <c>Content.Instance.GetEntry()</c>
+/// и пойти по <c>Entry.Chunks</c> руками, потеряются подстановки, фильтр условных абзацев
+/// и перечитывание по <c>RefreshOnReveal</c> — молча, потому что на записи без
+/// <c>{{имя}}</c> и без <c>%% reveal %%</c> разницы не видно.
+/// </para>
+///
 /// <example>
 /// <code>
 /// public partial class ReportBox : ContentTextBox
@@ -193,6 +207,46 @@ public abstract partial class ContentTextBox : Control
 	}
 
 	/// <summary>
+	/// Подпись записи: имя существа, предмета, перка, характеристики. Пустая строка,
+	/// если записи нет или подписи у типа не бывает.
+	/// </summary>
+	protected string EntryName => Entry != null ? Entry.Name : string.Empty;
+
+	/// <summary>
+	/// Варианты вмешательства у записи типа <c>radio</c>. Пустой список у всех остальных
+	/// типов и когда запись не загружена — наследнику не нужно проверять <c>Entry</c> на null.
+	/// Отвечать ядру нужно <c>Id</c>, подписывать кнопку — <c>Name</c>.
+	/// </summary>
+	protected IReadOnlyList<ContentOption> Options =>
+		Entry != null ? Entry.Options : System.Array.Empty<ContentOption>();
+
+	/// <summary>
+	/// Куски варианта — видимые и с подставленными <c>{{имя}}</c>, как у <see cref="Chunks"/>.
+	///
+	/// Отдельным методом, а не полем: вариантов несколько, показывается обычно один,
+	/// и готовить текст всем сразу незачем. Идти по <c>option.Chunks</c> напрямую не надо —
+	/// там сырой текст, без подстановок.
+	/// </summary>
+	protected IReadOnlyList<ContentChunk> ChunksOf(ContentOption option)
+	{
+		if (option == null || option.Chunks == null)
+		{
+			return System.Array.Empty<ContentChunk>();
+		}
+
+		var ready = new List<ContentChunk>(option.Chunks.Count);
+		foreach (ContentChunk chunk in option.Chunks)
+		{
+			if (IsChunkVisible(chunk))
+			{
+				ready.Add(Substitute(chunk));
+			}
+		}
+
+		return ready;
+	}
+
+	/// <summary>
 	/// Значение для подстановки {{имя}}. Пара к <see cref="IsRevealed"/>: тот решает, показывать
 	/// ли абзац, этот — чем заполнить дырку в нём. По умолчанию ищет число в геймплейных данных
 	/// записи с тем же id — сейчас это перки, где {{bonus.strength}} и {{allStatsBonus}} берутся
@@ -208,23 +262,35 @@ public abstract partial class ContentTextBox : Control
 			return string.Empty;
 		}
 
-		return runtime.Simulation.Content.Abilities.TryGetValue(ContentId, out Ability ability)
-			? AbilityValue(ability, name)
-			: string.Empty;
+		// Перк и снаряжение описываются одинаково — бонус по характеристикам плюс
+		// «ко всем сразу», — поэтому и подстановки у них одни и те же. Id записи
+		// совпадает с id в геймплейных данных, так что искать можно прямо по нему.
+		if (runtime.Simulation.Content.Abilities.TryGetValue(ContentId, out Ability ability))
+		{
+			return BonusValue(ability.Bonus, ability.AllStatsBonus, name);
+		}
+
+		if (runtime.Simulation.Content.Equipment.TryGetValue(ContentId, out EquipmentDefinition equipment))
+		{
+			return BonusValue(equipment.Bonus, equipment.AllStatsBonus, name);
+		}
+
+		return string.Empty;
 	}
 
-	private static string AbilityValue(Ability ability, string name)
+	/// <summary>{{allStatsBonus}} и {{bonus.&lt;характеристика&gt;}} — общий разбор для перков и снаряжения.</summary>
+	private static string BonusValue(StatBlock bonus, int allStatsBonus, string name)
 	{
 		if (name.Equals("allStatsBonus", StringComparison.OrdinalIgnoreCase))
 		{
-			return ability.AllStatsBonus.ToString(CultureInfo.InvariantCulture);
+			return allStatsBonus.ToString(CultureInfo.InvariantCulture);
 		}
 
 		const string bonusPrefix = "bonus.";
 		if (name.StartsWith(bonusPrefix, StringComparison.OrdinalIgnoreCase)
 			&& StatKinds.TryParse(name.Substring(bonusPrefix.Length), out StatKind kind))
 		{
-			return ability.Bonus[kind].ToString(CultureInfo.InvariantCulture);
+			return bonus[kind].ToString(CultureInfo.InvariantCulture);
 		}
 
 		return string.Empty;
