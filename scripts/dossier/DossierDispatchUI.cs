@@ -43,10 +43,10 @@ public partial class DossierDispatchUI : Control
 	{
 		_dispatchComputer = computerUi;
 		_roster.Clear();
-		KonturRuntime runtime = KonturRuntime.Get(this);
+		GameRuntime runtime = GameRuntime.Get(this);
 		if (runtime != null && runtime.IsReady)
 		{
-			foreach (EmployeeView employee in runtime.Simulation.GetRoster())
+			foreach (EmployeeView employee in runtime.Session.GetRoster())
 			{
 				_roster.Add(employee);
 			}

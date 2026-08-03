@@ -1,10 +1,11 @@
 using System;
-using Godot;
 using System.Collections.Generic;
+using Godot;
+using Kontur.Core.Api;
+using Kontur.Core.Events;
 
 public partial class DebugInterfaceOverlay : CanvasLayer
 {
-	public const string DebugOverlayGroup = "debug_interface_overlay";
 	private const int MaxRecentCoreEvents = 8;
 	public static bool IsInteractionRayDebugEnabled { get; private set; }
 	public static event Action<bool> InteractionRayDebugChanged;
@@ -14,7 +15,10 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 	[Export] public NodePath TitlePath { get; set; } = new("Panel/MarginContainer/VBoxContainer/Title");
 	[Export] public NodePath HelpPath { get; set; } = new("Panel/MarginContainer/VBoxContainer/Help");
 	[Export] public NodePath SessionReadoutPath { get; set; } = new("SessionReadout");
+	[Export] public NodePath InteractionReadoutPath { get; set; } = new("InteractionReadout");
 	[Export] public NodePath CenterRayMarkerPath { get; set; } = new("CenterRayMarker");
+	[Export] public NodePath PlayerPath { get; set; } = new("../Player");
+	[Export] public NodePath InteractionRayPath { get; set; } = new("../Player/Head/Camera3D/InteractionRay");
 	[Export] public NodePath PcViewportPath { get; set; } = new("");
 	[Export] public NodePath MapViewportPath { get; set; } = new("");
 	[Export] public NodePath DossierViewportPath { get; set; } = new("");
@@ -25,35 +29,60 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 	private Label _title = null!;
 	private Label _help = null!;
 	private Label _sessionReadout = null!;
+	private Label _interactionReadout = null!;
 	private Control _centerRayMarker = null!;
+	private FlyPlayer _player = null!;
+	private RayCast3D _interactionRay = null!;
+	private InteractionHitboxDebugRenderer _interactionHitboxDebug = null!;
 	private SubViewport _activeViewport = null!;
 	private Control _interactionAreaDebugRoot = null!;
 	private ColorRect _viewportAreaRect = null!;
 	private readonly List<ColorRect> _interactionAreaRects = new();
+	private readonly List<string> _recentCoreEvents = new();
+	private GameRuntime _runtime = null!;
+	private IDisposable _coreEventSubscription;
 	private Vector2 _lastViewportMousePosition;
 	private bool _hasLastViewportMousePosition;
 	private bool _isDebugModeEnabled;
 	private bool _isInteractionAreaDebugEnabled;
-	private bool _isMapLayoutDebugEnabled;
+	private bool _isMapLayoutDebugEnabled = true;
 	private bool _isSessionReadoutEnabled;
 	private bool _isInteractionRayReadoutEnabled;
 	private string _activeInterfaceName = "none";
 
 	public override void _Ready()
 	{
-		AddToGroup(DebugOverlayGroup);
 		_panel = GetNode<Control>(PanelPath);
 		_preview = GetNode<TextureRect>(PreviewPath);
 		_title = GetNode<Label>(TitlePath);
 		_help = GetNode<Label>(HelpPath);
 		_sessionReadout = GetNode<Label>(SessionReadoutPath);
+		_interactionReadout = GetNode<Label>(InteractionReadoutPath);
 		_centerRayMarker = GetNode<Control>(CenterRayMarkerPath);
+		_player = GetNodeOrNull<FlyPlayer>(PlayerPath);
+		_interactionRay = GetNodeOrNull<RayCast3D>(InteractionRayPath);
+		_interactionHitboxDebug = new InteractionHitboxDebugRenderer();
+		AddChild(_interactionHitboxDebug);
 
 		CreateInteractionAreaDebugOverlay();
 		_panel.Visible = false;
 		_sessionReadout.Visible = false;
+		_interactionReadout.Visible = false;
 		_centerRayMarker.Visible = false;
+
+		_runtime = GameRuntime.Get(this);
+		if (_runtime != null && _runtime.IsReady)
+		{
+			_coreEventSubscription = _runtime.Session.Events.SubscribeAll(OnCoreEvent);
+		}
+
 		UpdateText();
+	}
+
+	public override void _ExitTree()
+	{
+		_coreEventSubscription?.Dispose();
+		_coreEventSubscription = null;
 	}
 
 	public override void _Process(double delta)
@@ -61,6 +90,11 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 		if (_isSessionReadoutEnabled)
 		{
 			UpdateSessionReadout();
+		}
+
+		if (_isInteractionRayReadoutEnabled)
+		{
+			UpdateInteractionRayReadout();
 		}
 
 		UpdateInteractionAreaDebugOverlay();
@@ -97,50 +131,42 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 
 	public override void _UnhandledInput(InputEvent @event)
 	{
-		if (@event is InputEventKey keyEvent && HandleDebugKey(keyEvent))
+		if (@event is not InputEventKey keyEvent || !keyEvent.Pressed || keyEvent.Echo)
 		{
-			GetViewport().SetInputAsHandled();
-		}
-	}
-
-	/// <summary>
-	/// Обрабатывает клавиши от глобального диспетчера отладки. Оставлена также
-	/// для автономного запуска сцены, когда диспетчер ещё не добавлен в проект.
-	/// </summary>
-	public bool HandleDebugKey(InputEventKey keyEvent)
-	{
-		if (!keyEvent.Pressed || keyEvent.Echo)
-		{
-			return false;
+			return;
 		}
 
 		if (keyEvent.Keycode == Key.F3)
 		{
 			SetDebugModeEnabled(!_isDebugModeEnabled);
-			return true;
-		}
-
-		if (keyEvent.Keycode == Key.F2)
-		{
-			SetSessionReadoutEnabled(!_isSessionReadoutEnabled);
-			return true;
+			GetViewport().SetInputAsHandled();
+			return;
 		}
 
 		if (keyEvent.Keycode == Key.F1)
 		{
 			SetInteractionRayReadoutEnabled(!_isInteractionRayReadoutEnabled);
-			return true;
+			GetViewport().SetInputAsHandled();
+			return;
+		}
+
+		if (keyEvent.Keycode == Key.F2)
+		{
+			SetSessionReadoutEnabled(!_isSessionReadoutEnabled);
+			GetViewport().SetInputAsHandled();
+			return;
 		}
 
 		if (!_isDebugModeEnabled)
 		{
-			return false;
+			return;
 		}
 
-		if (IsActiveViewportTextInputFocused() && keyEvent.Keycode is not Key.F2 and not Key.F3 and not Key.F4 and not Key.F5 and not Key.Escape)
+		if (IsActiveViewportTextInputFocused() && keyEvent.Keycode is not Key.F1 and not Key.F2 and not Key.F3 and not Key.F4 and not Key.F5 and not Key.F12 and not Key.Escape)
 		{
 			_activeViewport.PushInput(keyEvent, true);
-			return true;
+			GetViewport().SetInputAsHandled();
+			return;
 		}
 
 		switch (keyEvent.Keycode)
@@ -167,10 +193,10 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 				CloseInterface();
 				break;
 			default:
-				return false;
+				return;
 		}
 
-		return true;
+		GetViewport().SetInputAsHandled();
 	}
 
 	private bool IsActiveViewportTextInputFocused()
@@ -187,7 +213,6 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 		{
 			CloseInterface();
 			SetInteractionAreaDebugEnabled(false);
-			SetMapLayoutDebugEnabled(false);
 			Input.MouseMode = Input.MouseModeEnum.Captured;
 			return;
 		}
@@ -200,7 +225,6 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 	{
 		_isSessionReadoutEnabled = isEnabled;
 		_sessionReadout.Visible = isEnabled;
-		_centerRayMarker.Visible = isEnabled;
 
 		if (isEnabled)
 		{
@@ -215,6 +239,8 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 		_isInteractionRayReadoutEnabled = isEnabled;
 		IsInteractionRayDebugEnabled = isEnabled;
 		InteractionRayDebugChanged?.Invoke(isEnabled);
+		_interactionHitboxDebug?.SetEnabled(isEnabled);
+		_interactionReadout.Visible = isEnabled;
 		_centerRayMarker.Visible = isEnabled;
 
 		if (isEnabled)
@@ -225,42 +251,117 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 		UpdateText();
 	}
 
-	private void UpdateInteractionRayReadout()
+	private void UpdateSessionReadout()
 	{
-		if (_activeViewport == null)
+		if (_runtime == null || !_runtime.IsReady)
 		{
+			_sessionReadout.Text =
+				$"GAME SESSION\nCORE OFFLINE\n{_runtime?.LoadError ?? "KONTUR AUTOLOAD NOT FOUND"}";
 			return;
 		}
 
-		_sessionReadout.Visible = true;
-		_sessionReadout.Text = $"INTERACTION RAY\nVIEWPORT: {_activeInterfaceName}\nCURSOR: {_lastViewportMousePosition}";
-	}
-
-	private void UpdateSessionReadout()
-	{
-		GameSession session = GameSession.Instance;
-		int elapsedSeconds = Mathf.FloorToInt((float)session.ElapsedShiftSeconds);
+		ShiftStatusView status = _runtime.Session.GetStatus();
+		int elapsedSeconds = Mathf.FloorToInt((float)status.ShiftTime);
 		int hours = elapsedSeconds / 3600;
 		int minutes = elapsedSeconds % 3600 / 60;
 		int seconds = elapsedSeconds % 60;
+		string shiftState = status.IsGameOver
+			? $"GAME OVER: {status.GameOverReason}"
+			: status.IsShiftActive
+				? "IN PROGRESS"
+				: status.Day == 0 ? "NOT STARTED" : "BETWEEN SHIFTS";
 
 		_sessionReadout.Text =
 			$"GAME SESSION\n" +
-			$"DAY: {session.CurrentDay} / {session.TotalDays}\n" +
-			$"SHIFT: {session.ShiftState}\n" +
-			$"ELAPSED: {hours:00}:{minutes:00}:{seconds:00}\n\n" +
+			$"DAY: {status.Day} / {_runtime.Session.Config.Days.Count}\n" +
+			$"SHIFT: {shiftState}\n" +
+			$"ELAPSED: {hours:00}:{minutes:00}:{seconds:00}\n" +
+			$"INCIDENTS: {status.OpenIncidents} | PENDING: {status.PendingCalls}\n" +
+			$"SCALES: {status.Scales}\n\n" +
 			$"EVENT BUS\n{BuildEventBusReadout()}";
+	}
+
+	private void UpdateInteractionRayReadout()
+	{
+		_interactionReadout.Text = BuildInteractionRayReadout();
+	}
+
+	private string BuildInteractionRayReadout()
+	{
+		if (_player == null || _interactionRay == null)
+		{
+			return "INTERACTION RAY\nNOT FOUND";
+		}
+
+		_interactionRay.ForceRaycastUpdate();
+		string state =
+			$"INTERACTION RAY\n" +
+			$"SEATED: {_player.IsSeated} | FOCUSED: {_player.IsViewFocused} | TRANSITION: {_player.IsCameraTransitioning} | NOCLIP: {_player.IsNoclipEnabled}\n" +
+			$"ORIGIN: {FormatVector(_interactionRay.GlobalPosition)}\n" +
+			$"TARGET: {FormatVector(_interactionRay.ToGlobal(_interactionRay.TargetPosition))}\n" +
+			$"MASK: {_interactionRay.CollisionMask}";
+
+		if (!_interactionRay.IsColliding())
+		{
+			return $"{state}\nHIT: none";
+		}
+
+		GodotObject collider = _interactionRay.GetCollider();
+		Vector3 point = _interactionRay.GetCollisionPoint();
+		float distance = _interactionRay.GlobalPosition.DistanceTo(point);
+		if (collider is not Node colliderNode)
+		{
+			return $"{state}\nHIT: {collider.GetClass()}\nPOINT: {FormatVector(point)} | DIST: {distance:0.00}";
+		}
+
+		IInteractable interactable = FindInteractable(colliderNode);
+		string interactableState = interactable == null
+			? "INTERACTABLE: none"
+			: $"INTERACTABLE: {((Node)interactable).GetPath()} | CAN: {interactable.CanInteract(_player)}";
+
+		return
+			$"{state}\n" +
+			$"HIT: {colliderNode.GetPath()} ({colliderNode.GetClass()})\n" +
+			$"POINT: {FormatVector(point)} | DIST: {distance:0.00}\n" +
+			interactableState;
+	}
+
+	private static IInteractable FindInteractable(Node node)
+	{
+		Node current = node;
+		while (current != null)
+		{
+			if (current is IInteractable interactable)
+			{
+				return interactable;
+			}
+
+			current = current.GetParent();
+		}
+
+		return null;
+	}
+
+	private static string FormatVector(Vector3 value)
+	{
+		return $"({value.X:0.00}, {value.Y:0.00}, {value.Z:0.00})";
 	}
 
 	private string BuildEventBusReadout()
 	{
-		var eventLines = new List<string>();
-		foreach (string eventName in EventBus.Instance.RecentEvents)
-		{
-			eventLines.Add($"  {eventName}");
-		}
+		return _recentCoreEvents.Count == 0
+			? "  (no events)"
+			: "  " + string.Join("\n  ", _recentCoreEvents);
+	}
 
-		return eventLines.Count == 0 ? "  (no events)" : string.Join("\n", eventLines);
+	private void OnCoreEvent(IGameEvent gameEvent)
+	{
+		_recentCoreEvents.Add(gameEvent.GetType().Name);
+
+		if (_recentCoreEvents.Count > MaxRecentCoreEvents)
+		{
+			_recentCoreEvents.RemoveAt(0);
+		}
 	}
 
 	private void SetMapLayoutDebugEnabled(bool isEnabled)
@@ -528,6 +629,6 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 		string areasState = _isInteractionAreaDebugEnabled ? "areas:on" : "areas:off";
 		string layoutState = _isMapLayoutDebugEnabled ? "map-layout:on" : "map-layout:off";
 		_title.Text = $"DEBUG INTERFACE: {_activeInterfaceName} | {areasState} | {layoutState}";
-		_help.Text = "F1: interaction ray + marker zones | F2: session data | F3: debug on/off | F4: interaction areas | F5: map layout | F6: core simulation | F12: noclip | 1: PC | 2: MAP | 3: DOSSIER | 4: NOTEBOOK | Esc: close";
+		_help.Text = "F1: interaction ray + all hitboxes | F2: session data | F3: debug on/off | F4: interaction areas | F5: map layout | F6: core simulation | F12: noclip | 1: PC | 2: MAP | 3: DOSSIER | 4: NOTEBOOK | Esc: close";
 	}
 }

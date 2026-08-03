@@ -31,19 +31,19 @@ public partial class DeskPhone : Node3D
 		_callAcceptanceUi = GetNode<PhoneCallAcceptanceUI>(PhoneCallAcceptanceUiPath);
 		SetRingingVisual(false);
 
-		KonturRuntime runtime = KonturRuntime.Get(this);
+		GameRuntime runtime = GameRuntime.Get(this);
 		if (runtime == null || !runtime.IsReady)
 		{
-			GD.PushWarning("DeskPhone: KonturRuntime is not ready; incoming calls are disabled.");
+			GD.PushWarning("DeskPhone: GameRuntime is not ready; incoming calls are disabled.");
 			return;
 		}
 
-		_incidentCreatedSubscription = runtime.Simulation.Events.Subscribe<IncidentCreated>(OnIncidentCreated);
-		_callAnsweredSubscription = runtime.Simulation.Events.Subscribe<CallAnswered>(OnCallAnswered);
-		_callMissedSubscription = runtime.Simulation.Events.Subscribe<CallMissed>(call => RemoveRingingCall(call.IncidentId));
-		_shiftEndedSubscription = runtime.Simulation.Events.Subscribe<ShiftEnded>(_ => ClearRingingCalls());
+		_incidentCreatedSubscription = runtime.Session.Events.Subscribe<IncidentCreated>(OnIncidentCreated);
+		_callAnsweredSubscription = runtime.Session.Events.Subscribe<CallAnswered>(OnCallAnswered);
+		_callMissedSubscription = runtime.Session.Events.Subscribe<CallMissed>(call => RemoveRingingCall(call.IncidentId));
+		_shiftEndedSubscription = runtime.Session.Events.Subscribe<ShiftEnded>(_ => ClearRingingCalls());
 
-		foreach (IncidentView incident in runtime.Simulation.GetActiveIncidents())
+		foreach (IncidentView incident in runtime.Session.GetActiveIncidents())
 		{
 			if (incident.Phase == IncidentPhase.Ringing)
 			{
@@ -68,10 +68,10 @@ public partial class DeskPhone : Node3D
 	public bool TryAnswerNextCall(FlyPlayer player, out string error)
 	{
 		error = string.Empty;
-		KonturRuntime runtime = KonturRuntime.Get(this);
+		GameRuntime runtime = GameRuntime.Get(this);
 		if (runtime == null || !runtime.IsReady)
 		{
-			error = Content.Label("ui_sim_not_ready");
+			error = "Симуляция ещё не готова.";
 			return false;
 		}
 
@@ -86,15 +86,21 @@ public partial class DeskPhone : Node3D
 			IncidentView incident = FindIncident(runtime, incidentId);
 			if (incident != null && incident.Phase == IncidentPhase.Ringing)
 			{
-				string description =
-					Content.Label("ui_phone_call_from", "caller", KonturUiText.CallerName(incident)) + "\n"
-					+ Content.Label("ui_phone_call_incident", "title", KonturUiText.MissionTitle(incident)) + "\n\n"
-					+ Content.Label("ui_phone_call_confirm");
+				// Поднятие трубки и есть вход в брифинг: отдельного промежуточного экрана нет.
+				CommandResult answer = runtime.Session.AnswerCall(incidentId);
+				if (!answer.IsSuccess)
+				{
+					error = answer.Error;
+					return false;
+				}
+
+				string title = ContentTextResolver.ResolveCallMeta(incident.CallId, incident.CallId);
+				string description = ContentTextResolver.ResolveEntryText(incident.CallId, incident.CallId);
 				_callAcceptanceUi.ShowCallAcceptance(
-					Content.Label("ui_computer_incoming"),
+					title,
 					description,
 					null,
-					() => ConfirmAnswer(runtime, incidentId));
+					() => ConfirmBriefing(runtime, incidentId));
 				return true;
 			}
 
@@ -102,13 +108,13 @@ public partial class DeskPhone : Node3D
 		}
 
 		SetRingingVisual(false);
-		error = Content.Label("ui_phone_no_calls");
+		error = "Нет входящих звонков.";
 		return false;
 	}
 
-	private static IncidentView FindIncident(KonturRuntime runtime, string incidentId)
+	private static IncidentView FindIncident(GameRuntime runtime, string incidentId)
 	{
-		foreach (IncidentView incident in runtime.Simulation.GetActiveIncidents())
+		foreach (IncidentView incident in runtime.Session.GetActiveIncidents())
 		{
 			if (incident.Id == incidentId)
 			{
@@ -119,15 +125,13 @@ public partial class DeskPhone : Node3D
 		return null!;
 	}
 
-	private void ConfirmAnswer(KonturRuntime runtime, string incidentId)
+	private void ConfirmBriefing(GameRuntime runtime, string incidentId)
 	{
-		CommandResult result = runtime.Simulation.AnswerCall(incidentId);
+		CommandResult result = runtime.Session.ConfirmBriefing(incidentId);
 		if (!result.IsSuccess)
 		{
 			GD.PushWarning($"DeskPhone: {result.Error}");
-			return;
 		}
-
 	}
 
 	private void OnIncidentCreated(IncidentCreated incident)

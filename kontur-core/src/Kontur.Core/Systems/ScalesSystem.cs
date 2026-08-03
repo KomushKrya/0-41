@@ -41,24 +41,6 @@ namespace Kontur.Core.Systems
 			CheckGameOver();
 		}
 
-		/// <summary>
-		/// Роняет лояльность до проигрышного порога одним движением.
-		///
-		/// Нужно там, где дело не в накопленных промахах, а в одном событии, после
-		/// которого работать некому: погиб последний оперативник. Считать для этого
-		/// «сколько отнять» на стороне вызывающего — значит продублировать знание
-		/// о пороге, которое живёт здесь.
-		/// </summary>
-		public void DepleteLoyalty(string reason)
-		{
-			if (_state.IsGameOver || _state.Scales.Loyalty <= _config.LoyaltyLoseAt)
-			{
-				return;
-			}
-
-			Apply(new ScaleDelta(0.0, 0.0, _config.LoyaltyLoseAt - _state.Scales.Loyalty), reason);
-		}
-
 		private void CheckGameOver()
 		{
 			if (_state.IsGameOver)

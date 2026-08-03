@@ -3,11 +3,48 @@ using System.Collections.Generic;
 
 namespace Kontur.Core.Model
 {
-	/// <summary>Ключ отчёта: какой текст показать на компьютере при таком исходе.</summary>
+	/// <summary>Смысловой уровень вызова из нового контентного контракта.</summary>
+	public enum MissionTier
+	{
+		Filler = 0,
+		Story = 1
+	}
+
+	/// <summary>Максимальная тяжесть последствий, разрешённая сценарием.</summary>
+	public enum ConsequenceCap
+	{
+		None = 0,
+		Injury = 1,
+		Death = 2
+	}
+
+	public static class ConsequenceCaps
+	{
+		public static ConsequenceCap DefaultFor(MissionTier tier)
+		{
+			return tier == MissionTier.Story ? ConsequenceCap.Death : ConsequenceCap.Injury;
+		}
+
+		public static ConsequenceCap Tighten(ConsequenceCap first, ConsequenceCap second)
+		{
+			return first < second ? first : second;
+		}
+
+		public static bool AllowsInjury(ConsequenceCap cap)
+		{
+			return cap >= ConsequenceCap.Injury;
+		}
+
+		public static bool AllowsDeath(ConsequenceCap cap)
+		{
+			return cap >= ConsequenceCap.Death;
+		}
+	}
+
+	/// <summary>Пара текстов отчёта из нового data/missions.json.</summary>
 	public sealed class MissionReportPair
 	{
 		public string SuccessId { get; set; } = string.Empty;
-
 		public string FailureId { get; set; } = string.Empty;
 
 		public string Get(bool isSuccess)
@@ -17,13 +54,8 @@ namespace Kontur.Core.Model
 	}
 
 	/// <summary>
-	/// Геймплейная сторона вызова: тайминги, требования, риски, последствия.
-	/// Прозы здесь нет — только ссылки на записи текстового движка по id.
-	///
-	/// Разделение простое: всё, что автор пишет словами (реплики звонящего, вводная
-	/// на выезде, отчёт), живёт в content/raw; всё, что дизайнер крутит числами,
-	/// живёт здесь. Пересечение — ровно одно, `requirement_modifier` у вариантов,
-	/// и оно объяснено в MissionEventOption.
+	/// Авторский дизайн одного вызова. Приходит из JSON (текстовый пайплайн, ДД раздел 14).
+	/// Ядро не генерирует миссии процедурно — только выбирает из пула на день.
 	/// </summary>
 	public sealed class MissionDefinition
 	{
@@ -32,16 +64,9 @@ namespace Kontur.Core.Model
 		/// <summary>День демо (1..4), для которого миссия доступна.</summary>
 		public int Day { get; set; } = 1;
 
-		/// <summary>
-		/// Сюжетный вызов или филлер. По умолчанию филлер: забытое поле не должно
-		/// молча включать смерти — цена ошибки здесь несимметрична.
-		/// </summary>
+		/// <summary>Story/Filler из нового ядра. Районы к этому полю не относятся.</summary>
 		public MissionTier Tier { get; set; } = MissionTier.Filler;
 
-		/// <summary>
-		/// Потолок последствий. Если в контенте не задан, берётся от уровня миссии:
-		/// сюжетная — гибель, филлер — только травмы.
-		/// </summary>
 		public ConsequenceCap? ConsequenceCapOverride { get; set; }
 
 		public ConsequenceCap EffectiveCap
@@ -49,65 +74,49 @@ namespace Kontur.Core.Model
 			get { return ConsequenceCapOverride ?? ConsequenceCaps.DefaultFor(Tier); }
 		}
 
-		public string ZoneId { get; set; } = string.Empty;
-
-		/// <summary>
-		/// Существо, с которым столкнётся группа. Может быть пустым: не за каждой
-		/// аномалией стоит существо со статьёй в энциклопедии (грибок, поле, зона).
-		/// </summary>
 		public string CreatureId { get; set; } = string.Empty;
 
-		/// <summary>Запись типа `call` — то, что игрок услышит в трубке.</summary>
+
+		/// <summary>Кто звонит — для экрана телефона.</summary>
+
+		/// <summary>Id записи звонка в текстовом движке. Пустое значение оставляет совместимый старый текст.</summary>
 		public string CallId { get; set; } = string.Empty;
 
-		/// <summary>
-		/// Запись типа `mission_event`. Пусто — вмешательство этой миссией не предусмотрено
-		/// (ДД, раздел 8: решает дизайн задания, а не случайность).
-		/// </summary>
-		public string MissionEventId { get; set; } = string.Empty;
+		/// <summary>Нативное имя ссылки на запись звонка в новом ядре.</summary>
 
-		public bool HasMissionEvent
-		{
-			get { return !string.IsNullOrEmpty(MissionEventId); }
-		}
+		/// <summary>Краткое описание задания на экране после ответа на звонок.</summary>
 
-		/// <summary>
-		/// Пороги по характеристикам. Ноль означает «эта характеристика на вызове не нужна»
-		/// и в расчёт не идёт вовсе.
-		///
-		/// Сравнивается с **суммой группы** по каждой характеристике отдельно, а не
-		/// с суммой: порог «Интеллект 6» закрывает конкретный человек, а не толпа.
-		/// </summary>
+		/// <summary>Id отдельного брифинга в текстовом движке.</summary>
+
+		/// <summary>Требуемые показатели, сравниваются с суммой характеристик группы (ДД, раздел 7).</summary>
 		public StatBlock Requirements { get; set; } = StatBlock.Zero;
-
-		/// <summary>
-		/// Главная характеристика вызова — весит вдвое при расчёте процента.
-		/// Null — все требования равнозначны. Читается как «тут главное — интеллект»
-		/// и даёт автору рычаг, не заставляя перекручивать сами пороги.
-		/// </summary>
-		public StatKind? PrimaryStat { get; set; }
-
-		/// <summary>
-		/// Сколько человек можно отправить на этот вызов. По умолчанию один.
-		///
-		/// Это главный рычаг сложности, а не числа в порогах. Характеристики отряда
-		/// складываются, поэтому «сколько можно взять» и «насколько трудно» — один
-		/// и тот же вопрос: на вызов для одного порог должен закрывать специалист,
-		/// на вызов для двоих — только пара.
-		///
-		/// Единица по умолчанию намеренно. Без предела на любой вызов выгодно было бы
-		/// отправлять всех свободных, а потом обнаружить, что на следующий звонок
-		/// людей не осталось.
-		/// </summary>
-		public int SquadLimit { get; set; } = 1;
 
 		/// <summary>Время движения группы к месту (пунктирная линия на карте).</summary>
 		public double TravelSeconds { get; set; } = 12.0;
 
-		/// <summary>Время работы на объекте до резолва.</summary>
+		/// <summary>Время работы на объекте до резолва (после прибытия/после ответа по радио).</summary>
 		public double OnSiteSeconds { get; set; } = 6.0;
 
+		/// <summary>Время возвращения в главное управление.</summary>
 		public double ReturnSeconds { get; set; } = 10.0;
+
+		/// <summary>
+		/// Радио-энкаунтер. Если null — вмешательство игрока этой миссией не предусмотрено
+		/// (ДД, раздел 8: определяется дизайном задания, а не случайным шансом).
+		/// </summary>
+		/// <summary>Id MissionEvent в data и текстовом движке.</summary>
+		public string? MissionEventId { get; set; }
+
+		public bool HasMissionEvent
+		{
+			get { return !string.IsNullOrWhiteSpace(MissionEventId); }
+		}
+
+		/// <summary>Главная характеристика нового расчёта. Старый расчёт остаётся совместимым.</summary>
+		public StatKind? PrimaryStat { get; set; }
+
+		/// <summary>Максимум сотрудников в группе именно этого вызова.</summary>
+		public int SquadLimit { get; set; } = 1;
 
 		public ScaleDelta ScalesOnSuccess { get; set; } = ScaleDelta.Zero;
 
@@ -116,44 +125,51 @@ namespace Kontur.Core.Model
 		/// <summary>Пропущенный звонок — шкалы сразу меняются в худшую сторону (ДД, раздел 4).</summary>
 		public ScaleDelta ScalesOnMissedCall { get; set; } = ScaleDelta.Zero;
 
+		/// <summary>Метка истекла — автоматический провал (ДД, раздел 4).</summary>
 		public ScaleDelta ScalesOnExpiredMarker { get; set; } = ScaleDelta.Zero;
 
 		public int ExperienceOnSuccess { get; set; } = 100;
 
 		public int ExperienceOnFailure { get; set; } = 25;
 
+		/// <summary>Базовые риски на сотрудника при провале; при успехе умножаются на понижающий коэффициент из конфига.</summary>
 		public double InjuryChance { get; set; } = 0.25;
 
 		public double DeathChance { get; set; } = 0.08;
 
+
+		/// <summary>Id отчёта при успешном завершении.</summary>
+
+
+		/// <summary>Id отчёта при неуспехе.</summary>
+
 		/// <summary>
-		/// Отчёты: ключ — id варианта решения, пустая строка — исход без вмешательства.
-		/// Связка живёт здесь, а не во фронтматтере отчёта: сам отчёт по схеме
-		/// текстового движка не знает ни о миссии, ни о варианте.
+		/// Отчёты нового формата: ключ — выбранный вариант, пустой ключ — исход без радио.
+		/// Старые поля Report* остаются fallback-ом для ранее созданных миссий.
 		/// </summary>
 		public Dictionary<string, MissionReportPair> Reports { get; } =
 			new Dictionary<string, MissionReportPair>(StringComparer.OrdinalIgnoreCase);
+
+		public string ResolveReportId(string? optionId, bool isSuccess)
+		{
+			MissionReportPair? pair;
+			if (!string.IsNullOrEmpty(optionId) && Reports.TryGetValue(optionId, out pair))
+			{
+				return pair.Get(isSuccess);
+			}
+
+			if (Reports.TryGetValue(string.Empty, out pair))
+			{
+				return pair.Get(isSuccess);
+			}
+
+			return string.Empty;
+		}
 
 		/// <summary>
 		/// Свойства существа, которые проявляются именно на этой миссии.
 		/// Будут замечены (и раскроют абзац энциклопедии), если группа выжила.
 		/// </summary>
 		public List<string> ManifestedPropertyIds { get; } = new List<string>();
-
-		/// <summary>
-		/// Id отчёта под конкретный исход. Пусто, если автор ещё не написал нужную
-		/// комбинацию — интерфейс в этом случае просто не покажет текст.
-		/// </summary>
-		public string ResolveReportId(string? optionId, bool isSuccess)
-		{
-			MissionReportPair? pair;
-
-			if (!string.IsNullOrEmpty(optionId) && Reports.TryGetValue(optionId!, out pair))
-			{
-				return pair.Get(isSuccess);
-			}
-
-			return Reports.TryGetValue(string.Empty, out pair) ? pair.Get(isSuccess) : string.Empty;
-		}
 	}
 }

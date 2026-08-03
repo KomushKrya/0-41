@@ -57,7 +57,7 @@ public partial class DossierScreen : Control
 	/// </summary>
 	private void Subscribe()
 	{
-		KonturRuntime kontur = KonturRuntime.Get(this);
+		GameRuntime kontur = GameRuntime.Get(this);
 		if (kontur == null || !kontur.IsReady)
 		{
 			return;
@@ -69,7 +69,6 @@ public partial class DossierScreen : Control
 		_subscriptions.Add(bus.Subscribe<EmployeeHired>(_ => Refresh()));
 		_subscriptions.Add(bus.Subscribe<EmployeeInjured>(_ => Refresh()));
 		_subscriptions.Add(bus.Subscribe<EmployeeKilled>(_ => Refresh()));
-		_subscriptions.Add(bus.Subscribe<GameLoaded>(_ => Refresh()));
 	}
 
 	// ------------------------------------------------------------------ вёрстка
@@ -133,7 +132,7 @@ public partial class DossierScreen : Control
 	{
 		_roster.Clear();
 
-		KonturRuntime kontur = KonturRuntime.Get(this);
+		GameRuntime kontur = GameRuntime.Get(this);
 		if (kontur != null && kontur.IsReady)
 		{
 			_roster.AddRange(kontur.Simulation.GetRoster());
@@ -436,7 +435,7 @@ public partial class DossierScreen : Control
 
 	private void Spend(string employeeId, StatKind stat)
 	{
-		KonturRuntime kontur = KonturRuntime.Get(this);
+		GameRuntime kontur = GameRuntime.Get(this);
 		if (kontur == null || !kontur.IsReady)
 		{
 			return;

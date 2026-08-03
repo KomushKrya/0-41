@@ -50,7 +50,7 @@ public partial class PhoneCallAcceptanceUI : Control
 		_illustrationPlaceholder.Visible = illustration == null;
 		_confirmedCallback = confirmedCallback;
 
-		KonturRuntime runtime = KonturRuntime.Get(this);
+		GameRuntime runtime = GameRuntime.Get(this);
 		if (runtime != null && runtime.IsReady && !runtime.IsPaused)
 		{
 			runtime.IsPaused = true;
@@ -62,15 +62,10 @@ public partial class PhoneCallAcceptanceUI : Control
 		ShowModal();
 	}
 
-	/// <summary>
-	/// Проверка вёрстки окна без запущенной смены. Реплика выдумана и намеренно
-	/// осталась строкой в коде: в каталоге текстов ей не место — это не игровой
-	/// вызов, а образец для отладки.
-	/// </summary>
 	public void ShowTestWindow()
 	{
 		ShowCallAcceptance(
-			Content.Label("ui_computer_incoming"),
+			"ВХОДЯЩИЙ ВЫЗОВ",
 			"Диспетчерская 041. Поступило сообщение из жилого сектора: жильцы слышат шум в закрытой квартире. Требуется подтвердить принятие вызова.");
 	}
 
@@ -88,7 +83,7 @@ public partial class PhoneCallAcceptanceUI : Control
 		Hide();
 		if (_pausedRuntime)
 		{
-			KonturRuntime runtime = KonturRuntime.Get(this);
+			GameRuntime runtime = GameRuntime.Get(this);
 			if (runtime != null)
 			{
 				runtime.IsPaused = false;

@@ -75,6 +75,24 @@ public partial class PauseMenu : CanvasLayer
 		GetViewport().SetInputAsHandled();
 	}
 
+	public override void _UnhandledInput(InputEvent @event)
+	{
+		if (IsOpen || !@event.IsActionPressed("ui_cancel"))
+		{
+			return;
+		}
+
+		// В меню Escape не должен открывать ещё одно меню поверх главного.
+		string scenePath = GetTree().CurrentScene?.SceneFilePath ?? string.Empty;
+		if (scenePath == "res://scenes/ui/menu/MainMenu.tscn")
+		{
+			return;
+		}
+
+		Open();
+		GetViewport().SetInputAsHandled();
+	}
+
 	// ------------------------------------------------------------------ вёрстка
 
 	private void BuildUi()

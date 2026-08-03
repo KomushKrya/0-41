@@ -1,9 +1,9 @@
 # Интеграция в Godot-проект
 
-> **Статус: мост подключён, сцены не тронуты.** Ядро собирается отдельной сборкой,
-> автозагрузка поднимает симуляцию, отладочная сцена работает. Существующие сцены
-> (`main.tscn`, телефон, карта, компьютер, блокнот) не изменялись — ядро подключено,
-> но пока ни с чем в кабинете не связано. Разводка событий по предметам стола впереди.
+> **Статус: мост подключён к основной сцене.** Ядро собирается отдельной сборкой,
+> терминал запускает смены через ядро, а отладочный оверлей открывается в игре по F6.
+> Телефон, карта, радио и остальные физические объекты подключаются к событиям ядра
+> по мере реализации их игрового поведения.
 
 ## Что уже сделано
 
@@ -13,41 +13,33 @@
 | Исключение исходников ядра из сборки игры | `kontur_prototype.csproj` → `Compile Remove="kontur-core\**\*.cs"` |
 | Контент игры | `data/*.json` (9 файлов) |
 | Чтение `res://` | `scripts/kontur/GodotContentSource.cs` |
-| Мост-автозагрузка | `scripts/kontur/KonturRuntime.cs`, зарегистрирован как `Kontur` в `project.godot` |
+| Мост-автозагрузка | `scripts/kontur/GameRuntime.cs`, зарегистрирован как `GameRuntime` в `project.godot` |
 | Отладочный оверлей | `scripts/debug/KonturDebugOverlay.cs` + `scenes/debug/KonturDebug.tscn` |
 
-Автозагрузок в проекте три, порядок в `project.godot` такой:
+Связанные с ядром автозагрузки идут в `project.godot` в таком порядке:
 
 ```ini
 [autoload]
 
-EventBus="*res://scripts/gameplay/EventBus.cs"
-GameSession="*res://scripts/gameplay/GameSession.cs"
-Kontur="*res://scripts/kontur/KonturRuntime.cs"
+Content="*res://content/engine/content/Content.cs"
+GameRuntime="*res://scripts/kontur/GameRuntime.cs"
 ```
 
-## Соседство с `scripts/gameplay`
+## Единый источник истины
 
-`EventBus` и `GameSession` — отдельный слой, написанный параллельно. Он к ядру не подключён
-и ядром не используется. Трогать его при интеграции не нужно, но знать про него важно:
+Старый слой `scripts/gameplay` удалён. Состояние партии хранит только
+`Kontur.Core.Api.GameSession`, а события публикует `Kontur.Core.Events.EventBus`.
 
-**День, состояние смены и отсчёт времени считаются в двух местах независимо.**
-`GameSession.CurrentDay` и `KonturSimulation.Day` — разные числа. Пока стороны не связаны,
-ничего не ломается, но они разойдутся, как только обе начнут менять своё состояние.
-
-Пока предметы стола подключаются к ядру, берите день, фазы и время из
-`KonturSimulation.GetStatus()`. Сведение двух слоёв в один источник истины — отдельная
-задача, и делать её стоит вместе с автором `scripts/gameplay`.
-
-Имена классов не конфликтуют: в ядре шина называется `Kontur.Core.Events.EventBus`
-и лежит в своём пространстве имён, в gameplay — глобальный `EventBus`.
+Сцены получают сеанс через `GameRuntime.Get(this).Session`. Они вызывают команды,
+читают `Get*`-снимки и подписываются на `Session.Events`; собственные копии дня,
+таймеров и фаз смены создавать не нужно.
 
 ## Как проверить
 
 1. Закрыть запущенную игру, если она открыта: пока окно живо, DLL заблокирована
    и сборка молча не применится.
 2. Собрать проект (молоток в правом верхнем углу), посмотреть вкладку **MSBuild**.
-3. Открыть `scenes/debug/KonturDebug.tscn`, запустить **F6** (не F5 — тот откроет `main.tscn`).
+3. Запустить основную сцену и нажать **F6**, чтобы открыть отладчик ядра.
 4. Нажать «Смена 1», затем «x5».
 5. Кнопками провести вызов: «Ответить» → «ОК (метка)» → выбрать состав в панели
    «ОТПРАВКА ГРУППЫ» → «Отправить выбранных». При появлении радио — «Радио 1/2/3».
@@ -62,13 +54,10 @@ Kontur="*res://scripts/kontur/KonturRuntime.cs"
 
 ## Единственный источник контента
 
-Контент игры живёт в `data/` в корне Godot-проекта, и это единственное место.
-Харнесс поднимается по дереву до папки с `project.godot` и берёт `data/` оттуда;
-запасного пути нет — если корня не нашлось, он попросит `--content <путь>`.
-
-Копия `kontur-core/content/` была удалена. Она успела разойтись с оригиналом
-дважды: консольный прогон считал баланс по одним числам, игра шла по другим,
-и оба раза это заметили не сразу.
+После интеграции контент игры живёт в `data/`. `kontur-core/content/` — та же
+копия для автономного прогона; харнесс теперь ищет сначала `data/`, потом `content/`,
+так что консоль и игра читают одни и те же файлы. Папку `kontur-core/content/`
+можно удалить, чтобы не расходились.
 
 ## Экспорт сборки
 
@@ -108,12 +97,12 @@ Kontur="*res://scripts/kontur/KonturRuntime.cs"
 
 ## Шаг 3. Автозагрузка-мост (сделано)
 
-`scripts/kontur/KonturRuntime.cs`, в `project.godot`:
+`scripts/kontur/GameRuntime.cs`, в `project.godot`:
 
 ```ini
 [autoload]
 
-Kontur="*res://scripts/kontur/KonturRuntime.cs"
+GameRuntime="*res://scripts/kontur/GameRuntime.cs"
 ```
 
 Экспортируемые параметры: `ContentRoot`, `Seed`, `IsPaused`, `TimeScale`, `LogEvents`.
@@ -123,10 +112,10 @@ Kontur="*res://scripts/kontur/KonturRuntime.cs"
 Доступ из любой сцены:
 
 ```csharp
-KonturRuntime kontur = KonturRuntime.Get(this);
-if (kontur != null && kontur.IsReady)
+GameRuntime runtime = GameRuntime.Get(this);
+if (runtime != null && runtime.IsReady)
 {
-    kontur.Simulation.Events.Subscribe<IncidentCreated>(OnIncidentCreated);
+    runtime.Session.Events.Subscribe<IncidentCreated>(OnIncidentCreated);
 }
 ```
 
@@ -150,7 +139,7 @@ if (kontur != null && kontur.IsReady)
 | `ShiftEnded` | Менеджер сцен | пререндеренный ролик по `OutroCutsceneId` |
 | `GameOverTriggered` | Менеджер сцен | финальный экран по причине |
 
-Обратно от UI к ядру идут только команды `KonturSimulation`:
+Обратно от UI к ядру идут только команды `GameSession`:
 `AnswerCall`, `ConfirmBriefing`, `OpenDispatchScreen`, `DispatchSquad`,
 `ChooseRadioOption`, `SpendSkillPoint`, `HireEmployee`.
 
@@ -165,7 +154,7 @@ if (kontur != null && kontur.IsReady)
    существует для отладочного оверлея и тестов.
 3. **UI не хранит состояние игры.** Сцена может кэшировать то, что нужно для
    отрисовки, но истина — в ядре. Иначе рассинхрон при наложении вызовов.
-4. **Балансные числа правятся в `data/config.json`,** не в сценах.
+4. **Балансные числа правятся в `content/config.json`,** не в сценах.
 5. **Перед мержем правок баланса — `--selftest`.** Проверки таймингов, лимитов
    штата и формулы успеха стоят там именно для этого.
 

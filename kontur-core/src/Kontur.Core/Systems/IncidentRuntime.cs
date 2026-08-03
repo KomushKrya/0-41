@@ -10,24 +10,18 @@ namespace Kontur.Core.Systems
 	/// </summary>
 	public sealed class IncidentRuntime
 	{
-		public IncidentRuntime(string id, MissionDefinition mission)
+		public IncidentRuntime(string id, MissionDefinition mission, string buildingId)
 		{
 			Id = id;
 			Mission = mission;
+			BuildingId = buildingId;
 		}
 
 		public string Id { get; }
 
 		public MissionDefinition Mission { get; }
 
-		/// <summary>
-		/// Дом, куда едет группа. Пусто — карта без домов, и метку ставят
-		/// по координатам зоны (Mission.ZoneId).
-		///
-		/// Живёт на инциденте, а не на миссии: один и тот же вызов в разные смены
-		/// приходит из разных подъездов, иначе метка всегда падала бы в одну точку.
-		/// </summary>
-		public string BuildingId { get; set; } = string.Empty;
+		public string BuildingId { get; }
 
 		public IncidentPhase Phase { get; set; } = IncidentPhase.Scheduled;
 
@@ -38,6 +32,10 @@ namespace Kontur.Core.Systems
 
 		public List<string> EquipmentIds { get; } = new List<string>();
 
+		/// <summary>Фактическая длительность пути, рассчитанная картой при отправке группы.</summary>
+		public double OutboundTravelSeconds { get; set; }
+
+		/// <summary>Фактическая длительность пути, рассчитанная картой при отправке группы.</summary>
 		public MissionEventDefinition? MissionEvent { get; set; }
 
 		public MissionEventOption? ChosenOption { get; set; }

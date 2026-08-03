@@ -23,19 +23,12 @@ namespace Kontur.Core.Api
 		IReadOnlyList<string> AbilityIds,
 		string PortraitId,
 		int Age,
-		/// <summary>Кусочки досье: id фраз, разворачивает интерфейс через текстовый движок.</summary>
 		IReadOnlyList<string> BioIds);
 
-	/// <summary>
-	/// Вызов глазами интерфейса. Прозы нет: название и реплики звонящего разворачиваются
-	/// по CallId, вводная и варианты — по MissionEventId через текстовый движок.
-	/// </summary>
 	public sealed record IncidentView(
 		string Id,
 		string MissionId,
 		string CallId,
-		string ZoneId,
-		/// <summary>Дом на карте. Пусто — домов нет, метка ставится по координатам зоны.</summary>
 		string BuildingId,
 		string MissionEventId,
 		MissionTier Tier,
@@ -43,12 +36,12 @@ namespace Kontur.Core.Api
 		IncidentPhase Phase,
 		double RemainingSeconds,
 		StatBlock Requirements,
-		/// <summary>Сколько человек берёт этот вызов. Обычно один.</summary>
 		int SquadLimit,
 		IReadOnlyList<string> SquadEmployeeIds,
-		IReadOnlyList<string> EquipmentIds);
-
-	public sealed record ZoneView(string Id, string Name, double MapX, double MapY);
+		IReadOnlyList<string> EquipmentIds)
+	{
+		/// <summary>Id звонка в текстовом движке; старые Title и CallerName остаются fallback-ом.</summary>
+	}
 
 	/// <summary>
 	/// Предпросмотр отправки: что получится, если послать именно этот состав с этим снаряжением.
@@ -64,7 +57,12 @@ namespace Kontur.Core.Api
 		IReadOnlyList<StatMatch> Matches,
 		double MatchScore,
 		double SuccessChance,
-		bool IsPerfectMatch);
+		bool IsPerfectMatch)
+	{
+		/// <summary>Совместимое имя для старых дебаг-виджетов.</summary>
+		public double Coverage => MatchScore;
+		public bool IsAutoSuccess => IsPerfectMatch;
+	}
 
 	public sealed record EquipmentSlotView(
 		string Id,
@@ -84,11 +82,6 @@ namespace Kontur.Core.Api
 		IReadOnlyList<string> RevealedPropertyIds,
 		int TotalProperties);
 
-	/// <summary>
-	/// Кандидат в меню найма. Перки — то, ради чего в этом меню вообще есть выбор,
-	/// поэтому они здесь: без них два кандидата с похожими характеристиками неразличимы.
-	/// Названия перков интерфейс достаёт из текстового движка по этим id.
-	/// </summary>
 	public sealed record HireCandidateView(
 		string Id,
 		string Name,
@@ -107,9 +100,7 @@ namespace Kontur.Core.Api
 		bool IsCallWindowClosed,
 		int OpenIncidents,
 		int PendingCalls,
-		int QueuedCalls,
 		int StaffLimit,
-		bool IsTimeFrozen,
 		ScaleValues Scales,
 		bool IsGameOver,
 		GameOverReason? GameOverReason);

@@ -10,7 +10,7 @@ namespace Kontur.Core.Systems
 	/// <summary>
 	/// Механика успеха миссии (ДД, раздел 7).
 	///
-	/// 1. Требования миссии масштабируются: множитель дня × множитель зоны × множитель радио-варианта.
+	/// 1. Требования миссии масштабируются: множитель дня × множитель радио-варианта.
 	/// 2. Считается сумма характеристик всей группы + бонусы снаряжения + сработавшие спецспособности.
 	/// 3. Покрыл требования полностью — автоматический успех без броска.
 	/// 4. Не покрыл — бросок: шанс = покрытие^Exponent (согласованная кривая), потолок 95 %.
@@ -34,52 +34,28 @@ namespace Kontur.Core.Systems
 			MissionEventOption? chosenOption,
 			int day)
 		{
-			// Единственный множитель — дневной. Район на пороги не влияет: штриховку
-			// сняли, потому что провал делал следующие вызовы в том же районе тяжелее,
-			// и отыграться становилось нечем.
 			double multiplier = _config.GetDay(day).RequirementMultiplier;
 
 			StatBlock requirements = mission.Requirements.Scale(multiplier);
-
-			// Вариант сужает проверку до тех характеристик, которые назвал текст: пороги
-			// берутся у миссии, но спрашивают только за то, чем игрок решил взять.
-			// Вариант без списка проверок оставляет требования миссии как есть.
 			if (chosenOption != null && chosenOption.CheckedStats.Count > 0)
 			{
 				requirements = chosenOption.ResolveRequirements(requirements);
 			}
 
-			// Вариант решения добавляет надбавку к каждой требуемой характеристике.
-			// Именно надбавку, а не множитель: так число из текста читается одинаково
-			// и на миссии с одной требуемой характеристикой, и на миссии с четырьмя.
 			if (chosenOption != null && chosenOption.RequirementModifier != 0)
 			{
-				for (int i = 0; i < StatKinds.All.Length; i++)
+				foreach (StatKind stat in StatKinds.All)
 				{
-					StatKind kind = StatKinds.All[i];
-					if (requirements[kind] > 0)
+					if (requirements[stat] > 0)
 					{
-						requirements = requirements.Add(kind, chosenOption.RequirementModifier);
+						requirements = requirements.Add(stat, chosenOption.RequirementModifier);
 					}
 				}
-
-				requirements = requirements.ClampMin(0);
 			}
 
-			return requirements;
+			return requirements.ClampMin(0);
 		}
 
-		/// <summary>
-		/// Профиль группы: **сумма характеристик отряда**.
-		///
-		/// Порог «Интеллект 9» закрывают трое по три так же, как один с девяткой: миссию
-		/// тянет группа целиком, и численность — такой же ресурс, как отдельный специалист.
-		/// Поэтому отправить больше людей действительно помогает, а состав решает, чем
-		/// именно группа сильна.
-		///
-		/// Способности считаются по каждому сотруднику отдельно и входят в сумму,
-		/// снаряжение наоборот выдаётся на группу и добавляется поверх суммы один раз.
-		/// </summary>
 		public StatBlock ComputeSquadStats(
 			IReadOnlyList<Employee> squad,
 			IReadOnlyList<EquipmentDefinition> equipment,
@@ -102,21 +78,19 @@ namespace Kontur.Core.Systems
 			for (int i = 0; i < squad.Count; i++)
 			{
 				Employee employee = squad[i];
-				StatBlock profile = employee.GetEffectiveStats(_config.Employees.InjuryPenaltyPerStat);
+				total = total.Add(employee.GetEffectiveStats(_config.Employees.InjuryPenaltyPerStat));
 
 				for (int a = 0; a < employee.AbilityIds.Count; a++)
 				{
 					Ability? ability = _content.FindAbility(employee.AbilityIds[a]);
 					if (ability != null && ability.IsActive(creatureTags, equipmentIds))
 					{
-						profile = profile.Add(ability.GetEffectiveBonus());
+						total = total.Add(ability.GetEffectiveBonus());
 					}
 				}
-
-				total = total.Add(profile);
 			}
 
-			// Снаряжение действует на группу целиком (ДД, раздел 6).
+			// Снаряжение действует на всю группу целиком, а не на каждого сотрудника (ДД, раздел 6).
 			for (int i = 0; i < equipment.Count; i++)
 			{
 				total = total.Add(equipment[i].GetEffectiveBonus());
@@ -125,104 +99,80 @@ namespace Kontur.Core.Systems
 			return total;
 		}
 
-		/// <summary>
-		/// Разбор профиля по характеристикам: что требуется, кто закрывает, насколько.
-		/// Это же уходит на экран отправки — там строки красятся по Rating.
-		/// </summary>
-		public IReadOnlyList<StatMatch> EvaluateMatches(
-			StatBlock requirements,
-			StatBlock squadStats,
-			StatKind? primaryStat)
+		public static double ComputeCoverage(StatBlock requirements, StatBlock squadStats)
 		{
-			StatMatchConfig match = _config.Match;
-			var results = new List<StatMatch>();
+			int requiredTotal = 0;
+			int deficit = 0;
 
 			for (int i = 0; i < StatKinds.All.Length; i++)
 			{
 				StatKind kind = StatKinds.All[i];
 				int required = requirements[kind];
-
-				// Ноль означает «на этом вызове характеристика не нужна» — в расчёт не идёт.
 				if (required <= 0)
 				{
 					continue;
 				}
 
-				int available = squadStats[kind];
-				int margin = available - required;
-
-				StatMatchRating rating;
-				double score;
-
-				if (margin >= match.ExceedsMargin)
+				requiredTotal += required;
+				int missing = required - squadStats[kind];
+				if (missing > 0)
 				{
-					rating = StatMatchRating.Exceeds;
-					score = 1.0;
+					deficit += missing;
 				}
-				else if (margin >= 0)
-				{
-					rating = StatMatchRating.Meets;
-					score = match.MeetsScore;
-				}
-				else
-				{
-					rating = StatMatchRating.Below;
-					score = match.MeetsScore * Math.Pow(match.BelowFalloff, -margin);
-				}
-
-				bool isPrimary = primaryStat.HasValue && primaryStat.Value == kind;
-				results.Add(new StatMatch(kind, required, available, isPrimary, rating, score));
 			}
 
-			return results;
-		}
-
-		/// <summary>
-		/// Итоговое совпадение профилей, 0..1. Главная характеристика вызова весит вдвое.
-		/// Требований нет вовсе — считается закрытым.
-		/// </summary>
-		public double ComputeMatchScore(IReadOnlyList<StatMatch> matches)
-		{
-			if (matches.Count == 0)
+			if (requiredTotal <= 0)
 			{
 				return 1.0;
 			}
 
-			StatMatchConfig config = _config.Match;
-			double weighted = 0.0;
-			double totalWeight = 0.0;
-
-			for (int i = 0; i < matches.Count; i++)
-			{
-				double weight = matches[i].IsPrimary ? config.PrimaryWeight : config.SecondaryWeight;
-				weighted += matches[i].Score * weight;
-				totalWeight += weight;
-			}
-
-			return totalWeight <= 0.0 ? 1.0 : weighted / totalWeight;
+			double coverage = 1.0 - ((double)deficit / requiredTotal);
+			return Math.Max(0.0, Math.Min(1.0, coverage));
 		}
 
-		/// <summary>Все пороги закрыты с запасом — успех без броска (зелёный профиль).</summary>
+		public IReadOnlyList<StatMatch> EvaluateMatches(StatBlock requirements, StatBlock squadStats, StatKind? primaryStat)
+		{
+			var results = new List<StatMatch>();
+			StatMatchConfig config = _config.Match;
+			foreach (StatKind kind in StatKinds.All)
+			{
+				int required = requirements[kind];
+				if (required <= 0) continue;
+				int available = squadStats[kind];
+				int margin = available - required;
+				StatMatchRating rating;
+				double score;
+				if (margin >= config.ExceedsMargin) { rating = StatMatchRating.Exceeds; score = 1.0; }
+				else if (margin >= 0) { rating = StatMatchRating.Meets; score = config.MeetsScore; }
+				else { rating = StatMatchRating.Below; score = config.MeetsScore * Math.Pow(config.BelowFalloff, -margin); }
+				results.Add(new StatMatch(kind, required, available, primaryStat.HasValue && primaryStat.Value == kind, rating, score));
+			}
+			return results;
+		}
+
+		public double ComputeMatchScore(IReadOnlyList<StatMatch> matches)
+		{
+			if (matches.Count == 0) return 1.0;
+			double weighted = 0.0, totalWeight = 0.0;
+			foreach (StatMatch match in matches)
+			{
+				double weight = match.IsPrimary ? _config.Match.PrimaryWeight : _config.Match.SecondaryWeight;
+				weighted += match.Score * weight; totalWeight += weight;
+			}
+			return totalWeight <= 0 ? 1.0 : weighted / totalWeight;
+		}
+
 		public static bool IsPerfectMatch(IReadOnlyList<StatMatch> matches)
 		{
-			for (int i = 0; i < matches.Count; i++)
-			{
-				if (matches[i].Rating != StatMatchRating.Exceeds)
-				{
-					return false;
-				}
-			}
-
+			foreach (StatMatch match in matches) if (match.Rating != StatMatchRating.Exceeds) return false;
 			return true;
 		}
 
-		public double ComputeSuccessChance(double matchScore, IReadOnlyList<EquipmentDefinition> equipment, bool radioMissed)
+		public double ComputeSuccessChance(double coverage, IReadOnlyList<EquipmentDefinition> equipment, bool radioMissed)
 		{
 			ResolutionConfig resolution = _config.Resolution;
 
-			// Процент — это и есть совпадение профилей: кривую не накладываем, ступени
-			// уже заложены в оценку каждой характеристики.
-			double chance = matchScore;
+			double chance = coverage;
 
 			for (int i = 0; i < equipment.Count; i++)
 			{
@@ -244,7 +194,7 @@ namespace Kontur.Core.Systems
 			{
 				IncidentId = request.IncidentId,
 				MissionId = request.Mission.Id,
-				ZoneId = request.Mission.ZoneId,
+				BuildingId = request.BuildingId,
 				CreatureId = request.Mission.CreatureId,
 				RadioWasTriggered = request.RadioWasTriggered,
 				RadioWasMissed = request.RadioWasMissed,
@@ -263,30 +213,21 @@ namespace Kontur.Core.Systems
 				outcome.EquipmentIds.Add(request.Equipment[i].Id);
 			}
 
-			IReadOnlyList<StatMatch> matches = EvaluateMatches(
-				request.EffectiveRequirements,
-				request.SquadStats,
-				request.Mission.PrimaryStat);
-
-			double matchScore = ComputeMatchScore(matches);
-			outcome.Coverage = matchScore;
-
-			foreach (StatMatch match in matches)
-			{
-				outcome.StatMatches.Add(match);
-			}
+			IReadOnlyList<StatMatch> matches = EvaluateMatches(request.EffectiveRequirements, request.SquadStats, request.Mission.PrimaryStat);
+			double coverage = ComputeMatchScore(matches);
+			outcome.Coverage = coverage;
+			outcome.StatMatches.AddRange(matches);
 
 			bool isSuccess;
 			if (IsPerfectMatch(matches))
 			{
-				// Все пороги закрыты с запасом — Dispatch называет это perfect match.
 				isSuccess = true;
 				outcome.SuccessChance = 1.0;
 				outcome.Reason = MissionResolutionReason.StatsCovered;
 			}
 			else
 			{
-				double chance = ComputeSuccessChance(matchScore, request.Equipment, request.RadioWasMissed);
+				double chance = ComputeSuccessChance(coverage, request.Equipment, request.RadioWasMissed);
 				double roll = _random.NextDouble();
 
 				outcome.SuccessChance = chance;
@@ -298,18 +239,18 @@ namespace Kontur.Core.Systems
 
 			outcome.Kind = isSuccess ? MissionResultKind.Success : MissionResultKind.Failure;
 
-			ApplyCasualties(request, outcome, matchScore, isSuccess);
+			ApplyCasualties(request, outcome, coverage, isSuccess);
 
 			outcome.SquadWiped = request.Squad.Count > 0 && outcome.KilledEmployeeIds.Count == request.Squad.Count;
 
 			return outcome;
 		}
 
-		private void ApplyCasualties(ResolutionRequest request, MissionOutcome outcome, double matchScore, bool isSuccess)
+		private void ApplyCasualties(ResolutionRequest request, MissionOutcome outcome, double coverage, bool isSuccess)
 		{
 			ResolutionConfig resolution = _config.Resolution;
 
-			double riskFactor = 1.0 + ((1.0 - matchScore) * resolution.RiskCoverageInfluence);
+			double riskFactor = 1.0 + ((1.0 - coverage) * resolution.RiskCoverageInfluence);
 
 			double injuryMultiplier = riskFactor;
 			double deathMultiplier = riskFactor;
@@ -331,29 +272,17 @@ namespace Kontur.Core.Systems
 				deathMultiplier *= request.Equipment[i].DeathChanceMultiplier;
 			}
 
-			double injuryChance = request.Mission.InjuryChance * injuryMultiplier;
-			double deathChance = request.Mission.DeathChance * deathMultiplier;
+				double injuryChance = request.Mission.InjuryChance * injuryMultiplier;
+				double deathChance = request.Mission.DeathChance * deathMultiplier;
 
-			// Потолок последствий режет шансы последним — уже после всех множителей.
-			// Иначе «безопасный» вызов мог бы убить через множитель варианта или снаряжения,
-			// и обещание игроку зависело бы от порядка вычислений.
-			ConsequenceCap cap = request.Mission.EffectiveCap;
-			if (request.ChosenOption != null && request.ChosenOption.ConsequenceCapOverride != null)
-			{
-				cap = ConsequenceCaps.Tighten(cap, request.ChosenOption.ConsequenceCapOverride.Value);
-			}
+				ConsequenceCap cap = request.Mission.EffectiveCap;
+				if (request.ChosenOption != null && request.ChosenOption.ConsequenceCapOverride.HasValue)
+				{
+					cap = ConsequenceCaps.Tighten(cap, request.ChosenOption.ConsequenceCapOverride.Value);
+				}
 
-			outcome.AppliedCap = cap;
-
-			if (!ConsequenceCaps.AllowsDeath(cap))
-			{
-				deathChance = 0.0;
-			}
-
-			if (!ConsequenceCaps.AllowsInjury(cap))
-			{
-				injuryChance = 0.0;
-			}
+				if (!ConsequenceCaps.AllowsDeath(cap)) deathChance = 0.0;
+				if (!ConsequenceCaps.AllowsInjury(cap)) injuryChance = 0.0;
 
 			for (int i = 0; i < request.Squad.Count; i++)
 			{
@@ -377,6 +306,8 @@ namespace Kontur.Core.Systems
 	public sealed class ResolutionRequest
 	{
 		public string IncidentId { get; set; } = string.Empty;
+
+		public string BuildingId { get; set; } = string.Empty;
 
 		public MissionDefinition Mission { get; set; } = new MissionDefinition();
 

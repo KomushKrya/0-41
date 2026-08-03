@@ -6,40 +6,32 @@ namespace Kontur.Core.Events
 	// Список сигналов из раздела 13 ДД. Каждый сигнал — иммутабельная запись:
 	// подписчик не может испортить состояние ядра, поменяв поле события.
 
-	public sealed record ShiftStarted(int Day, int StaffLimit, string ShiftNoteId) : IGameEvent;
+	public sealed record ShiftStarted(int Day, int StaffLimit, string ShiftNoteTitle, string ShiftNoteText) : IGameEvent;
 
 	/// <summary>Окно приёма новых вызовов закрылось (5 минут), но смена ещё идёт.</summary>
 	public sealed record CallWindowClosed(int Day, int OpenIncidents) : IGameEvent;
 
 	public sealed record ShiftEnded(int Day, string OutroCutsceneId, ShiftSummary Summary) : IGameEvent;
 
-	public sealed record IncidentCreated(
-		string IncidentId,
-		string MissionId,
-		string ZoneId,
-		/// <summary>Дом на карте. Пусто — домов в контенте нет, ставьте метку по координатам зоны.</summary>
-		string BuildingId,
-		string CallId,
-		double RingSeconds) : IGameEvent;
+	public sealed record IncidentCreated(string IncidentId, string MissionId, string BuildingId, string CallId, double RingSeconds) : IGameEvent;
+		/// <summary>Id звонка в текстовом движке. CallerName остаётся совместимым fallback-ом.</summary>
 
-	/// <summary>Трубка снята. Текст задания интерфейс берёт по CallId из текстового движка.</summary>
-	/// <summary>
-	/// Вызов поступил, но линия занята — ждёт очереди. Телефон по нему ещё не звонит:
-	/// IncidentCreated придёт, когда очередь дойдёт. Интерфейсу это нужно, чтобы показать
-	/// индикатор «на линии ждут» и не удивлять игрока внезапной пачкой звонков.
-	/// </summary>
-	public sealed record IncidentQueued(string IncidentId, string CallId, int Position) : IGameEvent;
+	/// <summary>Звонок ожидает свободной линии; здание уже выбрано и закреплено за инцидентом.</summary>
+	public sealed record IncidentQueued(string IncidentId, string MissionId, string BuildingId, int Position) : IGameEvent;
 
 	public sealed record CallAnswered(string IncidentId, string MissionId, string CallId) : IGameEvent;
 
+	public sealed record BriefingConfirmed(string IncidentId, string MissionId, string BuildingId, double MarkerSeconds) : IGameEvent;
+
 	public sealed record CallMissed(string IncidentId, string MissionId) : IGameEvent;
 
-	public sealed record MapMarkerSpawned(string IncidentId, string ZoneId, string BuildingId, double LifetimeSeconds) : IGameEvent;
+	public sealed record MapMarkerSpawned(string IncidentId, string BuildingId, double LifetimeSeconds) : IGameEvent;
 
-	public sealed record MapMarkerExpired(string IncidentId, string ZoneId, string BuildingId) : IGameEvent;
+	public sealed record MapMarkerExpired(string IncidentId, string BuildingId) : IGameEvent;
 
 	/// <summary>Игрок нажал на метку — компьютер должен открыть экран отправки.</summary>
 	public sealed record DispatchScreenRequested(string IncidentId, string MissionId) : IGameEvent;
+	public sealed record DispatchScreenClosed(string IncidentId) : IGameEvent;
 
 	public sealed record SquadDispatched(
 		string IncidentId,
@@ -47,90 +39,43 @@ namespace Kontur.Core.Events
 		IReadOnlyList<string> EquipmentIds,
 		double TravelSeconds) : IGameEvent;
 
-	public sealed record SquadArrived(string IncidentId, string ZoneId, string BuildingId) : IGameEvent;
+	public sealed record SquadArrived(string IncidentId, string BuildingId) : IGameEvent;
 
-	/// <summary>Экран отправки закрыт без отправки. Метка продолжает висеть, время идёт дальше.</summary>
-	public sealed record DispatchScreenClosed(string IncidentId) : IGameEvent;
+	public sealed record MissionExecutionStarted(string IncidentId, string BuildingId, double DurationSeconds) : IGameEvent;
 
-	/// <summary>
-	/// Глобальное время остановлено или пущено дальше.
-	///
-	/// Пока оно стоит, не идёт ничего: ни таймеры вызовов, ни дорога группы, ни приём
-	/// новых звонков. Мир ждёт решения игрока. Интерфейсу это нужно, чтобы гасить
-	/// индикаторы обратного отсчёта и не анимировать движение по карте.
-	/// </summary>
-	public sealed record TimeFreezeChanged(bool IsFrozen, string Reason) : IGameEvent;
-
-	/// <summary>
-	/// Радио затрещало. Ни вводной, ни формулировок вариантов здесь нет: интерфейс
-	/// разворачивает MissionEventId через текстовый движок и берёт варианты оттуда же,
-	/// в том же порядке. Ядро присылает только ключи — по ним UI и отвечает.
-	/// </summary>
 	public sealed record RadioTriggered(
 		string IncidentId,
 		string MissionEventId,
 		IReadOnlyList<RadioOptionOffer> Options,
 		double ResponseSeconds) : IGameEvent;
 
-	/// <summary>
-	/// Вариант в том виде, в каком его видит игрок: ключ и то, за что тут спросят.
-	///
-	/// Характеристики группу не запирают: нажать можно любой вариант с IsAvailable,
-	/// недобор бьёт по шансу, а не по доступности. Требования — пороги миссии,
-	/// подставленные в характеристики этого варианта; пустой блок означает, что
-	/// проверки нет вовсе.
-	///
-	/// Снаряжение, в отличие от характеристик, именно запирает: если RequiredEquipmentId
-	/// не пусто и такого предмета нет среди отправленного на этот вызов, IsAvailable
-	/// ложно — кнопка недоступна независимо от состава группы. Название предмета для
-	/// подписи «нужен …» интерфейс берёт по этому id из текстового движка, а не отсюда:
-	/// ядро — числа, слова — у текста (см. ITextCatalog).
-	///
-	/// Тип диалога (хороший/нейтральный/плохой) сюда не попадает намеренно — подсказок
-	/// о правильности в интерфейсе быть не должно (ДД, раздел 8).
-	/// </summary>
-	public sealed record RadioOptionOffer(
-		string Id,
-		StatBlock Requirements,
-		bool IsAvailable,
-		string RequiredEquipmentId);
-
-	/// <summary>Игрок взял радио: экран вариантов открыт, мир остановлен.</summary>
-	public sealed record RadioAnswered(string IncidentId, string MissionEventId) : IGameEvent;
+	public sealed record RadioOptionOffer(string Id, StatBlock Requirements, bool IsAvailable, string RequiredEquipmentId);
 
 	public sealed record RadioMissed(string IncidentId) : IGameEvent;
+	public sealed record RadioAnswered(string IncidentId, string MissionEventId) : IGameEvent;
 
 	public sealed record RadioOptionChosen(string IncidentId, string MissionEventId, string OptionId) : IGameEvent;
 
 	public sealed record MissionResolved(MissionOutcome Outcome) : IGameEvent;
 
 	/// <summary>
-	/// Дело на объекте кончилось — пора показать экран итога: выполнено или провалено,
-	/// кого зацепило, группа выезжает обратно.
-	///
-	/// Приходит в тот же момент, что и MissionResolved, но отдельным сигналом и с уже
-	/// разложенными полями: MissionResolved — это внутренний расчёт со всеми промежуточными
-	/// числами, а здесь ровно то, что нужно нарисовать на экране.
-	///
-	/// Только для выездов, где группа действительно доехала. На пропущенный звонок и
-	/// протухшую метку сигнал не приходит: докладывать некому и возвращаться некому,
-	/// там достаточно CallMissed и MapMarkerExpired.
+	/// Результат миссии, подготовленный для цельного модального экрана. Ядро
+	/// передаёт только игровые id: текст и изображение выбирает UI.
 	/// </summary>
 	public sealed record MissionOutcomeReady(
 		string IncidentId,
 		string MissionId,
-		string ZoneId,
 		bool IsSuccess,
 		MissionResolutionReason Reason,
-		/// <summary>Запись типа `report` — текст исхода. Пусто, если под эту комбинацию текста нет.</summary>
-		string SummaryTextId,
+		string SummaryContentId,
 		string CreatureId,
 		IReadOnlyList<string> ReturningEmployeeIds,
 		IReadOnlyList<string> InjuredEmployeeIds,
 		IReadOnlyList<string> KilledEmployeeIds,
-		/// <summary>Сколько группа будет ехать обратно. 0 — возвращаться некому.</summary>
 		double ReturnSeconds,
 		bool SquadWiped) : IGameEvent;
+
+	public sealed record SquadReturning(string IncidentId, string BuildingId, double ReturnSeconds) : IGameEvent;
 
 	public sealed record ScalesChanged(ScaleValues Values, ScaleDelta Delta, string Reason) : IGameEvent;
 
@@ -146,15 +91,6 @@ namespace Kontur.Core.Events
 
 	public sealed record EmployeeHired(string EmployeeId, string EmployeeName, int Day) : IGameEvent;
 
-	/// <summary>
-	/// Смена закрыта, можно набирать людей на следующую. Приходит сразу за ShiftEnded.
-	///
-	/// Не приходит, когда брать некого: партия проиграна или штат уже полный. Меню найма
-	/// в этих случаях открывать не нужно — пустой список кандидатов игрок читает как поломку.
-	///
-	/// Список кандидатов зафиксирован на этот день: GetHireCandidates(NextDay) вернёт
-	/// ровно этих людей в этом же порядке, сколько бы раз его ни спросили.
-	/// </summary>
 	public sealed record HiringOpened(
 		int NextDay,
 		int StaffLimit,
@@ -179,7 +115,6 @@ namespace Kontur.Core.Events
 	/// <summary>Существо опознано и добавлено в энциклопедию впервые.</summary>
 	public sealed record CreatureIdentified(string CreatureId) : IGameEvent;
 
-
 	public sealed record EquipmentConsumed(string EquipmentId, string EquipmentName, int RemainingQuantity) : IGameEvent;
 
 	public sealed record EquipmentAcquired(string EquipmentId, string EquipmentName, bool IsShiftOnly) : IGameEvent;
@@ -191,13 +126,11 @@ namespace Kontur.Core.Events
 	public sealed record GameOverTriggered(GameOverReason Reason, ScaleValues Values, int Day) : IGameEvent;
 
 	/// <summary>
-	/// Партия загружена из сохранения. Единственное событие, после которого интерфейс
-	/// обязан перерисовать себя целиком по снимкам Get*: потока событий, который привёл
-	/// партию в это состояние, не было — было чтение файла.
-	///
-	/// Мир в этот момент остановлен. Закончив перерисовку, вызовите ResumeAfterLoad().
+	/// Вариант ответа по радио в том виде, в каком его видит игрок.
+	/// Намеренно НЕ содержит Quality и множителей: подсказок в интерфейсе быть не должно (ДД, раздел 8).
 	/// </summary>
-	public sealed record GameLoaded(int Day, string SavedAtUtc, string Label) : IGameEvent;
+	/// <summary>Состояние симуляции приостановлено одним или несколькими владельцами модальных экранов.</summary>
+	public sealed record TimeFreezeChanged(bool IsFrozen, IReadOnlyCollection<string> Owners) : IGameEvent;
 
 	public sealed record ShiftSummary(
 		int TotalIncidents,

@@ -17,13 +17,7 @@ public partial class EncyclopediaTextBox : ContentTextBox
 	/// <summary>Показывать заглушку вместо закрытого абзаца.</summary>
 	[Export] public bool ShowRedacted { get; set; } = true;
 
-	/// <summary>
-	/// Заглушка вместо закрытого абзаца. Пусто — берётся из текстового движка
-	/// (ui_encyclopedia_redacted); строка в инспекторе перебивает её для одного бокса.
-	/// Умолчанием здесь текст стоять не может: поля выставляются раньше, чем
-	/// автозагрузка Content успевает прочитать каталог.
-	/// </summary>
-	[Export] public string RedactedText { get; set; } = string.Empty;
+	[Export] public string RedactedText { get; set; } = "[ДАННЫЕ НЕ ПОДТВЕРЖДЕНЫ]";
 
 	private RichTextLabel _text;
 
@@ -48,7 +42,7 @@ public partial class EncyclopediaTextBox : ContentTextBox
 
 		if (!IsLoaded)
 		{
-			_text.Text = "[i]" + Content.Label("ui_encyclopedia_missing") + "[/i]";
+			_text.Text = "[i]Статья не загружена.[/i]";
 			return;
 		}
 
@@ -69,10 +63,7 @@ public partial class EncyclopediaTextBox : ContentTextBox
 			}
 			else if (ShowRedacted)
 			{
-				string redacted = RedactedText.Length > 0
-					? RedactedText
-					: Content.Label("ui_encyclopedia_redacted");
-				builder.Append("[color=#5a6b5a]").Append(redacted).Append("[/color]\n\n");
+				builder.Append("[color=#5a6b5a]").Append(RedactedText).Append("[/color]\n\n");
 			}
 		}
 

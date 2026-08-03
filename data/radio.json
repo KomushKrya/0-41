@@ -465,42 +465,5 @@
         "consequenceCap": "None"
       }
     }
-  },
-  {
-    "id": "radio_bench_man",
-    "options": {
-      "talk": {
-        "quality": "good"
-      },
-      "cordon": {
-        "quality": "neutral"
-      }
-    }
-  },
-  {
-    "id": "radio_platform_wait",
-    "options": {
-      "observe": {
-        "quality": "good",
-        "revealsPropertyId": "property_perekozhnik_eye_contact"
-      },
-      "approach": {
-        "quality": "bad",
-        "revealsPropertyId": "property_perekozhnik_heartbeat",
-        "injuryChanceMultiplier": 1.8,
-        "deathChanceMultiplier": 2.0
-      }
-    }
-  },
-  {
-    "id": "radio_intercom_voice",
-    "options": {
-      "answer": {
-        "quality": "good"
-      },
-      "cut_off": {
-        "quality": "neutral"
-      }
-    }
   }
 ]

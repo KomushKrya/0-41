@@ -23,7 +23,7 @@ public partial class GameFlow : Node
 
 	public static GameFlow Instance { get; private set; }
 
-	private KonturRuntime _kontur;
+	private GameRuntime _kontur;
 	private System.IDisposable _shiftEnded;
 	private System.IDisposable _hiringOpened;
 
@@ -43,7 +43,7 @@ public partial class GameFlow : Node
 	{
 		Instance = this;
 
-		_kontur = KonturRuntime.Get(this);
+		_kontur = GameRuntime.Get(this);
 		if (_kontur == null || !_kontur.IsReady)
 		{
 			GD.PushError("[FLOW] Ядро недоступно: " + (_kontur?.LoadError ?? "автозагрузка Kontur не найдена"));
@@ -257,7 +257,7 @@ public partial class GameFlow : Node
 		get { return _kontur != null ? _kontur.Simulation : null; }
 	}
 
-	public KonturRuntime Runtime
+	public GameRuntime Runtime
 	{
 		get { return _kontur; }
 	}

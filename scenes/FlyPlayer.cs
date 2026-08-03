@@ -49,7 +49,6 @@ public partial class FlyPlayer : CharacterBody3D
 
 	public override void _Ready()
 	{
-		AddToGroup("debug_player");
 		_head = GetNode<Node3D>(HeadPath);
 		_interactionRay = GetNode<RayCast3D>(InteractionRayPath);
 		_defaultCollisionMask = CollisionMask;
@@ -64,6 +63,13 @@ public partial class FlyPlayer : CharacterBody3D
 			return;
 		}
 
+		if (@event is InputEventKey keyEvent && keyEvent.Pressed && !keyEvent.Echo && keyEvent.Keycode == Key.F12)
+		{
+			SetNoclipEnabled(!_isNoclipEnabled);
+			GetViewport().SetInputAsHandled();
+			return;
+		}
+
 		if (@event.IsActionPressed("ui_cancel"))
 		{
 			if (_isViewFocused)
@@ -74,16 +80,8 @@ public partial class FlyPlayer : CharacterBody3D
 			{
 				StandUpFromSeat();
 			}
-			else if (PauseMenu.Instance != null)
-			{
-				// Ни в один предмет не смотрим и не сидим — значит Escape просится
-				// в паузу. Курсор она покажет сама и вернёт как было при закрытии.
-				PauseMenu.Instance.Open();
-			}
 			else
 			{
-				// Автозагрузки нет (отладочная сцена без Pause) — старое поведение,
-				// чтобы мышь всё-таки можно было освободить.
 				Input.MouseMode = Input.MouseMode == Input.MouseModeEnum.Captured
 					? Input.MouseModeEnum.Visible
 					: Input.MouseModeEnum.Captured;
@@ -108,14 +106,9 @@ public partial class FlyPlayer : CharacterBody3D
 
 		if (!_isViewFocused && @event is InputEventMouseMotion mouseMotion && Input.MouseMode == Input.MouseModeEnum.Captured)
 		{
-			// Экспортное значение — базовая чувствительность сцены, множитель из
-			// настроек — то, что игрок покрутил под себя. Одно без другого не работает:
-			// в настройках нет понятия «радиан на пиксель», а в сцене — вкуса игрока.
-			float sensitivity = MouseSensitivity * SettingsScreen.MouseSensitivity;
+			RotateY(-mouseMotion.Relative.X * MouseSensitivity);
 
-			RotateY(-mouseMotion.Relative.X * sensitivity);
-
-			_pitch -= mouseMotion.Relative.Y * sensitivity;
+			_pitch -= mouseMotion.Relative.Y * MouseSensitivity;
 			_pitch = Mathf.Clamp(_pitch, Mathf.DegToRad(-85.0f), Mathf.DegToRad(85.0f));
 			_head.Rotation = new Vector3(_pitch, _head.Rotation.Y, _head.Rotation.Z);
 		}
@@ -217,12 +210,6 @@ public partial class FlyPlayer : CharacterBody3D
 		_isNoclipEnabled = enabled;
 		CollisionMask = enabled ? 0u : _defaultCollisionMask;
 		GD.Print($"[KONTUR] Noclip: {(enabled ? "ON" : "OFF")}");
-	}
-
-	/// <summary>Глобальная отладочная команда F12.</summary>
-	public void ToggleNoclip()
-	{
-		SetNoclipEnabled(!_isNoclipEnabled);
 	}
 
 	public void ExitFocusedView()

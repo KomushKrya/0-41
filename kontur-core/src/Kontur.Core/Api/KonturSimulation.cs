@@ -23,10 +23,6 @@ namespace Kontur.Core.Api
 	{
 		private readonly EventBus _bus;
 		private readonly GameState _state;
-		/// <summary>
-		/// Конкретный тип, а не IRandomSource: при сохранении нужно снять и вернуть
-		/// внутреннее состояние генератора, иначе загруженная партия пойдёт по другим броскам.
-		/// </summary>
 		private readonly XorShiftRandom _random;
 		private readonly ScalesSystem _scalesSystem;
 		private readonly EmployeeFactory _employeeFactory;
@@ -35,6 +31,7 @@ namespace Kontur.Core.Api
 		private readonly MissionResolver _resolver;
 		private readonly IncidentScheduler _scheduler;
 		private readonly ShiftDirector _director;
+		private readonly HashSet<string> _timeFreezeOwners = new HashSet<string>(StringComparer.Ordinal);
 
 		public KonturSimulation(ContentDatabase content, int seed)
 		{
@@ -90,13 +87,15 @@ namespace Kontur.Core.Api
 			get { return _director.IsShiftActive; }
 		}
 
-		/// <summary>
-		/// Мир остановлен: открыт экран отправки или радио. Tick в этом состоянии
-		/// ничего не продвигает — ни таймеры, ни дорогу группы, ни приём новых звонков.
-		/// </summary>
+		/// <summary>Истина, пока хотя бы один модальный интерфейс или внешний слой удерживает время.</summary>
 		public bool IsTimeFrozen
 		{
-			get { return _director.IsTimeFrozen; }
+			get { return _timeFreezeOwners.Count > 0; }
+		}
+
+		public IReadOnlyCollection<string> TimeFreezeOwners
+		{
+			get { return _timeFreezeOwners; }
 		}
 
 		public int Day
@@ -121,19 +120,6 @@ namespace Kontur.Core.Api
 			_state.Encyclopedia.Clear();
 			_state.Flags.Clear();
 			_state.Inventory.Clear();
-
-			_state.Zones.Clear();
-			foreach (KeyValuePair<string, Zone> pair in Content.Zones)
-			{
-				_state.Zones[pair.Key] = new Zone
-				{
-					Id = pair.Value.Id,
-					Name = pair.Value.Name,
-					BaseWeight = pair.Value.BaseWeight,
-					MapX = pair.Value.MapX,
-					MapY = pair.Value.MapY
-				};
-			}
 
 			_state.Roster.Clear();
 			for (int i = 0; i < Content.StartingRoster.Count; i++)
@@ -172,12 +158,78 @@ namespace Kontur.Core.Api
 		/// <summary>Продвинуть симуляцию. delta — секунды. В Godot вызывается из _Process.</summary>
 		public void Tick(double deltaSeconds)
 		{
+			if (IsTimeFrozen)
+			{
+				return;
+			}
+
 			_director.Tick(deltaSeconds);
+		}
+
+		/// <summary>Добавляет владельца паузы. Повторный вызов тем же ключом безопасен.</summary>
+		public void FreezeTime(string owner)
+		{
+			SetTimeFreeze(owner, true);
+		}
+
+		/// <summary>Снимает паузу только указанного владельца, не затрагивая остальные модальные экраны.</summary>
+		public void UnfreezeTime(string owner)
+		{
+			SetTimeFreeze(owner, false);
+		}
+
+		public void SetTimeFreeze(string owner, bool frozen)
+		{
+			if (string.IsNullOrWhiteSpace(owner))
+			{
+				throw new ArgumentException("Нужен непустой идентификатор владельца паузы.", nameof(owner));
+			}
+
+			bool changed = frozen ? _timeFreezeOwners.Add(owner) : _timeFreezeOwners.Remove(owner);
+			if (changed)
+			{
+				_bus.Publish(new TimeFreezeChanged(IsTimeFrozen, _timeFreezeOwners.ToArray()));
+			}
 		}
 
 		public void ForceEndShift()
 		{
 			_director.EndShift();
+		}
+
+		/// <summary>
+		/// Сериализует партию в любой фазе, включая таймеры и маршруты активной смены.
+		/// </summary>
+		public string Save(string label = "")
+		{
+			return SaveSystem.ToJson(SaveSystem.Capture(_state, _director, Seed, _random.State, label));
+		}
+
+		public CommandResult Load(string json)
+		{
+			SaveData? data = SaveSystem.FromJson(json, out string error);
+			if (data == null)
+			{
+				return CommandResult.Fail(error);
+			}
+
+			if (!SaveSystem.Validate(data, Content, out error))
+			{
+				return CommandResult.Fail(error);
+			}
+
+			ResetToNewGame();
+			SaveSystem.Apply(data, _state);
+			_random.RestoreState(data.RandomState);
+			_director.RestoreShift(data.Shift);
+			FreezeTime("load");
+			return CommandResult.Ok();
+		}
+
+		/// <summary>Вызывается UI после восстановления кадров карты и интерфейсов.</summary>
+		public void ResumeAfterLoad()
+		{
+			UnfreezeTime("load");
 		}
 
 		// ------------------------------------------------------------------ команды игрока
@@ -192,44 +244,18 @@ namespace Kontur.Core.Api
 			return _director.ConfirmBriefing(incidentId);
 		}
 
-		/// <summary>Открыть экран отправки. Глобальное время останавливается.</summary>
 		public CommandResult OpenDispatchScreen(string incidentId)
 		{
-			return _director.OpenDispatchScreen(incidentId);
+			CommandResult result = _director.OpenDispatchScreen(incidentId);
+			if (result.IsSuccess) FreezeTime("dispatch:" + incidentId);
+			return result;
 		}
 
-		/// <summary>Закрыть экран отправки, никого не отправив. Время идёт дальше.</summary>
 		public CommandResult CloseDispatchScreen(string incidentId)
 		{
-			return _director.CloseDispatchScreen(incidentId);
-		}
-
-		/// <summary>Взять радио. Глобальное время останавливается до выбора варианта.</summary>
-		public CommandResult AnswerRadio(string incidentId)
-		{
-			return _director.AnswerRadio(incidentId);
-		}
-
-		/// <summary>Отложить радио без выбора. Отсчёт до RadioMissed продолжается.</summary>
-		public CommandResult CloseRadio(string incidentId)
-		{
-			return _director.CloseRadio(incidentId);
-		}
-
-		/// <summary>
-		/// Раскрыть экран итога миссии. Глобальное время останавливается, пока он открыт.
-		/// Вызывать не обязательно: если итог показывается всплывающей плашкой, которая
-		/// не мешает играть, эту пару команд можно не трогать.
-		/// </summary>
-		public CommandResult OpenMissionOutcome(string incidentId)
-		{
-			return _director.OpenMissionOutcome(incidentId);
-		}
-
-		/// <summary>Закрыть экран итога. Обязателен, если открывали: иначе мир так и стоит.</summary>
-		public CommandResult CloseMissionOutcome(string incidentId)
-		{
-			return _director.CloseMissionOutcome(incidentId);
+			UnfreezeTime("dispatch:" + incidentId);
+			_bus.Publish(new DispatchScreenClosed(incidentId));
+			return CommandResult.Ok();
 		}
 
 		public CommandResult DispatchSquad(
@@ -237,25 +263,81 @@ namespace Kontur.Core.Api
 			IReadOnlyList<string> employeeIds,
 			IReadOnlyList<string> equipmentIds)
 		{
-			return _director.DispatchSquad(incidentId, employeeIds, equipmentIds);
+			CommandResult result = _director.DispatchSquad(incidentId, employeeIds, equipmentIds);
+			if (result.IsSuccess) CloseDispatchScreen(incidentId);
+			return result;
+		}
+
+	/// <summary>
+	/// Отправляет группу с длительностью пути, рассчитанной внешним слоем
+	/// представления (например, длиной маршрута на карте).
+	/// </summary>
+		public CommandResult DispatchSquad(
+			string incidentId,
+			IReadOnlyList<string> employeeIds,
+			IReadOnlyList<string> equipmentIds,
+			double travelSeconds)
+		{
+			CommandResult result = _director.DispatchSquad(incidentId, employeeIds, equipmentIds, travelSeconds);
+			if (result.IsSuccess) CloseDispatchScreen(incidentId);
+			return result;
+		}
+
+		/// <summary>Игрок поднял рацию: таймер решения останавливается в ядре.</summary>
+		public CommandResult AnswerRadio(string incidentId)
+		{
+			for (int i = 0; i < _director.Incidents.Count; i++)
+			{
+				IncidentRuntime incident = _director.Incidents[i];
+				if (!string.Equals(incident.Id, incidentId, StringComparison.OrdinalIgnoreCase)) continue;
+				if (incident.Phase != IncidentPhase.RadioPending || incident.MissionEvent == null)
+				{
+					return CommandResult.Fail("Радио по этому вызову не активно.");
+				}
+
+				FreezeTime("radio:" + incidentId);
+				_bus.Publish(new RadioAnswered(incidentId, incident.MissionEvent.Id));
+				return CommandResult.Ok();
+			}
+
+			return CommandResult.Fail("Вызов не найден.");
+		}
+
+		public CommandResult CloseRadio(string incidentId)
+		{
+			UnfreezeTime("radio:" + incidentId);
+			return CommandResult.Ok();
 		}
 
 		public CommandResult ChooseRadioOption(string incidentId, string optionId)
 		{
-			return _director.ChooseRadioOption(incidentId, optionId);
+			CommandResult result = _director.ChooseRadioOption(incidentId, optionId);
+			if (result.IsSuccess) CloseRadio(incidentId);
+			return result;
 		}
 
-		/// <summary>
-		/// Варианты по радио с их доступностью. То же, что пришло в RadioTriggered, —
-		/// на случай, если экран открылся позже события или перерисовывается.
-		/// Пустой список, если радио по этому вызову не активно.
-		/// </summary>
 		public IReadOnlyList<RadioOptionOffer> GetRadioOptions(string incidentId)
 		{
-			IncidentRuntime? incident = _director.FindIncident(incidentId);
-			return incident == null
-				? new List<RadioOptionOffer>()
-				: _director.BuildOffers(incident);
+			for (int i = 0; i < _director.Incidents.Count; i++)
+			{
+				IncidentRuntime incident = _director.Incidents[i];
+				if (string.Equals(incident.Id, incidentId, StringComparison.OrdinalIgnoreCase)) return _director.BuildOffers(incident);
+			}
+			return Array.Empty<RadioOptionOffer>();
+		}
+
+		public CommandResult OpenMissionOutcome(string incidentId)
+		{
+			if (string.IsNullOrWhiteSpace(incidentId)) return CommandResult.Fail("Не указан вызов.");
+			FreezeTime("outcome:" + incidentId);
+			return CommandResult.Ok();
+		}
+
+		public CommandResult CloseMissionOutcome(string incidentId)
+		{
+			if (string.IsNullOrWhiteSpace(incidentId)) return CommandResult.Fail("Не указан вызов.");
+			UnfreezeTime("outcome:" + incidentId);
+			return CommandResult.Ok();
 		}
 
 		/// <summary>
@@ -298,6 +380,26 @@ namespace Kontur.Core.Api
 				: CommandResult.Fail(error);
 		}
 
+		/// <summary>Явно обновляет фиксированный список найма между сменами.</summary>
+		public void RefreshHireCandidates(int day)
+		{
+			_rosterSystem.RefreshHireOffers(day);
+		}
+
+		public bool NeedsStartingChoice
+		{
+			get { return !_state.StartingRosterConfirmed && _rosterSystem.GetStartingChoice().Count > 0; }
+		}
+
+		public CommandResult ConfirmStartingRoster(IReadOnlyList<string> candidateIds)
+		{
+			if (_director.IsShiftActive) return CommandResult.Fail("Cannot change the roster during a shift.");
+			string error;
+			return _rosterSystem.TryConfirmStartingRoster(candidateIds, out error)
+				? CommandResult.Ok()
+				: CommandResult.Fail(error);
+		}
+
 		// ------------------------------------------------------------------ снимки для UI
 
 		public ShiftStatusView GetStatus()
@@ -319,9 +421,7 @@ namespace Kontur.Core.Api
 				_director.IsCallWindowClosed,
 				open,
 				_director.PendingCallCount,
-				_director.CountQueued(),
 				_rosterSystem.GetStaffLimit(_state.Day),
-				_director.IsTimeFrozen,
 				_state.Scales,
 				_state.IsGameOver,
 				_state.GameOverReason);
@@ -372,9 +472,8 @@ namespace Kontur.Core.Api
 					incident.Id,
 					incident.Mission.Id,
 					incident.Mission.CallId,
-					incident.Mission.ZoneId,
 					incident.BuildingId,
-					incident.Mission.MissionEventId,
+					incident.Mission.MissionEventId ?? string.Empty,
 					incident.Mission.Tier,
 					incident.Mission.EffectiveCap,
 					incident.Phase,
@@ -382,19 +481,9 @@ namespace Kontur.Core.Api
 					_director.GetCurrentRequirements(incident),
 					incident.Mission.SquadLimit,
 					incident.SquadEmployeeIds.ToArray(),
-					incident.EquipmentIds.ToArray()));
-			}
-
-			return result;
-		}
-
-		public IReadOnlyList<ZoneView> GetZones()
-		{
-			var result = new List<ZoneView>();
-			foreach (KeyValuePair<string, Zone> pair in _state.Zones)
-			{
-				Zone zone = pair.Value;
-				result.Add(new ZoneView(zone.Id, zone.Name, zone.MapX, zone.MapY));
+					incident.EquipmentIds.ToArray())
+				{
+				});
 			}
 
 			return result;
@@ -505,10 +594,6 @@ namespace Kontur.Core.Api
 			return result;
 		}
 
-		/// <summary>
-		/// Кандидаты на найм. Набор фиксируется на день: повторный вызов вернёт тех же
-		/// людей в том же порядке, поэтому список можно спрашивать хоть каждый кадр.
-		/// </summary>
 		public IReadOnlyList<HireCandidateView> GetHireCandidates(int day)
 		{
 			var result = new List<HireCandidateView>();
@@ -532,139 +617,22 @@ namespace Kontur.Core.Api
 			return result;
 		}
 
-		/// <summary>
-		/// Пересобрать список кандидатов на день заново. Нужно редко — набор и так
-		/// обновляется сам при переходе на новый день. Годится для отладки и для
-		/// сюжетного «список обновили».
-		/// </summary>
-		public void RefreshHireCandidates(int day)
-		{
-			_rosterSystem.RefreshHireOffers(day);
-		}
-
-		// ------------------------------------------------------------------ стартовый состав
-
-		/// <summary>
-		/// Кандидаты для стартового выбора, из которых игрок собирает первую бригаду.
-		///
-		/// Пустой список — выбора нет: контент не задал пул, и штат берётся из
-		/// `startingRoster` как есть. Интерфейсу в этом случае экран показывать не нужно,
-		/// сразу к первой смене.
-		///
-		/// Набор фиксируется до подтверждения: список можно спрашивать хоть каждый кадр.
-		/// </summary>
 		public IReadOnlyList<HireCandidateView> GetStartingChoice()
 		{
 			var result = new List<HireCandidateView>();
 			IReadOnlyList<HireCandidate> candidates = _rosterSystem.GetStartingChoice();
-
 			for (int i = 0; i < candidates.Count; i++)
 			{
-				Employee template = candidates[i].Template;
-				result.Add(new HireCandidateView(
-					template.Id,
-					template.Name,
-					template.RankTitle,
-					template.Level,
-					template.BaseStats,
-					template.AbilityIds.ToArray(),
-					template.PortraitId,
-					template.Age,
-					template.BioIds.ToArray()));
+				Employee employee = candidates[i].Template;
+				result.Add(new HireCandidateView(employee.Id, employee.Name, employee.RankTitle, employee.Level,
+					employee.BaseStats, employee.AbilityIds.ToArray(), employee.PortraitId, employee.Age, employee.BioIds.ToArray()));
 			}
-
 			return result;
-		}
-
-		/// <summary>Нужен ли экран стартового выбора. Ложь — сразу начинайте смену.</summary>
-		public bool NeedsStartingChoice
-		{
-			get { return !_state.StartingRosterConfirmed && _rosterSystem.GetStartingChoice().Count > 0; }
-		}
-
-		/// <summary>
-		/// Собрать стартовый состав из выбранных кандидатов. Заменяет штат целиком,
-		/// поэтому вызывается до первой смены и ровно один раз за партию.
-		/// </summary>
-		public CommandResult ConfirmStartingRoster(IReadOnlyList<string> candidateIds)
-		{
-			if (_director.IsShiftActive)
-			{
-				return CommandResult.Fail("Смена уже идёт — состав менять поздно.");
-			}
-
-			string error;
-			return _rosterSystem.TryConfirmStartingRoster(candidateIds, out error)
-				? CommandResult.Ok()
-				: CommandResult.Fail(error);
 		}
 
 		public IReadOnlyList<MissionReport> GetReports()
 		{
 			return _state.Reports.ToArray();
-		}
-
-		// ------------------------------------------------------------------ сохранение
-
-		/// <summary>
-		/// Снимок партии в JSON. Работает в любой момент, в том числе посреди смены:
-		/// фазы вызовов, недотикавшие таймеры и состояние генератора случайных чисел
-		/// попадают в файл, поэтому после загрузки прогон продолжается тем же, каким был.
-		///
-		/// Побочных эффектов нет — ни событий, ни остановки времени. Если сохранение
-		/// по кнопке должно приостанавливать игру, это решает интерфейс.
-		/// </summary>
-		public string Save(string label = "")
-		{
-			SaveData data = SaveSystem.Capture(_state, _director, Seed, _random.State);
-			data.Label = label ?? string.Empty;
-			return SaveSystem.ToJson(data);
-		}
-
-		/// <summary>
-		/// Загрузка партии из JSON.
-		///
-		/// После успешной загрузки мир **остановлен** и ждёт <see cref="ResumeAfterLoad"/>.
-		/// Сделано нарочно: интерфейсу нужно время перерисовать стол по снимкам Get*,
-		/// а игроку — сообразить, где он. Иначе таймер звонка, на котором сохранились,
-		/// продолжил бы тикать под ещё не нарисованным телефоном.
-		///
-		/// Модальные экраны — отправки, радио, итога — после загрузки считаются закрытыми.
-		/// Что открыть заново, видно по фазам вызовов в GetActiveIncidents().
-		///
-		/// При отказе состояние не трогается: партия остаётся ровно такой, какой была.
-		/// </summary>
-		public CommandResult Load(string json)
-		{
-			string error;
-			SaveData? data = SaveSystem.FromJson(json, out error);
-			if (data == null)
-			{
-				return CommandResult.Fail(error);
-			}
-
-			if (!SaveSystem.Validate(data, Content, out error))
-			{
-				return CommandResult.Fail(error);
-			}
-
-			_director.AbortShift();
-			SaveSystem.Apply(data, _state, Content);
-			_random.State = data.RandomState;
-			_director.RestoreShift(data.Shift);
-			_director.HoldAfterLoad();
-
-			_bus.Publish(new GameLoaded(_state.Day, data.SavedAtUtc, data.Label));
-			return CommandResult.Ok();
-		}
-
-		/// <summary>
-		/// Пустить время после загрузки. Вызывается, когда интерфейс закончил перерисовку.
-		/// Без этого вызова мир так и стоит.
-		/// </summary>
-		public void ResumeAfterLoad()
-		{
-			_director.ReleaseAfterLoad();
 		}
 	}
 }

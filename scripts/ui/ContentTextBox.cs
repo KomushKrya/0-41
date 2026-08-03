@@ -13,20 +13,6 @@ using Kontur.Core.Model;
 /// отчёты на компьютере выглядят по-разному, общее у них только две вещи: откуда берётся
 /// текст и какие куски сейчас видны. Наследнику достаточно переопределить Render().
 ///
-/// <para>
-/// <b>Что откуда брать.</b> Тело записи — <see cref="Chunks"/> (у любого типа), подпись —
-/// <see cref="EntryName"/> (существо, предмет, перк, характеристика), шапка звонка —
-/// <see cref="CallMeta"/> (только <c>call</c>), варианты вмешательства — <see cref="Options"/>
-/// и <see cref="ChunksOf"/> (только <c>radio</c>). Всё это уже отфильтровано по
-/// <c>%% reveal %%</c> и с подставленными <c>{{имя}}</c>.
-/// </para>
-/// <para>
-/// <b>Мимо базового класса ходить не надо.</b> Если взять <c>Content.Instance.GetEntry()</c>
-/// и пойти по <c>Entry.Chunks</c> руками, потеряются подстановки, фильтр условных абзацев
-/// и перечитывание по <c>RefreshOnReveal</c> — молча, потому что на записи без
-/// <c>{{имя}}</c> и без <c>%% reveal %%</c> разницы не видно.
-/// </para>
-///
 /// <example>
 /// <code>
 /// public partial class ReportBox : ContentTextBox
@@ -87,10 +73,7 @@ public abstract partial class ContentTextBox : Control
 	/// <summary>Куски в порядке файла, уже без скрытых. Пустой список, если записи нет.</summary>
 	protected IReadOnlyList<ContentChunk> Chunks => _chunks;
 
-	/// <summary>
-	/// Шапка звонка (kind: call_meta) без квадратных скобок — откуда звонок и кто на линии.
-	/// Показывается отдельно от реплик. Пустая строка, если её нет.
-	/// </summary>
+	/// <summary>Шапка звонка (kind: call_meta) без квадратных скобок. Пустая строка, если её нет.</summary>
 	protected string CallMeta { get; private set; } = string.Empty;
 
 	public bool IsLoaded => Entry != null;
@@ -101,11 +84,11 @@ public abstract partial class ContentTextBox : Control
 
 		if (RefreshOnReveal)
 		{
-			KonturRuntime runtime = KonturRuntime.Get(this);
+			GameRuntime runtime = GameRuntime.Get(this);
 			if (runtime != null && runtime.IsReady)
 			{
-				_revealSubscription = runtime.Simulation.Events.Subscribe<CreatureRevealed>(_ => Refresh());
-				_flagSubscription = runtime.Simulation.Events.Subscribe<FlagChanged>(_ => Refresh());
+				_revealSubscription = runtime.Session.Events.Subscribe<CreatureRevealed>(_ => Refresh());
+				_flagSubscription = runtime.Session.Events.Subscribe<FlagChanged>(_ => Refresh());
 			}
 		}
 
@@ -186,14 +169,14 @@ public abstract partial class ContentTextBox : Control
 	/// </summary>
 	protected virtual bool IsRevealed(string propertyId)
 	{
-		KonturRuntime runtime = KonturRuntime.Get(this);
+		GameRuntime runtime = GameRuntime.Get(this);
 		if (runtime == null || !runtime.IsReady)
 		{
 			return false;
 		}
 
-		return runtime.Simulation.IsFlagSet(propertyId)
-			|| runtime.Simulation.IsPropertyRevealed(ContentId, propertyId);
+		return runtime.Session.IsFlagSet(propertyId)
+			|| runtime.Session.IsPropertyRevealed(ContentId, propertyId);
 	}
 
 	/// <summary>
@@ -207,46 +190,6 @@ public abstract partial class ContentTextBox : Control
 	}
 
 	/// <summary>
-	/// Подпись записи: имя существа, предмета, перка, характеристики. Пустая строка,
-	/// если записи нет или подписи у типа не бывает.
-	/// </summary>
-	protected string EntryName => Entry != null ? Entry.Name : string.Empty;
-
-	/// <summary>
-	/// Варианты вмешательства у записи типа <c>radio</c>. Пустой список у всех остальных
-	/// типов и когда запись не загружена — наследнику не нужно проверять <c>Entry</c> на null.
-	/// Отвечать ядру нужно <c>Id</c>, подписывать кнопку — <c>Name</c>.
-	/// </summary>
-	protected IReadOnlyList<ContentOption> Options =>
-		Entry != null ? Entry.Options : System.Array.Empty<ContentOption>();
-
-	/// <summary>
-	/// Куски варианта — видимые и с подставленными <c>{{имя}}</c>, как у <see cref="Chunks"/>.
-	///
-	/// Отдельным методом, а не полем: вариантов несколько, показывается обычно один,
-	/// и готовить текст всем сразу незачем. Идти по <c>option.Chunks</c> напрямую не надо —
-	/// там сырой текст, без подстановок.
-	/// </summary>
-	protected IReadOnlyList<ContentChunk> ChunksOf(ContentOption option)
-	{
-		if (option == null || option.Chunks == null)
-		{
-			return System.Array.Empty<ContentChunk>();
-		}
-
-		var ready = new List<ContentChunk>(option.Chunks.Count);
-		foreach (ContentChunk chunk in option.Chunks)
-		{
-			if (IsChunkVisible(chunk))
-			{
-				ready.Add(Substitute(chunk));
-			}
-		}
-
-		return ready;
-	}
-
-	/// <summary>
 	/// Значение для подстановки {{имя}}. Пара к <see cref="IsRevealed"/>: тот решает, показывать
 	/// ли абзац, этот — чем заполнить дырку в нём. По умолчанию ищет число в геймплейных данных
 	/// записи с тем же id — сейчас это перки, где {{bonus.strength}} и {{allStatsBonus}} берутся
@@ -256,41 +199,29 @@ public abstract partial class ContentTextBox : Control
 	/// </summary>
 	protected virtual string ResolveValue(string name)
 	{
-		KonturRuntime runtime = KonturRuntime.Get(this);
+		GameRuntime runtime = GameRuntime.Get(this);
 		if (runtime == null || !runtime.IsReady)
 		{
 			return string.Empty;
 		}
 
-		// Перк и снаряжение описываются одинаково — бонус по характеристикам плюс
-		// «ко всем сразу», — поэтому и подстановки у них одни и те же. Id записи
-		// совпадает с id в геймплейных данных, так что искать можно прямо по нему.
-		if (runtime.Simulation.Content.Abilities.TryGetValue(ContentId, out Ability ability))
-		{
-			return BonusValue(ability.Bonus, ability.AllStatsBonus, name);
-		}
-
-		if (runtime.Simulation.Content.Equipment.TryGetValue(ContentId, out EquipmentDefinition equipment))
-		{
-			return BonusValue(equipment.Bonus, equipment.AllStatsBonus, name);
-		}
-
-		return string.Empty;
+		return runtime.Session.Content.Abilities.TryGetValue(ContentId, out Ability ability)
+			? AbilityValue(ability, name)
+			: string.Empty;
 	}
 
-	/// <summary>{{allStatsBonus}} и {{bonus.&lt;характеристика&gt;}} — общий разбор для перков и снаряжения.</summary>
-	private static string BonusValue(StatBlock bonus, int allStatsBonus, string name)
+	private static string AbilityValue(Ability ability, string name)
 	{
 		if (name.Equals("allStatsBonus", StringComparison.OrdinalIgnoreCase))
 		{
-			return allStatsBonus.ToString(CultureInfo.InvariantCulture);
+			return ability.AllStatsBonus.ToString(CultureInfo.InvariantCulture);
 		}
 
 		const string bonusPrefix = "bonus.";
 		if (name.StartsWith(bonusPrefix, StringComparison.OrdinalIgnoreCase)
 			&& StatKinds.TryParse(name.Substring(bonusPrefix.Length), out StatKind kind))
 		{
-			return bonus[kind].ToString(CultureInfo.InvariantCulture);
+			return ability.Bonus[kind].ToString(CultureInfo.InvariantCulture);
 		}
 
 		return string.Empty;
@@ -308,7 +239,7 @@ public abstract partial class ContentTextBox : Control
 			return chunk;
 		}
 
-		string filled = Content.Fill(chunk.Text, name =>
+		string Resolve(string name)
 		{
 			string value = ResolveValue(name);
 			if (string.IsNullOrEmpty(value) && _reportedMissingValues.Add(name))
@@ -317,9 +248,23 @@ public abstract partial class ContentTextBox : Control
 			}
 
 			return value;
-		});
+		}
 
-		return new ContentChunk { Text = filled, Kind = chunk.Kind, Reveal = chunk.Reveal };
+		// Отрезки подсветки подставляются каждый сам по себе: поэтому конвертер и отдаёт
+		// их отрезками, а не позициями в тексте — те после подстановки уехали бы.
+		List<ContentSpan> spans = new(chunk.Spans.Count);
+		foreach (ContentSpan span in chunk.Spans)
+		{
+			spans.Add(new ContentSpan { Text = Content.Fill(span.Text, Resolve), Highlight = span.Highlight });
+		}
+
+		return new ContentChunk
+		{
+			Text = Content.Fill(chunk.Text, Resolve),
+			Kind = chunk.Kind,
+			Reveal = chunk.Reveal,
+			Spans = spans
+		};
 	}
 
 	/// <summary>Записи с таким id нет. По умолчанию предупреждение в Output.</summary>

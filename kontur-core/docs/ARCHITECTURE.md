@@ -7,7 +7,7 @@
 ```
                  команды игрока  ──┐
    контент (JSON) ────────────────►│
-                 Tick(delta) ─────►│  KonturSimulation  ├──► поток событий (Event Bus)
+                 Tick(delta) ─────►│  GameSession  ├──► поток событий (Event Bus)
                                    └────────────────────┘
 ```
 
@@ -20,12 +20,11 @@
 
 | Слой | Что делает | Что ему запрещено |
 |---|---|---|
-| `Model` | типы данных: `Employee`, `MissionDefinition`, `StatBlock`, `Zone`… | знать о правилах |
+| `Model` | типы данных: `Employee`, `MissionDefinition`, `BuildingDefinition`, `StatBlock`… | знать о правилах |
 | `Content` | читает и валидирует JSON, собирает `ContentDatabase` | меняться во время игры |
-| `Content.ITextCatalog` | порт в текстовый движок: сверка id и числа вариантов | отдавать ядру прозу |
 | `Config` | все балансные числа | быть захардкоженным в коде |
 | `Systems` | правила: `ShiftDirector`, `MissionResolver`, `ScalesSystem`, … | знать о UI |
-| `Api` | `KonturSimulation` — фасад, команды и снимки состояния | пропускать мутации мимо команд |
+| `Api` | `GameSession` — фасад, команды и снимки состояния | пропускать мутации мимо команд |
 | `Events` | шина и список сигналов | зависеть от систем |
 
 Зависимости идут строго вниз: `Api → Systems → Content/Config → Model → Events/Simulation`.
@@ -68,7 +67,7 @@ Travelling (travelSeconds)
                               │ ChooseRadioOption ──► OnSite
                               └ просрочка: RadioMissed ──► OnSite (шанс × 0.5)
    ▼
-[расчёт: MissionResolved → шкалы → зона → опыт → энциклопедия]
+[расчёт: MissionResolved → шкалы → опыт → энциклопедия]
    ▼
 Returning (returnSeconds) ──► отчёт на компьютере ──► Closed
    (если погибла вся группа — сразу Closed, существо не опознано)
@@ -85,7 +84,7 @@ Returning (returnSeconds) ──► отчёт на компьютере ──�
 
 ```
         команды (прямые вызовы, возвращают CommandResult)
-  UI ─────────────────────────────────────────────────────►  KonturSimulation
+  UI ─────────────────────────────────────────────────────►  GameSession
                                                                     │
                                                                     │ прямые вызовы
                                                                     ▼
@@ -93,7 +92,7 @@ Returning (returnSeconds) ──► отчёт на компьютере ──�
                                                                     │
                                                     ┌───────────────┼───────────────┐
                                                     ▼               ▼               ▼
-                                              ScalesSystem     ZoneSystem     RosterSystem …
+                                              ScalesSystem                    RosterSystem …
                                                     │               │               │
   UI ◄──────────────────────────────────────────────┴───────────────┴───────────────┘
         события (Event Bus, только наружу)

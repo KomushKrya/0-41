@@ -27,26 +27,10 @@ namespace Kontur.Core.Model
 
 		public string PortraitId { get; set; } = string.Empty;
 
-		/// <summary>
-		/// Возраст в годах. Единственное число в досье: остальное — фразы из текстового
-		/// движка. На механику не влияет, склонение «год / года / лет» делает интерфейс.
-		/// </summary>
+		/// <summary>Возраст и кусочки досье — данные для UI, не для боевого расчёта.</summary>
 		public int Age { get; set; }
-
-		/// <summary>
-		/// Досье: по одному id фразы на слот, в порядке слотов из настроек фабрики.
-		/// Прозы здесь нет — интерфейс разворачивает id через текстовый движок.
-		/// </summary>
-		public List<string> BioIds { get; } = new List<string>();
-
-		/// <summary>
-		/// Архетип, из которого собран сотрудник. Пусто у прописанных вручную.
-		///
-		/// На механику не влияет вообще: нужен, чтобы интерфейс мог подобрать реплики
-		/// или набор портретов под типаж, а отладка — понять, почему характеристики
-		/// разложились именно так.
-		/// </summary>
 		public string ArchetypeId { get; set; } = string.Empty;
+		public List<string> BioIds { get; } = new List<string>();
 
 		public StatBlock BaseStats { get; set; } = StatBlock.Zero;
 
@@ -95,6 +79,7 @@ namespace Kontur.Core.Model
 				Level = Level,
 				RankTitle = RankTitle,
 				PortraitId = PortraitId,
+				Age = Age,
 				ArchetypeId = ArchetypeId,
 				BaseStats = BaseStats,
 				Experience = Experience,
@@ -105,6 +90,7 @@ namespace Kontur.Core.Model
 			};
 
 			copy.AbilityIds.AddRange(AbilityIds);
+			copy.BioIds.AddRange(BioIds);
 			return copy;
 		}
 	}

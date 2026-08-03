@@ -19,11 +19,8 @@ config/icon="res://icon.svg"
 
 ContentHotReload="*res://scripts/debug/ContentHotReload.cs"
 Content="*res://content/engine/content/Content.cs"
-EventBus="*res://scripts/gameplay/EventBus.cs"
-GameSession="*res://scripts/gameplay/GameSession.cs"
-Kontur="*res://scripts/kontur/KonturRuntime.cs"
+GameRuntime="*res://scripts/kontur/GameRuntime.cs"
 GameFlow="*res://scripts/flow/GameFlow.cs"
-DebugHotkeys="*res://scripts/debug/DebugHotkeys.cs"
 Pause="*res://scripts/ui/PauseMenu.cs"
 
 [display]

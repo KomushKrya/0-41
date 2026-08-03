@@ -112,18 +112,18 @@ public partial class ComputerUI : Control
 	{
 		if (string.IsNullOrEmpty(_dispatchIncidentId))
 		{
-			return CommandResult.Fail(Content.Label("ui_computer_no_incident"));
+			return CommandResult.Fail("Нет активного вызова для отправки.");
 		}
 
 		if (employeeIds.Count == 0)
 		{
-			return CommandResult.Fail(Content.Label("ui_computer_no_employees"));
+			return CommandResult.Fail("Выберите хотя бы одного сотрудника.");
 		}
 
 		MapMarkerController mapController = GetTree().GetFirstNodeInGroup("map_marker_controller") as MapMarkerController;
 		if (mapController == null)
 		{
-			return CommandResult.Fail(Content.Label("ui_computer_no_route"));
+			return CommandResult.Fail("Контроллер маршрута карты недоступен.");
 		}
 
 		CommandResult result = mapController.TryDispatchSquad(
@@ -164,7 +164,7 @@ public partial class ComputerUI : Control
 
 		if (employee.Status != Kontur.Core.Model.EmployeeStatus.Available)
 		{
-			_missionDispatchUi?.SetFeedback(Content.Label("ui_computer_employee_unavailable"));
+			_missionDispatchUi?.SetFeedback("СОТРУДНИК НЕДОСТУПЕН");
 			return false;
 		}
 
@@ -222,7 +222,7 @@ public partial class ComputerUI : Control
 
 	private IReadOnlyList<string> GetDispatchEmployeeNames()
 	{
-		KonturRuntime runtime = KonturRuntime.Get(this);
+		GameRuntime runtime = GameRuntime.Get(this);
 		if (runtime == null || !runtime.IsReady)
 		{
 			return System.Array.Empty<string>();
@@ -237,7 +237,7 @@ public partial class ComputerUI : Control
 				continue;
 			}
 
-			foreach (EmployeeView employee in runtime.Simulation.GetRoster())
+			foreach (EmployeeView employee in runtime.Session.GetRoster())
 			{
 				if (employee.Id == employeeId)
 				{
@@ -252,38 +252,36 @@ public partial class ComputerUI : Control
 
 	private string BuildDispatchTitle(string incidentId)
 	{
-		KonturRuntime runtime = KonturRuntime.Get(this);
+		GameRuntime runtime = GameRuntime.Get(this);
 		if (runtime != null && runtime.IsReady)
 		{
-			foreach (IncidentView incident in runtime.Simulation.GetActiveIncidents())
+			foreach (IncidentView incident in runtime.Session.GetActiveIncidents())
 			{
 				if (incident.Id == incidentId)
 				{
-					return Content.Label("ui_computer_incoming_named", "title", KonturUiText.MissionTitle(incident));
+					return $"ВХОДЯЩИЙ ВЫЗОВ: {ContentTextResolver.ResolveCallMeta(incident.CallId, incident.CallId)}";
 				}
 			}
 		}
 
-		return Content.Label("ui_computer_incoming");
+		return "ВХОДЯЩИЙ ВЫЗОВ";
 	}
 
 	private string BuildDispatchTranscript(string incidentId)
 	{
-		KonturRuntime runtime = KonturRuntime.Get(this);
+		GameRuntime runtime = GameRuntime.Get(this);
 		if (runtime != null && runtime.IsReady)
 		{
-			foreach (IncidentView incident in runtime.Simulation.GetActiveIncidents())
+			foreach (IncidentView incident in runtime.Session.GetActiveIncidents())
 			{
 				if (incident.Id == incidentId)
 				{
-					return Content.Label("ui_computer_transcript",
-						"caller", KonturUiText.CallerName(incident),
-						"building", incident.BuildingId);
+					return ContentTextResolver.ResolveEntryText(incident.CallId, incident.CallId);
 				}
 			}
 		}
 
-		return Content.Label("ui_computer_transcript_none");
+		return "Стенограмма вызова недоступна.";
 	}
 
 	private void AddScreen(ComputerScreen screen, PackedScene screenScene)

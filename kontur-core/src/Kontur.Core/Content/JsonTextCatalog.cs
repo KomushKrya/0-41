@@ -5,256 +5,61 @@ using Kontur.Core.Model;
 
 namespace Kontur.Core.Content
 {
-	/// <summary>
-	/// Каталог текстов поверх собранного конвертером JSON (content/localisation/&lt;локаль&gt;).
-	///
-	/// Нужен, чтобы ядро оставалось запускаемым без Godot: консольный прогон и самопроверки
-	/// читают ровно тот же файл, что и игра, и падают на тех же опечатках в id.
-	/// В игре эту роль исполняет GodotTextCatalog поверх автозагрузки Content — здесь
-	/// сознательно продублирована только структура, но не разбор текста: куски не читаются.
-	/// </summary>
+	/// <summary>Текстовый каталог для headless: читает те же собранные JSON, что и Godot.</summary>
 	public sealed class JsonTextCatalog : ITextCatalog
 	{
-		/// <summary>Раскладка совпадает с FOLDER_TYPES в content/engine/converter/build.py.</summary>
-		private static readonly string[] TypeFiles =
-		{
-			"missions/calls/call.json",
-			"missions/mission_ids/mission_id.json",
-			"missions/radio/radio.json",
-			"missions/reports/report.json",
-			"creatures/creature.json",
-			"cutscenes/cutscene.json",
-			"equipment/equipment.json",
-			"shift_notes/shift_note.json",
-			"personnel/bio/bio_line.json",
-			"UI/hover_footnote/perks/perk.json",
-			"UI/hover_footnote/characteristics/characteristic.json",
-			"UI/hover_footnote/equipment_kinds/equipment_kind.json",
-			"UI/hover_footnote/scales/scale.json"
-		};
+		private static readonly string[] TypeFiles = { "missions/calls/call.json", "missions/mission_ids/mission_id.json", "missions/radio/radio.json", "missions/reports/report.json", "creatures/creature.json", "cutscenes/cutscene.json", "equipment/equipment.json", "shift_notes/shift_note.json", "personnel/bio/bio_line.json", "UI/hover_footnote/perks/perk.json", "UI/hover_footnote/characteristics/characteristic.json", "UI/hover_footnote/equipment_kinds/equipment_kind.json", "UI/hover_footnote/scales/scale.json" };
+		private readonly Dictionary<string, HashSet<string>> _properties = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+		private readonly Dictionary<string, List<TextOption>> _options = new Dictionary<string, List<TextOption>>(StringComparer.OrdinalIgnoreCase);
+		private readonly Dictionary<string, List<string>> _bioLines = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+		private static readonly IReadOnlyList<TextOption> NoOptions = Array.Empty<TextOption>();
+		private static readonly IReadOnlyList<string> NoBioLines = Array.Empty<string>();
 
-		private static readonly IReadOnlyList<TextOption> NoOptions = new List<TextOption>();
-
-		private readonly Dictionary<string, HashSet<string>> _properties =
-			new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
-
-		private readonly Dictionary<string, List<TextOption>> _options =
-			new Dictionary<string, List<TextOption>>(StringComparer.OrdinalIgnoreCase);
-
-		/// <summary>Кусочки досье: слот -> id фраз в порядке файла.</summary>
-		private readonly Dictionary<string, List<string>> _bioLines =
-			new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
-
-		private static readonly IReadOnlyList<string> NoBioLines = new List<string>();
-
-		private JsonTextCatalog()
-		{
-		}
-
-		public int EntryCount
-		{
-			get { return _properties.Count; }
-		}
-
-		/// <summary>
-		/// Читает все файлы локали. Отсутствующий файл — не ошибка: конвертер создаёт
-		/// его только когда в этой папке есть записи, а пустой тип контента вполне нормален.
-		/// </summary>
 		public static JsonTextCatalog Load(IContentSource localeSource)
 		{
-			if (localeSource == null)
-			{
-				throw new ArgumentNullException(nameof(localeSource));
-			}
-
 			var catalog = new JsonTextCatalog();
-
-			for (int i = 0; i < TypeFiles.Length; i++)
-			{
-				string fileName = TypeFiles[i];
-				if (!localeSource.Exists(fileName))
-				{
-					continue;
-				}
-
-				catalog.ReadFile(fileName, localeSource.ReadAllText(fileName));
-			}
-
+			foreach (string file in TypeFiles) if (localeSource.Exists(file)) catalog.ReadFile(file, localeSource.ReadAllText(file));
 			return catalog;
 		}
-
-		public bool HasEntry(string entryId)
-		{
-			return !string.IsNullOrEmpty(entryId) && _properties.ContainsKey(entryId);
-		}
-
-		public bool HasProperty(string entryId, string propertyId)
-		{
-			HashSet<string>? properties;
-			return _properties.TryGetValue(entryId, out properties) && properties.Contains(propertyId);
-		}
-
-		public IReadOnlyList<TextOption> GetOptions(string entryId)
-		{
-			List<TextOption>? options;
-			return _options.TryGetValue(entryId, out options) ? options : NoOptions;
-		}
+		public bool HasEntry(string entryId) => !string.IsNullOrEmpty(entryId) && _properties.ContainsKey(entryId);
+		public bool HasProperty(string entryId, string propertyId) => _properties.TryGetValue(entryId, out HashSet<string>? properties) && properties.Contains(propertyId);
+		public IReadOnlyList<TextOption> GetOptions(string entryId) => _options.TryGetValue(entryId, out List<TextOption>? options) ? options : NoOptions;
+		public IReadOnlyList<string> GetBioLines(string slot) => _bioLines.TryGetValue(slot ?? string.Empty, out List<string>? lines) ? lines : NoBioLines;
 
 		private void ReadFile(string fileName, string json)
 		{
-			JsonDocument document;
 			try
 			{
-				document = JsonDocument.Parse(json);
+				using JsonDocument document = JsonDocument.Parse(json);
+				if (document.RootElement.ValueKind != JsonValueKind.Object) throw new ContentException($"Каталог текстов: '{fileName}' должен быть объектом id -> запись.");
+				foreach (JsonProperty entry in document.RootElement.EnumerateObject()) ReadEntry(entry.Name, entry.Value);
 			}
-			catch (JsonException exception)
-			{
-				throw new ContentException($"Каталог текстов, ошибка разбора '{fileName}': {exception.Message}");
-			}
-
-			using (document)
-			{
-				if (document.RootElement.ValueKind != JsonValueKind.Object)
-				{
-					throw new ContentException($"Каталог текстов: '{fileName}' должен быть объектом id -> запись.");
-				}
-
-				foreach (JsonProperty entry in document.RootElement.EnumerateObject())
-				{
-					ReadEntry(entry.Name, entry.Value);
-				}
-			}
+			catch (JsonException exception) { throw new ContentException($"Каталог текстов, ошибка разбора '{fileName}': {exception.Message}"); }
 		}
-
-		public IReadOnlyList<string> GetBioLines(string slot)
+		private void ReadEntry(string id, JsonElement entry)
 		{
-			List<string>? lines;
-			return _bioLines.TryGetValue(slot ?? string.Empty, out lines) ? lines : NoBioLines;
-		}
-
-		private void ReadEntry(string entryId, JsonElement entry)
-		{
-			// Кусочек досье: собираем по слотам, чтобы фабрика брала по одной фразе
-			// из каждого. Слот пуст — запись не досье, разбираем как обычную.
-			JsonElement slotValue;
-			if (entry.TryGetProperty("slot", out slotValue) && slotValue.ValueKind == JsonValueKind.String)
-			{
-				string slot = slotValue.GetString() ?? string.Empty;
-				if (slot.Length > 0)
-				{
-					List<string>? lines;
-					if (!_bioLines.TryGetValue(slot, out lines))
-					{
-						lines = new List<string>();
-						_bioLines[slot] = lines;
-					}
-
-					lines.Add(entryId);
-				}
-			}
-
 			var properties = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-			JsonElement propertyList;
-			if (entry.TryGetProperty("properties", out propertyList) && propertyList.ValueKind == JsonValueKind.Array)
+			if (entry.TryGetProperty("properties", out JsonElement list) && list.ValueKind == JsonValueKind.Array)
+				foreach (JsonElement property in list.EnumerateArray()) if (property.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(property.GetString())) properties.Add(property.GetString()!);
+			_properties[id] = properties;
+			if (entry.TryGetProperty("slot", out JsonElement slotValue) && slotValue.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(slotValue.GetString()))
 			{
-				foreach (JsonElement property in propertyList.EnumerateArray())
-				{
-					string? value = property.GetString();
-					if (!string.IsNullOrWhiteSpace(value))
-					{
-						properties.Add(value!);
-					}
-				}
+				string slot = slotValue.GetString()!; if (!_bioLines.TryGetValue(slot, out List<string>? lines)) { lines = new List<string>(); _bioLines[slot] = lines; } lines.Add(id);
 			}
-
-			_properties[entryId] = properties;
-
-			JsonElement optionList;
-			if (!entry.TryGetProperty("options", out optionList) || optionList.ValueKind != JsonValueKind.Array)
-			{
-				return;
-			}
-
-			var options = new List<TextOption>();
-			foreach (JsonElement option in optionList.EnumerateArray())
-			{
-				options.Add(new TextOption(
-					ReadString(option, "id"),
-					ParseQuality(ReadString(option, "quality")),
-					ReadOptionalInt(option, "requirement_modifier"),
-					ReadCheckedStats(option)));
-			}
-
-			_options[entryId] = options;
+			if (!entry.TryGetProperty("options", out JsonElement options) || options.ValueKind != JsonValueKind.Array) return;
+			var parsed = new List<TextOption>();
+			foreach (JsonElement option in options.EnumerateArray()) parsed.Add(new TextOption(ReadString(option, "id"), ParseQuality(ReadString(option, "quality")), ReadOptionalInt(option, "requirement_modifier"), ReadStats(option)));
+			_options[id] = parsed;
 		}
-
-		private static string ReadString(JsonElement element, string name)
-		{
-			JsonElement value;
-			if (!element.TryGetProperty(name, out value) || value.ValueKind != JsonValueKind.String)
-			{
-				return string.Empty;
-			}
-
-			return value.GetString() ?? string.Empty;
-		}
-
-		private static MissionEventQuality ParseQuality(string value)
-		{
-			MissionEventQuality parsed;
-			return Enum.TryParse<MissionEventQuality>(value, true, out parsed)
-				? parsed
-				: MissionEventQuality.Neutral;
-		}
-
-		/// <summary>
-		/// `requires` в собранном JSON — список характеристик латиницей, без чисел:
-		/// порог по каждой подставляется из требований миссии.
-		/// </summary>
-		private static List<StatKind> ReadCheckedStats(JsonElement option)
+		private static string ReadString(JsonElement element, string name) => element.TryGetProperty(name, out JsonElement value) && value.ValueKind == JsonValueKind.String ? value.GetString() ?? string.Empty : string.Empty;
+		private static int? ReadOptionalInt(JsonElement element, string name) => element.TryGetProperty(name, out JsonElement value) && value.ValueKind == JsonValueKind.Number && value.TryGetInt32(out int result) ? result : (int?)null;
+		private static MissionEventQuality ParseQuality(string value) => Enum.TryParse(value, true, out MissionEventQuality quality) ? quality : MissionEventQuality.Neutral;
+		private static List<StatKind> ReadStats(JsonElement option)
 		{
 			var result = new List<StatKind>();
-
-			JsonElement requires;
-			if (!option.TryGetProperty("requires", out requires) || requires.ValueKind != JsonValueKind.Array)
-			{
-				return result;
-			}
-
-			foreach (JsonElement entry in requires.EnumerateArray())
-			{
-				StatKind kind;
-				string name = entry.ValueKind == JsonValueKind.String ? entry.GetString() ?? string.Empty : string.Empty;
-				if (StatKinds.TryParse(name, out kind))
-				{
-					result.Add(kind);
-				}
-			}
-
+			if (option.TryGetProperty("requires", out JsonElement required) && required.ValueKind == JsonValueKind.Array)
+				foreach (JsonElement item in required.EnumerateArray()) if (item.ValueKind == JsonValueKind.String && StatKinds.TryParse(item.GetString() ?? string.Empty, out StatKind stat)) result.Add(stat);
 			return result;
-		}
-
-		private static int? ReadOptionalInt(JsonElement element, string name)
-		{
-			JsonElement value;
-			if (!element.TryGetProperty(name, out value) || value.ValueKind != JsonValueKind.Number)
-			{
-				return null;
-			}
-
-			return value.TryGetInt32(out int parsed) ? parsed : (int?)null;
-		}
-
-		private static int ReadInt(JsonElement element, string name)
-		{
-			JsonElement value;
-			if (!element.TryGetProperty(name, out value) || value.ValueKind != JsonValueKind.Number)
-			{
-				return 0;
-			}
-
-			return value.TryGetInt32(out int parsed) ? parsed : 0;
 		}
 	}
 }

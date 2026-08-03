@@ -16,15 +16,17 @@ namespace Kontur.Core.Content
 	public static class ContentLoader
 	{
 		public const string ConfigFile = "config.json";
-		public const string ZonesFile = "zones.json";
-
 		public const string BuildingsFile = "buildings.json";
 		public const string AbilitiesFile = "abilities.json";
 		public const string EquipmentFile = "equipment.json";
 		public const string CreaturesFile = "creatures.json";
 		public const string RosterFile = "employees.json";
 		public const string MissionsFile = "missions.json";
-		public const string MissionEventsFile = "radio.json";
+		public const string RadioFile = "radio.json";
+		// В новом ядре файл radio.json хранит баланс MissionEvent. Название осталось
+		// radio.json хранит баланс MissionEvent; текст решений остаётся в Content.
+		public const string MissionEventsFile = RadioFile;
+		public const string ShiftNotesFile = "shift_notes.json";
 
 		private static readonly JsonSerializerOptions Options = CreateOptions();
 
@@ -37,7 +39,7 @@ namespace Kontur.Core.Content
 			if (source == null)
 			{
 				throw new ArgumentNullException(nameof(source));
-			}
+		}
 
 			var database = new ContentDatabase();
 
@@ -47,30 +49,22 @@ namespace Kontur.Core.Content
 				database.Config.Days.AddRange(SimulationConfig.CreateDefault().Days);
 			}
 
-			LoadZones(source, database);
 			LoadBuildings(source, database);
 			LoadAbilities(source, database);
 			LoadEquipment(source, database);
 			LoadCreatures(source, database);
 			LoadRoster(source, database);
 			LoadMissionEvents(source, database, textCatalog);
+			LoadGeneratorBioLines(database, textCatalog);
 			LoadMissions(source, database);
+			LoadShiftNotes(source, database);
 
 			Validate(database, textCatalog);
 			return database;
 		}
 
-		/// <summary>
-		/// Дома на карте. Файла может не быть: пока карта рисуется, ядро обходится
-		/// одними зонами — метка тогда ставится по координатам района.
-		/// </summary>
 		private static void LoadBuildings(IContentSource source, ContentDatabase database)
 		{
-			if (!source.Exists(BuildingsFile))
-			{
-				return;
-			}
-
 			List<BuildingDto> buildings = ReadList<BuildingDto>(source, BuildingsFile);
 			foreach (BuildingDto dto in buildings)
 			{
@@ -79,38 +73,15 @@ namespace Kontur.Core.Content
 					throw new ContentException($"{BuildingsFile}: у здания отсутствует id.");
 				}
 
-				var building = new BuildingDefinition
+				if (!database.Buildings.TryAdd(dto.Id, new BuildingDefinition
 				{
 					Id = dto.Id,
 					IsDispatchTarget = dto.IsDispatchTarget,
-					IsHeadquarters = dto.IsHeadquarters,
-					ZoneId = dto.ZoneId
-				};
-
-				if (database.Buildings.ContainsKey(building.Id))
+					IsHeadquarters = dto.IsHeadquarters
+				}))
 				{
-					throw new ContentException($"{BuildingsFile}: повторяющийся id '{building.Id}'.");
+					throw new ContentException($"{BuildingsFile}: повторяющийся id '{dto.Id}'.");
 				}
-
-				database.Buildings[building.Id] = building;
-			}
-		}
-
-		private static void LoadZones(IContentSource source, ContentDatabase database)
-		{
-			List<ZoneDto> zones = ReadList<ZoneDto>(source, ZonesFile);
-			foreach (ZoneDto dto in zones)
-			{
-				var zone = new Zone
-				{
-					Id = dto.Id,
-					Name = dto.Name,
-					BaseWeight = dto.BaseWeight,
-					MapX = dto.MapX,
-					MapY = dto.MapY
-				};
-
-				database.Zones[zone.Id] = zone;
 			}
 		}
 
@@ -204,191 +175,54 @@ namespace Kontur.Core.Content
 			}
 		}
 
-		/// <summary>
-		/// Настройки фабрики кандидатов. Ошибки в названиях характеристик здесь не глушатся:
-		/// опечатка в «strenght» тихо обнулила бы архетип, и кандидаты пошли бы одинаковые.
-		/// </summary>
 		private static void LoadGenerator(GeneratorDto dto, EmployeeGeneratorSettings settings)
 		{
 			settings.CandidatesPerShift = dto.CandidatesPerShift;
 			settings.CandidatesChoiceMargin = dto.CandidatesChoiceMargin;
 			settings.LevelLagBehindDay = dto.LevelLagBehindDay;
 			settings.LevelSpread = dto.LevelSpread;
-			settings.MinAge = dto.MinAge;
-			settings.MaxAge = dto.MaxAge;
-
-			if (dto.BioSlots != null)
-			{
-				settings.BioSlots.AddRange(dto.BioSlots);
-			}
-			settings.MinStat = dto.MinStat;
-			settings.MaxStat = dto.MaxStat;
-			settings.StatPointsBase = dto.StatPointsBase;
-			settings.StatPointsPerLevel = dto.StatPointsPerLevel;
-			settings.PrimaryWeight = dto.PrimaryWeight;
-			settings.SecondaryWeight = dto.SecondaryWeight;
+			settings.MinAge = dto.MinAge; settings.MaxAge = dto.MaxAge;
+			settings.MinStat = dto.MinStat; settings.MaxStat = dto.MaxStat;
+			settings.StatPointsBase = dto.StatPointsBase; settings.StatPointsPerLevel = dto.StatPointsPerLevel;
+			settings.PrimaryWeight = dto.PrimaryWeight; settings.SecondaryWeight = dto.SecondaryWeight;
 			settings.StartingChoicePoolSize = dto.StartingChoicePoolSize;
-			settings.AbilitiesBase = dto.AbilitiesBase;
-			settings.SecondAbilityFromLevel = dto.SecondAbilityFromLevel;
-
-			if (dto.Surnames != null)
+			settings.AbilitiesBase = dto.AbilitiesBase; settings.SecondAbilityFromLevel = dto.SecondAbilityFromLevel;
+			if (dto.BioSlots != null) settings.BioSlots.AddRange(dto.BioSlots);
+			if (dto.Surnames != null) settings.Surnames.AddRange(dto.Surnames);
+			if (dto.Initials != null) settings.Initials.AddRange(dto.Initials);
+			if (dto.Portraits != null) settings.PortraitIds.AddRange(dto.Portraits);
+			if (dto.LevelsByDay != null) foreach (LevelRangeDto range in dto.LevelsByDay) settings.LevelsByDay.Add(new LevelRange { FromDay = range.FromDay, MinLevel = range.MinLevel, MaxLevel = range.MaxLevel });
+			if (dto.Archetypes == null) return;
+			foreach (ArchetypeDto source in dto.Archetypes)
 			{
-				settings.Surnames.AddRange(dto.Surnames);
-			}
-
-			if (dto.Initials != null)
-			{
-				settings.Initials.AddRange(dto.Initials);
-			}
-
-			if (dto.Portraits != null)
-			{
-				settings.PortraitIds.AddRange(dto.Portraits);
-			}
-
-			if (dto.LevelsByDay != null)
-			{
-				foreach (LevelRangeDto range in dto.LevelsByDay)
-				{
-					settings.LevelsByDay.Add(new LevelRange
-					{
-						FromDay = range.FromDay,
-						MinLevel = range.MinLevel,
-						MaxLevel = range.MaxLevel
-					});
-				}
-
-				settings.LevelsByDay.Sort((left, right) => left.FromDay.CompareTo(right.FromDay));
-			}
-
-			if (dto.Archetypes == null)
-			{
-				return;
-			}
-
-			foreach (ArchetypeDto archetypeDto in dto.Archetypes)
-			{
-				var archetype = new EmployeeArchetype
-				{
-					Id = archetypeDto.Id,
-					Weight = archetypeDto.Weight,
-					RankTitle = archetypeDto.RankTitle
-				};
-
-				AddStats(archetypeDto.Primary, archetype.PrimaryStats, archetypeDto.Id, "primary");
-				AddStats(archetypeDto.Secondary, archetype.SecondaryStats, archetypeDto.Id, "secondary");
-
-				if (archetypeDto.Abilities != null)
-				{
-					archetype.AbilityIds.AddRange(archetypeDto.Abilities);
-				}
-
-				if (archetypeDto.Portraits != null)
-				{
-					archetype.PortraitIds.AddRange(archetypeDto.Portraits);
-				}
-
+				var archetype = new EmployeeArchetype { Id = source.Id, Weight = source.Weight, RankTitle = source.RankTitle };
+				AddGeneratorStats(source.Primary, archetype.PrimaryStats, source.Id, "primary");
+				AddGeneratorStats(source.Secondary, archetype.SecondaryStats, source.Id, "secondary");
+				if (source.Abilities != null) archetype.AbilityIds.AddRange(source.Abilities);
+				if (source.Portraits != null) archetype.PortraitIds.AddRange(source.Portraits);
 				settings.Archetypes.Add(archetype);
 			}
 		}
 
-		private static void AddStats(List<string>? names, List<StatKind> target, string archetypeId, string field)
+		private static void AddGeneratorStats(List<string>? names, List<StatKind> target, string archetypeId, string field)
 		{
-			if (names == null)
-			{
-				return;
-			}
-
+			if (names == null) return;
 			foreach (string name in names)
 			{
-				StatKind kind;
-				if (!StatKinds.TryParse(name, out kind))
-				{
-					throw new ContentException(
-						$"Архетип '{archetypeId}', поле '{field}': неизвестная характеристика '{name}'. " +
-						"Допустимые: strength, combat, agility, charisma, intellect.");
-				}
-
+				if (!StatKinds.TryParse(name, out StatKind kind)) throw new ContentException($"Архетип '{archetypeId}', поле '{field}': неизвестная характеристика '{name}'.");
 				target.Add(kind);
 			}
 		}
 
-		/// <summary>
-		/// Собирает вмешательство из двух половин: ключи и числа сложности приходят из текста
-		/// (там их правит автор вместе с формулировкой), риски и последствия — из data.
-		/// Расхождение наборов ключей — ошибка: молча потерянный вариант хуже упавшей загрузки.
-		/// </summary>
-		private static void LoadMissionEvents(IContentSource source, ContentDatabase database, ITextCatalog? textCatalog)
+		/// <summary>Био-строки принадлежат текстовому движку; ядро хранит только их id.</summary>
+		private static void LoadGeneratorBioLines(ContentDatabase database, ITextCatalog? textCatalog)
 		{
-			List<MissionEventDto> events = ReadList<MissionEventDto>(source, MissionEventsFile);
-
-			foreach (MissionEventDto dto in events)
+			if (textCatalog == null || !database.Generator.IsEnabled) return;
+			foreach (string slot in database.Generator.BioSlots)
 			{
-				var missionEvent = new MissionEventDefinition { Id = dto.Id };
-				var balance = dto.Options ?? new Dictionary<string, MissionEventOptionDto>();
-
-				IReadOnlyList<TextOption> textOptions = textCatalog == null
-					? new List<TextOption>()
-					: textCatalog.GetOptions(dto.Id);
-
-				if (textOptions.Count > 0)
-				{
-					// Порядок вариантов задаёт текст: игрок видит их в порядке файла.
-					for (int i = 0; i < textOptions.Count; i++)
-					{
-						TextOption textOption = textOptions[i];
-						MissionEventOptionDto? optionDto;
-						balance.TryGetValue(textOption.Id, out optionDto);
-
-						missionEvent.Options.Add(ToOption(textOption, optionDto, database.Config));
-					}
-				}
-				else
-				{
-					// Без каталога (headless-прогон) остаётся только баланс: сложность нулевая,
-					// порядок — как в файле данных. Для расчётов этого хватает.
-					foreach (KeyValuePair<string, MissionEventOptionDto> pair in balance)
-					{
-						missionEvent.Options.Add(ToOption(
-							new TextOption(pair.Key, MissionEventQuality.Neutral, null, new List<StatKind>()),
-							pair.Value,
-							database.Config));
-					}
-				}
-
-				database.MissionEvents[missionEvent.Id] = missionEvent;
+				IReadOnlyList<string> lines = textCatalog.GetBioLines(slot);
+				if (lines.Count > 0) database.Generator.BioLinesBySlot[slot] = new List<string>(lines);
 			}
-		}
-
-		/// <summary>
-		/// Собирает вариант из текста и данных. Числа, которых автор не написал, берутся
-		/// из умолчаний по типу диалога: `quality: bad` без модификатора всё равно будет
-		/// дороже хорошего, и это не придётся держать в голове.
-		/// </summary>
-		private static MissionEventOption ToOption(
-			TextOption textOption,
-			MissionEventOptionDto? dto,
-			SimulationConfig config)
-		{
-			MissionEventQualityConfig defaults = config.MissionEvents.For(textOption.Quality);
-
-			return new MissionEventOption
-			{
-				Id = textOption.Id,
-				Quality = textOption.Quality,
-				CheckedStats = textOption.CheckedStats,
-				RequirementModifier = textOption.RequirementModifier ?? defaults.RequirementModifier,
-				DeathChanceMultiplier = dto == null || dto.DeathChanceMultiplier == null
-					? defaults.RiskMultiplier
-					: dto.DeathChanceMultiplier.Value,
-				InjuryChanceMultiplier = dto == null || dto.InjuryChanceMultiplier == null
-					? defaults.RiskMultiplier
-					: dto.InjuryChanceMultiplier.Value,
-				ExtraScales = dto == null || dto.ExtraScales == null ? ScaleDelta.Zero : dto.ExtraScales.ToModel(),
-				RevealsPropertyId = dto == null ? null : dto.RevealsPropertyId,
-				ConsequenceCapOverride = dto == null ? null : ParseOptionalCap(dto.ConsequenceCap, MissionEventsFile, textOption.Id),
-				RequiresEquipmentId = dto == null ? null : dto.RequiresEquipmentId
-			};
 		}
 
 		private static void LoadMissions(IContentSource source, ContentDatabase database)
@@ -402,16 +236,15 @@ namespace Kontur.Core.Content
 					Day = dto.Day,
 					Tier = ParseEnum(dto.Tier, MissionTier.Filler, MissionsFile, dto.Id, "tier"),
 					ConsequenceCapOverride = ParseOptionalCap(dto.ConsequenceCap, MissionsFile, dto.Id),
-					ZoneId = dto.ZoneId,
 					CreatureId = dto.CreatureId,
 					CallId = dto.CallId,
-					MissionEventId = dto.MissionEventId,
 					Requirements = dto.Requirements == null ? StatBlock.Zero : dto.Requirements.ToModel(),
 					PrimaryStat = ParsePrimaryStat(dto.PrimaryStat, dto.Id),
 					SquadLimit = dto.SquadLimit,
 					TravelSeconds = dto.TravelSeconds,
 					OnSiteSeconds = dto.OnSiteSeconds,
 					ReturnSeconds = dto.ReturnSeconds,
+					MissionEventId = string.IsNullOrWhiteSpace(dto.MissionEventId) ? null : dto.MissionEventId,
 					ScalesOnSuccess = ToDelta(dto.ScalesOnSuccess),
 					ScalesOnFailure = ToDelta(dto.ScalesOnFailure),
 					ScalesOnMissedCall = ToDelta(dto.ScalesOnMissedCall),
@@ -419,17 +252,17 @@ namespace Kontur.Core.Content
 					ExperienceOnSuccess = dto.ExperienceOnSuccess,
 					ExperienceOnFailure = dto.ExperienceOnFailure,
 					InjuryChance = dto.InjuryChance,
-					DeathChance = dto.DeathChance,
+					DeathChance = dto.DeathChance
 				};
 
 				if (dto.Reports != null)
 				{
-					foreach (KeyValuePair<string, ReportPairDto> pair in dto.Reports)
+					foreach (KeyValuePair<string, ReportPairDto> report in dto.Reports)
 					{
-						mission.Reports[pair.Key] = new MissionReportPair
+						mission.Reports[report.Key] = new MissionReportPair
 						{
-							SuccessId = pair.Value.Success,
-							FailureId = pair.Value.Failure
+							SuccessId = report.Value.Success,
+							FailureId = report.Value.Failure
 						};
 					}
 				}
@@ -443,84 +276,126 @@ namespace Kontur.Core.Content
 			}
 		}
 
+		private static void LoadMissionEvents(IContentSource source, ContentDatabase database, ITextCatalog? textCatalog)
+		{
+			foreach (MissionEventDto dto in ReadList<MissionEventDto>(source, MissionEventsFile))
+			{
+				var definition = new MissionEventDefinition { Id = dto.Id };
+				Dictionary<string, MissionEventOptionDto> balance = dto.Options ?? new Dictionary<string, MissionEventOptionDto>();
+				IReadOnlyList<TextOption> textOptions = textCatalog == null
+					? Array.Empty<TextOption>()
+					: textCatalog.GetOptions(dto.Id);
+
+				if (textOptions.Count > 0)
+				{
+					for (int i = 0; i < textOptions.Count; i++)
+					{
+						MissionEventOptionDto? balanceOption;
+						balance.TryGetValue(textOptions[i].Id, out balanceOption);
+						definition.Options.Add(ToMissionEventOption(textOptions[i], balanceOption, database.Config));
+					}
+				}
+				else foreach (KeyValuePair<string, MissionEventOptionDto> pair in balance)
+				{
+					definition.Options.Add(ToMissionEventOption(new TextOption(pair.Key, MissionEventQuality.Neutral, null, Array.Empty<StatKind>()), pair.Value, database.Config));
+				}
+
+				database.MissionEvents[definition.Id] = definition;
+			}
+		}
+
+		private static MissionEventOption ToMissionEventOption(TextOption textOption, MissionEventOptionDto? dto, SimulationConfig config)
+		{
+			MissionEventQualityConfig defaults = config.MissionEvents.For(textOption.Quality);
+			return new MissionEventOption
+			{
+				Id = textOption.Id,
+				Quality = textOption.Quality,
+				CheckedStats = textOption.CheckedStats,
+				RequirementModifier = textOption.RequirementModifier ?? defaults.RequirementModifier,
+				DeathChanceMultiplier = dto?.DeathChanceMultiplier ?? defaults.RiskMultiplier,
+				InjuryChanceMultiplier = dto?.InjuryChanceMultiplier ?? defaults.RiskMultiplier,
+				ExtraScales = dto?.ExtraScales == null ? ScaleDelta.Zero : ToDelta(dto.ExtraScales),
+				RevealsPropertyId = dto?.RevealsPropertyId,
+				ConsequenceCapOverride = dto == null ? null : ParseOptionalCap(dto.ConsequenceCap, MissionEventsFile, textOption.Id),
+				RequiresEquipmentId = dto?.RequiresEquipmentId
+			};
+		}
+
+		private static void LoadShiftNotes(IContentSource source, ContentDatabase database)
+		{
+			if (!source.Exists(ShiftNotesFile))
+			{
+				return;
+			}
+
+			List<ShiftNoteDto> notes = ReadList<ShiftNoteDto>(source, ShiftNotesFile);
+			foreach (ShiftNoteDto note in notes)
+			{
+				database.ShiftNotes[note.Day] = note;
+			}
+		}
+
 		private static void Validate(ContentDatabase database, ITextCatalog? textCatalog)
 		{
 			var errors = new List<string>();
+
+			bool hasDispatchTarget = false;
+			int headquartersCount = 0;
+			foreach (KeyValuePair<string, BuildingDefinition> pair in database.Buildings)
+			{
+				if (pair.Value.IsHeadquarters)
+				{
+					headquartersCount++;
+					if (pair.Value.IsDispatchTarget)
+					{
+						errors.Add($"{BuildingsFile}: штаб '{pair.Value.Id}' не может быть целью вызова.");
+					}
+				}
+
+				if (pair.Value.IsDispatchTarget)
+				{
+					hasDispatchTarget = true;
+				}
+		}
+
+			if (!hasDispatchTarget)
+			{
+				errors.Add($"{BuildingsFile}: нет зданий, доступных для отправки.");
+			}
+
+			if (headquartersCount != 1)
+			{
+				errors.Add($"{BuildingsFile}: должен быть отмечен ровно один штаб.");
+			}
 
 			foreach (KeyValuePair<string, MissionDefinition> pair in database.Missions)
 			{
 				MissionDefinition mission = pair.Value;
 
-				if (!database.Zones.ContainsKey(mission.ZoneId))
+				CreatureDefinition? creature = string.IsNullOrWhiteSpace(mission.CreatureId)
+					? null
+					: database.FindCreature(mission.CreatureId);
+				if (!string.IsNullOrWhiteSpace(mission.CreatureId) && creature == null)
 				{
-					errors.Add($"Миссия '{mission.Id}': неизвестная зона '{mission.ZoneId}'.");
+					errors.Add($"Миссия '{mission.Id}': неизвестное существо '{mission.CreatureId}'.");
 				}
-
-				// Существо необязательно: не за каждой аномалией стоит статья энциклопедии.
-				if (!string.IsNullOrEmpty(mission.CreatureId))
+				else if (creature != null)
 				{
-					CreatureDefinition? creature = database.FindCreature(mission.CreatureId);
-					if (creature == null)
+					foreach (string propertyId in mission.ManifestedPropertyIds)
 					{
-						errors.Add($"Миссия '{mission.Id}': неизвестное существо '{mission.CreatureId}'.");
-					}
-					else
-					{
-						foreach (string propertyId in mission.ManifestedPropertyIds)
+						if (!creature.HasProperty(propertyId))
 						{
-							if (!creature.HasProperty(propertyId))
-							{
-								errors.Add($"Миссия '{mission.Id}': существо '{creature.Id}' не имеет свойства '{propertyId}'.");
-							}
+							errors.Add($"Миссия '{mission.Id}': существо '{creature.Id}' не имеет свойства '{propertyId}'.");
 						}
 					}
 				}
-				else if (mission.ManifestedPropertyIds.Count > 0)
+
+				if (mission.HasMissionEvent && !database.MissionEvents.ContainsKey(mission.MissionEventId!))
 				{
-					errors.Add($"Миссия '{mission.Id}': свойства заявлены, но существо не указано.");
+					errors.Add($"Миссия '{mission.Id}': неизвестное событие миссии '{mission.MissionEventId}'.");
 				}
 
-				MissionEventDefinition? missionEvent = null;
-				if (mission.HasMissionEvent)
-				{
-					missionEvent = database.FindMissionEvent(mission.MissionEventId);
-					if (missionEvent == null)
-					{
-						errors.Add($"Миссия '{mission.Id}': неизвестное вмешательство '{mission.MissionEventId}'.");
-					}
-
-					// Треск радио — обещание игроку, что вызов серьёзный. На филлере
-					// это обещание было бы ложным.
-					if (mission.Tier != MissionTier.Story)
-					{
-						errors.Add(
-							$"Миссия '{mission.Id}': вмешательство по радио бывает только у сюжетных вызовов, " +
-							$"а tier={mission.Tier}.");
-					}
-				}
-
-				if (mission.Tier != MissionTier.Story && ConsequenceCaps.AllowsDeath(mission.EffectiveCap))
-				{
-					errors.Add(
-						$"Миссия '{mission.Id}': филлерный вызов не может позволять гибель " +
-						$"(consequenceCap={mission.EffectiveCap}).");
-				}
-
-				ValidateOptionCaps(mission, missionEvent, database, errors);
-
-				if (mission.Requirements.Total == 0)
-				{
-					errors.Add($"Миссия '{mission.Id}': не задано ни одного порога по характеристикам.");
-				}
-
-				if (mission.PrimaryStat.HasValue && mission.Requirements[mission.PrimaryStat.Value] <= 0)
-				{
-					errors.Add(
-						$"Миссия '{mission.Id}': главная характеристика " +
-						$"{StatKinds.GetDisplayName(mission.PrimaryStat.Value)} не входит в требования.");
-				}
-
-				ValidateMissionTexts(mission, missionEvent, textCatalog, errors);
 			}
 
 			foreach (KeyValuePair<string, CreatureDefinition> pair in database.Creatures)
@@ -565,85 +440,12 @@ namespace Kontur.Core.Content
 				ValidateEmployeeAbilities(database, candidate.Template, errors);
 			}
 
-			foreach (KeyValuePair<string, MissionDefinition> pair in database.Missions)
-			{
-				MissionDefinition mission = pair.Value;
-				if (mission.SquadLimit < 1)
-				{
-					errors.Add(
-						$"Миссия '{mission.Id}': squadLimit={mission.SquadLimit} — " +
-						"отправить некого. Минимум один.");
-				}
-			}
-
+			ValidateGenerator(database, textCatalog, errors);
+			ValidateMissionEvents(database, textCatalog, errors);
+			ValidateMissionRules(database, textCatalog, errors);
 			ValidatePersonnelArt(database, textCatalog, errors);
-
-			// Лимит штата считается как номер смены плюс смещение. Смещение меньше
-			// нуля дало бы на первой смене штат из одного человека или пустой отдел,
-			// и игра встала бы на первом же вызове.
-			if (database.Config.GetStaffLimit(1) < 1)
-			{
-				errors.Add(
-					$"employees.staffLimitOffset={database.Config.Employees.StaffLimitOffset}: " +
-					"на первой смене в штате не остаётся никого.");
-			}
-
-			ValidateGenerator(database, errors);
-			ValidateBuildings(database, errors);
-
-			foreach (KeyValuePair<string, MissionEventDefinition> pair in database.MissionEvents)
-			{
-				if (pair.Value.Options.Count == 0)
-				{
-					errors.Add($"Вмешательство '{pair.Key}': нет вариантов решения.");
-				}
-
-				if (textCatalog == null)
-				{
-					continue;
-				}
-
-				if (!textCatalog.HasEntry(pair.Key))
-				{
-					errors.Add($"Вмешательство '{pair.Key}': нет записи mission_event с таким id.");
-					continue;
-				}
-
-				// Ключи вариантов должны совпадать в тексте и в данных: вариант без баланса
-				// молча получил бы нейтральные риски, а баланс без текста — не показался бы игроку.
-				var inText = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-				IReadOnlyList<TextOption> textOptions = textCatalog.GetOptions(pair.Key);
-				for (int i = 0; i < textOptions.Count; i++)
-				{
-					inText.Add(textOptions[i].Id);
-				}
-
-				foreach (MissionEventOption option in pair.Value.Options)
-				{
-					if (!inText.Contains(option.Id))
-					{
-						errors.Add($"Вмешательство '{pair.Key}': вариант '{option.Id}' есть в данных, но не в тексте.");
-					}
-				}
-
-				// Проверять, остался ли «вариант для слабых», незачем: выбрать можно любой.
-				// А вот проверка по характеристике, которой нет в требованиях миссии, —
-				// молчаливый автоуспех: порог подставится нулевой. Это ошибка данных.
-				foreach (MissionEventOption option in pair.Value.Options)
-				{
-					for (int i = 0; i < option.CheckedStats.Count; i++)
-					{
-						StatKind kind = option.CheckedStats[i];
-						if (!EventStatIsRequired(database, pair.Key, kind))
-						{
-							errors.Add(
-								$"Вмешательство '{pair.Key}': вариант '{option.Id}' проверяет "
-								+ $"{StatKinds.GetDisplayName(kind)}, но у миссии нет такого требования — "
-								+ "подставится ноль и проверка станет бесплатной.");
-						}
-					}
-				}
-			}
+			if (database.Config.GetStaffLimit(1) < 1) errors.Add("employees: first-day staff limit must be at least one.");
+			ValidateTextReferences(database, textCatalog, errors);
 
 			if (errors.Count > 0)
 			{
@@ -657,331 +459,141 @@ namespace Kontur.Core.Content
 			}
 		}
 
-		/// <summary>
-		/// Есть ли у миссии, которая запускает это вмешательство, порог по такой характеристике.
-		/// Вариант берёт числа у своей миссии, поэтому проверка по «чужой» характеристике
-		/// оказалась бы бесплатной.
-		/// </summary>
-		private static bool EventStatIsRequired(ContentDatabase database, string eventId, StatKind kind)
-		{
-			foreach (KeyValuePair<string, MissionDefinition> pair in database.Missions)
-			{
-				if (string.Equals(pair.Value.MissionEventId, eventId, StringComparison.OrdinalIgnoreCase)
-					&& pair.Value.Requirements[kind] > 0)
-				{
-					return true;
-				}
-			}
-
-			return false;
-		}
-
-		/// <summary>
-		/// Сверяет id текстов миссии с каталогом. Без каталога проверок нет — ядро
-		/// должно прогоняться и без движка.
-		/// </summary>
-		/// <summary>Вариант умеет только ужесточать потолок миссии, но не ослаблять его.</summary>
-		private static void ValidateOptionCaps(
-			MissionDefinition mission,
-			MissionEventDefinition? missionEvent,
+		private static void ValidateTextReferences(
 			ContentDatabase database,
-			List<string> errors)
-		{
-			if (missionEvent == null)
-			{
-				return;
-			}
-
-			foreach (MissionEventOption option in missionEvent.Options)
-			{
-				if (option.ConsequenceCapOverride != null
-					&& option.ConsequenceCapOverride.Value > mission.EffectiveCap)
-				{
-					errors.Add(
-						$"Вмешательство '{missionEvent.Id}', вариант '{option.Id}': потолок " +
-						$"{option.ConsequenceCapOverride.Value} мягче, чем у миссии '{mission.Id}' " +
-						$"({mission.EffectiveCap}) — вариант может только ужесточать.");
-				}
-
-				if (!string.IsNullOrEmpty(option.RequiresEquipmentId)
-					&& database.FindEquipment(option.RequiresEquipmentId) == null)
-				{
-					errors.Add(
-						$"Вмешательство '{missionEvent.Id}', вариант '{option.Id}': неизвестное " +
-						$"снаряжение '{option.RequiresEquipmentId}' в requiresEquipmentId.");
-				}
-			}
-		}
-
-		private static void ValidateMissionTexts(
-			MissionDefinition mission,
-			MissionEventDefinition? missionEvent,
 			ITextCatalog? textCatalog,
 			List<string> errors)
 		{
-			if (string.IsNullOrEmpty(mission.CallId))
-			{
-				errors.Add($"Миссия '{mission.Id}': не указан callId — игроку нечего услышать в трубке.");
-			}
-
 			if (textCatalog == null)
 			{
 				return;
 			}
 
-			if (!string.IsNullOrEmpty(mission.CallId) && !textCatalog.HasEntry(mission.CallId))
+			foreach (KeyValuePair<string, MissionDefinition> pair in database.Missions)
 			{
-				errors.Add($"Миссия '{mission.Id}': нет записи call с id '{mission.CallId}'.");
+				MissionDefinition mission = pair.Value;
+				ValidateTextEntry(textCatalog, mission.CallId, $"mission '{mission.Id}', callId", errors);
 			}
 
-			foreach (KeyValuePair<string, MissionReportPair> pair in mission.Reports)
-			{
-				if (pair.Key.Length > 0 && missionEvent != null && missionEvent.FindOption(pair.Key) == null)
-				{
-					errors.Add($"Миссия '{mission.Id}': отчёт привязан к варианту '{pair.Key}', которого нет во вмешательстве.");
-				}
-
-				CheckReport(mission, pair.Value.SuccessId, textCatalog, errors);
-				CheckReport(mission, pair.Value.FailureId, textCatalog, errors);
-			}
 		}
 
-		private static void CheckReport(MissionDefinition mission, string reportId, ITextCatalog textCatalog, List<string> errors)
+		private static void ValidateGenerator(ContentDatabase database, ITextCatalog? textCatalog, List<string> errors)
 		{
-			if (!string.IsNullOrEmpty(reportId) && !textCatalog.HasEntry(reportId))
-			{
-				errors.Add($"Миссия '{mission.Id}': нет записи report с id '{reportId}'.");
-			}
-		}
-
-		/// <summary>
-		/// Досье и портреты кандидатов.
-		///
-		/// Фразы досье живут в текстовом движке, а не в data/employees.json: второй
-		/// список тех же id разошёлся бы с текстами на первой правке. Здесь они
-		/// вытягиваются из каталога один раз при загрузке — фабрике движок уже не нужен.
-		///
-		/// Портреты проверяются на количество. Два одинаковых лица на экране игрок
-		/// читает как ошибку игры, поэтому лучше сказать художнику при старте, сколько
-		/// картинок не хватает, чем показать близнецов посреди смены.
-		/// </summary>
-		private static void ValidatePersonnelArt(
-			ContentDatabase database,
-			ITextCatalog? textCatalog,
-			List<string> errors)
-		{
-			EmployeeGeneratorSettings settings = database.Generator;
-			if (!settings.IsEnabled)
-			{
-				return;
-			}
-
-			if (textCatalog != null)
-			{
-				for (int i = 0; i < settings.BioSlots.Count; i++)
-				{
-					string slot = settings.BioSlots[i];
-					IReadOnlyList<string> lines = textCatalog.GetBioLines(slot);
-
-					if (lines.Count == 0)
-					{
-						errors.Add(
-							$"Досье: в слоте '{slot}' нет ни одной фразы. Ожидаются записи " +
-							$"типа bio_line в content/raw/<локаль>/personnel/bio/{slot}/.");
-						continue;
-					}
-
-					settings.BioLinesBySlot[slot] = new List<string>(lines);
-				}
-			}
-
-			// Худший случай: весь штат жив, и рядом полный список найма.
-			int needed = 0;
-			for (int day = 1; day <= database.Config.Days.Count; day++)
-			{
-				int limit = database.Config.GetStaffLimit(day);
-				int candidates = limit + settings.CandidatesChoiceMargin;
-				if (candidates < settings.CandidatesPerShift)
-				{
-					candidates = settings.CandidatesPerShift;
-				}
-
-				int onScreen = limit + candidates;
-				if (onScreen > needed)
-				{
-					needed = onScreen;
-				}
-			}
-
-			int available = settings.PortraitIds.Count;
-			for (int i = 0; i < settings.Archetypes.Count; i++)
-			{
-				available += settings.Archetypes[i].PortraitIds.Count;
-			}
-
-			if (available < needed)
-			{
-				errors.Add(
-					$"Портретов в пуле {available}, а на экране одновременно бывает до {needed} " +
-					"человек (штат плюс список найма в самый тяжёлый день). Не хватает " +
-					$"{needed - available}: либо добавьте картинки в generator.portraits, " +
-					"либо уменьшите candidatesChoiceMargin.");
-			}
-		}
-
-		/// <summary>
-		/// Проверки фабрики. Все они ловят ошибки, которые иначе всплыли бы не как падение,
-		/// а как странный баланс через час игры: кандидаты без перков, потолок ниже минимума,
-		/// бюджет, который некуда потратить.
-		/// </summary>
-		private static void ValidateGenerator(ContentDatabase database, List<string> errors)
-		{
-			EmployeeGeneratorSettings settings = database.Generator;
-			if (settings.CandidatesPerShift <= 0)
-			{
-				// Фабрика выключена намеренно — предлагаются только прописанные кандидаты.
-				return;
-			}
-
-			if (settings.Archetypes.Count == 0)
-			{
-				errors.Add("Фабрика кандидатов: включена (candidatesPerShift > 0), но нет ни одного архетипа.");
-			}
-
-			// Отрицательный запас урезал бы список ниже числа свободных мест, и штат
-			// перестал бы добираться — ровно та поломка, ради которой запас и вводился.
-			if (settings.CandidatesChoiceMargin < 0)
-			{
-				errors.Add(
-					$"Фабрика кандидатов: candidatesChoiceMargin={settings.CandidatesChoiceMargin} — " +
-					"кандидатов станет меньше, чем свободных мест, и штат будет нечем добрать.");
-			}
-
-			if (settings.Surnames.Count == 0)
-			{
-				errors.Add("Фабрика кандидатов: пустой список фамилий.");
-			}
-
-			if (settings.MaxStat < settings.MinStat)
-			{
-				errors.Add(
-					$"Фабрика кандидатов: потолок характеристики ({settings.MaxStat}) " +
-					$"ниже стартового значения ({settings.MinStat}).");
-			}
-
-			// Весь бюджет должен помещаться в пять характеристик, иначе очки просто пропадут.
-			int capacity = (settings.MaxStat - settings.MinStat) * StatKinds.Count;
+			EmployeeGeneratorSettings generator = database.Generator;
+			if (generator.CandidatesPerShift <= 0) return;
+			if (generator.Archetypes.Count == 0) errors.Add("employee generator: no archetypes.");
+			if (generator.Surnames.Count == 0) errors.Add("employee generator: no surnames.");
+			if (generator.CandidatesChoiceMargin < 0) errors.Add("employee generator: negative choice margin.");
+			if (generator.MaxAge < generator.MinAge) errors.Add("employee generator: invalid age range.");
+			if (generator.MaxStat < generator.MinStat) errors.Add("employee generator: invalid stat range.");
+			if (generator.PrimaryWeight < generator.SecondaryWeight) errors.Add("employee generator: primary weight is below secondary weight.");
 			int maxLevel = 1;
-			for (int i = 0; i < settings.LevelsByDay.Count; i++)
+			foreach (LevelRange range in generator.LevelsByDay) maxLevel = Math.Max(maxLevel, range.MaxLevel);
+			int capacity = (generator.MaxStat - generator.MinStat) * StatKinds.Count;
+			int budget = generator.StatPointsBase + generator.StatPointsPerLevel * (maxLevel - 1);
+			if (budget > capacity) errors.Add("employee generator: stat budget exceeds available stat capacity.");
+			for (int i = 0; i < generator.Archetypes.Count; i++)
 			{
-				if (settings.LevelsByDay[i].MaxLevel > maxLevel)
-				{
-					maxLevel = settings.LevelsByDay[i].MaxLevel;
-				}
-			}
-
-			int maxBudget = settings.StatPointsBase + (settings.StatPointsPerLevel * (maxLevel - 1));
-			if (maxBudget > capacity)
-			{
-				errors.Add(
-					$"Фабрика кандидатов: на {maxLevel} уровне бюджет {maxBudget} очков, " +
-					$"а вместить характеристики могут только {capacity}. Поднимите maxStat или срежьте statPointsPerLevel.");
-			}
-
-			// Перевёрнутые веса дают силуэт, обратный задуманному: второстепенная
-			// характеристика окажется выше основных. На глаз это не видно вообще.
-			if (settings.PrimaryWeight < settings.SecondaryWeight)
-			{
-				errors.Add(
-					$"Фабрика кандидатов: primaryWeight ({settings.PrimaryWeight}) меньше " +
-					$"secondaryWeight ({settings.SecondaryWeight}) — второстепенные характеристики " +
-					"окажутся выше основных. Если это и нужно, поменяйте местами primary и secondary.");
-			}
-
-			foreach (EmployeeArchetype archetype in settings.Archetypes)
-			{
-				if (archetype.PrimaryStats.Count == 0)
-				{
-					errors.Add($"Архетип '{archetype.Id}': не указана ни одна основная характеристика.");
-				}
-
-				if (archetype.Weight <= 0.0)
-				{
-					errors.Add($"Архетип '{archetype.Id}': вес {archetype.Weight} — такой архетип никогда не выпадет.");
-				}
-
+				EmployeeArchetype archetype = generator.Archetypes[i];
+				if (string.IsNullOrWhiteSpace(archetype.Id) || archetype.Weight <= 0 || archetype.PrimaryStats.Count == 0)
+					errors.Add($"employee generator: invalid archetype at index {i}.");
 				foreach (string abilityId in archetype.AbilityIds)
-				{
-					if (!database.Abilities.ContainsKey(abilityId))
-					{
-						errors.Add($"Архетип '{archetype.Id}': неизвестная способность '{abilityId}'.");
-					}
-				}
+					if (!database.Abilities.ContainsKey(abilityId)) errors.Add($"employee generator: unknown ability '{abilityId}' in '{archetype.Id}'.");
 			}
+			foreach (LevelRange range in generator.LevelsByDay)
+				if (range.FromDay < 1 || range.MinLevel < 1 || range.MaxLevel < range.MinLevel)
+					errors.Add("employee generator: invalid level range.");
+			if (textCatalog != null)
+				foreach (string slot in generator.BioSlots)
+					if (textCatalog.GetBioLines(slot).Count == 0) errors.Add($"employee generator: no bio text for slot '{slot}'.");
+		}
 
-			foreach (LevelRange range in settings.LevelsByDay)
+		private static void ValidateMissionEvents(ContentDatabase database, ITextCatalog? textCatalog, List<string> errors)
+		{
+			foreach (KeyValuePair<string, MissionEventDefinition> pair in database.MissionEvents)
 			{
-				if (range.MinLevel > range.MaxLevel)
+				MissionEventDefinition missionEvent = pair.Value;
+				if (missionEvent.Options.Count == 0) errors.Add($"mission event '{missionEvent.Id}' has no options.");
+				var ids = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+				foreach (MissionEventOption option in missionEvent.Options)
 				{
-					errors.Add(
-						$"Фабрика кандидатов, день {range.FromDay}: minLevel {range.MinLevel} " +
-						$"больше maxLevel {range.MaxLevel}.");
+					if (string.IsNullOrWhiteSpace(option.Id) || !ids.Add(option.Id)) errors.Add($"mission event '{missionEvent.Id}' has an invalid option id.");
+					if (!string.IsNullOrWhiteSpace(option.RequiresEquipmentId) && !database.Equipment.ContainsKey(option.RequiresEquipmentId))
+						errors.Add($"mission event '{missionEvent.Id}': unknown equipment '{option.RequiresEquipmentId}'.");
+				}
+				if (textCatalog == null) continue;
+				ValidateTextEntry(textCatalog, missionEvent.Id, $"mission event '{missionEvent.Id}'", errors);
+				IReadOnlyList<TextOption> textOptions = textCatalog.GetOptions(missionEvent.Id);
+				foreach (MissionEventOption option in missionEvent.Options)
+				{
+					bool found = false;
+					for (int i = 0; i < textOptions.Count; i++) if (string.Equals(textOptions[i].Id, option.Id, StringComparison.OrdinalIgnoreCase)) { found = true; break; }
+					if (!found) errors.Add($"mission event '{missionEvent.Id}': no text option '{option.Id}'.");
 				}
 			}
 		}
 
-		/// <summary>
-		/// Дома на карте. Проверок немного, но каждая ловит поломку, которая иначе
-		/// выглядела бы как «метки почему-то не появляются».
-		/// </summary>
-		private static void ValidateBuildings(ContentDatabase database, List<string> errors)
+		private static void ValidateMissionRules(ContentDatabase database, ITextCatalog? textCatalog, List<string> errors)
 		{
-			if (database.Buildings.Count == 0)
+			foreach (KeyValuePair<string, MissionDefinition> pair in database.Missions)
 			{
-				// Домов нет вовсе — это допустимо: метка ставится по координатам зоны.
-				return;
-			}
-
-			int dispatchTargets = 0;
-			int headquarters = 0;
-
-			foreach (KeyValuePair<string, BuildingDefinition> pair in database.Buildings)
-			{
-				BuildingDefinition building = pair.Value;
-
-				if (building.IsDispatchTarget)
+				MissionDefinition mission = pair.Value;
+				MissionEventDefinition? missionEvent = mission.HasMissionEvent ? database.FindMissionEvent(mission.MissionEventId!) : null;
+				if (mission.ManifestedPropertyIds.Count > 0 && string.IsNullOrWhiteSpace(mission.CreatureId)) errors.Add($"mission '{mission.Id}': properties require a creature.");
+				if (mission.HasMissionEvent && mission.Tier != MissionTier.Story) errors.Add($"mission '{mission.Id}': radio event is only allowed for Story tier.");
+				if (mission.Tier != MissionTier.Story && ConsequenceCaps.AllowsDeath(mission.EffectiveCap)) errors.Add($"mission '{mission.Id}': Filler tier cannot allow death.");
+				if (mission.Requirements.Total == 0) errors.Add($"mission '{mission.Id}': at least one stat requirement is required.");
+				if (mission.PrimaryStat.HasValue && mission.Requirements[mission.PrimaryStat.Value] <= 0) errors.Add($"mission '{mission.Id}': primary stat must be in requirements.");
+				if (mission.SquadLimit < 1) errors.Add($"mission '{mission.Id}': squad limit must be at least one.");
+				foreach (KeyValuePair<string, MissionReportPair> report in mission.Reports)
 				{
-					dispatchTargets++;
-				}
-
-				if (building.IsHeadquarters)
-				{
-					headquarters++;
-
-					if (building.IsDispatchTarget)
+					if (report.Key.Length > 0 && (missionEvent == null || missionEvent.FindOption(report.Key) == null)) errors.Add($"mission '{mission.Id}': report references an unknown option '{report.Key}'.");
+					if (textCatalog != null)
 					{
-						errors.Add(
-							$"Здание '{building.Id}': помечено и как главное управление, и как цель " +
-							"отправки — группа получила бы вызов в собственную контору.");
+						ValidateTextEntry(textCatalog, report.Value.SuccessId, $"mission '{mission.Id}', success report", errors);
+						ValidateTextEntry(textCatalog, report.Value.FailureId, $"mission '{mission.Id}', failure report", errors);
 					}
 				}
-
-				if (building.ZoneId.Length > 0 && !database.Zones.ContainsKey(building.ZoneId))
+				if (missionEvent == null) continue;
+				foreach (MissionEventOption option in missionEvent.Options)
 				{
-					errors.Add($"Здание '{building.Id}': неизвестный район '{building.ZoneId}'.");
+					if (option.ConsequenceCapOverride.HasValue && option.ConsequenceCapOverride.Value > mission.EffectiveCap) errors.Add($"mission event '{missionEvent.Id}', option '{option.Id}': consequence cap cannot loosen the mission cap.");
+					foreach (StatKind kind in option.CheckedStats)
+						if (!EventStatIsRequired(database, missionEvent.Id, kind)) errors.Add($"mission event '{missionEvent.Id}', option '{option.Id}': checked stat is not required by a linked mission.");
 				}
 			}
+		}
 
-			if (dispatchTargets == 0)
-			{
-				errors.Add(
-					$"{BuildingsFile}: нет ни одного здания с isDispatchTarget — " +
-					"отправлять группу будет некуда.");
-			}
+		private static bool EventStatIsRequired(ContentDatabase database, string eventId, StatKind kind)
+		{
+			foreach (KeyValuePair<string, MissionDefinition> pair in database.Missions)
+				if (string.Equals(pair.Value.MissionEventId, eventId, StringComparison.OrdinalIgnoreCase) && pair.Value.Requirements[kind] > 0) return true;
+			return false;
+		}
 
-			if (headquarters > 1)
+		private static void ValidatePersonnelArt(ContentDatabase database, ITextCatalog? textCatalog, List<string> errors)
+		{
+			EmployeeGeneratorSettings settings = database.Generator;
+			if (!settings.IsEnabled) return;
+			if (textCatalog != null)
+				foreach (string slot in settings.BioSlots)
+				{
+					IReadOnlyList<string> lines = textCatalog.GetBioLines(slot);
+					if (lines.Count == 0) errors.Add($"personnel bio: no lines for slot '{slot}'.");
+					else settings.BioLinesBySlot[slot] = new List<string>(lines);
+				}
+			int needed = 0;
+			for (int day = 1; day <= database.Config.Days.Count; day++) needed = Math.Max(needed, database.Config.GetStaffLimit(day) + Math.Max(settings.CandidatesPerShift, database.Config.GetStaffLimit(day) + settings.CandidatesChoiceMargin));
+			int portraits = settings.PortraitIds.Count;
+			foreach (EmployeeArchetype archetype in settings.Archetypes) portraits += archetype.PortraitIds.Count;
+			if (portraits < needed) errors.Add($"personnel portraits: {portraits} available but {needed} can be visible at once.");
+		}
+
+		private static void ValidateTextEntry(ITextCatalog textCatalog, string contentId, string owner, List<string> errors)
+		{
+			if (!string.IsNullOrWhiteSpace(contentId) && !textCatalog.HasEntry(contentId))
 			{
-				errors.Add($"{BuildingsFile}: главных управлений {headquarters}, а должно быть одно.");
+				errors.Add($"{owner}: missing text entry '{contentId}'.");
 			}
 		}
 
@@ -1021,33 +633,6 @@ namespace Kontur.Core.Content
 			return dto == null ? ScaleDelta.Zero : dto.ToModel();
 		}
 
-		private static StatKind? ParsePrimaryStat(string? value, string missionId)
-		{
-			if (string.IsNullOrWhiteSpace(value))
-			{
-				return null;
-			}
-
-			StatKind parsed;
-			if (!StatKinds.TryParse(value, out parsed))
-			{
-				throw new ContentException(
-					$"Миссия '{missionId}': неизвестная главная характеристика '{value}'.");
-			}
-
-			return parsed;
-		}
-
-		private static ConsequenceCap? ParseOptionalCap(string? value, string file, string id)
-		{
-			if (string.IsNullOrWhiteSpace(value))
-			{
-				return null;
-			}
-
-			return ParseEnum(value, ConsequenceCap.Death, file, id, "consequenceCap");
-		}
-
 		private static TEnum ParseEnum<TEnum>(string value, TEnum fallback, string file, string id, string field)
 			where TEnum : struct
 		{
@@ -1063,6 +648,20 @@ namespace Kontur.Core.Content
 			}
 
 			throw new ContentException($"{file}: запись '{id}', поле '{field}' — недопустимое значение '{value}'.");
+		}
+
+		private static StatKind? ParsePrimaryStat(string? value, string missionId)
+		{
+			if (string.IsNullOrWhiteSpace(value)) return null;
+			if (StatKinds.TryParse(value, out StatKind parsed)) return parsed;
+			throw new ContentException($"Миссия '{missionId}': неизвестная главная характеристика '{value}'.");
+		}
+
+		private static ConsequenceCap? ParseOptionalCap(string? value, string file, string id)
+		{
+			return string.IsNullOrWhiteSpace(value)
+				? null
+				: ParseEnum(value, ConsequenceCap.Death, file, id, "consequenceCap");
 		}
 
 		private static T ReadRequired<T>(IContentSource source, string fileName)

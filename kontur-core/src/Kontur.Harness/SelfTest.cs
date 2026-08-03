@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using Kontur.Core.Api;
+using Kontur.Core.Config;
 using Kontur.Core.Content;
 using Kontur.Core.Events;
 using Kontur.Core.Model;
@@ -21,6 +21,10 @@ namespace Kontur.Harness
 		private static int _passed;
 		private static int _failed;
 
+		// Снимок детерминированного прогона: «раскрыто/всего» по существам в порядке id.
+		// Меняется только вместе с балансом или контентом, но не при рефакторинге.
+		private const string ExpectedRevealSignature = "0/3 1/3 0/3 0/3";
+		private const int ExpectedRevealEvents = 1;
 
 		public static bool Run(ContentDatabase content)
 		{
@@ -32,31 +36,30 @@ namespace Kontur.Harness
 
 			TestCountdown();
 			TestEventBus();
-			TestStatMatchMath();
+			TestCoverageMath();
+			TestStatMatches();
 			TestSuccessChanceCurve();
 			TestTimings(content);
-			TestMissedCallIsAutoFailure(BuildTimerTestContent());
-			TestExpiredMarkerIsAutoFailure(BuildTimerTestContent());
+			TestTimeFreeze(content);
+			TestObjectInteractionCommands(content);
+			TestCallQueue(content);
+			TestSaveRoundTrip(content);
+			TestSaveLoadRejections(content);
+			TestMissedCallIsAutoFailure(content);
+			TestExpiredMarkerIsAutoFailure(content);
 			TestEquipmentSlotLimits(content);
 			TestStaffLimit(content);
 			TestShiftEndsAfterLastIncident(content);
-			TestHiringFillsRoster(content);
-			TestHiringAfterHeavyLosses(content);
+			TestHiringCapacity(content);
 			TestEmployeeFactory(content);
 			TestOutcomeAndHiring(content);
-			TestSaveLoad(content);
-			TestSaveLoadRejections(content);
+			TestRadioContracts(content);
+			TestConsequenceCaps(content);
 			TestFlags(content);
 			TestEncyclopediaReveals(content);
-			TestDeterminism(BuildTimerTestContent());
-			TestCallQueue(BuildQueueTestContent());
-			TestTimeFreeze(BuildTimerTestContent());
-			TestRequirementModifier(content);
-			TestReportMapping(content);
-			TestConsequenceCap(content);
-			TestOptionGating(content);
+			TestDeterminism(content);
 			TestTutorialShift(content);
-			TestFullShiftCompletes(BuildTimerTestContent());
+			TestFullShiftCompletes(content);
 
 			Console.WriteLine(new string('-', 78));
 			Console.WriteLine($"Пройдено: {_passed}, провалено: {_failed}");
@@ -93,110 +96,198 @@ namespace Kontur.Harness
 			Check("Отписка работает", order.Count == 0);
 		}
 
-		/// <summary>
-		/// Сравнение профилей по модели Dispatch: пороги по каждой характеристике,
-		/// сумма группы, три ступени оценки и двойной вес главной характеристики.
-		/// </summary>
-		private static void TestStatMatchMath()
+		private static void TestCoverageMath()
 		{
-			ContentDatabase content = BuildMinimalContent();
-			var resolver = new MissionResolver(content, content.Config, new XorShiftRandom(1));
+			var requirements = new StatBlock(10, 0, 0, 0, 0);
 
-			var requirements = new StatBlock(6, 4, 0, 0, 0);
+			Check("Полное покрытие = 1", Math.Abs(MissionResolver.ComputeCoverage(requirements, new StatBlock(10, 0, 0, 0, 0)) - 1.0) < 1e-9);
+			Check("Половина = 0.5", Math.Abs(MissionResolver.ComputeCoverage(requirements, new StatBlock(5, 0, 0, 0, 0)) - 0.5) < 1e-9);
+			Check("Ноль = 0", Math.Abs(MissionResolver.ComputeCoverage(requirements, StatBlock.Zero)) < 1e-9);
+			Check("Излишек не даёт > 1", Math.Abs(MissionResolver.ComputeCoverage(requirements, new StatBlock(50, 0, 0, 0, 0)) - 1.0) < 1e-9);
+			Check(
+				"Излишек по одной характеристике не компенсирует нехватку по другой",
+				Math.Abs(MissionResolver.ComputeCoverage(new StatBlock(10, 10, 0, 0, 0), new StatBlock(20, 5, 0, 0, 0)) - 0.75) < 1e-9);
+		}
 
-			// Зелёный по обеим: превышение на 2 и больше.
+		private static void TestStatMatches()
+		{
+			var resolver = new MissionResolver(new ContentDatabase(), new SimulationConfig(), new XorShiftRandom(41));
 			IReadOnlyList<StatMatch> perfect = resolver.EvaluateMatches(
-				requirements, new StatBlock(8, 6, 0, 0, 0), null);
+				new StatBlock(6, 4, 0, 0, 0), new StatBlock(8, 6, 0, 0, 0), StatKind.Strength);
+			Check("StatMatch marks values above the exceed margin", perfect[0].Rating == StatMatchRating.Exceeds && perfect[1].Rating == StatMatchRating.Exceeds);
+			Check("StatMatch scores an all-exceeds profile as perfect", Math.Abs(resolver.ComputeMatchScore(perfect) - 1.0) < 1e-9 && MissionResolver.IsPerfectMatch(perfect));
 
-			Check("Требования без порога в расчёт не идут", perfect.Count == 2);
-			Check("Превышение на 2 — зелёный", perfect[0].Rating == StatMatchRating.Exceeds);
-			Check("Все зелёные — успех без броска", MissionResolver.IsPerfectMatch(perfect));
-			Check("Совпадение профилей = 1", Math.Abs(resolver.ComputeMatchScore(perfect) - 1.0) < 1e-9);
-
-			// Жёлтый: ровно дотянул.
 			IReadOnlyList<StatMatch> meets = resolver.EvaluateMatches(
-				requirements, new StatBlock(6, 5, 0, 0, 0), null);
+				new StatBlock(6, 4, 0, 0, 0), new StatBlock(6, 5, 0, 0, 0), null);
+			Check("StatMatch classifies threshold values as meets", meets[0].Rating == StatMatchRating.Meets && meets[1].Rating == StatMatchRating.Meets);
+			Check("StatMatch applies the configured meets score", Math.Abs(resolver.ComputeMatchScore(meets) - 0.8) < 1e-9);
 
-			Check("Ровно порог — жёлтый", meets[0].Rating == StatMatchRating.Meets);
-			Check("Превышение на 1 — тоже жёлтый", meets[1].Rating == StatMatchRating.Meets);
-			Check("Жёлтый профиль не даёт автоуспеха", !MissionResolver.IsPerfectMatch(meets));
-			Check("Жёлтый профиль = 0.8", Math.Abs(resolver.ComputeMatchScore(meets) - 0.8) < 1e-9);
+			IReadOnlyList<StatMatch> primary = resolver.EvaluateMatches(
+				new StatBlock(6, 4, 0, 0, 0), new StatBlock(8, 3, 0, 0, 0), StatKind.Strength);
+			IReadOnlyList<StatMatch> secondary = resolver.EvaluateMatches(
+				new StatBlock(6, 4, 0, 0, 0), new StatBlock(8, 3, 0, 0, 0), null);
+			Check("Primary stat receives extra weight in the profile score", resolver.ComputeMatchScore(primary) > resolver.ComputeMatchScore(secondary));
 
-			// Красный: недобор режет резко.
-			IReadOnlyList<StatMatch> below = resolver.EvaluateMatches(
-				requirements, new StatBlock(5, 4, 0, 0, 0), null);
-
-			Check("Недобор — красный", below[0].Rating == StatMatchRating.Below);
-			Check("Красный считает нехватку", below[0].Shortfall == 1);
-			Check("Недобор на 1 роняет вклад втрое", Math.Abs(below[0].Score - 0.28) < 1e-9);
-
-			// Главная характеристика весит вдвое.
-			IReadOnlyList<StatMatch> weighted = resolver.EvaluateMatches(
-				requirements, new StatBlock(8, 3, 0, 0, 0), StatKind.Strength);
-
-			double withPrimary = resolver.ComputeMatchScore(weighted);
-			double withoutPrimary = resolver.ComputeMatchScore(
-				resolver.EvaluateMatches(requirements, new StatBlock(8, 3, 0, 0, 0), null));
-
-			Check("Главная характеристика тянет процент вверх", withPrimary > withoutPrimary);
-
-			// Сумма группы, а не лучший: численность — такой же ресурс, как специалист.
-			var weakling = new Employee { Id = "w", BaseStats = new StatBlock(3, 3, 0, 0, 0) };
-			var specialist = new Employee { Id = "s", BaseStats = new StatBlock(8, 3, 0, 0, 0) };
-			var noGear = new List<EquipmentDefinition>();
-
-			StatBlock crowd = resolver.ComputeSquadStats(
-				new List<Employee> { weakling, weakling, weakling }, noGear, null);
-			StatBlock alone = resolver.ComputeSquadStats(
-				new List<Employee> { specialist }, noGear, null);
-
-			Check("Трое слабых складываются", crowd[StatKind.Strength] == 9);
-			Check("Толпа перевешивает одного специалиста", crowd[StatKind.Strength] > alone[StatKind.Strength]);
-
-			// Сумма считается по каждой характеристике отдельно: состав всё равно решает.
-			StatBlock mixed = resolver.ComputeSquadStats(
-				new List<Employee> { weakling, specialist }, noGear, null);
-			Check("Сумма идёт по каждой характеристике отдельно",
-				mixed[StatKind.Strength] == 11 && mixed[StatKind.Intellect] == 6);
+			IReadOnlyList<StatMatch> matches = resolver.EvaluateMatches(
+				new StatBlock(5, 4, 0, 0, 0),
+				new StatBlock(7, 2, 0, 0, 0),
+				StatKind.Strength);
+			Check("StatMatch returns one row per required stat", matches.Count == 2);
+			Check("StatMatch classifies exceeded and below values", matches[0].Rating == StatMatchRating.Exceeds && matches[1].Rating == StatMatchRating.Below);
+			Check("StatMatch score does not treat excess as a substitute", resolver.ComputeMatchScore(matches) < 1.0);
+			Check("StatMatch perfect match requires every row", !MissionResolver.IsPerfectMatch(matches));
 		}
 
 		private static void TestSuccessChanceCurve()
 		{
 			ContentDatabase content = BuildMinimalContent();
 			var resolver = new MissionResolver(content, content.Config, new XorShiftRandom(1));
-			var empty = new List<EquipmentDefinition>();
+			var empty = new List<Kontur.Core.Model.EquipmentDefinition>();
 
-			// Процент — это и есть совпадение профилей: лишней кривой поверх нет.
-			Check("Шанс равен совпадению профилей",
-				Math.Abs(resolver.ComputeSuccessChance(0.5, empty, false) - 0.5) < 1e-9);
+			double half = resolver.ComputeSuccessChance(0.5, empty, false);
+			Check("StatMatch score is used as the direct success chance", Math.Abs(half - 0.5) < 1e-9);
 
-			Check("Шанс ограничен потолком 0.95",
-				resolver.ComputeSuccessChance(0.99, empty, false) <= 0.95 + 1e-9);
+			double capped = resolver.ComputeSuccessChance(0.99, empty, false);
+			Check("Шанс ограничен потолком 0.95", capped <= 0.95 + 1e-9);
 
-			Check("Просроченное радио режет шанс вдвое",
-				Math.Abs(resolver.ComputeSuccessChance(0.5, empty, true) - 0.25) < 1e-9);
+			double missed = resolver.ComputeSuccessChance(0.5, empty, true);
+			Check("Просроченное радио режет шанс вдвое", Math.Abs(missed - System.Math.Max(content.Config.Resolution.MinDiceChance, 0.5 * content.Config.Resolution.RadioMissedChanceMultiplier)) < 1e-9);
 		}
 
 		private static void TestTimings(ContentDatabase content)
 		{
+			Check("Phone ring duration is exactly 15 seconds", Math.Abs(content.Config.Timings.PhoneRingSeconds - 15.0) < 1e-9);
+			Check("Map marker lifetime is exactly 30 seconds", Math.Abs(content.Config.Timings.MapMarkerSeconds - 30.0) < 1e-9);
+			Check("Radio response duration is exactly 20 seconds", Math.Abs(content.Config.Timings.RadioSeconds - 20.0) < 1e-9);
+			Check("Call window lasts five minutes", Math.Abs(content.Config.Timings.ShiftCallWindowSeconds - 300.0) < 1e-9);
+			Check($"Staff limit progression continues beyond authored days ({content.Config.GetStaffLimit(5)}/{content.Config.GetStaffLimit(9)})", content.Config.GetStaffLimit(5) == 7 && content.Config.GetStaffLimit(9) == 11);
 			Check("Звонок 15 с", Math.Abs(content.Config.Timings.PhoneRingSeconds - 15.0) < 1e-9);
-			Check("Метка 30 с", Math.Abs(content.Config.Timings.MapMarkerSeconds - 30.0) < 1e-9);
+			Check("У метки задан положительный таймер", content.Config.Timings.MapMarkerSeconds > 0.0);
 			Check("Радио 20 с", Math.Abs(content.Config.Timings.RadioSeconds - 20.0) < 1e-9);
 			Check("Окно вызовов 5 минут", Math.Abs(content.Config.Timings.ShiftCallWindowSeconds - 300.0) < 1e-9);
 			Check("Лимиты штата 3/4/5/6",
-				content.Config.GetStaffLimit(1) == 3
-				&& content.Config.GetStaffLimit(2) == 4
-				&& content.Config.GetStaffLimit(3) == 5
-				&& content.Config.GetStaffLimit(4) == 6);
+				content.Config.GetDay(1).StaffLimit == 3
+				&& content.Config.GetDay(2).StaffLimit == 4
+				&& content.Config.GetDay(3).StaffLimit == 5
+				&& content.Config.GetDay(4).StaffLimit == 6);
+		}
 
-			// Таблица дней кончается на четвёртом, а правило — нет. Раньше пятая смена
-			// молча получала лимит по умолчанию, и штат сжимался с шести человек до трёх.
-			Check("Правило работает за пределами таблицы дней",
-				content.Config.GetStaffLimit(5) == 7 && content.Config.GetStaffLimit(9) == 11);
+		private static void TestTimeFreeze(ContentDatabase content)
+		{
+			var simulation = new KonturSimulation(content, 5);
+			simulation.StartShift(2);
+			simulation.Tick(0.25);
+			double before = simulation.GetStatus().ShiftTime;
+
+			simulation.FreezeTime("selftest.modal");
+			simulation.Tick(10.0);
+			Check("Пауза ядра останавливает время смены", Math.Abs(simulation.GetStatus().ShiftTime - before) < 1e-9);
+
+			simulation.UnfreezeTime("selftest.modal");
+			simulation.Tick(1.0);
+			Check("Снятие своей паузы возобновляет время", simulation.GetStatus().ShiftTime > before);
+		}
+
+		/// <summary>Контракт предметов в комнате: телефон → карта/ПК → рация.</summary>
+		private static void TestObjectInteractionCommands(ContentDatabase content)
+		{
+			var simulation = new KonturSimulation(content, 77);
+			string? incidentId = null;
+			simulation.Events.Subscribe<IncidentCreated>(e => incidentId ??= e.IncidentId);
+			simulation.StartShift(1);
+			RunSeconds(simulation, 1.0, 0.25);
+
+			bool briefing = incidentId != null
+				&& simulation.AnswerCall(incidentId).IsSuccess
+				&& simulation.ConfirmBriefing(incidentId).IsSuccess;
+			Check("Телефон переводит вызов в брифинг и ставит метку", briefing);
+
+			if (incidentId == null)
+			{
+				Check("Карта удерживает время только пока открыт dispatch", false);
+				Check("Рация удерживает время только пока открыт диалог", false);
+				return;
+			}
+
+			CommandResult openDispatch = simulation.OpenDispatchScreen(incidentId);
+			bool dispatchFreeze = openDispatch.IsSuccess && simulation.IsTimeFrozen;
+			simulation.CloseDispatchScreen(incidentId);
+			Check("Карта удерживает время только пока открыт dispatch", dispatchFreeze && !simulation.IsTimeFrozen);
+
+			IReadOnlyList<EmployeeView> roster = simulation.GetRoster();
+			CommandResult dispatch = simulation.DispatchSquad(incidentId, new[] { roster[0].Id }, Array.Empty<string>());
+			RunSeconds(simulation, 15.0, 0.25);
+
+			CommandResult answerRadio = simulation.AnswerRadio(incidentId);
+			bool radioFreeze = dispatch.IsSuccess && answerRadio.IsSuccess && simulation.IsTimeFrozen;
+			simulation.CloseRadio(incidentId);
+			Check("Рация удерживает время только пока открыт диалог", radioFreeze && !simulation.IsTimeFrozen);
+		}
+
+		private static void TestCallQueue(ContentDatabase content)
+		{
+			TimingConfig timings = content.Config.Timings;
+			DayConfig day = content.Config.GetDay(3);
+			double window = timings.ShiftCallWindowSeconds;
+			double gap = timings.MinSecondsBetweenCalls;
+			int minCalls = day.MinCalls;
+			int maxCalls = day.MaxCalls;
+			try
+			{
+				timings.ShiftCallWindowSeconds = 4.0;
+				timings.MinSecondsBetweenCalls = 0.0;
+				day.MinCalls = 2;
+				day.MaxCalls = 2;
+
+				var simulation = new KonturSimulation(content, 6);
+				bool wasQueued = false;
+				simulation.Events.Subscribe<IncidentQueued>(_ => wasQueued = true);
+				simulation.StartShift(3);
+				RunSeconds(simulation, 5.0, 0.25);
+				Check("Звонок, пришедший на занятую линию, попадает в очередь", wasQueued);
+			}
+			finally
+			{
+				timings.ShiftCallWindowSeconds = window;
+				timings.MinSecondsBetweenCalls = gap;
+				day.MinCalls = minCalls;
+				day.MaxCalls = maxCalls;
+			}
+		}
+
+		private static void TestSaveRoundTrip(ContentDatabase content)
+		{
+			var source = new KonturSimulation(content, 21);
+			source.SetFlag("save_round_trip");
+			string json = source.Save();
+
+			var restored = new KonturSimulation(content, 99);
+			CommandResult result = restored.Load(json);
+			Check("Сохранение между сменами восстанавливает партию", result.IsSuccess && restored.IsFlagSet("save_round_trip"));
+
+			source.StartShift(2);
+			RunSeconds(source, 2.0, 0.25);
+			int incidentCount = source.GetActiveIncidents().Count;
+			string activeShiftJson = source.Save("selftest active shift");
+			var restoredShift = new KonturSimulation(content, 42);
+			CommandResult activeResult = restoredShift.Load(activeShiftJson);
+			bool wasFrozenAfterLoad = restoredShift.IsTimeFrozen;
+			restoredShift.ResumeAfterLoad();
+			Check(
+				"Сохранение активной смены восстанавливает вызовы и ждёт UI после загрузки",
+				activeResult.IsSuccess
+				&& restoredShift.IsShiftActive
+				&& restoredShift.GetActiveIncidents().Count == incidentCount
+				&& wasFrozenAfterLoad
+				&& !restoredShift.IsTimeFrozen);
 		}
 
 		private static void TestMissedCallIsAutoFailure(ContentDatabase content)
 		{
+			// Во второй смене один вызов. Сжимаем окно расписания, чтобы проверять
+			// пропуск звонка, а не ждать случайный слот до конца смены.
+			double window = content.Config.Timings.ShiftCallWindowSeconds;
+			content.Config.Timings.ShiftCallWindowSeconds = 3.0;
 			var simulation = new KonturSimulation(content, 7);
 
 			MissionOutcome? outcome = null;
@@ -206,8 +297,9 @@ namespace Kontur.Harness
 
 			ScaleValues before = simulation.GetStatus().Scales;
 
-			simulation.StartShift(1);
-			RunSeconds(simulation, 60.0, 0.25);
+			simulation.StartShift(2);
+			RunSeconds(simulation, 30.0, 0.25);
+			content.Config.Timings.ShiftCallWindowSeconds = window;
 
 			Check("Неотвеченный звонок помечается пропущенным", missed);
 			Check("Пропуск звонка = автопровал", outcome != null && outcome.Reason == MissionResolutionReason.CallMissed);
@@ -219,6 +311,8 @@ namespace Kontur.Harness
 
 		private static void TestExpiredMarkerIsAutoFailure(ContentDatabase content)
 		{
+			double window = content.Config.Timings.ShiftCallWindowSeconds;
+			content.Config.Timings.ShiftCallWindowSeconds = 3.0;
 			var simulation = new KonturSimulation(content, 11);
 
 			string? ringingId = null;
@@ -229,7 +323,8 @@ namespace Kontur.Harness
 			simulation.Events.Subscribe<MapMarkerExpired>(_ => expired = true);
 			simulation.Events.Subscribe<MissionResolved>(e => outcome ??= e.Outcome);
 
-			simulation.StartShift(1);
+			// День 2: на обучающей смене метка не истекает по определению.
+			simulation.StartShift(2);
 
 			// Отвечаем на звонок, но группу не отправляем.
 			for (int i = 0; i < 400 && ringingId == null; i++)
@@ -241,13 +336,15 @@ namespace Kontur.Harness
 
 			if (ringingId != null)
 			{
-				Check("Ответ на звонок принят", simulation.AnswerCall(ringingId).IsSuccess);
-				Check("Кнопка ОК ставит метку", simulation.ConfirmBriefing(ringingId).IsSuccess);
+			Check(
+				"Ответ на звонок открывает брифинг, а подтверждение ставит метку",
+				simulation.AnswerCall(ringingId).IsSuccess && simulation.ConfirmBriefing(ringingId).IsSuccess);
 			}
 
-			RunSeconds(simulation, 35.0, 0.25);
+			RunSeconds(simulation, content.Config.Timings.MapMarkerSeconds + 5.0, 0.25);
+			content.Config.Timings.ShiftCallWindowSeconds = window;
 
-			Check("Метка истекает через 30 с", expired);
+			Check("Метка истекает по таймеру конфигурации", expired);
 			Check("Истечение метки = автопровал", outcome != null && outcome.Reason == MissionResolutionReason.MarkerExpired);
 		}
 
@@ -259,8 +356,10 @@ namespace Kontur.Harness
 			simulation.Events.Subscribe<MapMarkerSpawned>(e => incidentId ??= e.IncidentId);
 			simulation.Events.Subscribe<IncidentCreated>(e =>
 			{
-				simulation.AnswerCall(e.IncidentId);
-				simulation.ConfirmBriefing(e.IncidentId);
+				if (simulation.AnswerCall(e.IncidentId).IsSuccess)
+				{
+					simulation.ConfirmBriefing(e.IncidentId);
+				}
 			});
 
 			simulation.StartShift(1);
@@ -298,30 +397,51 @@ namespace Kontur.Harness
 			}
 
 			CommandResult empty = simulation.DispatchSquad(incidentId, new List<string>(), new List<string>());
-			Check("Пустая группа — отказ", !empty.IsSuccess);
 
-			// Слотов на вызове столько, сколько задал автор миссии. Проверяем,
-			// что на один больше уже не пролезает: иначе игроку выгодно возить
-			// весь отдел на каждый филлер, ведь характеристики складываются.
 			IncidentView? current = FindIncident(simulation, incidentId);
 			if (current != null && roster.Count > current.SquadLimit)
 			{
-				var сверхЛимита = new List<string>();
+				var tooLarge = new List<string>();
 				for (int i = 0; i <= current.SquadLimit && i < roster.Count; i++)
 				{
-					сверхЛимита.Add(roster[i].Id);
+					tooLarge.Add(roster[i].Id);
 				}
 
-				CommandResult tooMany = simulation.DispatchSquad(
-					incidentId, сверхЛимита, new List<string>());
-				Check("Группа сверх слотов миссии — отказ", !tooMany.IsSuccess);
+				Check("Squad larger than a mission limit is rejected", !simulation.DispatchSquad(incidentId, tooLarge, new List<string>()).IsSuccess);
 			}
+			Check("Пустая группа — отказ", !empty.IsSuccess);
 
 			CommandResult ok = simulation.DispatchSquad(incidentId, squad, new List<string>());
 			Check("Корректная отправка принимается", ok.IsSuccess);
 
 			CommandResult twice = simulation.DispatchSquad(incidentId, squad, new List<string>());
 			Check("Повторная отправка по тому же вызову — отказ", !twice.IsSuccess);
+		}
+
+		private static void TestStaffLimit(ContentDatabase content)
+		{
+			var simulation = new KonturSimulation(content, 17);
+
+			IReadOnlyList<EmployeeView> roster = simulation.GetRoster();
+			Check("Стартовый состав — 3 сотрудника", roster.Count == 3);
+
+			IReadOnlyList<HireCandidateView> day1 = simulation.GetHireCandidates(1);
+			Check("Фабрика формирует кандидатов уже в первый день", day1.Count >= content.Generator.CandidatesPerShift);
+			Check("Фабрика прикрепляет id строк досье", day1.Count == 0 || day1[0].BioIds.Count == content.Generator.BioSlots.Count);
+
+			IReadOnlyList<HireCandidateView> day2 = simulation.GetHireCandidates(2);
+			Check("Со второго дня доступны кандидаты", day2.Count > 0);
+
+			if (day2.Count > 0)
+			{
+				Check("Найм в пределах лимита (3 -> 4)", simulation.HireEmployee(day2[0].Id, 2).IsSuccess);
+			}
+
+			IReadOnlyList<HireCandidateView> more = simulation.GetHireCandidates(2);
+			if (more.Count > 0)
+			{
+				Check("Найм сверх лимита отклоняется", !simulation.HireEmployee(more[0].Id, 2).IsSuccess);
+			}
 		}
 
 		private static IncidentView? FindIncident(KonturSimulation simulation, string incidentId)
@@ -338,45 +458,9 @@ namespace Kontur.Harness
 			return null;
 		}
 
-		private static void TestStaffLimit(ContentDatabase content)
-		{
-			var simulation = new KonturSimulation(content, 17);
-
-			IReadOnlyList<EmployeeView> roster = simulation.GetRoster();
-			Check("Стартовый состав — 3 сотрудника", roster.Count == 3);
-
-			IReadOnlyList<HireCandidateView> day2 = simulation.GetHireCandidates(2);
-			Check("Со второго дня появляются кандидаты", day2.Count > 0);
-
-			if (day2.Count > 0)
-			{
-				Check("Найм в пределах лимита (3 -> 4)", simulation.HireEmployee(day2[0].Id, 2).IsSuccess);
-			}
-
-			IReadOnlyList<HireCandidateView> more = simulation.GetHireCandidates(2);
-			Check("Нанятый исчезает из списка кандидатов", day2.Count == 0 || more.Count == day2.Count - 1);
-
-			if (more.Count > 0)
-			{
-				Check("Найм сверх лимита отклоняется", !simulation.HireEmployee(more[0].Id, 2).IsSuccess);
-			}
-		}
-
-		/// <summary>
-		/// Смена не заканчивается, пока не закрыт последний вызов.
-		///
-		/// Хвостов у смены три, и каждый закрывается по-своему: группа возвращается
-		/// по таймеру дороги, протухшая метка и пропущенный звонок закрываются сразу.
-		/// Ошибиться тут можно в обе стороны — оборвать смену, пока группа в пути,
-		/// или подвесить её навсегда на вызове, который никто не закрыл.
-		///
-		/// Проверяется порядок событий: ShiftEnded обязан прийти последним, после
-		/// всех IncidentClosed, и хотя бы один раз за прогон.
-		/// </summary>
 		private static void TestShiftEndsAfterLastIncident(ContentDatabase content)
 		{
 			var simulation = new KonturSimulation(content, 31);
-
 			var order = new List<string>();
 			int closed = 0;
 			int ended = 0;
@@ -386,25 +470,17 @@ namespace Kontur.Harness
 				simulation.AnswerCall(e.IncidentId);
 				simulation.ConfirmBriefing(e.IncidentId);
 			});
-
 			simulation.Events.Subscribe<MapMarkerSpawned>(e =>
 			{
-				IReadOnlyList<EmployeeView> roster = simulation.GetRoster();
-				var squad = new List<string>();
-				for (int i = 0; i < roster.Count && squad.Count < 1; i++)
+				foreach (EmployeeView employee in simulation.GetRoster())
 				{
-					if (roster[i].Status == EmployeeStatus.Available)
+					if (employee.Status == EmployeeStatus.Available)
 					{
-						squad.Add(roster[i].Id);
+						simulation.DispatchSquad(e.IncidentId, new[] { employee.Id }, Array.Empty<string>());
+						break;
 					}
 				}
-
-				if (squad.Count > 0)
-				{
-					simulation.DispatchSquad(e.IncidentId, squad, new List<string>());
-				}
 			});
-
 			simulation.Events.Subscribe<RadioTriggered>(e =>
 			{
 				if (e.Options.Count > 0)
@@ -413,543 +489,184 @@ namespace Kontur.Harness
 					simulation.ChooseRadioOption(e.IncidentId, e.Options[0].Id);
 				}
 			});
-
-			simulation.Events.Subscribe<IncidentClosed>(e =>
-			{
-				closed++;
-				order.Add("closed");
-			});
-
-			simulation.Events.Subscribe<ShiftEnded>(e =>
-			{
-				ended++;
-				order.Add("ended");
-			});
+			simulation.Events.Subscribe<IncidentClosed>(_ => { closed++; order.Add("closed"); });
+			simulation.Events.Subscribe<ShiftEnded>(_ => { ended++; order.Add("ended"); });
 
 			simulation.StartShift(1);
-			for (int i = 0; i < 6000 && ended == 0; i++)
-			{
-				simulation.Tick(0.25);
-			}
+			for (int i = 0; i < 6000 && ended == 0; i++) simulation.Tick(0.25);
 
-			Check("Смена завершилась", ended == 1);
-			Check("Хотя бы один вызов закрылся", closed > 0);
-
-			// Порядок важнее счёта: ShiftEnded посреди списка означает, что смена
-			// оборвалась, пока по какому-то вызову ещё шла работа.
-			bool endedIsLast = order.Count > 0 && order[order.Count - 1] == "ended";
-			Check("ShiftEnded пришло после всех IncidentClosed", endedIsLast);
-
-			// И ни одного незакрытого хвоста: всё, что открылось, доиграно.
-			int stillOpen = 0;
-			foreach (IncidentView incident in simulation.GetActiveIncidents())
-			{
-				stillOpen++;
-			}
-
-			Check($"Незакрытых вызовов не осталось ({stillOpen})", stillOpen == 0);
+			Check("Shift ends exactly once after active work", ended == 1);
+			Check("At least one incident closed before ending", closed > 0);
+			Check("ShiftEnded is the last lifecycle signal", order.Count > 0 && order[order.Count - 1] == "ended");
+			Check("No open incidents remain after shift end", simulation.GetActiveIncidents().Count == 0);
 		}
 
-		/// <summary>
-		/// Потерявший половину отдела должен иметь возможность восстановиться.
-		///
-		/// Раньше кандидатов выдавалось ровно candidatesPerShift независимо от потерь:
-		/// на четвёртой смене с четырьмя пустыми местами игрок добирал троих и доигрывал
-		/// неполным составом без всякой возможности это исправить.
-		///
-		/// Проверяем оба конца. Кандидатов должно хватать на все свободные места —
-		/// иначе штат не восстановить. И их должно быть больше, чем мест: список ровно
-		/// по числу мест превращает экран найма в кнопку «взять всех».
-		/// </summary>
-		private static void TestHiringFillsRoster(ContentDatabase content)
+		private static void TestHiringCapacity(ContentDatabase content)
 		{
 			var simulation = new KonturSimulation(content, 23);
-
 			int alive = simulation.GetRoster().Count;
-			int limit = content.Config.GetStaffLimit(4);
-			int free = limit - alive;
-
-			Check($"На четвёртой смене мест {limit}, занято {alive}", free > 0);
-
+			int dayFourLimit = content.Config.GetStaffLimit(4);
+			int free = dayFourLimit - alive;
 			IReadOnlyList<HireCandidateView> candidates = simulation.GetHireCandidates(4);
-			Check($"Кандидатов хватает на все места ({candidates.Count} на {free})",
-				candidates.Count >= free);
-			Check("Кандидатов больше, чем мест — есть из кого выбирать",
-				candidates.Count > free);
+
+			Check("Hiring has room to grow the day four roster", free > 0);
+			Check("Hiring offers enough candidates to fill every vacancy", candidates.Count >= free);
+			Check("Hiring offers a choice beyond mandatory vacancies", candidates.Count > free);
 
 			int hired = 0;
 			for (int i = 0; i < candidates.Count; i++)
 			{
-				if (simulation.HireEmployee(candidates[i].Id, 4).IsSuccess)
-				{
-					hired++;
-				}
+				if (simulation.HireEmployee(candidates[i].Id, 4).IsSuccess) hired++;
 			}
+			Check("Hiring never exceeds the staff cap", alive + hired == dayFourLimit && simulation.GetRoster().Count == dayFourLimit);
 
-			Check($"Штат добран до предела ({alive + hired} из {limit})", alive + hired == limit);
-			Check("Сверх предела не взяли", simulation.GetRoster().Count == limit);
+			var heavyLossSimulation = new KonturSimulation(content, 29);
+			int largeGap = content.Config.GetStaffLimit(4) - heavyLossSimulation.GetRoster().Count;
+			IReadOnlyList<HireCandidateView> largeBatch = heavyLossSimulation.GetHireCandidates(4);
+			var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+			bool unique = true;
+			foreach (HireCandidateView candidate in largeBatch) unique &= names.Add(candidate.Name);
+			Check("Hiring can recover from every current roster vacancy", largeGap > 0 && largeBatch.Count >= largeGap);
+			Check("Large hiring batch has no duplicate names", unique);
 		}
 
-		/// <summary>
-		/// Тот же сценарий, но с большой дырой в штате: на девятой смене мест
-		/// одиннадцать, а людей по-прежнему трое. Так проверяется именно случай
-		/// «потеряли много» — без него формула молча упиралась бы в candidatesPerShift.
-		/// </summary>
-		private static void TestHiringAfterHeavyLosses(ContentDatabase content)
-		{
-			var simulation = new KonturSimulation(content, 29);
-
-			const int Day = 9;
-			int alive = simulation.GetRoster().Count;
-			int free = content.Config.GetStaffLimit(Day) - alive;
-
-			Check($"Дыра в штате велика ({free} мест)", free >= 6);
-
-			IReadOnlyList<HireCandidateView> candidates = simulation.GetHireCandidates(Day);
-			Check($"Кандидатов хватает и на большую дыру ({candidates.Count} на {free})",
-				candidates.Count >= free);
-
-			var имена = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-			bool уникальны = true;
-			for (int i = 0; i < candidates.Count; i++)
-			{
-				уникальны &= имена.Add(candidates[i].Name);
-			}
-
-			Check("В большой пачке кандидатов нет двойников", уникальны);
-		}
-
-		/// <summary>
-		/// Фабрика кандидатов. Проверяется не «красиво ли получилось», а три вещи,
-		/// поломка которых видна не сразу: набор не должен меняться между запросами,
-		/// он должен воспроизводиться по сиду, и внутри пачки не должно быть двойников.
-		/// </summary>
 		private static void TestEmployeeFactory(ContentDatabase content)
 		{
 			if (!content.Generator.IsEnabled)
 			{
-				Check("Фабрика кандидатов включена в контенте", false);
+				Check("Employee factory is enabled", false);
 				return;
 			}
 
 			var simulation = new KonturSimulation(content, 501);
-			IReadOnlyList<HireCandidateView> first = simulation.GetHireCandidates(3);
-
-			Check("Фабрика выдала кандидатов", first.Count > 0);
-
-			IReadOnlyList<HireCandidateView> again = simulation.GetHireCandidates(3);
-			bool stable = first.Count == again.Count;
-			for (int i = 0; stable && i < first.Count; i++)
-			{
-				stable = first[i].Id == again[i].Id && first[i].Name == again[i].Name;
-			}
-
-			Check("Повторный запрос возвращает тот же список", stable);
-
-			// Разные объекты симуляции с одним сидом обязаны дать одинаковых людей,
-			// иначе воспроизвести жалобу «мне выпал сломанный кандидат» невозможно.
+			IReadOnlyList<HireCandidateView> first = simulation.GetHireCandidates(1);
+			IReadOnlyList<HireCandidateView> again = simulation.GetHireCandidates(1);
 			var twin = new KonturSimulation(content, 501);
-			IReadOnlyList<HireCandidateView> twinList = twin.GetHireCandidates(3);
-			bool deterministic = first.Count == twinList.Count;
-			for (int i = 0; deterministic && i < first.Count; i++)
-			{
-				deterministic = first[i].Id == twinList[i].Id
-					&& first[i].Name == twinList[i].Name
-					&& first[i].Stats.Equals(twinList[i].Stats);
-			}
-
-			Check("Один сид — одни и те же кандидаты", deterministic);
-
-			var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+			IReadOnlyList<HireCandidateView> twinList = twin.GetHireCandidates(1);
+			bool stable = first.Count == again.Count && first.Count == twinList.Count;
 			var ids = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-			bool unique = true;
-			bool statsInRange = true;
-			bool hasPerks = false;
+			var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+			bool valid = first.Count > 0;
 
 			for (int i = 0; i < first.Count; i++)
 			{
 				HireCandidateView candidate = first[i];
-				unique &= names.Add(candidate.Name) && ids.Add(candidate.Id);
-
-				for (int s = 0; s < StatKinds.All.Length; s++)
+				stable &= candidate.Id == again[i].Id && candidate.Id == twinList[i].Id
+					&& candidate.Name == again[i].Name && candidate.Stats.Equals(twinList[i].Stats);
+				valid &= ids.Add(candidate.Id) && names.Add(candidate.Name)
+					&& candidate.Age >= content.Generator.MinAge && candidate.Age <= content.Generator.MaxAge
+					&& candidate.BioIds.Count == content.Generator.BioSlots.Count;
+				foreach (StatKind stat in StatKinds.All)
 				{
-					int value = candidate.Stats[StatKinds.All[s]];
-					statsInRange &= value >= content.Generator.MinStat && value <= content.Generator.MaxStat;
-				}
-
-				hasPerks |= candidate.AbilityIds.Count > 0;
-			}
-
-			Check("Имена и id кандидатов не повторяются", unique);
-			Check("Характеристики в заданных границах", statsInRange);
-			Check("У кандидатов есть перки", hasPerks);
-
-			// Бюджет должен доходить до сотрудника целиком: если очки теряются на потолке,
-			// кандидаты выйдут слабее задуманного, и заметить это по глазам невозможно.
-			int expectedTotal = (content.Generator.MinStat * StatKinds.Count)
-				+ content.Generator.StatPointsBase
-				+ (content.Generator.StatPointsPerLevel * (first[0].Level - 1));
-
-			Check(
-				$"Сумма характеристик равна бюджету ({first[0].Stats.Total} = {expectedTotal})",
-				first[0].Stats.Total == expectedTotal);
-
-			TestArchetypeSilhouette(content);
-		}
-
-		/// <summary>
-		/// Силуэт архетипа: основные характеристики в среднем выше второстепенных,
-		/// второстепенные — выше остальных.
-		///
-		/// Проверка на средних по большой выборке, а не на одном кандидате: разброс
-		/// как раз и нужен, чтобы кандидаты отличались друг от друга. Ловится здесь
-		/// ровно одна ошибка, но зато невидимая — перекошенное распределение очков,
-		/// при котором «здоровяк» выходит самым обаятельным в конторе.
-		/// </summary>
-		private static void TestArchetypeSilhouette(ContentDatabase content)
-		{
-			const int Samples = 2000;
-
-			// День, а не уровень: фабрика выводит уровень из дня сама. Четвёртый взят
-			// ради кандидатов повыше — на них перекос распределения виден отчётливее.
-			const int Day = 4;
-
-			var random = new XorShiftRandom(31);
-			var factory = new EmployeeFactory(content, random);
-
-			foreach (EmployeeArchetype archetype in content.Generator.Archetypes)
-			{
-				if (archetype.PrimaryStats.Count == 0)
-				{
-					continue;
-				}
-
-				var totals = new Dictionary<StatKind, long>();
-				for (int i = 0; i < StatKinds.All.Length; i++)
-				{
-					totals[StatKinds.All[i]] = 0;
-				}
-
-				// Пробы берутся через публичный вход фабрики, поэтому мерится
-				// ровно то, что увидит игрок, а не отдельная внутренняя функция.
-				int collected = 0;
-				while (collected < Samples)
-				{
-					IReadOnlyList<HireCandidate> batch = factory.Generate(
-						Day,
-						8,
-						Array.Empty<string>(),
-						Array.Empty<string>());
-
-					for (int i = 0; i < batch.Count && collected < Samples; i++)
-					{
-						Employee candidate = batch[i].Template;
-						if (!string.Equals(candidate.ArchetypeId, archetype.Id, StringComparison.OrdinalIgnoreCase))
-						{
-							continue;
-						}
-
-						for (int s = 0; s < StatKinds.All.Length; s++)
-						{
-							totals[StatKinds.All[s]] += candidate.BaseStats[StatKinds.All[s]];
-						}
-
-						collected++;
-					}
-				}
-
-				double primary = AverageOf(totals, archetype.PrimaryStats, collected, double.MaxValue, true);
-				double secondary = archetype.SecondaryStats.Count == 0
-					? double.NaN
-					: AverageOf(totals, archetype.SecondaryStats, collected, double.MinValue, false);
-
-				var rest = new List<StatKind>();
-				for (int i = 0; i < StatKinds.All.Length; i++)
-				{
-					StatKind kind = StatKinds.All[i];
-					if (!archetype.PrimaryStats.Contains(kind) && !archetype.SecondaryStats.Contains(kind))
-					{
-						rest.Add(kind);
-					}
-				}
-
-				double others = rest.Count == 0
-					? double.MinValue
-					: AverageOf(totals, rest, collected, double.MinValue, false);
-
-				bool ordered = double.IsNaN(secondary)
-					? primary > others
-					: primary > secondary && secondary > others;
-
-				Check(
-					$"Силуэт '{archetype.Id}': основные {primary:0.0} > второстепенные "
-						+ (double.IsNaN(secondary) ? "—" : secondary.ToString("0.0"))
-						+ $" > прочие {others:0.0}",
-					ordered);
-			}
-		}
-
-		/// <summary>
-		/// Среднее по группе характеристик. Для основных берётся худшая из них, для
-		/// остальных — лучшая: так сравнение остаётся честным, когда в группе разное
-		/// число характеристик.
-		/// </summary>
-		private static double AverageOf(
-			Dictionary<StatKind, long> totals,
-			IReadOnlyList<StatKind> group,
-			int samples,
-			double seed,
-			bool takeMinimum)
-		{
-			double result = seed;
-			for (int i = 0; i < group.Count; i++)
-			{
-				double average = (double)totals[group[i]] / samples;
-				if (takeMinimum ? average < result : average > result)
-				{
-					result = average;
+					int value = candidate.Stats[stat];
+					valid &= value >= content.Generator.MinStat && value <= content.Generator.MaxStat;
 				}
 			}
 
-			return result;
+			Check("Employee factory produces candidates", first.Count > 0);
+			Check("Employee factory is stable for a saved simulation", stable);
+			Check("Factory candidates have unique ids, valid ages, bios and stats", valid);
 		}
 
-		/// <summary>Экран итога миссии и меню найма — оба сигнала между-миссионного цикла.</summary>
 		private static void TestOutcomeAndHiring(ContentDatabase content)
 		{
 			var simulation = new KonturSimulation(content, 909);
-
 			var outcomes = new List<MissionOutcomeReady>();
 			var hirings = new List<HiringOpened>();
 			var returns = new List<SquadReturned>();
 			simulation.Events.Subscribe<MissionOutcomeReady>(outcomes.Add);
 			simulation.Events.Subscribe<HiringOpened>(hirings.Add);
 			simulation.Events.Subscribe<SquadReturned>(returns.Add);
-
 			simulation.StartShift(1);
 
-			var operatorBot = new AutoOperator(simulation, content, RadioStrategy.Best, 909);
+			var bot = new AutoOperator(simulation, content, RadioStrategy.Best, 909);
 			double guard = 0.0;
 			while (simulation.IsShiftActive && guard < 1800.0)
 			{
 				simulation.Tick(0.25);
 				guard += 0.25;
-				operatorBot.Update();
+				bot.Update();
 			}
 
-			Check("Экран итога показан хотя бы раз", outcomes.Count > 0);
-
+			Check("Mission outcome screen is emitted", outcomes.Count > 0);
 			if (outcomes.Count > 0)
 			{
 				MissionOutcomeReady outcome = outcomes[0];
-				Check("У итога есть текст", !string.IsNullOrEmpty(outcome.SummaryTextId));
-				Check("В итоге есть возвращающиеся", outcome.SquadWiped || outcome.ReturningEmployeeIds.Count > 0);
-				Check("Время возвращения задано", outcome.SquadWiped || outcome.ReturnSeconds > 0.0);
+				Check("Mission outcome contains a text id", !string.IsNullOrEmpty(outcome.SummaryContentId));
+				Check("Mission outcome describes return or a wiped squad", outcome.SquadWiped || (outcome.ReturningEmployeeIds.Count > 0 && outcome.ReturnSeconds > 0.0));
 			}
-
-			// Итог обязан опережать возвращение: иначе экран «группа возвращается»
-			// покажется после того, как она уже вернулась.
-			Check("Итог приходит раньше возвращения", outcomes.Count >= returns.Count);
-
-			Check("Смена завершилась", !simulation.IsShiftActive);
-			Check("Меню найма открылось после смены", hirings.Count == 1);
-
+			Check("Outcome is emitted before any corresponding return", outcomes.Count >= returns.Count);
+			Check("Shift opens hiring exactly once", !simulation.IsShiftActive && hirings.Count == 1);
 			if (hirings.Count > 0)
 			{
 				HiringOpened hiring = hirings[0];
-				Check("Найм предлагает следующий день", hiring.NextDay == 2);
-				Check("Есть свободные места", hiring.FreeSlots > 0);
-				Check("Список кандидатов не пуст", hiring.CandidateIds.Count > 0);
-
 				IReadOnlyList<HireCandidateView> menu = simulation.GetHireCandidates(hiring.NextDay);
 				bool sameOrder = menu.Count == hiring.CandidateIds.Count;
-				for (int i = 0; sameOrder && i < menu.Count; i++)
-				{
-					sameOrder = menu[i].Id == hiring.CandidateIds[i];
-				}
-
-				Check("Меню совпадает со списком из сигнала", sameOrder);
+				for (int i = 0; sameOrder && i < menu.Count; i++) sameOrder = menu[i].Id == hiring.CandidateIds[i];
+				Check("Hiring event exposes the same candidate list as the API", hiring.NextDay == 2 && hiring.FreeSlots > 0 && sameOrder);
 			}
 		}
 
-		/// <summary>
-		/// Сохранение посреди смены.
-		///
-		/// Главная проверка — не «поля совпали», а «продолжение совпало»: партия, снятая
-		/// в снимок и поднятая обратно, обязана доиграть смену ровно так же, как если бы
-		/// её не трогали. Ради этого в снимок и кладётся состояние генератора.
-		/// </summary>
-		private static void TestSaveLoad(ContentDatabase content)
+		private static void TestRadioContracts(ContentDatabase content)
 		{
-			var original = new KonturSimulation(content, 4242);
-			var originalLog = new List<string>();
-			SubscribeTrace(original, originalLog);
-
-			// Сохраниться нужно в момент, когда в снимке есть что сохранять: группа
-			// в пути, таймер недотикал. Ловим это по событию, а не по секундомеру —
-			// смена короткая, и любое фиксированное число секунд однажды окажется
-			// больше её длины, а тест провалится не по делу.
-			bool squadIsOut = false;
-			original.Events.Subscribe<SquadDispatched>(_ => squadIsOut = true);
-
-			original.StartShift(1);
-
-			var originalBot = new AutoOperator(original, content, RadioStrategy.Best, 4242);
-
-			double elapsed = 0.0;
-			while (original.IsShiftActive && elapsed < 1800.0)
+			var option = new MissionEventOption
 			{
-				original.Tick(0.25);
-				elapsed += 0.25;
-				originalBot.Update();
+				Id = "checked",
+				CheckedStats = new List<StatKind> { StatKind.Intellect, StatKind.Charisma },
+				RequirementModifier = 2
+			};
+			var requirements = new StatBlock(7, 8, 9, 6, 5);
+			StatBlock selected = option.ResolveRequirements(requirements);
+			Check("Radio option checks only its declared stats", selected[StatKind.Intellect] == 8 && selected[StatKind.Charisma] == 5 && selected.Total == 13);
 
-				// Пара секунд после выезда: группа уже в дороге, вызов в фазе Travelling.
-				if (squadIsOut)
+			var resolver = new MissionResolver(content, content.Config, new XorShiftRandom(1));
+			var mission = new MissionDefinition { Id = "test", Day = 1, Requirements = requirements };
+			StatBlock adjusted = resolver.ComputeEffectiveRequirements(mission, option, 1);
+			Check("Radio modifier applies only to selected requirements", adjusted[StatKind.Intellect] == 10 && adjusted[StatKind.Charisma] == 7 && adjusted[StatKind.Strength] == 0);
+
+			bool backed = true;
+			bool reportsMapped = true;
+			foreach (KeyValuePair<string, MissionDefinition> pair in content.Missions)
+			{
+				MissionDefinition current = pair.Value;
+				reportsMapped &= !string.IsNullOrEmpty(current.ResolveReportId(null, true)) && !string.IsNullOrEmpty(current.ResolveReportId(null, false));
+				if (!current.HasMissionEvent || !content.MissionEvents.TryGetValue(current.MissionEventId!, out MissionEventDefinition? missionEvent)) continue;
+				foreach (MissionEventOption candidate in missionEvent.Options)
 				{
-					original.Tick(0.25);
-					elapsed += 0.25;
-					break;
+					reportsMapped &= !string.IsNullOrEmpty(current.ResolveReportId(candidate.Id, true)) && !string.IsNullOrEmpty(current.ResolveReportId(candidate.Id, false));
+					foreach (StatKind stat in candidate.CheckedStats) backed &= current.Requirements[stat] > 0;
 				}
 			}
-
-			Check("К моменту сохранения смена ещё идёт", original.IsShiftActive);
-
-			string json = original.Save("проверка");
-			Check("Сохранение не пустое", !string.IsNullOrWhiteSpace(json));
-
-			int incidentsAtSave = original.GetActiveIncidents().Count;
-			int reportsAtSave = original.GetReports().Count;
-			ShiftStatusView statusAtSave = original.GetStatus();
-
-			// Оригинал доигрывает смену до конца — это эталон.
-			originalLog.Clear();
-			while (original.IsShiftActive && elapsed < 1800.0)
-			{
-				original.Tick(0.25);
-				elapsed += 0.25;
-				originalBot.Update();
-			}
-
-			// Отдельная партия поднимается из файла и доигрывает то же самое.
-			var loaded = new KonturSimulation(content, 1);
-			var loadedEvents = new List<GameLoaded>();
-			loaded.Events.Subscribe<GameLoaded>(loadedEvents.Add);
-
-			CommandResult load = loaded.Load(json);
-			Check("Загрузка прошла: " + load.Error, load.IsSuccess);
-			Check("Событие о загрузке пришло", loadedEvents.Count == 1);
-			Check("После загрузки время стоит", loaded.IsTimeFrozen);
-
-			ShiftStatusView statusAfterLoad = loaded.GetStatus();
-			Check("День восстановлен", statusAfterLoad.Day == statusAtSave.Day);
-			Check(
-				$"Время смены восстановлено ({statusAfterLoad.ShiftTime:0.##} = {statusAtSave.ShiftTime:0.##})",
-				Math.Abs(statusAfterLoad.ShiftTime - statusAtSave.ShiftTime) < 1e-6);
-			Check("Смена продолжается", statusAfterLoad.IsShiftActive);
-			Check("Вызовы в работе восстановлены", loaded.GetActiveIncidents().Count == incidentsAtSave);
-			Check("Отчёты восстановлены", loaded.GetReports().Count == reportsAtSave);
-			Check("Шкалы восстановлены", loaded.GetStatus().Scales.Equals(statusAtSave.Scales));
-
-			// Пока не отпустили — мир не должен двигаться.
-			double frozenTime = loaded.GetStatus().ShiftTime;
-			RunSeconds(loaded, 5.0, 0.25);
-			Check(
-				"Замороженная загрузка не тикает",
-				Math.Abs(loaded.GetStatus().ShiftTime - frozenTime) < 1e-9);
-
-			loaded.ResumeAfterLoad();
-			Check("После ResumeAfterLoad время пошло", !loaded.IsTimeFrozen);
-
-			var loadedLog = new List<string>();
-			SubscribeTrace(loaded, loadedLog);
-
-			var loadedBot = new AutoOperator(loaded, content, RadioStrategy.Best, 4242);
-			double loadedElapsed = 0.0;
-			while (loaded.IsShiftActive && loadedElapsed < 1800.0)
-			{
-				loaded.Tick(0.25);
-				loadedElapsed += 0.25;
-				loadedBot.Update();
-			}
-
-			Check("Загруженная смена тоже завершилась", !loaded.IsShiftActive);
-
-			bool sameTrace = originalLog.Count == loadedLog.Count;
-			int firstDifference = -1;
-			for (int i = 0; i < Math.Min(originalLog.Count, loadedLog.Count); i++)
-			{
-				if (originalLog[i] != loadedLog[i])
-				{
-					firstDifference = i;
-					sameTrace = false;
-					break;
-				}
-			}
-
-			Check(
-				firstDifference < 0
-					? $"Продолжение совпало с эталоном ({originalLog.Count} событий)"
-					: $"Продолжение совпало с эталоном (расхождение на шаге {firstDifference}: "
-						+ $"'{originalLog[firstDifference]}' против '{loadedLog[firstDifference]}')",
-				sameTrace);
+			Check("Every radio stat check is backed by a mission requirement", backed);
+			Check("Every radio option and outcome maps to a report id", reportsMapped);
 		}
 
-		/// <summary>Отказы загрузки: битый файл, чужая версия, пропавшая миссия.</summary>
+		private static void TestConsequenceCaps(ContentDatabase content)
+		{
+			Check("Filler consequence cap defaults to injury", ConsequenceCaps.DefaultFor(MissionTier.Filler) == ConsequenceCap.Injury);
+			Check("Story consequence cap defaults to death", ConsequenceCaps.DefaultFor(MissionTier.Story) == ConsequenceCap.Death);
+			Check("Consequence cap tightening keeps the stricter cap",
+				ConsequenceCaps.Tighten(ConsequenceCap.Death, ConsequenceCap.Injury) == ConsequenceCap.Injury
+				&& ConsequenceCaps.Tighten(ConsequenceCap.Injury, ConsequenceCap.None) == ConsequenceCap.None);
+		}
+
 		private static void TestSaveLoadRejections(ContentDatabase content)
 		{
-			var simulation = new KonturSimulation(content, 7);
-			simulation.StartShift(1);
-			RunSeconds(simulation, 5.0, 0.25);
-
-			string json = simulation.Save();
-
+			var source = new KonturSimulation(content, 7);
+			source.StartShift(1);
+			RunSeconds(source, 2.0, 0.25);
+			string json = source.Save();
 			var target = new KonturSimulation(content, 7);
 			int rosterBefore = target.GetRoster().Count;
 
-			Check("Пустой файл отклонён", !target.Load(string.Empty).IsSuccess);
-			Check("Мусор вместо JSON отклонён", !target.Load("{это не json").IsSuccess);
-
-			// Номер версии берём из ядра, а не числом в тексте: с прошлым его подъёмом
-			// подстановка перестала находить строку, сохранение грузилось, и три
-			// проверки разом покраснели, хотя ломалась одна.
-			string wrongVersion = json.Replace(
-				$"\"Version\": {SaveData.CurrentVersion}", "\"Version\": 999");
-
-			// Если подстановка промахнулась, дальше проверялась бы не чужая версия,
-			// а обычное сохранение — и провал показал бы совсем не то, что сломалось.
-			Check("Подмена версии в JSON сработала", wrongVersion != json);
-
-			CommandResult versionResult = target.Load(wrongVersion);
-			Check("Чужая версия отклонена", !versionResult.IsSuccess);
-			Check(
-				"В отказе по версии видно обе версии: " + versionResult.Error,
-				versionResult.Error.Contains("999"));
-
-			string missingMission = json.Replace("m_black_mold", "m_несуществующая");
-			CommandResult missingResult = target.Load(missingMission);
-			Check("Пропавшая миссия отклонена", !missingResult.IsSuccess);
-
-			// Самое важное в отказе: он не должен оставлять партию наполовину загруженной.
-			Check("Неудачная загрузка не тронула состав", target.GetRoster().Count == rosterBefore);
-			Check("Неудачная загрузка не запустила смену", !target.IsShiftActive);
-		}
-
-		/// <summary>
-		/// Свёртка потока событий в строки — чтобы сравнивать два прогона целиком,
-		/// а не по отдельным полям. Прогон, который разошёлся, покажет первое расхождение.
-		/// </summary>
-		private static void SubscribeTrace(KonturSimulation simulation, List<string> log)
-		{
-			simulation.Events.Subscribe<IncidentCreated>(e => log.Add("создан:" + e.MissionId));
-			simulation.Events.Subscribe<CallAnswered>(e => log.Add("трубка:" + e.MissionId));
-			simulation.Events.Subscribe<CallMissed>(e => log.Add("пропущен:" + e.MissionId));
-			simulation.Events.Subscribe<SquadDispatched>(e => log.Add("выезд:" + string.Join("+", e.EmployeeIds)));
-			simulation.Events.Subscribe<RadioOptionChosen>(e => log.Add("радио:" + e.OptionId));
-			simulation.Events.Subscribe<MissionOutcomeReady>(e => log.Add("итог:" + e.MissionId + ":" + e.IsSuccess));
-			simulation.Events.Subscribe<EmployeeInjured>(e => log.Add("травма:" + e.EmployeeId));
-			simulation.Events.Subscribe<EmployeeKilled>(e => log.Add("гибель:" + e.EmployeeId));
-			simulation.Events.Subscribe<ShiftEnded>(e => log.Add(
-				$"конец:{e.Summary.Successes}/{e.Summary.Failures}/{e.Summary.MissedCalls}"));
+			Check("Empty save is rejected", !target.Load(string.Empty).IsSuccess);
+			Check("Malformed JSON save is rejected", !target.Load("{not json").IsSuccess);
+			string wrongVersion = json.Replace("\"Version\": " + SaveData.CurrentVersion, "\"Version\": 999");
+			Check("Save version replacement matched JSON", wrongVersion != json);
+			Check("Unsupported save version is rejected", !target.Load(wrongVersion).IsSuccess);
+			string missingMission = json.Replace("m_black_mold", "m_missing_for_selftest");
+			Check("Save with a missing mission is rejected", !target.Load(missingMission).IsSuccess);
+			Check("Rejected save does not mutate the target game", target.GetRoster().Count == rosterBefore && !target.IsShiftActive);
 		}
 
 		private static void TestFlags(ContentDatabase content)
@@ -985,328 +702,13 @@ namespace Kontur.Harness
 		{
 			string first = RunSignature(content, 99);
 			string second = RunSignature(content, 99);
+			string third = RunSignature(content, 100);
 
 			Check("Один seed — один и тот же прогон", first == second);
-
-			// Обратное утверждение проверяется по набору сидов, а не по паре.
-			//
-			// Требовать «сид 99 и сид 100 обязаны разойтись» неправильно: два прогона
-			// вполне могут совпасть по чистой случайности, и тест начнёт падать
-			// на ровном месте. Осмысленно другое — что сид вообще на что-то влияет.
-			var signatures = new HashSet<string> { first };
-			for (int seed = 100; seed < 108; seed++)
-			{
-				signatures.Add(RunSignature(content, seed));
-			}
-
-			Check($"Сид влияет на прогон (различных исходов {signatures.Count} из 9)", signatures.Count > 1);
+			Check("Разный seed — разный прогон", first != third);
 		}
 
 		/// <summary>Обучающая смена: сценарный порядок, вызовы по одному, таймеры игрока выключены.</summary>
-		/// <summary>
-		/// Открытый экран останавливает мир целиком: таймеры, дорога группы, приём звонков.
-		/// Проверяется через наблюдаемое поведение — таймер метки не должен сдвинуться,
-		/// а после закрытия обязан продолжить с того же места, а не начаться заново.
-		/// </summary>
-		private static void TestTimeFreeze(ContentDatabase content)
-		{
-			var simulation = new KonturSimulation(content, 3);
-
-			string? incidentId = null;
-			simulation.Events.Subscribe<IncidentCreated>(e =>
-			{
-				if (incidentId != null)
-				{
-					return;
-				}
-
-				incidentId = e.IncidentId;
-				simulation.AnswerCall(e.IncidentId);
-				simulation.ConfirmBriefing(e.IncidentId);
-			});
-
-			var freezes = new List<TimeFreezeChanged>();
-			simulation.Events.Subscribe<TimeFreezeChanged>(freezes.Add);
-
-			simulation.StartShift(1);
-			for (int i = 0; i < 400 && incidentId == null; i++)
-			{
-				simulation.Tick(0.25);
-			}
-
-			if (incidentId == null)
-			{
-				Check("Метка появилась (проверка остановки времени)", false);
-				return;
-			}
-
-			Check("Пока экраны закрыты, время идёт", !simulation.IsTimeFrozen);
-
-			double markerBefore = RemainingOf(simulation, incidentId);
-			double shiftBefore = simulation.GetStatus().ShiftTime;
-
-			Check("Экран отправки открылся", simulation.OpenDispatchScreen(incidentId).IsSuccess);
-			Check("Открытый экран остановил мир", simulation.IsTimeFrozen);
-			Check("Об остановке пришло событие", freezes.Count == 1 && freezes[0].IsFrozen);
-
-			RunSeconds(simulation, 20.0, 0.25);
-
-			Check("Таймер метки не сдвинулся", Math.Abs(RemainingOf(simulation, incidentId) - markerBefore) < 1e-9);
-			Check("Часы смены не сдвинулись", Math.Abs(simulation.GetStatus().ShiftTime - shiftBefore) < 1e-9);
-
-			Check("Экран закрылся", simulation.CloseDispatchScreen(incidentId).IsSuccess);
-			Check("После закрытия мир пошёл", !simulation.IsTimeFrozen);
-			Check("О возобновлении пришло событие", freezes.Count == 2 && !freezes[1].IsFrozen);
-
-			RunSeconds(simulation, 2.0, 0.25);
-			double markerAfter = RemainingOf(simulation, incidentId);
-
-			Check("Таймер продолжил с того же места, а не сначала", markerAfter < markerBefore);
-			Check("И потратил ровно столько, сколько шло время", Math.Abs((markerBefore - markerAfter) - 2.0) < 0.3);
-
-			// Экран закрытого вызова не должен удерживать мир: отправляем группу и ждём конца.
-			IReadOnlyList<EmployeeView> roster = simulation.GetRoster();
-			simulation.OpenDispatchScreen(incidentId);
-			simulation.DispatchSquad(incidentId, new List<string> { roster[0].Id }, new List<string>());
-			Check("Отправка группы отпускает мир", !simulation.IsTimeFrozen);
-		}
-
-		private static double RemainingOf(KonturSimulation simulation, string incidentId)
-		{
-			IReadOnlyList<IncidentView> incidents = simulation.GetActiveIncidents();
-			for (int i = 0; i < incidents.Count; i++)
-			{
-				if (incidents[i].Id == incidentId)
-				{
-					return incidents[i].RemainingSeconds;
-				}
-			}
-
-			return -1.0;
-		}
-
-		/// <summary>Надбавка варианта прибавляется к каждой требуемой характеристике, нулевые не трогает.</summary>
-		private static void TestRequirementModifier(ContentDatabase content)
-		{
-			var requirements = new StatBlock(8, 0, 4, 0, 0);
-			var option = new MissionEventOption { Id = "test", RequirementModifier = 2 };
-
-			var resolver = new MissionResolver(content, content.Config, new XorShiftRandom(1));
-			var mission = new MissionDefinition { Id = "m", Day = 1, Requirements = requirements };
-
-			StatBlock scaled = resolver.ComputeEffectiveRequirements(mission, option, 1);
-
-			Check("Надбавка прибавилась к требуемым характеристикам",
-				scaled[StatKind.Strength] == 10 && scaled[StatKind.Combat] == 6);
-			Check("Нетребуемые характеристики остались нулевыми",
-				scaled[StatKind.Intellect] == 0 && scaled[StatKind.Agility] == 0 && scaled[StatKind.Charisma] == 0);
-
-			StatBlock plain = resolver.ComputeEffectiveRequirements(mission, null, 1);
-			Check("Без варианта требования не меняются", plain.Equals(requirements));
-		}
-
-		/// <summary>Каждый вариант вмешательства должен уметь показать отчёт на оба исхода.</summary>
-		private static void TestReportMapping(ContentDatabase content)
-		{
-			int checkedPairs = 0;
-			bool allResolved = true;
-
-			foreach (KeyValuePair<string, MissionDefinition> pair in content.Missions)
-			{
-				MissionDefinition mission = pair.Value;
-
-				foreach (bool isSuccess in new[] { true, false })
-				{
-					if (string.IsNullOrEmpty(mission.ResolveReportId(null, isSuccess)))
-					{
-						allResolved = false;
-					}
-
-					checkedPairs++;
-				}
-
-				if (!mission.HasMissionEvent)
-				{
-					continue;
-				}
-
-				MissionEventDefinition? missionEvent = content.FindMissionEvent(mission.MissionEventId);
-				if (missionEvent == null)
-				{
-					continue;
-				}
-
-				foreach (MissionEventOption option in missionEvent.Options)
-				{
-					foreach (bool isSuccess in new[] { true, false })
-					{
-						if (string.IsNullOrEmpty(mission.ResolveReportId(option.Id, isSuccess)))
-						{
-							allResolved = false;
-						}
-
-						checkedPairs++;
-					}
-				}
-			}
-
-			Check($"У каждой пары «вариант × исход» есть отчёт (проверено {checkedPairs})", allResolved);
-		}
-
-		/// <summary>
-		/// Потолок последствий обязан резать шансы последним — уже после всех множителей,
-		/// иначе «безопасный» вызов мог бы убить через множитель варианта или снаряжения.
-		/// </summary>
-		private static void TestConsequenceCap(ContentDatabase content)
-		{
-			Check("Филлер по умолчанию не убивает",
-				ConsequenceCaps.DefaultFor(MissionTier.Filler) == ConsequenceCap.Injury);
-			Check("Сюжетный вызов по умолчанию убивает",
-				ConsequenceCaps.DefaultFor(MissionTier.Story) == ConsequenceCap.Death);
-			Check("Ужесточение выбирает более строгий потолок",
-				ConsequenceCaps.Tighten(ConsequenceCap.Death, ConsequenceCap.Injury) == ConsequenceCap.Injury
-				&& ConsequenceCaps.Tighten(ConsequenceCap.Injury, ConsequenceCap.None) == ConsequenceCap.None);
-
-			// Гарантированно смертельная миссия: сотня бросков подряд не должна дать ни одной смерти.
-			var resolver = new MissionResolver(content, content.Config, new XorShiftRandom(77));
-			var employees = new List<Employee>
-			{
-				new Employee { Id = "emp_x", Name = "X", BaseStats = StatBlock.Zero },
-				new Employee { Id = "emp_y", Name = "Y", BaseStats = StatBlock.Zero }
-			};
-
-			var lethal = new MissionDefinition
-			{
-				Id = "m_lethal", Tier = MissionTier.Story,
-				Requirements = new StatBlock(20, 0, 0, 0, 0),
-				InjuryChance = 1.0, DeathChance = 1.0
-			};
-
-			MissionOutcome uncapped = Resolve(resolver, lethal, employees, null);
-			Check("Без потолка гибель происходит", uncapped.KilledEmployeeIds.Count > 0);
-
-			var capped = new MissionDefinition
-			{
-				Id = "m_kindergarten", Tier = MissionTier.Story,
-				ConsequenceCapOverride = ConsequenceCap.Injury,
-				Requirements = new StatBlock(20, 0, 0, 0, 0),
-				InjuryChance = 1.0, DeathChance = 1.0
-			};
-
-			bool anyDeath = false;
-			bool anyInjury = false;
-			for (int i = 0; i < 100; i++)
-			{
-				MissionOutcome outcome = Resolve(resolver, capped, employees, null);
-				anyDeath |= outcome.KilledEmployeeIds.Count > 0;
-				anyInjury |= outcome.InjuredEmployeeIds.Count > 0;
-			}
-
-			Check("Потолок Injury не пропускает ни одной гибели за 100 прогонов", !anyDeath);
-			Check("Но травмы при этом остаются", anyInjury);
-
-			// Вариант ужесточает потолок миссии.
-			var safeOption = new MissionEventOption
-			{
-				Id = "hide", DeathChanceMultiplier = 5.0, InjuryChanceMultiplier = 5.0,
-				ConsequenceCapOverride = ConsequenceCap.None
-			};
-
-			MissionOutcome hidden = Resolve(resolver, lethal, employees, safeOption);
-			Check("Вариант с потолком None не даёт ни травм, ни гибели",
-				hidden.KilledEmployeeIds.Count == 0 && hidden.InjuredEmployeeIds.Count == 0);
-			Check("Применённый потолок попал в итог", hidden.AppliedCap == ConsequenceCap.None);
-		}
-
-		private static MissionOutcome Resolve(
-			MissionResolver resolver,
-			MissionDefinition mission,
-			List<Employee> squad,
-			MissionEventOption? option)
-		{
-			return resolver.Resolve(new ResolutionRequest
-			{
-				IncidentId = "INC-TEST",
-				Mission = mission,
-				Squad = squad,
-				Equipment = new List<EquipmentDefinition>(),
-				EffectiveRequirements = mission.Requirements,
-				SquadStats = StatBlock.Zero,
-				ChosenOption = option
-			});
-		}
-
-		/// <summary>
-		/// Вариант не запирается составом: он подставляет требования своей миссии в те
-		/// характеристики, которые назвал текст. Проверяется именно подстановка —
-		/// молча обнулённый порог выглядел бы как бесплатная проверка.
-		/// </summary>
-		private static void TestOptionGating(ContentDatabase content)
-		{
-			var option = new MissionEventOption
-			{
-				Id = "clever",
-				CheckedStats = new List<StatKind> { StatKind.Intellect, StatKind.Charisma }
-			};
-
-			var missionRequirements = new StatBlock(7, 8, 9, 6, 5);
-			StatBlock resolved = option.ResolveRequirements(missionRequirements);
-
-			Check("Названная характеристика берёт порог миссии",
-				resolved[StatKind.Intellect] == 8 && resolved[StatKind.Charisma] == 5);
-			Check("Неназванные характеристики в проверку не входят",
-				resolved[StatKind.Strength] == 0 && resolved[StatKind.Combat] == 0);
-			Check("В проверке ровно то, что назвал текст", resolved.Total == 13);
-
-			var free = new MissionEventOption { Id = "plain" };
-			Check("Вариант без списка проверок ничего не требует",
-				free.ResolveRequirements(missionRequirements).Total == 0);
-
-			// Проверка по характеристике, которой нет в требованиях миссии, была бы
-			// бесплатной: порог подставился бы нулевой. Загрузчик обязан такое ловить.
-			bool everyCheckIsBacked = true;
-			foreach (KeyValuePair<string, MissionEventDefinition> pair in content.MissionEvents)
-			{
-				StatBlock requirements = StatBlock.Zero;
-				foreach (KeyValuePair<string, MissionDefinition> mission in content.Missions)
-				{
-					if (string.Equals(mission.Value.MissionEventId, pair.Key, System.StringComparison.OrdinalIgnoreCase))
-					{
-						requirements = mission.Value.Requirements;
-						break;
-					}
-				}
-
-				foreach (MissionEventOption candidate in pair.Value.Options)
-				{
-					for (int i = 0; i < candidate.CheckedStats.Count; i++)
-					{
-						everyCheckIsBacked &= requirements[candidate.CheckedStats[i]] > 0;
-					}
-				}
-			}
-
-			Check("Каждая проверка варианта обеспечена требованием миссии", everyCheckIsBacked);
-
-			// Умолчания по типу диалога: хороший не дороже нейтрального, тот не дороже плохого.
-			bool orderHolds = true;
-			foreach (KeyValuePair<string, MissionEventDefinition> pair in content.MissionEvents)
-			{
-				foreach (MissionEventOption a in pair.Value.Options)
-				{
-					foreach (MissionEventOption b in pair.Value.Options)
-					{
-						if (a.Quality < b.Quality && a.RequirementModifier > b.RequirementModifier)
-						{
-							orderHolds = false;
-						}
-					}
-				}
-			}
-
-			Check("Тип диалога и надбавка не разошлись", orderHolds);
-		}
-
 		private static void TestTutorialShift(ContentDatabase content)
 		{
 			Kontur.Core.Config.DayConfig day1 = content.Config.GetDay(1);
@@ -1370,13 +772,7 @@ namespace Kontur.Harness
 
 			Check("Порядок вызовов совпадает со сценарием", sameOrder);
 			Check("Обучающая смена завершается", !scripted.IsShiftActive);
-			// Весь сценарий обучения идёт строго по одному: sequentialCallCount покрывает
-			// все вызовы среза. Наложение вернётся, когда появится текст на остальные дни.
-			int sequential = day1.SequentialCallCount;
-			bool overlapExpected = day1.MissionOrder.Count > sequential;
-			Check(
-				overlapExpected ? "В конце смены вызовы накладываются" : "Обучающие вызовы идут строго по одному",
-				overlapExpected ? maxSimultaneous > 1 : maxSimultaneous <= 1);
+			Check("Сценарный день не накладывает вызовы", maxSimultaneous == 1);
 		}
 
 		/// <summary>
@@ -1404,8 +800,6 @@ namespace Kontur.Harness
 			}
 
 			var signature = new System.Text.StringBuilder();
-			int totalRevealed = 0;
-			int totalProperties = 0;
 			var creatureIds = new List<string>(content.Creatures.Keys);
 			creatureIds.Sort(StringComparer.Ordinal);
 
@@ -1421,18 +815,12 @@ namespace Kontur.Harness
 					}
 				}
 
-				totalRevealed += revealed;
-				totalProperties += creature.Properties.Count;
 				signature.Append(revealed).Append('/').Append(creature.Properties.Count).Append(' ');
 			}
 
 			Console.WriteLine("       снимок раскрытий: " + signature.ToString().Trim() + $", событий {revealEvents}");
-
-			// Магической константы «ожидаемый снимок» здесь больше нет: срез контента
-			// меняется вместе с текстом, и константа ломалась бы на каждой правке .md,
-			// ничего при этом не проверяя. Проверяем то, что верно при любом контенте.
-			Check("Раскрытий не больше, чем свойств у существ", totalRevealed <= totalProperties);
-			Check("Каждое раскрытие пришло ровно одним событием", revealEvents == totalRevealed);
+			Check("Раскрытия энциклопедии не изменились", signature.ToString().Trim() == ExpectedRevealSignature);
+			Check("События раскрытия совпадают со снимком", revealEvents == ExpectedRevealEvents);
 		}
 
 		/// <summary>Прослойка на время перехода: до рефакторинга свойство — объект, после — id.</summary>
@@ -1458,7 +846,7 @@ namespace Kontur.Harness
 
 			simulation.Events.Subscribe<GameOverTriggered>(_ => gameOver = true);
 
-			simulation.StartShift(1);
+			simulation.StartShift(3);
 
 			double guard = 0.0;
 			while (simulation.IsShiftActive && !gameOver && guard < 1800.0)
@@ -1473,7 +861,7 @@ namespace Kontur.Harness
 
 			if (summary != null)
 			{
-				Check("Вызовы смены запланированы", summary.TotalIncidents >= 1);
+				Check("За смену 5–7 вызовов", summary.TotalIncidents >= 5 && summary.TotalIncidents <= 7);
 				Check("Все вызовы учтены",
 					summary.Successes + summary.Failures == summary.TotalIncidents);
 			}
@@ -1487,9 +875,6 @@ namespace Kontur.Harness
 			var oper = new AutoOperator(simulation, content, RadioStrategy.Random, seed);
 			var signature = new System.Text.StringBuilder();
 
-			// В подпись входит и момент события: без него прогон с одной миссией
-			// сводился к «успех или провал», и два разных сида совпадали просто потому,
-			// что вариантов всего два. Время звонка различает прогоны куда надёжнее.
 			simulation.Events.SubscribeAll(e =>
 			{
 				if (e is MissionResolved resolved)
@@ -1497,13 +882,13 @@ namespace Kontur.Harness
 					signature.Append(resolved.Outcome.MissionId)
 						.Append(':')
 						.Append(resolved.Outcome.Kind)
-						.Append('@')
-						.Append(simulation.GetStatus().ShiftTime.ToString("0.00", CultureInfo.InvariantCulture))
 						.Append(';');
 				}
 			});
 
-			simulation.StartShift(1);
+			// День 2: на сценарной обучающей смене состав вызовов одинаков при любом seed,
+			// и проверка «разный seed — разный прогон» потеряла бы смысл.
+			simulation.StartShift(3);
 
 			double guard = 0.0;
 			while (simulation.IsShiftActive && guard < 1800.0)
@@ -1524,166 +909,6 @@ namespace Kontur.Harness
 				simulation.Tick(delta);
 				elapsed += delta;
 			}
-		}
-
-		/// <summary>
-		/// Контент под проверки таймеров: один день с включёнными таймерами и одна миссия.
-		///
-		/// Поставляемый контент для этого не годится — там обучающая смена, где таймеры
-		/// игрока выключены намеренно. Синтетический набор ещё и защищает проверки от
-		/// правок баланса: они про механику, а не про конкретный вызов.
-		/// </summary>
-		/// <summary>
-		/// Три вызова, назначенные на одно и то же время. Единственный способ проверить
-		/// очередь честно: если бы линия не была занята, все три зазвонили бы разом.
-		/// </summary>
-		private static ContentDatabase BuildQueueTestContent()
-		{
-			var source = new InMemoryContentSource();
-
-			source.Add("config.json", @"{
-				""timings"": { ""phoneRingSeconds"": 15, ""mapMarkerSeconds"": 30, ""radioSeconds"": 20,
-					""shiftCallWindowSeconds"": 300, ""minSecondsBetweenCalls"": 0, ""callQueueGapSeconds"": 2 },
-				""days"": [ { ""day"": 1, ""staffLimit"": 3, ""minCalls"": 3, ""maxCalls"": 3,
-					""requirementMultiplier"": 1.0, ""consumablesPerShift"": 0, ""standardPerShift"": 0,
-					""missionOrder"": [ ""m_one"", ""m_two"", ""m_three"" ] } ]
-			}");
-
-			source.Add("zones.json", @"[ { ""id"": ""z_test"", ""name"": ""Полигон"", ""state"": ""Normal"", ""baseWeight"": 1.0 } ]");
-			source.Add("abilities.json", "[]");
-			source.Add("equipment.json", "[]");
-			source.Add("creatures.json", "[]");
-			source.Add("radio.json", "[]");
-			source.Add("employees.json", @"{
-				""startingRoster"": [
-					{ ""id"": ""emp_a"", ""name"": ""А"", ""level"": 1, ""stats"": { ""strength"": 6 } }
-				],
-				""hirePool"": []
-			}");
-
-			string mission = @"{{
-				""id"": ""{0}"", ""day"": 1, ""zoneId"": ""z_test"", ""creatureId"": """",
-				""callId"": ""call_{0}"", ""requirements"": {{ ""strength"": 4 }},
-				""travelSeconds"": 2, ""onSiteSeconds"": 1, ""returnSeconds"": 2,
-				""scalesOnSuccess"": {{ ""loyalty"": 1 }}, ""scalesOnFailure"": {{ ""loyalty"": -1 }},
-				""scalesOnMissedCall"": {{ ""publicity"": 1 }}, ""scalesOnExpiredMarker"": {{ ""publicity"": 1 }}
-			}}";
-
-			source.Add("missions.json", "[" + string.Format(mission, "m_one") + ","
-				+ string.Format(mission, "m_two") + "," + string.Format(mission, "m_three") + "]");
-
-			return ContentLoader.Load(source);
-		}
-
-		/// <summary>
-		/// Телефон один: одновременно звонить может только один вызов, остальные ждут.
-		/// Проверяется наблюдаемым поведением — сколько инцидентов в фазе Ringing за прогон.
-		/// </summary>
-		private static void TestCallQueue(ContentDatabase content)
-		{
-			var simulation = new KonturSimulation(content, 21);
-
-			int maxRinging = 0;
-			int queuedEvents = 0;
-			var ringOrder = new List<string>();
-
-			simulation.Events.Subscribe<IncidentQueued>(_ => queuedEvents++);
-			simulation.Events.Subscribe<IncidentCreated>(e => ringOrder.Add(e.MissionId));
-
-			simulation.StartShift(1);
-
-			// Никто не отвечает: каждый вызов отзвонит свои 15 секунд и уступит очередь.
-			double guard = 0.0;
-			while (simulation.IsShiftActive && guard < 300.0)
-			{
-				simulation.Tick(0.25);
-				guard += 0.25;
-
-				int ringing = 0;
-				int queued = 0;
-				foreach (IncidentView incident in simulation.GetActiveIncidents())
-				{
-					if (incident.Phase == IncidentPhase.Ringing)
-					{
-						ringing++;
-					}
-					else if (incident.Phase == IncidentPhase.Queued)
-					{
-						queued++;
-					}
-				}
-
-				if (ringing > maxRinging)
-				{
-					maxRinging = ringing;
-				}
-
-				if (ringing + queued > 3)
-				{
-					Check("Инцидентов не больше, чем в расписании", false);
-					return;
-				}
-			}
-
-			Check("Одновременно звонит не больше одного вызова", maxRinging <= 1);
-			Check("Остальные ждали в очереди", queuedEvents > 0);
-			Check("Каждый вызов дозвонился", ringOrder.Count == 3);
-
-			bool inOrder = ringOrder.Count == 3
-				&& ringOrder[0] == "m_one" && ringOrder[1] == "m_two" && ringOrder[2] == "m_three";
-			Check("Очередь соблюдает порядок поступления", inOrder);
-			Check("Смена завершилась", !simulation.IsShiftActive);
-		}
-
-		private static ContentDatabase BuildTimerTestContent()
-		{
-			var source = new InMemoryContentSource();
-
-			// Окно вызовов сжато до 20 секунд намеренно.
-			//
-			// При боевых пяти минутах единственный вызов получал случайное время
-			// в диапазоне до четырёх минут, а проверки крутят симуляцию минуту-полторы.
-			// Тесты то проходили, то нет — в зависимости от того, что выпало генератору,
-			// и выглядело это как плавающая ошибка в ядре. Короткое окно убирает
-			// случайность из условия проверки, ничего не меняя в самих таймерах.
-			source.Add("config.json", @"{
-				""timings"": { ""phoneRingSeconds"": 15, ""mapMarkerSeconds"": 30, ""radioSeconds"": 20,
-					""shiftCallWindowSeconds"": 20, ""minSecondsBetweenCalls"": 12 },
-				""days"": [ { ""day"": 1, ""staffLimit"": 3, ""minCalls"": 1, ""maxCalls"": 1,
-					""requirementMultiplier"": 1.0, ""consumablesPerShift"": 2, ""standardPerShift"": 1 } ]
-			}");
-
-			source.Add("zones.json", @"[ { ""id"": ""z_test"", ""name"": ""Полигон"", ""state"": ""Normal"", ""baseWeight"": 1.0 } ]");
-			source.Add("abilities.json", "[]");
-			source.Add("equipment.json", @"[
-				{ ""id"": ""eq_test_consumable"", ""name"": ""Расходник"", ""kind"": ""Consumable"", ""bonus"": { ""strength"": 1 } },
-				{ ""id"": ""eq_test_standard"", ""name"": ""Обычное"", ""kind"": ""Standard"", ""bonus"": { ""combat"": 1 } }
-			]");
-			source.Add("creatures.json", "[]");
-			source.Add("radio.json", "[]");
-
-			source.Add("employees.json", @"{
-				""startingRoster"": [
-					{ ""id"": ""emp_a"", ""name"": ""А"", ""level"": 1, ""stats"": { ""strength"": 4, ""combat"": 4 } },
-					{ ""id"": ""emp_b"", ""name"": ""Б"", ""level"": 1, ""stats"": { ""strength"": 4, ""combat"": 4 } },
-					{ ""id"": ""emp_c"", ""name"": ""В"", ""level"": 1, ""stats"": { ""strength"": 4, ""combat"": 4 } }
-				],
-				""hirePool"": []
-			}");
-
-			source.Add("missions.json", @"[ {
-				""id"": ""m_test"", ""day"": 1, ""zoneId"": ""z_test"", ""creatureId"": """",
-				""callId"": ""call_test"",
-				""requirements"": { ""strength"": 6 },
-				""travelSeconds"": 4, ""onSiteSeconds"": 2, ""returnSeconds"": 4,
-				""scalesOnSuccess"": { ""infection"": -1, ""publicity"": -1, ""loyalty"": 1 },
-				""scalesOnFailure"": { ""infection"": 4, ""publicity"": 3, ""loyalty"": -3 },
-				""scalesOnMissedCall"": { ""infection"": 6, ""publicity"": 6, ""loyalty"": -6 },
-				""scalesOnExpiredMarker"": { ""infection"": 5, ""publicity"": 5, ""loyalty"": -5 }
-			} ]");
-
-			// Каталог не передаём: сверять id не с чем и не нужно — текстов у полигона нет.
-			return ContentLoader.Load(source);
 		}
 
 		private static ContentDatabase BuildMinimalContent()

@@ -27,11 +27,12 @@ public partial class MapMarkerController : Node
 	private IDisposable _markerExpiredSubscription = null!;
 	private IDisposable _squadDispatchedSubscription = null!;
 	private IDisposable _squadArrivedSubscription = null!;
-	private IDisposable _missionOutcomeReadySubscription = null!;
+	private IDisposable _missionExecutionStartedSubscription = null!;
 	private IDisposable _radioTriggeredSubscription = null!;
 	private IDisposable _missionResolvedSubscription = null!;
+	private IDisposable _squadReturningSubscription = null!;
 	private IDisposable _squadReturnedSubscription = null!;
-	private KonturRuntime _runtime = null!;
+	private GameRuntime _runtime = null!;
 	private MapBuildingEditor _mapUi = null!;
 	private MeshInstance3D _mapSurface = null!;
 	private Node3D _markerContainer = null!;
@@ -42,23 +43,24 @@ public partial class MapMarkerController : Node
 		_mapSurface = GetNode<MeshInstance3D>(MapSurfacePath);
 		_markerContainer = GetNode<Node3D>(MarkerContainerPath);
 
-		_runtime = KonturRuntime.Get(this);
+		_runtime = GameRuntime.Get(this);
 		if (_runtime == null || !_runtime.IsReady)
 		{
-			GD.PushWarning("MapMarkerController: KonturRuntime is not ready; map pins are disabled.");
+			GD.PushWarning("MapMarkerController: GameRuntime is not ready; map pins are disabled.");
 			return;
 		}
 
-		_markerSpawnedSubscription = _runtime.Simulation.Events.Subscribe<MapMarkerSpawned>(OnMarkerSpawned);
-		_markerExpiredSubscription = _runtime.Simulation.Events.Subscribe<MapMarkerExpired>(marker => RemovePin(marker.IncidentId));
-		_squadDispatchedSubscription = _runtime.Simulation.Events.Subscribe<SquadDispatched>(OnSquadDispatched);
-		_squadArrivedSubscription = _runtime.Simulation.Events.Subscribe<SquadArrived>(arrival => _mapUi.FinishDispatchRoute(arrival.IncidentId));
-		_missionOutcomeReadySubscription = _runtime.Simulation.Events.Subscribe<MissionOutcomeReady>(OnMissionOutcomeReady);
-		_radioTriggeredSubscription = _runtime.Simulation.Events.Subscribe<RadioTriggered>(OnRadioTriggered);
-		_missionResolvedSubscription = _runtime.Simulation.Events.Subscribe<MissionResolved>(OnMissionResolved);
-		_squadReturnedSubscription = _runtime.Simulation.Events.Subscribe<SquadReturned>(returned => _mapUi.FinishDispatchRoute(returned.IncidentId));
+		_markerSpawnedSubscription = _runtime.Session.Events.Subscribe<MapMarkerSpawned>(OnMarkerSpawned);
+		_markerExpiredSubscription = _runtime.Session.Events.Subscribe<MapMarkerExpired>(marker => RemovePin(marker.IncidentId));
+		_squadDispatchedSubscription = _runtime.Session.Events.Subscribe<SquadDispatched>(OnSquadDispatched);
+		_squadArrivedSubscription = _runtime.Session.Events.Subscribe<SquadArrived>(arrival => _mapUi.FinishDispatchRoute(arrival.IncidentId));
+		_missionExecutionStartedSubscription = _runtime.Session.Events.Subscribe<MissionExecutionStarted>(OnMissionExecutionStarted);
+		_radioTriggeredSubscription = _runtime.Session.Events.Subscribe<RadioTriggered>(OnRadioTriggered);
+		_missionResolvedSubscription = _runtime.Session.Events.Subscribe<MissionResolved>(OnMissionResolved);
+		_squadReturningSubscription = _runtime.Session.Events.Subscribe<SquadReturning>(OnSquadReturning);
+		_squadReturnedSubscription = _runtime.Session.Events.Subscribe<SquadReturned>(returned => _mapUi.FinishDispatchRoute(returned.IncidentId));
 
-		foreach (IncidentView incident in _runtime.Simulation.GetActiveIncidents())
+		foreach (IncidentView incident in _runtime.Session.GetActiveIncidents())
 		{
 			SyncPinState(incident);
 		}
@@ -71,7 +73,7 @@ public partial class MapMarkerController : Node
 			return;
 		}
 
-		foreach (IncidentView incident in _runtime.Simulation.GetActiveIncidents())
+		foreach (IncidentView incident in _runtime.Session.GetActiveIncidents())
 		{
 			SyncPinState(incident);
 			if (incident.Phase is IncidentPhase.Travelling or IncidentPhase.Returning)
@@ -143,9 +145,10 @@ public partial class MapMarkerController : Node
 		_markerExpiredSubscription?.Dispose();
 		_squadDispatchedSubscription?.Dispose();
 		_squadArrivedSubscription?.Dispose();
-		_missionOutcomeReadySubscription?.Dispose();
+		_missionExecutionStartedSubscription?.Dispose();
 		_radioTriggeredSubscription?.Dispose();
 		_missionResolvedSubscription?.Dispose();
+		_squadReturningSubscription?.Dispose();
 		_squadReturnedSubscription?.Dispose();
 	}
 
@@ -168,13 +171,13 @@ public partial class MapMarkerController : Node
 		if (!_pinBuildingIds.TryGetValue(incidentId, out string buildingId)
 			|| !_mapUi.TryGetTravelSeconds(buildingId, out double travelSeconds))
 		{
-			return CommandResult.Fail(Content.Label("ui_map_no_route"));
+			return CommandResult.Fail("Для этого задания не удалось построить маршрут на карте.");
 		}
 
-		KonturRuntime runtime = KonturRuntime.Get(this);
+		GameRuntime runtime = GameRuntime.Get(this);
 		return runtime == null || !runtime.IsReady
-			? CommandResult.Fail(Content.Label("ui_sim_not_ready"))
-			: runtime.Simulation.DispatchSquad(incidentId, employeeIds, equipmentIds);
+			? CommandResult.Fail("Симуляция ещё не готова.")
+			: runtime.Session.DispatchSquad(incidentId, employeeIds, equipmentIds, travelSeconds);
 	}
 
 	private void OnSquadDispatched(SquadDispatched dispatch)
@@ -193,6 +196,16 @@ public partial class MapMarkerController : Node
 		if (!_mapUi.StartDispatchRoute(dispatch.IncidentId, buildingId, dispatch.TravelSeconds))
 		{
 			GD.PushWarning($"MapMarkerController: could not start route for '{dispatch.IncidentId}'.");
+		}
+	}
+
+	private void OnMissionExecutionStarted(MissionExecutionStarted execution)
+	{
+		_radioDurations.Remove(execution.IncidentId);
+		_executionDurations[execution.IncidentId] = execution.DurationSeconds;
+		if (_pins.TryGetValue(execution.IncidentId, out MapMissionMarker pin))
+		{
+			pin.ShowMissionExecution(execution.DurationSeconds, execution.DurationSeconds);
 		}
 	}
 
@@ -220,18 +233,12 @@ public partial class MapMarkerController : Node
 		}
 	}
 
-	private void OnMissionOutcomeReady(MissionOutcomeReady outcome)
+	private void OnSquadReturning(SquadReturning returning)
 	{
-		if (outcome.SquadWiped || !_pinBuildingIds.TryGetValue(outcome.IncidentId, out string buildingId))
+		RemovePin(returning.IncidentId);
+		if (!_mapUi.StartReturnRoute(returning.IncidentId, returning.BuildingId, returning.ReturnSeconds))
 		{
-			RemovePin(outcome.IncidentId);
-			return;
-		}
-
-		RemovePin(outcome.IncidentId);
-		if (!_mapUi.StartReturnRoute(outcome.IncidentId, buildingId, outcome.ReturnSeconds))
-		{
-			GD.PushWarning($"MapMarkerController: could not start return route for '{outcome.IncidentId}'.");
+			GD.PushWarning($"MapMarkerController: could not start return route for '{returning.IncidentId}'.");
 		}
 	}
 

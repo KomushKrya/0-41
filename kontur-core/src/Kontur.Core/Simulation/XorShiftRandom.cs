@@ -21,17 +21,14 @@ namespace Kontur.Core.Simulation
 
 		public int Seed { get; }
 
-		/// <summary>
-		/// Внутреннее состояние генератора — для сохранения партии.
-		///
-		/// Сохранять именно его, а не сид: сид задаёт начало последовательности, а нам нужно
-		/// продолжить её ровно с того места, где игрок нажал «сохранить». Иначе после загрузки
-		/// пойдут другие броски, и записанное сохранение перестанет быть тем же прогоном.
-		/// </summary>
 		public ulong State
 		{
 			get { return _state; }
-			set { _state = value == 0UL ? 0x9E3779B97F4A7C15UL : value; }
+		}
+
+		public void RestoreState(ulong state)
+		{
+			_state = state == 0UL ? 0x9E3779B97F4A7C15UL : state;
 		}
 
 		public double NextDouble()
