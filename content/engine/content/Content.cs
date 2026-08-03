@@ -90,6 +90,41 @@ public partial class Content : Node
 		return entry != null ? entry.Chunks : new List<ContentChunk>();
 	}
 
+	/// <summary>Возвращает отображаемое имя записи, либо сам id для заметной диагностики пропавшего текста.</summary>
+	public static string NameOf(string id)
+	{
+		if (Instance == null || string.IsNullOrEmpty(id))
+		{
+			return id;
+		}
+
+		ContentEntry entry = Instance.GetEntry(id);
+		return entry != null && entry.Name.Length > 0 ? entry.Name : id;
+	}
+
+	/// <summary>Подпись интерфейса с подстановкой пар «имя, значение».</summary>
+	public static string Label(string id, params string[] values)
+	{
+		string text = NameOf(id);
+		if (values == null || values.Length == 0 || !HasVariables(text))
+		{
+			return text;
+		}
+
+		return Fill(text, name =>
+		{
+			for (int i = 0; i + 1 < values.Length; i += 2)
+			{
+				if (values[i] == name)
+				{
+					return values[i + 1];
+				}
+			}
+
+			return null;
+		});
+	}
+
 	/// <summary>
 	/// Подставляет значения вместо {{имя}}. Чистая функция: движок значений не знает —
 	/// числа живут в геймплейных данных (data/abilities.json и т.п.) и приходят через

@@ -54,6 +54,9 @@ public partial class GameRuntime : Node
 	/// <summary>Ядро. Null, если контент не загрузился — проверяйте IsReady.</summary>
 	public KonturSimulation Session { get; private set; }
 
+	/// <summary>Имя, которое использует верхний flow-слой. Старый Session остаётся для существующих сцен.</summary>
+	public KonturSimulation Simulation => Session;
+
 	/// <summary>Ядро загрузилось и готово принимать команды.</summary>
 	public bool IsReady => Session != null;
 
@@ -118,5 +121,78 @@ public partial class GameRuntime : Node
 	public static GameRuntime Get(Node caller)
 	{
 		return caller.GetNodeOrNull<GameRuntime>("/root/GameRuntime");
+	}
+
+	// ------------------------------------------------------------------ сохранения
+
+	public const string SaveFolder = "user://saves/";
+
+	public static string GetSlotPath(string slot)
+	{
+		return SaveFolder + slot + ".json";
+	}
+
+	public bool SaveToSlot(string slot, string label = "")
+	{
+		if (Session == null)
+		{
+			GD.PushError("[KONTUR] Сохранять нечего: ядро не загрузилось.");
+			return false;
+		}
+
+		DirAccess.MakeDirRecursiveAbsolute(SaveFolder);
+		string path = GetSlotPath(slot);
+		string temporary = path + ".tmp";
+		using (FileAccess file = FileAccess.Open(temporary, FileAccess.ModeFlags.Write))
+		{
+			if (file == null)
+			{
+				GD.PushError($"[KONTUR] Не удалось открыть на запись {temporary}: {FileAccess.GetOpenError()}");
+				return false;
+			}
+
+			file.StoreString(Session.Save(label));
+		}
+
+		if (FileAccess.FileExists(path))
+		{
+			DirAccess.RemoveAbsolute(path);
+		}
+
+		if (DirAccess.RenameAbsolute(temporary, path) != Error.Ok)
+		{
+			GD.PushError($"[KONTUR] Не удалось заменить сохранение {path}.");
+			return false;
+		}
+
+		return true;
+	}
+
+	public bool LoadFromSlot(string slot)
+	{
+		if (Session == null || !FileAccess.FileExists(GetSlotPath(slot)))
+		{
+			return false;
+		}
+
+		using FileAccess file = FileAccess.Open(GetSlotPath(slot), FileAccess.ModeFlags.Read);
+		if (file == null)
+		{
+			return false;
+		}
+
+		CommandResult result = Session.Load(file.GetAsText());
+		if (!result.IsSuccess)
+		{
+			GD.PushError("[KONTUR] Загрузка не удалась: " + result.Error);
+			return false;
+		}
+
+		return true;
+	}
+
+	public bool HasSlot(string slot)
+	{
+		return FileAccess.FileExists(GetSlotPath(slot));
 	}
 }
