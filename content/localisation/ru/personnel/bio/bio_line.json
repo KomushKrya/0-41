@@ -1,0 +1,392 @@
+{
+	"bio_build_athletic": {
+		"id": "bio_build_athletic",
+		"type": "bio_line",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Телосложение атлетичное.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"slot": "build"
+	},
+	"bio_build_average": {
+		"id": "bio_build_average",
+		"type": "bio_line",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Телосложение обычное, ничем не выделяется.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"slot": "build"
+	},
+	"bio_build_heavy": {
+		"id": "bio_build_heavy",
+		"type": "bio_line",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Крупный, тяжёлый в движении.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"slot": "build"
+	},
+	"bio_build_lean": {
+		"id": "bio_build_lean",
+		"type": "bio_line",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Сухощав, жилист.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"slot": "build"
+	},
+	"bio_build_short": {
+		"id": "bio_build_short",
+		"type": "bio_line",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Невысок, коренаст.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"slot": "build"
+	},
+	"bio_build_tall": {
+		"id": "bio_build_tall",
+		"type": "bio_line",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Высокий, сутулится в дверных проёмах.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"slot": "build"
+	},
+	"bio_family_communal": {
+		"id": "bio_family_communal",
+		"type": "bio_line",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Живёт в общежитии, семьи нет.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"slot": "family"
+	},
+	"bio_family_divorced": {
+		"id": "bio_family_divorced",
+		"type": "bio_line",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "В разводе, двое детей.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"slot": "family"
+	},
+	"bio_family_kid": {
+		"id": "bio_family_kid",
+		"type": "bio_line",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Есть дочь школьного возраста.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"slot": "family"
+	},
+	"bio_family_married": {
+		"id": "bio_family_married",
+		"type": "bio_line",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Женат, детей нет.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"slot": "family"
+	},
+	"bio_family_single": {
+		"id": "bio_family_single",
+		"type": "bio_line",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Холост. Ближайших родственников не указал.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"slot": "family"
+	},
+	"bio_family_widowed": {
+		"id": "bio_family_widowed",
+		"type": "bio_line",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Вдовец. Живёт с матерью.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"slot": "family"
+	},
+	"bio_note_army": {
+		"id": "bio_note_army",
+		"type": "bio_line",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Срочную служил в инженерных войсках.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"slot": "note"
+	},
+	"bio_note_loner": {
+		"id": "bio_note_loner",
+		"type": "bio_line",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "В группе работает тяжело, предпочитает выезжать один.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"slot": "note"
+	},
+	"bio_note_medals": {
+		"id": "bio_note_medals",
+		"type": "bio_line",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Имеет спортивные медали по лёгкой атлетике.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"slot": "note"
+	},
+	"bio_note_night": {
+		"id": "bio_note_night",
+		"type": "bio_line",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Постоянно просится в ночные смены.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"slot": "note"
+	},
+	"bio_note_reprimand": {
+		"id": "bio_note_reprimand",
+		"type": "bio_line",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Взыскание за самовольное решение на объекте.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"slot": "note"
+	},
+	"bio_note_smoker": {
+		"id": "bio_note_smoker",
+		"type": "bio_line",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Курит. На объектах с фильтрами это отмечали.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"slot": "note"
+	},
+	"bio_note_studies": {
+		"id": "bio_note_studies",
+		"type": "bio_line",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Заочно учится на инженера.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"slot": "note"
+	},
+	"bio_note_team": {
+		"id": "bio_note_team",
+		"type": "bio_line",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Командный игрок.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"slot": "note"
+	},
+	"bio_temper_anxious": {
+		"id": "bio_temper_anxious",
+		"type": "bio_line",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Тревожен, проверяет снаряжение по три раза.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"slot": "temper"
+	},
+	"bio_temper_calm": {
+		"id": "bio_temper_calm",
+		"type": "bio_line",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Держится ровно даже на разборах.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"slot": "temper"
+	},
+	"bio_temper_dry": {
+		"id": "bio_temper_dry",
+		"type": "bio_line",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Сух в обращении, шуток не понимает.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"slot": "temper"
+	},
+	"bio_temper_hot": {
+		"id": "bio_temper_hot",
+		"type": "bio_line",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Вспыльчив.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"slot": "temper"
+	},
+	"bio_temper_silent": {
+		"id": "bio_temper_silent",
+		"type": "bio_line",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Молчалив, на вопросы отвечает через паузу.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"slot": "temper"
+	},
+	"bio_temper_stubborn": {
+		"id": "bio_temper_stubborn",
+		"type": "bio_line",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Упрям, спорит с начальством в лицо.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"slot": "temper"
+	}
+}
