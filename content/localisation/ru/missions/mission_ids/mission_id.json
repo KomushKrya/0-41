@@ -1,0 +1,326 @@
+{
+	"m_black_mold": {
+		"id": "m_black_mold",
+		"type": "mission_id",
+		"name": "Чёрная плесень",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_pensioner_door": {
+		"id": "m_pensioner_door",
+		"type": "mission_id",
+		"name": "Жалоба пенсионера",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_workshop_intro": {
+		"id": "m_workshop_intro",
+		"type": "mission_id",
+		"name": "Недостача на стройбазе",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_missing_daughter": {
+		"id": "m_missing_daughter",
+		"type": "mission_id",
+		"name": "Пропавшая дочь",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_brother_smile": {
+		"id": "m_brother_smile",
+		"type": "mission_id",
+		"name": "Странная улыбка брата",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_construction_intruders": {
+		"id": "m_construction_intruders",
+		"type": "mission_id",
+		"name": "Шпана пробралась на заброшенную стройку",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_urgent_evacuation": {
+		"id": "m_urgent_evacuation",
+		"type": "mission_id",
+		"name": "Срочная эвакуация граждан",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_false_gas_alarm": {
+		"id": "m_false_gas_alarm",
+		"type": "mission_id",
+		"name": "Пожилая отравилась газом (ложный вызов)",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_workshop_truck": {
+		"id": "m_workshop_truck",
+		"type": "mission_id",
+		"name": "Гружёный борт",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_upstairs_neighbors": {
+		"id": "m_upstairs_neighbors",
+		"type": "mission_id",
+		"name": "Соседи сверху",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_bench_man": {
+		"id": "m_bench_man",
+		"type": "mission_id",
+		"name": "Дед на скамейке",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_platform_wait": {
+		"id": "m_platform_wait",
+		"type": "mission_id",
+		"name": "Тот, кто ждёт на путях",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_night_watchman": {
+		"id": "m_night_watchman",
+		"type": "mission_id",
+		"name": "Ночная смена вахтёра",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_ceiling_leak": {
+		"id": "m_ceiling_leak",
+		"type": "mission_id",
+		"name": "Течь потолка",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_intercom_voice": {
+		"id": "m_intercom_voice",
+		"type": "mission_id",
+		"name": "Голос в домофоне",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_cement_night_shift": {
+		"id": "m_cement_night_shift",
+		"type": "mission_id",
+		"name": "Ночная смена на цементном",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_dense_flock": {
+		"id": "m_dense_flock",
+		"type": "mission_id",
+		"name": "Плотная стая",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_dogs_at_grate": {
+		"id": "m_dogs_at_grate",
+		"type": "mission_id",
+		"name": "Собаки у решётки",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_dosimeter_yard": {
+		"id": "m_dosimeter_yard",
+		"type": "mission_id",
+		"name": "Дозиметр во дворе",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_night_pharmacy": {
+		"id": "m_night_pharmacy",
+		"type": "mission_id",
+		"name": "Ночная аптека",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_ninth_silence": {
+		"id": "m_ninth_silence",
+		"type": "mission_id",
+		"name": "Тишина на девятом",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_room_34": {
+		"id": "m_room_34",
+		"type": "mission_id",
+		"name": "Комната 34",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_shelter_basement": {
+		"id": "m_shelter_basement",
+		"type": "mission_id",
+		"name": "Подвал под бомбоубежище",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_tram_last_run": {
+		"id": "m_tram_last_run",
+		"type": "mission_id",
+		"name": "Последний рейс",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_workshop_empty": {
+		"id": "m_workshop_empty",
+		"type": "mission_id",
+		"name": "Пустой адрес",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_workshop_site": {
+		"id": "m_workshop_site",
+		"type": "mission_id",
+		"name": "Склад цеховика",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_wall_infection": {
+		"id": "m_wall_infection",
+		"type": "mission_id",
+		"name": "Дозиметр в стене",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_flooded_basement": {
+		"id": "m_flooded_basement",
+		"type": "mission_id",
+		"name": "Потоп в подвале",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_dogs_go_down": {
+		"id": "m_dogs_go_down",
+		"type": "mission_id",
+		"name": "Собаки уходят вниз",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_silent_collector": {
+		"id": "m_silent_collector",
+		"type": "mission_id",
+		"name": "Тишина в коллекторе",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_dont_blink": {
+		"id": "m_dont_blink",
+		"type": "mission_id",
+		"name": "Не моргать",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_racing_pulse": {
+		"id": "m_racing_pulse",
+		"type": "mission_id",
+		"name": "Учащённый пульс",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_talking_dog": {
+		"id": "m_talking_dog",
+		"type": "mission_id",
+		"name": "Пёс, который заговорил",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_whole_stairwell": {
+		"id": "m_whole_stairwell",
+		"type": "mission_id",
+		"name": "Целый подъезд",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_infection_ward_audit": {
+		"id": "m_infection_ward_audit",
+		"type": "mission_id",
+		"name": "Ревизия в инфекционке",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"m_comms_outage": {
+		"id": "m_comms_outage",
+		"type": "mission_id",
+		"name": "Отключение узла связи",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	}
+}

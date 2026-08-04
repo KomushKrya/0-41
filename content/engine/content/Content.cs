@@ -7,7 +7,7 @@ public partial class Content : Node
 {
 	[Export] public string Locale { get; set; } = "ru";
 
-	/// <summary>Корень собранного текста. Публичный: на него смотрит и горячая перезагрузка.</summary>
+	/// <summary>Корень собранного текста. На него смотрит и горячая перезагрузка.</summary>
 	public const string LocalisationRoot = "res://content/localisation";
 
 	/// <summary>Должно совпадать с VARIABLE_RE в content/engine/converter/build.py.</summary>
@@ -44,11 +44,8 @@ public partial class Content : Node
 	}
 
 	/// <summary>
-	/// Все .json под указанной папкой, вложенные тоже (UI/perks лежит на два уровня вниз).
-	///
-	/// Единственное место, где решается, что считать файлом собранного текста: на нём сидят
-	/// и загрузка, и слежение горячей перезагрузки. Иначе правило пришлось бы менять в двух
-	/// местах, и второе однажды забыли бы.
+	/// Все .json под папкой, вложенные тоже. Общий обход для загрузки и для слежения
+	/// горячей перезагрузки — иначе правило разъехалось бы по двум местам.
 	/// </summary>
 	public static IEnumerable<string> EnumerateJsonFiles(string root)
 	{
@@ -84,13 +81,15 @@ public partial class Content : Node
 		return _entries.TryGetValue(id, out entry);
 	}
 
-	public IReadOnlyList<ContentChunk> GetChunks(string id)
-	{
-		ContentEntry entry = GetEntry(id);
-		return entry != null ? entry.Chunks : new List<ContentChunk>();
-	}
-
-	/// <summary>Возвращает отображаемое имя записи, либо сам id для заметной диагностики пропавшего текста.</summary>
+	/// <summary>
+	/// Подпись записи для интерфейса: поле name у characteristic, equipment, perk.
+	/// Возвращает сам id, если записи нет или подписи у неё нет — на экране будет
+	/// видно, что подпись потерялась, а не пустое место.
+	///
+	/// Нужен, чтобы интерфейс не звал StatKinds.GetDisplayName из ядра: там таблица
+	/// имён живёт для сообщений об ошибках и консольного харнесса, и держать её
+	/// синхронной с текстами пришлось бы руками.
+	/// </summary>
 	public static string NameOf(string id)
 	{
 		if (Instance == null || string.IsNullOrEmpty(id))
@@ -102,7 +101,12 @@ public partial class Content : Node
 		return entry != null && entry.Name.Length > 0 ? entry.Name : id;
 	}
 
-	/// <summary>Подпись интерфейса с подстановкой пар «имя, значение».</summary>
+	/// <summary>
+	/// Подпись интерфейса (тип ui_label) с подстановкой чисел: пары идут подряд,
+	/// «имя, значение». Без пар — просто текст подписи.
+	///
+	/// <code>Content.Label("ui_dossier_level", "level", "3", "rank", "Стажёр")</code>
+	/// </summary>
 	public static string Label(string id, params string[] values)
 	{
 		string text = NameOf(id);
@@ -126,11 +130,9 @@ public partial class Content : Node
 	}
 
 	/// <summary>
-	/// Подставляет значения вместо {{имя}}. Чистая функция: движок значений не знает —
-	/// числа живут в геймплейных данных (data/abilities.json и т.п.) и приходят через
-	/// resolve. Неразрешённая подстановка остаётся в тексте как есть — пустое место
-	/// прочиталось бы как опечатка автора, а видимое {{имя}} сразу называет причину.
-	/// Ругаться на пропажу — дело вызывающего: только он знает, из какой записи текст.
+	/// Подставляет значения вместо {{имя}}. Числа приходят через resolve — движок их
+	/// не знает. Неразрешённое имя остаётся в тексте видимым: пустое место прочиталось
+	/// бы как опечатка автора. Ругаться на пропажу — дело вызывающего.
 	/// </summary>
 	public static string Fill(string text, Func<string, string> resolve)
 	{
@@ -151,7 +153,7 @@ public partial class Content : Node
 		return Fill(text, name => values != null && values.TryGetValue(name, out string value) ? value : null);
 	}
 
-	/// <summary>Есть ли в тексте {{имя}} — дешёвая проверка перед регуляркой.</summary>
+	/// <summary>Дешёвая проверка перед регуляркой.</summary>
 	public static bool HasVariables(string text)
 	{
 		return !string.IsNullOrEmpty(text) && text.Contains("{{");
@@ -195,12 +197,12 @@ public partial class Content : Node
 			Name = ReadString(source, "name"),
 			Outcome = ReadString(source, "outcome"),
 			MissionType = ReadString(source, "mission_type"),
+			MissionId = ReadString(source, "mission_id"),
 			Slot = ReadString(source, "slot"),
 			Day = source.TryGetValue("day", out Variant day) ? day.AsInt32() : 0,
 			Requirements = ReadStringList(source, "requirements"),
 			Properties = ReadStringList(source, "properties"),
 			Variables = ReadStringList(source, "variables"),
-			Stats = ReadStringList(source, "stats"),
 			Chunks = ReadChunks(source, "chunks")
 		};
 
@@ -218,9 +220,6 @@ public partial class Content : Node
 				Id = ReadString(optionData, "id"),
 				Name = ReadString(optionData, "name"),
 				Requirements = ReadStringList(optionData, "requires"),
-				RequirementModifier = optionData.TryGetValue("requirement_modifier", out Variant modifier)
-					? modifier.AsInt32()
-					: 0,
 				Chunks = ReadChunks(optionData, "chunks")
 			});
 		}
@@ -255,7 +254,6 @@ public partial class Content : Node
 		return chunks;
 	}
 
-	/// <summary>Отрезки подсветки куска. Пустой список — подсвечивать в нём нечего.</summary>
 	private static List<ContentSpan> ReadSpans(Godot.Collections.Dictionary chunkData)
 	{
 		List<ContentSpan> spans = new();
@@ -270,7 +268,8 @@ public partial class Content : Node
 			spans.Add(new ContentSpan
 			{
 				Text = ReadString(spanData, "text"),
-				Highlight = spanData.TryGetValue("highlight", out Variant highlight) && highlight.AsBool()
+				Highlight = spanData.TryGetValue("highlight", out Variant highlight) && highlight.AsBool(),
+				Bold = spanData.TryGetValue("bold", out Variant bold) && bold.AsBool()
 			});
 		}
 

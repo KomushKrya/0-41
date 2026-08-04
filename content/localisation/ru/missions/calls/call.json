@@ -1,0 +1,2736 @@
+{
+	"call_black_mold": {
+		"id": "call_black_mold",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ЗВОНОК ПЕРЕНАПРАВЛЕН НА ЛИНИЮ ИЗ РАЙОННОЙ СЛУЖБЫ ЖЭК",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Алло? Алло. Да, здравствуйте. Меня зовут Наталья. У меня возникла проблема.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "У меня неделю назад отклеились обои от стен, а под ними я обнаружила какую-то непонятную плесень. Я пыталась её хлоркой оттереть, но ничего не выходит.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "У меня неделю назад отклеились обои от стен, а под ними я обнаружила какую-то непонятную ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "плесень",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ". Я пыталась её хлоркой оттереть, но ничего не выходит.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Можете, пожалуйста, специалиста прислать или кого-то, чтобы посмотрели? Только, прошу, побыстрее. Сегодня, завтра.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "У меня дочка маленькая, не хочу, чтобы она чем-то там надышалась.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "У меня ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "дочка маленькая",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", не хочу, чтобы она чем-то там ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "надышалась",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ".",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			}
+		],
+		"variables": [],
+		"mission_type": "radio",
+		"mission_id": "m_black_mold",
+		"requires": []
+	},
+	"call_brother_smile": {
+		"id": "call_brother_smile",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ЗВОНОК В ГАЗОВУЮ СЛУЖБУ. ГОЛОС МАЛЕНЬКОЙ ДЕВОЧКИ",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Алё! Дядя! Мне мама сказала звонить сюда, если что случится, я вот вам звоню. Мой старший братик Лёша… он меня пугает! И обижает!",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Он уже два дня улыбается. Но так до ушей, мне плакать хочется. И зубы у него большие. И пытается меня защекотать! А ещё он ногти не стрижёт! Я не знаю почему он не стрижёт ногти, мне это не нравится.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Он уже два дня ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "улыбается",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ". Но так до ушей, мне плакать хочется. И ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "зубы у него большие",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ". И пытается меня защекотать! А ещё он ногти не стрижёт! Я не знаю почему он не стрижёт ногти, мне это не нравится.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Позвоните маме, пожалуйста, пусть она приедет. Скажите, что Лёша меня обижает! Ну или приедьте, прошу, скажите ему, чтобы перестал меня пугать!",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"mission_type": "radio",
+		"mission_id": "m_brother_smile",
+		"requires": []
+	},
+	"call_construction_intruders": {
+		"id": "call_construction_intruders",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ЗВОНОК В ГАЗОВУЮ СЛУЖБУ. МУЖЧИНА С ХРИПЛОВАТЫМ ГЛУБОКИМ ГОЛОСОМ",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Алло? На проводе есть кто? Я Владимир Сергеевич Кружкин, охранник заброшенной стройки на Сосновой улице.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Тут мимо меня шпана прошмыгнула ночью. Я поймать их попытался на территории вокруг, но они забежали в само здание. Быстрые, зараза. Был бы помоложе, пошустрее — я бы их…",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Тут мимо меня шпана ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "прошмыгнула",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": " ночью. Я поймать их попытался на территории вокруг, но они забежали в само здание. ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "Быстрые",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", зараза. Был бы помоложе, пошустрее — я бы их…",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "А, ну так вот, мне чиновник, который меня инструктировал, сказал никогда в здание самому не заходить, чуть что — сразу к вам звонить. Вот, докладываю.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"mission_type": "radio",
+		"mission_id": "m_construction_intruders",
+		"requires": []
+	},
+	"call_false_gas_alarm": {
+		"id": "call_false_gas_alarm",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ЗВОНОК В ГАЗОВУЮ СЛУЖБУ. ЗВОНИТ ПАРЕНЬ-ПОДРОСТОК",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Здравствуйте, газовая служба? Меня зовут Тимур. Мне кажется, у моей бабушки, может быть, случилась утечка газа. Я чувствую странный запах в её квартире.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Сам я звоню с телефона соседки. Бабушка, может, надышалась им — странно себя ведёт. Как-то кругами ходит, наворачивает, что-то ищет…",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Сам я звоню с телефона соседки. Бабушка, может, надышалась им — ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "странно себя ведёт",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ". Как-то ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "кругами ходит",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", наворачивает, что-то ищет…",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Приезжайте, поскорее.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"mission_type": "radio",
+		"mission_id": "m_false_gas_alarm",
+		"requires": []
+	},
+	"call_missing_daughter": {
+		"id": "call_missing_daughter",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ЗВОНОК ИЗ ПРИЁМНОЙ УЧАСТКОВОГО. ГОЛОС СЕРЬЁЗНЫЙ, ПО-ВОЕННОМУ СУХОЙ",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Алло. Старший лейтенант милиции Михайлов. Заодно, кхм, сотрудник газовой службы.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Дом четыре по улице Пятидесятилетия Октября, подвал. Открылся очаг.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Туда, по словам очевидцев, забралась компания. Часть — несовершеннолетние, «вожаку» лет за двадцать.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Присылай ребят покрепче, товарищ, и таких, чтобы не оробели, если что.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Присылай ребят ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "покрепче",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", товарищ, и таких, чтобы ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "не оробели",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", если что.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Внизу, возможно, перекожники. Не приведи Господь шпана на них наткнётся.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Дом стоит через двор от отделения, я сам вас встречу у решётки подвала.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"mission_type": "radio",
+		"mission_id": "m_missing_daughter",
+		"requires": []
+	},
+	"call_pensioner_door": {
+		"id": "call_pensioner_door",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ЗВОНОК В ГАЗОВУЮ СЛУЖБУ. НА ЛИНИИ НАПУГАННО ЗВУЧАЩИЙ СТАРИК",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Алло, газовая служба? Помогите, пожалуйста, у меня тут газ потёк. Я сейчас тут умру! Ой, задыхаюсь. Настолько дурно, что идти не могу…",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Алло, газовая служба? Помогите, пожалуйста, у меня тут ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "газ потёк",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ". Я сейчас тут умру! Ой, ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "задыхаюсь",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ". Настолько дурно, что идти не могу…",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Выйти бы из квартиры. Ох, милок, знал бы ты. Я в коридор выхожу, иду — и как будто дойти до конца не могу. Сил нет.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Выйти бы из квартиры. Ох, милок, знал бы ты. Я в коридор выхожу, иду — и как будто ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "дойти до конца не могу",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ". Сил нет.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Да и дурно так глазам, будто двери не вижу.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Да и дурно так глазам, будто ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "двери не вижу",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ".",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Улица Карла Маркса, дом шесть, квартира двенадцать. Приезжайте поскорее, молю, помогите.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"mission_type": "radio",
+		"mission_id": "m_pensioner_door",
+		"requires": []
+	},
+	"call_urgent_evacuation": {
+		"id": "call_urgent_evacuation",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ЗВОНОК ОТ СТАРШЕГО ИССЛЕДОВАТЕЛЯ С ОБЪЕКТА",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Алло. Диспетчер? Здравствуйте. Это старший исследователь Иванов.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "У нас тут проблема: в одном доме обнаружена критическая концентрация грибка. Требуется срочный осмотр жителей, а также переселение их в другие дома.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Мы сообщили им о высокой концентрации газа в доме, но они отказываются переселяться. Требуют, чтобы мы просто починили трубы… Ох, если бы они знали.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Мы сообщили им о высокой концентрации газа в доме, но они ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "отказываются переселяться",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ". ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "Требуют",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", чтобы мы просто починили трубы… Ох, если бы они знали.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Отправьте сюда кого-то поубедительнее, чем я.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"mission_type": "radio",
+		"mission_id": "m_urgent_evacuation",
+		"requires": []
+	},
+	"call_workshop_intro": {
+		"id": "call_workshop_intro",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ЗВОНОК ИЗ ДИСПЕТЧЕРСКОЙ СТРОЙБАЗЫ №2",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Здравствуйте. Кладовщик Синицын, стройбаза на Заводской. У меня тут машина щебня пришла, а накладной в журнале нет.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Здравствуйте. Кладовщик Синицын, стройбаза на Заводской. У меня тут машина щебня пришла, а ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "накладной в журнале нет",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ".",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Водитель разгрузился и уехал, я даже номер не переписал. Цифры в путевом листе не сходятся с тем, что выгрузили. Я пересчитывал дважды.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Водитель разгрузился и уехал, я даже номер не переписал. Цифры в путевом листе ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "не сходятся",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": " с тем, что выгрузили. Я пересчитывал дважды.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "У нас через неделю ревизия, и я под это подписываться не буду. Может, ваша служба посмотрит? Говорят, вы по таким партиям работаете.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "У нас через неделю ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "ревизия",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", и я под это подписываться не буду. Может, ваша служба посмотрит? Говорят, вы по таким партиям работаете.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Заводская, дом два, ворота со стороны путей. Я до утра тут.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"mission_type": "radio",
+		"mission_id": "m_workshop_intro",
+		"requires": []
+	},
+	"call_bench_man": {
+		"id": "call_bench_man",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ЗВОНОК ОТ МЕСТНЫХ ЖИТЕЛЕЙ. НЕСКОЛЬКО ГОЛОСОВ, ПЕРЕБИВАЮТ ДРУГ ДРУГА",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Тут дед один сидит во дворе третий день. На одной и той же лавке, в одной позе.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Мы сперва подумали — плохо человеку, подходили. А он странно себя ведёт: не отвечает, не шевелится, только дышит вроде.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Мы сперва подумали — плохо человеку, подходили. А он ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "странно себя ведёт",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ": не отвечает, не шевелится, только дышит вроде.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Вчера уже соседи собрались, толпа целая, кто-то предлагал скорую вызвать, кто-то — участкового.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Вчера уже ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "соседи собрались, толпа",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": " целая, кто-то предлагал скорую вызвать, кто-то — участкового.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Дед всё так же сидит. Вы бы приехали, а то у нас тут самодеятельность начнётся.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"mission_type": "radio",
+		"mission_id": "m_bench_man",
+		"requires": []
+	},
+	"call_ceiling_leak": {
+		"id": "call_ceiling_leak",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ЗВОНОК ОТ ЖИЛЬЦА ЧАСТНОГО ДОМА. МУЖЧИНА, УСТАЛЫЙ",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "У меня тут с потолка сырость, подтопило уже неделю, думал крыша течёт — а сейчас глянул, оно не как вода вообще.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "У меня тут с потолка ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "сырость, подтопило",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": " уже неделю, думал крыша течёт — а сейчас глянул, оно не как вода вообще.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Тёмное, тягучее, и главное — стена тёплая рядом стала, будто отопление там, а батарея с той стороны и близко не проходит.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Тёмное, тягучее, и главное — ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "стена тёплая",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": " рядом стала, будто отопление там, а батарея с той стороны и близко не проходит.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Сам разбирать не полезу, оно уже с палец толщиной наросло за пару дней.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Приезжайте посмотреть, а то боюсь, потолок совсем рухнет.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"mission_type": "filler",
+		"mission_id": "m_ceiling_leak",
+		"requires": [
+			"strength",
+			"intellect"
+		]
+	},
+	"call_intercom_voice": {
+		"id": "call_intercom_voice",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ЗВОНОК ОТ ЖИЛЬЦА ПОДЪЕЗДА. ЖЕНЩИНА, ИСПУГАННАЯ",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Домофон у нас третий вечер сам отвечает — а квартира та давно пустая, хозяин съехал ещё зимой.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Голос его, вроде бы, только странный звук, шёпот какой-то в конце каждого слова. Просит впустить, говорит — забыл ключи.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Голос его, вроде бы, только ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "странный звук, шёпот",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": " какой-то в конце каждого слова. Просит впустить, говорит — забыл ключи.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Я не открыла, конечно. Но соседи снизу уже требуют объяснить, что происходит с домом.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Я не открыла, конечно. Но соседи снизу уже ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "требуют объяснить",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", что происходит с домом.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Приезжайте до вечера, а то опять зазвонит — и кто-нибудь да откроет ему сдуру.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"mission_type": "radio",
+		"mission_id": "m_intercom_voice",
+		"requires": []
+	},
+	"call_night_watchman": {
+		"id": "call_night_watchman",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ЗВОНОК С ПРОХОДНОЙ ЦЕХА. МУЖЧИНА, СБИВЧИВЫЙ",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Тут это, непонятно чего. Я вахтёр, сижу тут вроде третью смену подряд, а по журналу выходит — только вчера заступил.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Записи мои, а почерк будто и не мой. Даты вообще цифры не сходятся, я уже раз пять пересчитал.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Записи мои, а ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "почерк будто и не мой",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ". Даты вообще ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "цифры не сходятся",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", я уже раз пять пересчитал.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Сам вроде цел, вроде помню, кто я. Но по цеху один в темноте идти сейчас — боязно, врать не буду.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Приезжайте, посмотрите журнал сами. Может, я что путаю, а может и нет.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"mission_type": "filler",
+		"mission_id": "m_night_watchman",
+		"requires": [
+			"intellect",
+			"combat"
+		]
+	},
+	"call_platform_wait": {
+		"id": "call_platform_wait",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ЗВОНОК ОТ ДИСПЕТЧЕРА ВОКЗАЛА. МУЖЧИНА, НАПРЯЖЁННЫЙ ГОЛОС",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "У дальнего пути, где составы на отстой ставим, кто-то стоит. Спиной к путям, лицом в темноту.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Сперва думали — бомж, пьяный. Но он там уже часа два, не моргает, и на гудки локомотива хоть бы вздрогнул.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Сперва думали — бомж, пьяный. Но он там уже часа два, ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "не моргает",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", и на гудки локомотива хоть бы вздрогнул.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Дежурный подходить побоялся — говорит, не человек это вовсе, дышит так тяжело, что слышно через пути.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Дежурный подходить побоялся — говорит, ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "не человек",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": " это вовсе, дышит так тяжело, что слышно через пути.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Скоро туда состав по расписанию, а сам он с путей не уходит. Приезжайте, а то беда будет.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"mission_type": "radio",
+		"mission_id": "m_platform_wait",
+		"requires": []
+	},
+	"call_upstairs_neighbors": {
+		"id": "call_upstairs_neighbors",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ЗВОНОК ОТ СОСЕДКИ СНИЗУ. ЖЕНЩИНА, РАЗДРАЖЁННАЯ",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Здравствуйте. Я сверху, из тридцать второй — там же должны были съехать ещё в июле!",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "А по вечерам опять шаги, разговоры, дверью хлопают. Как будто и не уезжал никто.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Мне показалось, ну мало ли, эхо от батарей. Но вчера уже соседи собрались, толпа целая — не одной мне мерещится.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Мне ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "показалось",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", ну мало ли, эхо от батарей. Но вчера уже ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "соседи собрались, толпа",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": " целая — не одной мне мерещится.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Управляющая компания трубку не берёт. Приезжайте, разберитесь, а то жильцы скоро сами туда пойдут выяснять.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"mission_type": "filler",
+		"mission_id": "m_upstairs_neighbors",
+		"requires": [
+			"intellect",
+			"charisma"
+		]
+	},
+	"call_workshop_truck": {
+		"id": "call_workshop_truck",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "НА ЛИНИИ ЗНАКОМЫЙ ГОЛОС. НОМЕР ОТДЕЛА ОН ГДЕ-ТО ВЗЯЛ САМ",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Доброй ночи, оператор. Мы с вами в феврале виделись, на Заводской — я тот, у кого щебень оказался бесхозный. У меня к вам не жалоба, у меня к вам дело.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "На штрафстоянке второй месяц стоит мой борт. ЗИЛ, тридцать тонн цемента, мешками, под брезентом. Изъяли ваши же, всё по форме, а бумаги на утилизацию так и не пришли — ни мне, ни им.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "На штрафстоянке второй месяц стоит мой борт. ЗИЛ, ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "тридцать тонн",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": " цемента, ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "мешками",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", под брезентом. Изъяли ваши же, всё по форме, а бумаги на утилизацию так и не пришли — ни мне, ни им.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Спишите его по браку. Цемент как цемент, лежит без дела и портится, а я его в дело пущу. Кладовщик там упрямый, но с ним можно договориться, если по-человечески, а не бумагой в нос.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Спишите его по браку. Цемент как цемент, лежит без дела и портится, а я его в дело пущу. Кладовщик там упрямый, но с ним ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "можно договориться",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", если по-человечески, а не бумагой в нос.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Октябрьская, штрафстоянка. Я вашим людям ворота открою и сам подойду.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"mission_type": "radio",
+		"mission_id": "m_workshop_truck",
+		"requires": []
+	},
+	"call_cement_night_shift": {
+		"id": "call_cement_night_shift",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ЦЕМЕНТНЫЙ ЗАВОД, ЗВОНИТ МАСТЕР НОЧНОЙ СМЕНЫ",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Мастер Ковалец, ночная смена, второй помол. Звоню не по аварии, по другому делу.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "У нас в дробилку опять пошёл щебень со старого отвала. Который вы летом метили и велели не трогать. Накладную я видел утром, там другой карьер стоит, всё чисто. А идёт этот — я породу глазами отличаю, двадцать лет тут.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "У нас в дробилку опять ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "пошёл щебень со старого отвала",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ". Который вы летом метили и велели не трогать. Накладную я видел утром, там другой карьер стоит, всё чисто. А идёт этот — я породу глазами отличаю, двадцать лет тут.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "За смену у двоих кровь носом, у одного второй раз за неделю. Списываем на пыль, но пыль тут всегда была, а этого не было.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "За смену у двоих ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "кровь носом",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", у одного ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "второй раз за неделю",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ". Списываем на пыль, но пыль тут всегда была, а этого не было.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Линию я не остановлю, у меня план и три вагона к утру. Но вы приезжайте, посмотрите сами. Проходная восточная, скажете — к Ковальцу, пропустят.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"mission_type": "filler",
+		"mission_id": "m_cement_night_shift",
+		"requires": [
+			"strength",
+			"intellect",
+			"charisma"
+		]
+	},
+	"call_dense_flock": {
+		"id": "call_dense_flock",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "СТОРОЖ АВТОБАЗЫ №3, ЗВОНИТ С ПРОХОДНОЙ",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Это сторож с третьей автобазы. У меня во дворе не люди. Я бы не звонил, но там точно не люди.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Думал, шпана лазает. Пошёл с фонарём — а они стоят на задних лапах. Собаки. Морды... не собачьи уже, а на человечьи похожи, вот что. Я потому вам и звоню, а не в милицию.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Думал, шпана лазает. Пошёл с фонарём — а они ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "стоят на задних лапах",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ". Собаки. Морды... не собачьи уже, а ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "на человечьи похожи",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", вот что. Я потому вам и звоню, а не в милицию.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Штук двадцать, между боксами, вдоль стены. Стоят и стоят, лицом в одну сторону, как на построении. Одна на меня кинулась ни с того ни с сего, еле дверь захлопнул, а соседняя даже не дёрнулась.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Штук двадцать, между боксами, вдоль стены. Стоят и стоят, ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "лицом в одну сторону",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", как на построении. Одна на меня ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "кинулась ни с того ни с сего",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", еле дверь захлопнул, а соседняя даже не дёрнулась.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Я в будке закрылся, своего пса в дом забрал — он выть начал и не унимается. Автобаза третья, объезд со стороны насыпи.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"mission_type": "radio",
+		"mission_id": "m_dense_flock",
+		"requires": []
+	},
+	"call_dogs_at_grate": {
+		"id": "call_dogs_at_grate",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ЗВОНОК ОТ ДВОРНИКА УЧАСТКА №7",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Дворник я, седьмой участок, Лесная. Извиняюсь, что ночью, днём вас не застать.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "У меня тут собаки. Дворовые, я их всех знаю, сам кормлю. Который день сидят у решётки коллектора и скулят вниз. Не лают, не дерутся, еды не просят — сидят рядком и в решётку смотрят.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "У меня тут собаки. Дворовые, я их всех знаю, сам кормлю. Который день ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "сидят у решётки коллектора",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": " и ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "скулят вниз",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ". Не лают, не дерутся, еды не просят — сидят рядком и в решётку смотрят.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Вчера было пять, сегодня восемь. И два чужих кобеля, не наши, таких я на участке не видел.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Вчера было пять, сегодня восемь. И ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "два чужих кобеля",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", не наши, таких я на участке не видел.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Может, туда кто провалился? Ребёнок, пьяный какой? Я решётку сам не подниму, она на болтах. Лесная, между шестым и восьмым домом, у трансформаторной.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"mission_type": "filler",
+		"mission_id": "m_dogs_at_grate",
+		"requires": [
+			"intellect",
+			"strength",
+			"combat"
+		]
+	},
+	"call_dosimeter_yard": {
+		"id": "call_dosimeter_yard",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ЗВОНОК ОТ ЧАСТНОГО ЛИЦА. ГОВОРИТ ГРОМКО, ВОКРУГ ГОЛОСА",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Значит так. Я во дворе, со мной весь подъезд, и мы никуда не расходимся.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Значит так. Я во дворе, со мной ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "весь подъезд",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", и мы никуда не расходимся.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Мы требуем замер. Приборы у вас есть, я знаю, я в армии служил и дозиметр в руках держал. Нам по радио одно говорят, а от Киева до нас сколько километров? Вот и считайте.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Люди детей на улицу не выпускают третий день, бельё не сушат, окна не открывают. И не надо мне про норму, я эту норму наизусть знаю. Приезжайте и меряйте при всех, при жильцах.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Люди ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "детей на улицу не выпускают",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": " третий день, бельё не сушат, окна не открывают. И не надо мне про норму, я эту норму наизусть знаю. Приезжайте и меряйте при всех, при жильцах.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Мы тут стоять будем, пока не приедете. Уже и из газеты обещали подойти. Гагарина, двенадцать, двор со стороны школы.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Мы тут стоять будем, пока не приедете. Уже и ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "из газеты",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": " обещали подойти. Гагарина, двенадцать, двор со стороны школы.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			}
+		],
+		"variables": [],
+		"mission_type": "filler",
+		"mission_id": "m_dosimeter_yard",
+		"requires": [
+			"charisma",
+			"combat",
+			"intellect"
+		]
+	},
+	"call_night_pharmacy": {
+		"id": "call_night_pharmacy",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "НОЧНАЯ АПТЕКА №4, НА ЛИНИИ ДЕЖУРНЫЙ ФАРМАЦЕВТ",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Аптека четвёртая, Октябрьская. У меня тут очередь с полуночи. Ночью, понимаете? Аптека дежурная, обычно два человека за смену, а тут стоят до угла.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Они все просят одно и то же. Одними словами, как заученное. Я говорю — нет у нас, кончилось. Они стоят молча и не уходят, а следующий подходит и повторяет слово в слово.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Они ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "все просят одно и то же",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ". Одними словами, как заученное. Я говорю — нет у нас, кончилось. Они ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "стоят молча",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": " и не уходят, а следующий подходит и повторяет слово в слово.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Один заговорил со мной, а слов не разобрать, будто смазано. Я переспросила — он повторил, и опять не разобрать.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Один заговорил со мной, а слов ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "не разобрать, будто смазано",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ". Я переспросила — он повторил, и опять не разобрать.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "А теперь и наши, живые, из соседних домов, начали повторять за ними. Их там человек тридцать уже. Приезжайте, пока весь квартал не сбежался. Я дверь заперла изнутри и свет в зале погасила.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "А теперь и наши, живые, из соседних домов, ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "начали повторять за ними",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ". Их там человек тридцать уже. Приезжайте, пока весь квартал не сбежался. Я дверь заперла изнутри и свет в зале погасила.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			}
+		],
+		"variables": [],
+		"mission_type": "radio",
+		"mission_id": "m_night_pharmacy",
+		"requires": []
+	},
+	"call_ninth_silence": {
+		"id": "call_ninth_silence",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ВНУТРЕННЯЯ ЛИНИЯ. СМЕННЫЙ ИНЖЕНЕР УЗЛА СВЯЗИ",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Оператор? Узел связи, Тарасенко. У меня к вам вопрос, а не заявка, сразу говорю.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Девятый микрорайон. К вам сегодня оттуда что-нибудь поступало? Хоть один звонок?",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Девятый микрорайон. К вам сегодня ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "оттуда",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": " что-нибудь поступало? Хоть один звонок?",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "У меня по журналу — ни одного соединения за ночь. Ни к вам, ни в скорую, ни в милицию, ни междугородних. Там девять тысяч человек. Так не бывает даже в новогоднюю, когда все спят.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "У меня по журналу — ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "ни одного соединения за ночь",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ". Ни к вам, ни в скорую, ни в милицию, ни междугородних. Там девять тысяч человек. Так не бывает даже в новогоднюю, когда все спят.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Линию я проверял с обоих концов, исправна, гудок идёт. Вы бы съездили посмотреть. Я формально заявку оформить не могу — жалоб-то нет.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"mission_type": "filler",
+		"mission_id": "m_ninth_silence",
+		"requires": [
+			"intellect",
+			"strength",
+			"combat"
+		]
+	},
+	"call_room_34": {
+		"id": "call_room_34",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ЗВОНОК ИЗ ОБЩЕЖИТИЯ №6, НА ЛИНИИ КОМЕНДАНТ",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Здравствуйте. Общежитие шестое, у нас с апреля приезжие живут, из-под Припяти которые.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "В тридцать четвёртой человек. А я не помню, чтобы его вселяла. В книге он записан, всё честь по чести: дата, паспорт, комната. Только почерк мой, а я не писала, я свою руку знаю.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "В тридцать четвёртой человек. А я ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "не помню, чтобы его вселяла",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ". В книге он записан, всё честь по чести: дата, паспорт, комната. Только ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "почерк мой, а я не писала",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", я свою руку знаю.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Сосед его по комнате второй день пересказывает мне один и тот же разговор. Слово в слово, с теми же паузами. Я уже наизусть знаю, чем кончится, а он не замечает.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Сосед его по комнате второй день ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "пересказывает мне один и тот же разговор",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ". Слово в слово, с теми же паузами. Я уже наизусть знаю, чем кончится, а он не замечает.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Дверь у них не заперта, я ручку трогала. Заходить не стала. Только тихо, ради бога, у меня тут люди и без того пуганые.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"mission_type": "radio",
+		"mission_id": "m_room_34",
+		"requires": []
+	},
+	"call_shelter_basement": {
+		"id": "call_shelter_basement",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ЗВОНОК ИЗ ЖЭК-4, НА ЛИНИИ ДЕЖУРНЫЙ СЛЕСАРЬ",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "ЖЭК четвёртый, дежурный слесарь. Жильцы подвал вскрыли — у нас он бомбоубежищем числится, замок с прошлого года не открывали.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Сорвали, полезли смотреть, что там за гул. А там сырость по колено и налёт по стенам в палец толщиной, серый, как войлок.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Сорвали, полезли смотреть, что там за гул. А там ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "сырость по колено",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": " и ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "налёт по стенам",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": " в палец толщиной, серый, как войлок.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Двое поднялись сами, третьего вытаскивали. Говорит, дышать нечем, и глаза у него красные.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Двое поднялись сами, третьего вытаскивали. Говорит, ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "дышать нечем",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", и глаза у него красные.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Я туда своих не пошлю, у меня один противогаз на весь ЖЭК, и тот довоенный. Пионерская, дом одиннадцать, вход с торца, я вас встречу.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"mission_type": "filler",
+		"mission_id": "m_shelter_basement",
+		"requires": [
+			"strength",
+			"charisma"
+		]
+	},
+	"call_tram_last_run": {
+		"id": "call_tram_last_run",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ЗВОНОК ИЗ ДИСПЕТЧЕРСКОЙ ТРАМВАЙНОГО ПАРКА",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Девушка, милиция? А, газовая. Ну хоть кто-нибудь, я третий номер набираю.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "У меня двойка пришла на конечную, а пассажиры не вышли. Сидят в тёмном салоне и ждут отправления. Свет в вагоне не горит, а они сидят ровно, по местам, лицом к кабине.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "У меня двойка пришла на конечную, а ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "пассажиры не вышли",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ". Сидят в тёмном салоне и ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "ждут отправления",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ". Свет в вагоне не горит, а они сидят ровно, по местам, лицом к кабине.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Одна вслух остановки перечисляет. По кругу, с самого начала маршрута, и опять сначала.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Одна вслух ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "остановки перечисляет",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ". По кругу, с самого начала маршрута, и опять сначала.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Мишка, водитель, заперся в кабине и на связь не идёт. По счётчику билетов их одиннадцать, а я в окно считаю — четырнадцать. Депо на Кольцевой, третьи ворота, я вас у проходной встречу.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Мишка, водитель, ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "заперся в кабине",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": " и на связь не идёт. По счётчику билетов их одиннадцать, а я в окно считаю — четырнадцать. Депо на Кольцевой, третьи ворота, я вас у проходной встречу.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			}
+		],
+		"variables": [],
+		"mission_type": "radio",
+		"mission_id": "m_tram_last_run",
+		"requires": []
+	},
+	"call_workshop_empty": {
+		"id": "call_workshop_empty",
+		"type": "call",
+		"requirements": [
+			"flag_truck_seized"
+		],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ГОЛОС НЕЗНАКОМЫЙ. ОБОРОТЫ ЗНАКОМЫЕ",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Але, это газовая служба? Мне ваш номер дали, сказали — вы по таким делам работаете.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Подвал под гастрономом на Октябрьской. Оттуда второй день тянет, а чем — не пойму. Сторож спускался и обратно поднялся сам не свой, толком ничего не сказал, только рукой махнул.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Подвал под гастрономом на Октябрьской. Оттуда ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "второй день тянет",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", а чем — не пойму. Сторож спускался и ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "обратно поднялся сам не свой",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", толком ничего не сказал, только рукой махнул.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Подвал большой, там одних отсеков четыре, всё не обойти за раз. Люди по подъезду уже спрашивают, что за запах. Вы бы приехали, пока не пошло дальше.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Подвал большой, там ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "одних отсеков четыре",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", всё не обойти за раз. Люди по подъезду уже спрашивают, что за запах. Вы бы приехали, пока не пошло дальше.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Октябрьская, дом восемь, вход со двора. Я ключ под ящик положу. Меня не ждите, я на работе. Ключ под ящиком, я сказал.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"mission_type": "radio",
+		"mission_id": "m_workshop_empty",
+		"requires": []
+	},
+	"call_workshop_site": {
+		"id": "call_workshop_site",
+		"type": "call",
+		"requirements": [
+			"flag_truck_written_off"
+		],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ТОТ ЖЕ ГОЛОС. НА ЭТОТ РАЗ ГОВОРИТ БЫСТРО",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Оператор, это я. Слушайте и не перебивайте, у меня мало времени.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Тот цемент я в дело пустил. Стройка на Заводской, второй корпус, я там подрядчик. С неделю всё шло нормально, кладку вели как положено. А теперь бригада не выходит.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Тот цемент я в дело пустил. Стройка на Заводской, второй корпус, я там подрядчик. С неделю всё шло нормально, кладку вели как положено. А теперь ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "бригада не выходит",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ".",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Не то что не выходит — выходят и заходят обратно, через тот же проём, и так по кругу. Я им кричал, они не слышат. Где кладка кончается, а где начинается, снаружи не разобрать.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Не то что не выходит — ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "выходят и заходят обратно",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", через тот же проём, и так по кругу. Я им кричал, они не слышат. Где кладка кончается, а где начинается, снаружи ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "не разобрать",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ".",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Я туда больше не пойду. Адрес говорю сам, склад мой, забирайте со всем, что там лежит. Только людей моих не троньте, они не при чём. Они не знали, что возят.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Я туда больше не пойду. Адрес говорю сам, склад мой, забирайте со всем, что там лежит. Только ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "людей моих не троньте",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", они не при чём. Они не знали, что возят.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			}
+		],
+		"variables": [],
+		"mission_type": "radio",
+		"mission_id": "m_workshop_site",
+		"requires": []
+	},
+	"call_comms_outage": {
+		"id": "call_comms_outage",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ЗВОНОК С УЗЛА СВЯЗИ",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Диспетчер, это дежурный инженер. У нас половина района без связи — с восьми вечера.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Смена отказывается заходить в коммутаторный зал. Говорят, из линий доносится не тот шум, и после этого один из монтёров слова не может сказать, только трясётся.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Смена отказывается заходить в коммутаторный зал. Говорят, из линий доносится ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "не тот шум",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", и после этого один из монтёров ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "слова не может сказать",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", только трясётся.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Я один тут остался, а мне на щите ничего не понятно, не мой профиль.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Улица Индустриальная, здание узла связи, третий этаж. Пропуск на вас уже заказан.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"mission_type": "radio",
+		"mission_id": "m_comms_outage",
+		"requires": []
+	},
+	"call_dogs_go_down": {
+		"id": "call_dogs_go_down",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ЗВОНОК В ГАЗОВУЮ СЛУЖБУ. ЖЕНЩИНА, ВЗВОЛНОВАННАЯ",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Здравствуйте, извините, что поздно. У меня собака пропала — неделю назад, у мусоропровода во дворе.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Вернулась через два дня сама, но какая-то не такая. Не ест толком. И вот с тех пор она по ночам других собак со двора уводит.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Вернулась через два дня сама, но какая-то не такая. Не ест толком. И вот с тех пор она по ночам ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "других собак со двора уводит",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ".",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Одна за одной, скулят, но идут за ней к мусоропроводу — и не возвращаются.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Одна за одной, ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "скулят",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", но идут за ней к мусоропроводу — и не возвращаются.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Соседи уже боятся собак выпускать. Я думала — бешенство, вызвала бы ветстанцию. Но мне сказали, тут скорее по вашей части.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Дом двенадцать, второй подъезд. Приходите, пока ещё есть кого спасать.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"mission_type": "radio",
+		"mission_id": "m_dogs_go_down",
+		"requires": []
+	},
+	"call_dont_blink": {
+		"id": "call_dont_blink",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ЗВОНОК В ГАЗОВУЮ СЛУЖБУ. МУЖЧИНА, ПЕРЕПУГАННЫЙ",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Приезжайте, пожалуйста, скорее. Отец в кресле третий час сидит, смотрит в угол и не шевелится.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Приезжайте, пожалуйста, скорее. Отец в кресле третий час сидит, ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "смотрит в угол",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": " и не шевелится.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Мы звали, трогали за плечо — ноль реакции. Даже не моргает, кажется. Я в угол сам смотреть боюсь, честно. Мало ли что там.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Мы звали, трогали за плечо — ноль реакции. ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "Даже не моргает",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", кажется. Я в угол сам смотреть боюсь, честно. Мало ли что там.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Улица Гагарина, дом три, седьмой этаж. Дверь открыта, заходите прямо так.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"mission_type": "radio",
+		"mission_id": "m_dont_blink",
+		"requires": []
+	},
+	"call_flooded_basement": {
+		"id": "call_flooded_basement",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ЗВОНОК В ГАЗОВУЮ СЛУЖБУ. ГОЛОС ДВОРНИКА, ХРИПЛЫЙ",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Алё, здрасьте. Дворник я, дом на Лесной, восемь. Третью неделю у нас в подвале не сохнет, хоть тресни. ЖЭК приезжал, сказал — засор, прочистили. А оно как стояло, так и стоит.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Алё, здрасьте. Дворник я, дом на Лесной, восемь. Третью неделю у нас в подвале ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "не сохнет",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", хоть тресни. ЖЭК приезжал, сказал — засор, прочистили. А оно как стояло, так и стоит.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "И вот оттуда будто шевелится что-то, когда мимо решётки идёшь. Может, крыса какая разъелась, а может…",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "И вот ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "оттуда",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": " будто шевелится что-то, когда мимо решётки идёшь. Может, крыса какая разъелась, а может…",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Я туда не лезу, сразу вам звоню. Пришлите кого, а то жильцы жаловаться начали — вонь же.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Дом восемь, вход со двора, решётка подвала на замке — я вас встречу.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"mission_type": "radio",
+		"mission_id": "m_flooded_basement",
+		"requires": []
+	},
+	"call_infection_ward_audit": {
+		"id": "call_infection_ward_audit",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ЗВОНОК ИЗ ИНФЕКЦИОННОГО ОТДЕЛЕНИЯ",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Але, это дежурная медсестра. У нас в карантинном крыле пациент буянит — тот, с подозрением на споровой синдром, что вы на прошлой неделе привозили.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Требует, чтобы его выпустили, бьётся в дверь. Персонал вдвоём его не удержит, а вызывать милицию с нашим профилем нельзя, сами понимаете.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Требует, чтобы его выпустили, ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "бьётся в дверь",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ". Персонал ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "вдвоём его не удержит",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", а вызывать милицию с нашим профилем нельзя, сами понимаете.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Пришлите кого покрепче, пожалуйста. Пока держим дверь, но долго не выйдет.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Отделение на Больничной, вход со стороны приёмного покоя.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"mission_type": "filler",
+		"mission_id": "m_infection_ward_audit",
+		"requires": [
+			"strength",
+			"combat"
+		]
+	},
+	"call_racing_pulse": {
+		"id": "call_racing_pulse",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ЗВОНОК С ОБЪЕКТА. ШЁПОТОМ, ПРЕРЫВИСТО",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Але… это сторож, магазин на Промышленной. Тут… тут в зале кто-то стоит, спиной ко мне, не шевелится.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Але… это сторож, магазин на Промышленной. Тут… тут в зале ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "кто-то стоит",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", спиной ко мне, не шевелится.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Я в подсобке сижу, дверь прикрыл. Руки трясутся, сердце как бешеное, того гляди из груди выскочит.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Я в подсобке сижу, дверь прикрыл. Руки трясутся, ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "сердце как бешеное",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", того гляди из груди выскочит.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Не знаю, слышит он меня или нет. Просто скажите, что делать. Пожалуйста, скорее.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Промышленная, дом два, вход со двора — там охрана вас пропустит, я предупредил.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"mission_type": "radio",
+		"mission_id": "m_racing_pulse",
+		"requires": []
+	},
+	"call_silent_collector": {
+		"id": "call_silent_collector",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ЗВОНОК ОТ ДИСПЕТЧЕРСКОЙ ВОДОКАНАЛА",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Але. У нас человек в ливневом коллекторе — засор проверял, час как на связь не выходит.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Я в решётку кричал — вроде откликнулся. Но голос как будто не его был. Глуше, что ли, и растянуто.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Я в решётку кричал — вроде откликнулся. Но голос ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "как будто не его",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": " был. Глуше, что ли, и ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "растянуто",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ".",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Может, рация барахлит, у нас там связь всегда плохая. А может нет.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Коллектор старый, ходов много. Вход у трансформаторной будки на Индустриальной, я вас там встречу.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"mission_type": "radio",
+		"mission_id": "m_silent_collector",
+		"requires": []
+	},
+	"call_talking_dog": {
+		"id": "call_talking_dog",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ЗВОНОК В ГАЗОВУЮ СЛУЖБУ. ЖЕНЩИНА, В ГОЛОСЕ ИСТЕРИКА",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Ой, здравствуйте, я не знаю, куда звонить, простите. У соседей собака во дворе — большая, чёрная.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Она на задних лапах ходит, я такого никогда не видела. И воет как-то не по-собачьи — будто слова выговаривает, честное слово.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Она ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "на задних лапах ходит",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", я такого никогда не видела. И воет как-то не по-собачьи — будто ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "слова выговаривает",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", честное слово.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Дети во дворе гуляли, я их домой загнала сразу. Собака не подходит, просто стоит и это своё воет.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Приезжайте, пожалуйста, страшно очень. Двор дома пять по Заречной.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"mission_type": "radio",
+		"mission_id": "m_talking_dog",
+		"requires": []
+	},
+	"call_wall_infection": {
+		"id": "call_wall_infection",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ЗВОНОК В ГАЗОВУЮ СЛУЖБУ. ЖЕНСКИЙ ГОЛОС, УСТАЛЫЙ",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Здравствуйте. Это с улицы Гагарина, дом девять, квартира сорок один. Не знаю, к вам ли обращаться. Никакого запаха вроде нет, ничего такого.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Но у нас в комнате стена тёплая, хотя батарея с той стороны не идёт. И вечерами, если приложить ухо, оттуда будто дыхание — мерное такое, ровное.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Но у нас в комнате ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "стена тёплая",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", хотя батарея с той стороны не идёт. И вечерами, если приложить ухо, оттуда будто ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "дыхание",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": " — мерное такое, ровное.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Соседка сказала звонить в газовую, вдруг труба где-то внутри стены. Я уже вторую неделю сплю в другой комнате.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Приезжайте, посмотрите. Я дома весь день.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"mission_type": "radio",
+		"mission_id": "m_wall_infection",
+		"requires": []
+	},
+	"call_whole_stairwell": {
+		"id": "call_whole_stairwell",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ЗВОНОК ОТ УПРАВДОМА. ГОЛОС РОВНЫЙ, НО С ТРУДОМ",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Диспетчер, это управдом с Лесной, семнадцать. У нас девятый этаж вторые сутки не отвечает — ни на звонки, ни в дверь.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Час назад дозвонился до одной квартиры. Трубку взяли, но там просто дышали, а потом шёпотом сказали «не подходите» и всё, тишина.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Час назад дозвонился до одной квартиры. Трубку взяли, но там просто дышали, а потом ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "шёпотом",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": " сказали «не подходите» и всё, тишина.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "На этаже шесть семей, дети есть. Я туда сам не полезу, честно вам скажу.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "На этаже ",
+						"highlight": false,
+						"bold": false
+					},
+					{
+						"text": "шесть семей",
+						"highlight": true,
+						"bold": false
+					},
+					{
+						"text": ", дети есть. Я туда сам не полезу, честно вам скажу.",
+						"highlight": false,
+						"bold": false
+					}
+				]
+			},
+			{
+				"text": "Лесная, семнадцать, девятый этаж. Лифт я отключил, чтобы никто по глупости не поднялся.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"mission_type": "radio",
+		"mission_id": "m_whole_stairwell",
+		"requires": []
+	}
+}
