@@ -113,6 +113,9 @@ PREVIEW"
 layout_mode = 0
 offset_right = 146.83481
 offset_bottom = 186.5034
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
 
 [node name="Stats" type="Label" parent="Page" unique_id=321300735]
 custom_minimum_size = Vector2(1, 1)

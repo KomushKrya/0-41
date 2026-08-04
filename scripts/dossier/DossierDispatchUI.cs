@@ -13,6 +13,7 @@ public partial class DossierDispatchUI : Control
 	[Export] public NodePath PageNumberPath { get; set; } = new("PageNumber");
 	[Export] public NodePath PreviousPagePath { get; set; } = new("PreviousPage");
 	[Export] public NodePath NextPagePath { get; set; } = new("NextPage");
+
 	private UiPreviewData? _previewData;
 
 	[Export]
@@ -42,10 +43,10 @@ public partial class DossierDispatchUI : Control
 	}
 
 	private readonly List<EmployeeView> _roster = new();
-	private DossierPage _pageContainer = null!;
+	private DossierPage _page = null!;
 	private Label _pageNumber = null!;
-	private Button _previousPage = null!;
-	private Button _nextPage = null!;
+	private BaseButton _previousPage = null!;
+	private BaseButton _nextPage = null!;
 	private ComputerUI? _dispatchComputer;
 	private int _pageIndex;
 
@@ -53,19 +54,24 @@ public partial class DossierDispatchUI : Control
 
 	public override void _Ready()
 	{
-		_pageContainer = GetPage(PageContainerPath);
+		_page = GetPage(PageContainerPath);
 		_pageNumber = GetNode<Label>(PageNumberPath);
-		_previousPage = GetNode<Button>(PreviousPagePath);
-		_nextPage = GetNode<Button>(NextPagePath);
+		_previousPage = GetNode<BaseButton>(PreviousPagePath);
+		_nextPage = GetNode<BaseButton>(NextPagePath);
 		if (Engine.IsEditorHint())
 		{
 			ApplyEditorPreview();
 			return;
 		}
 
-		_pageContainer.PortraitButton.Pressed += () => ConfirmEmployeeAt(_pageIndex);
+		_page.PortraitButton.Pressed += () => ConfirmEmployeeAt(_pageIndex);
 		_previousPage.Pressed += PreviousPage;
 		_nextPage.Pressed += NextPage;
+		BindUpgradeButton(_page.StrengthUpgradeButton, StatKind.Strength);
+		BindUpgradeButton(_page.CombatUpgradeButton, StatKind.Combat);
+		BindUpgradeButton(_page.AgilityUpgradeButton, StatKind.Agility);
+		BindUpgradeButton(_page.CharismaUpgradeButton, StatKind.Charisma);
+		BindUpgradeButton(_page.IntellectUpgradeButton, StatKind.Intellect);
 		Refresh();
 	}
 
@@ -77,16 +83,25 @@ public partial class DossierDispatchUI : Control
 			return;
 		}
 
-		ApplyEditorPreviewPage(_pageContainer, preview);
+		_page.Name.Text = preview.PrimaryName;
+		_page.Level.Text = "1";
+		_page.Strength.Text = "3";
+		_page.Combat.Text = "3";
+		_page.Agility.Text = "3";
+		_page.Charisma.Text = "3";
+		_page.Intellect.Text = "3";
+		_page.TraitsText.Text = preview.Description;
+		_page.BioText.Text = preview.Status;
+		_page.Experience.Text = "0 / 100";
+		_page.SkillPoints.Text = "0";
+		_page.PortraitButton.Disabled = true;
+		SetUpgradeButtonsEnabled(false, null);
 		_pageNumber.Text = "1 / 1";
 		_previousPage.Disabled = true;
 		_nextPage.Disabled = true;
 	}
 
-	private void OnPreviewDataChanged()
-	{
-		RequestEditorPreviewRefresh();
-	}
+	private void OnPreviewDataChanged() => RequestEditorPreviewRefresh();
 
 	private void RequestEditorPreviewRefresh()
 	{
@@ -96,32 +111,27 @@ public partial class DossierDispatchUI : Control
 		}
 	}
 
-	private static void ApplyEditorPreviewPage(DossierPage page, UiPreviewData preview)
-	{
-		page.Name.Text = preview.PrimaryName;
-		page.Level.Text = preview.PrimaryDetails;
-		page.Stats.Text = preview.Parameters;
-		page.Traits.Text = preview.Description;
-		page.Status.Text = preview.Status;
-		page.PortraitButton.Text = "PHOTO\nPREVIEW";
-		page.PortraitButton.Disabled = true;
-	}
-
 	public void OpenForDispatch(ComputerUI computerUi)
 	{
 		_dispatchComputer = computerUi;
-		_roster.Clear();
-		GameRuntime runtime = GameRuntime.Get(this);
-		if (runtime != null && runtime.IsReady)
-		{
-			foreach (EmployeeView employee in runtime.Session.GetRoster())
-			{
-				_roster.Add(employee);
-			}
-		}
-
+		ReloadRoster();
 		_pageIndex = FindFirstSelectableIndex();
 		Refresh();
+	}
+
+	private void ReloadRoster()
+	{
+		_roster.Clear();
+		GameRuntime runtime = GameRuntime.Get(this);
+		if (runtime == null || !runtime.IsReady)
+		{
+			return;
+		}
+
+		foreach (EmployeeView employee in runtime.Simulation.GetRoster())
+		{
+			_roster.Add(employee);
+		}
 	}
 
 	private void PreviousPage()
@@ -175,52 +185,219 @@ public partial class DossierDispatchUI : Control
 			&& (_dispatchComputer == null || !_dispatchComputer.IsEmployeeSelectedForDispatch(employee.Id));
 	}
 
-	private void Refresh()
+	private void BindUpgradeButton(Button button, StatKind stat)
 	{
-		RefreshPage(_pageContainer, _pageIndex);
+		button.Pressed += () => SpendSkillPoint(stat);
+	}
 
-		if (_roster.Count == 0)
+	private void SpendSkillPoint(StatKind stat)
+	{
+		if (_pageIndex < 0 || _pageIndex >= _roster.Count)
 		{
-			_pageNumber.Text = "- / -";
-			_previousPage.Disabled = true;
-			_nextPage.Disabled = true;
 			return;
 		}
 
+		string employeeId = _roster[_pageIndex].Id;
+		GameRuntime runtime = GameRuntime.Get(this);
+		if (runtime == null || !runtime.IsReady)
+		{
+			return;
+		}
+
+		CommandResult result = runtime.Simulation.SpendSkillPoint(employeeId, stat);
+		if (!result.IsSuccess)
+		{
+			GD.PushWarning($"Dossier: {result.Error}");
+			return;
+		}
+
+		ReloadRoster();
+		_pageIndex = FindEmployeeIndex(employeeId);
+		Refresh();
+	}
+
+	private int FindEmployeeIndex(string employeeId)
+	{
+		for (int index = 0; index < _roster.Count; index++)
+		{
+			if (_roster[index].Id == employeeId)
+			{
+				return index;
+			}
+		}
+
+		return 0;
+	}
+
+	private void Refresh()
+	{
+		if (_roster.Count == 0)
+		{
+			RefreshEmptyPage();
+			return;
+		}
+
+		_pageIndex = Mathf.Clamp(_pageIndex, 0, _roster.Count - 1);
+		RefreshPage(_roster[_pageIndex]);
 		_pageNumber.Text = $"{_pageIndex + 1} / {_roster.Count}";
 		_previousPage.Disabled = _pageIndex == 0;
 		_nextPage.Disabled = _pageIndex + 1 >= _roster.Count;
 	}
 
-	private void RefreshPage(DossierPage page, int employeeIndex)
+	private void RefreshEmptyPage()
 	{
-		if (employeeIndex < 0 || employeeIndex >= _roster.Count)
+		_page.Name.Text = "ДОСЬЕ ПУСТО";
+		_page.Level.Text = "-";
+		_page.Strength.Text = "-";
+		_page.Combat.Text = "-";
+		_page.Agility.Text = "-";
+		_page.Charisma.Text = "-";
+		_page.Intellect.Text = "-";
+		_page.TraitsText.Text = string.Empty;
+		_page.BioText.Text = string.Empty;
+		_page.Experience.Text = "- / -";
+		_page.SkillPoints.Text = "0";
+		_page.Portrait.Texture = LoadPortrait(string.Empty);
+		_page.PortraitButton.Text = string.Empty;
+		_page.PortraitButton.Disabled = true;
+		SetUpgradeButtonsEnabled(false, null);
+		_pageNumber.Text = "- / -";
+		_previousPage.Disabled = true;
+		_nextPage.Disabled = true;
+	}
+
+	private void RefreshPage(EmployeeView employee)
+	{
+		_page.Name.Text = employee.Name.ToUpperInvariant();
+		_page.Level.Text = employee.Level.ToString();
+		_page.Strength.Text = employee.Stats.Strength.ToString();
+		_page.Combat.Text = employee.Stats.Combat.ToString();
+		_page.Agility.Text = employee.Stats.Agility.ToString();
+		_page.Charisma.Text = employee.Stats.Charisma.ToString();
+		_page.Intellect.Text = employee.Stats.Intellect.ToString();
+		_page.TraitsText.Text = BuildTraitsText(employee);
+		_page.BioText.Text = BuildBioText(employee);
+		_page.Experience.Text = $"{employee.Experience} / {employee.ExperienceToNextLevel}";
+		_page.SkillPoints.Text = employee.UnspentSkillPoints.ToString();
+		_page.Portrait.Texture = LoadPortrait(employee.PortraitId);
+		_page.PortraitButton.Text = string.Empty;
+		_page.PortraitButton.Disabled = !IsSelectable(employee);
+		_page.PortraitButton.Modulate = IsSelectable(employee) ? Colors.White : new Color(0.65f, 0.65f, 0.65f, 1.0f);
+		SetUpgradeButtonsEnabled(employee.UnspentSkillPoints > 0 && employee.Status != EmployeeStatus.Dead, employee);
+	}
+
+	private void SetUpgradeButtonsEnabled(bool canSpend, EmployeeView? employee)
+	{
+		int maxStat = int.MaxValue;
+		GameRuntime runtime = GameRuntime.Get(this);
+		if (runtime != null && runtime.IsReady)
 		{
-			page.Name.Text = "\u0414\u041e\u0421\u042c\u0415 \u041f\u0423\u0421\u0422\u041e";
-			page.Level.Text = string.Empty;
-			page.Stats.Text = string.Empty;
-			page.Traits.Text = string.Empty;
-			page.Status.Text = "\u041d\u0410 \u042d\u0422\u041e\u0419 \u0421\u0422\u0420\u0410\u041d\u0418\u0426\u0415 \u041d\u0415\u0422 \u0421\u041e\u0422\u0420\u0423\u0414\u041d\u0418\u041a\u0410";
-			page.PortraitButton.Text = "-";
-			page.PortraitButton.Disabled = true;
-			page.PortraitButton.Modulate = new Color(0.5f, 0.5f, 0.5f, 1.0f);
-			return;
+			maxStat = runtime.Simulation.Config.Employees.MaxStatValue;
 		}
 
-		EmployeeView employee = _roster[employeeIndex];
-		bool isSelectable = IsSelectable(employee);
-		page.Name.Text = employee.Name.ToUpperInvariant();
-		page.Level.Text = $"\u0417\u0412\u0410\u041d\u0418\u0415: {employee.RankTitle}\n\u0423\u0420\u041e\u0412\u0415\u041d\u042c: {employee.Level}";
-		page.Stats.Text = BuildStats(employee);
-		page.Traits.Text = BuildTraits(employee);
-		page.Status.Text = isSelectable
-			? "\u041d\u0410\u0416\u041c\u0418\u0422\u0415 \u041d\u0410 \u0424\u041e\u0422\u041e, \u0427\u0422\u041e\u0411\u042b \u041d\u0410\u0417\u041d\u0410\u0427\u0418\u0422\u042c"
-			: employee.Status == EmployeeStatus.Available
-				? "\u0423\u0416\u0415 \u0412\u042b\u0411\u0420\u0410\u041d \u0414\u041b\u042f \u042d\u0422\u041e\u0419 \u0413\u0420\u0423\u041f\u041f\u042b"
-				: "\u0417\u0410\u041d\u042f\u0422 \u041d\u0410 \u0414\u0420\u0423\u0413\u041e\u0419 \u041c\u0418\u0421\u0421\u0418\u0418";
-		page.PortraitButton.Text = $"\u0424\u041e\u0422\u041e\n{employee.PortraitId}";
-		page.PortraitButton.Disabled = !isSelectable;
-		page.PortraitButton.Modulate = isSelectable ? Colors.White : new Color(0.5f, 0.5f, 0.5f, 1.0f);
+		SetUpgradeButton(_page.StrengthUpgradeButton, canSpend, employee, StatKind.Strength, maxStat);
+		SetUpgradeButton(_page.CombatUpgradeButton, canSpend, employee, StatKind.Combat, maxStat);
+		SetUpgradeButton(_page.AgilityUpgradeButton, canSpend, employee, StatKind.Agility, maxStat);
+		SetUpgradeButton(_page.CharismaUpgradeButton, canSpend, employee, StatKind.Charisma, maxStat);
+		SetUpgradeButton(_page.IntellectUpgradeButton, canSpend, employee, StatKind.Intellect, maxStat);
+	}
+
+	private static void SetUpgradeButton(Button button, bool canSpend, EmployeeView? employee, StatKind stat, int maxStat)
+	{
+		button.Disabled = !canSpend || employee == null || employee.Stats[stat] >= maxStat;
+	}
+
+	private static Texture2D? LoadPortrait(string portraitId)
+	{
+		if (!string.IsNullOrWhiteSpace(portraitId))
+		{
+			Texture2D? portrait = GD.Load<Texture2D>($"res://assets/portraits/{portraitId}.png");
+			if (portrait != null)
+			{
+				return portrait;
+			}
+
+			portrait = GD.Load<Texture2D>($"res://assets/textures/{portraitId}.png");
+			if (portrait != null)
+			{
+				return portrait;
+			}
+		}
+
+		return GD.Load<Texture2D>("res://assets/textures/test man.png");
+	}
+
+	private static string BuildTraitsText(EmployeeView employee)
+	{
+		if (employee.AbilityIds.Count == 0)
+		{
+			return "Нет";
+		}
+
+		var traits = new List<string>();
+		foreach (string abilityId in employee.AbilityIds)
+		{
+			traits.Add("• " + ResolveName(abilityId));
+		}
+
+		return string.Join("\n", traits);
+	}
+
+	private static string BuildBioText(EmployeeView employee)
+	{
+		var lines = new List<string>();
+		if (employee.Age > 0)
+		{
+			lines.Add($"Возраст: {employee.Age}");
+		}
+
+		foreach (string bioId in employee.BioIds)
+		{
+			string text = ResolveText(bioId);
+			if (!string.IsNullOrWhiteSpace(text))
+			{
+				lines.Add(text);
+			}
+		}
+
+		if (employee.IsInjured)
+		{
+			lines.Add("Травмирован");
+		}
+
+		if (!string.IsNullOrWhiteSpace(employee.CurrentIncidentId))
+		{
+			lines.Add("На задании: " + employee.CurrentIncidentId);
+		}
+
+		if (employee.Status == EmployeeStatus.Dead)
+		{
+			lines.Add("Погиб");
+		}
+
+		return string.Join("\n", lines);
+	}
+
+	private static string ResolveName(string entryId)
+	{
+		if (Content.Instance == null)
+		{
+			return entryId;
+		}
+
+		ContentEntry? entry = Content.Instance.GetEntry(entryId);
+		return entry != null && !string.IsNullOrWhiteSpace(entry.Name) ? entry.Name : entryId;
+	}
+
+	private static string ResolveText(string entryId)
+	{
+		if (Content.Instance == null)
+		{
+			return string.Empty;
+		}
+
+		ContentEntry? entry = Content.Instance.GetEntry(entryId);
+		return entry == null || entry.Chunks.Count == 0 ? string.Empty : entry.Chunks[0].Text;
 	}
 
 	private DossierPage GetPage(NodePath pagePath)
@@ -228,45 +405,84 @@ public partial class DossierDispatchUI : Control
 		Node page = GetNode(pagePath);
 		return new DossierPage(
 			page.GetNode<Label>("EmployeeName"),
-			page.GetNode<Label>("LevelText"),
-			page.GetNode<Label>("Stats"),
-			page.GetNode<Label>("Traits"),
-			page.GetNode<Label>("Bio"),
-			page.GetNode<Button>("PortraitButton"));
-	}
-
-	private static string BuildStats(EmployeeView employee)
-	{
-		return "\u0425\u0410\u0420\u0410\u041a\u0422\u0415\u0420\u0418\u0421\u0422\u0418\u041a\u0418\n"
-			+ $"\u0421\u0418\u041b {employee.Stats.Strength}  \u0412\u041e\u0421\u041f {employee.Stats.Intellect}\n"
-			+ $"\u0412\u042b\u041d {employee.Stats.Combat}  \u0425\u0410\u0420 {employee.Stats.Charisma}\n"
-			+ $"\u0421\u0410\u041c {employee.Stats.Agility}";
-	}
-
-	private static string BuildTraits(EmployeeView employee)
-	{
-		return employee.AbilityIds.Count == 0
-			? "\u041e\u0421\u041e\u0411\u042b\u0415 \u0427\u0415\u0420\u0422\u042b: \u041d\u0415\u0422"
-			: "\u041e\u0421\u041e\u0411\u042b\u0415 \u0427\u0415\u0420\u0422\u042b: " + string.Join(", ", employee.AbilityIds);
+			page.GetNode<Label>("LevelText/LabelID"),
+			page.GetNode<Button>("PortraitButton"),
+			page.GetNode<TextureRect>("PortraitButton/Portrait"),
+			page.GetNode<Label>("strength/strengthID"),
+			page.GetNode<Label>("combat/combatID"),
+			page.GetNode<Label>("agility/agilityID"),
+			page.GetNode<Label>("charisma/charismaID"),
+			page.GetNode<Label>("intellect/strengthID"),
+			page.GetNode<Button>("strength/StrengthUpgradeButton"),
+			page.GetNode<Button>("combat/CombatUpgradeButton"),
+			page.GetNode<Button>("agility/AgilityUpgradeButton"),
+			page.GetNode<Button>("charisma/CharismaUpgradeButton"),
+			page.GetNode<Button>("intellect/IntellectUpgradeButton"),
+			page.GetNode<RichTextLabel>("Traits/RichTextLabel"),
+			page.GetNode<RichTextLabel>("Bio/RichTextLabel"),
+			page.GetNode<Label>("LabelXP/CountXP"),
+			page.GetNode<Label>("LabelXP2/CountXP"));
 	}
 
 	private sealed class DossierPage
 	{
-		public DossierPage(Label name, Label level, Label stats, Label traits, Label status, Button portraitButton)
+		public DossierPage(
+			Label name,
+			Label level,
+			Button portraitButton,
+			TextureRect portrait,
+			Label strength,
+			Label combat,
+			Label agility,
+			Label charisma,
+			Label intellect,
+			Button strengthUpgradeButton,
+			Button combatUpgradeButton,
+			Button agilityUpgradeButton,
+			Button charismaUpgradeButton,
+			Button intellectUpgradeButton,
+			RichTextLabel traitsText,
+			RichTextLabel bioText,
+			Label experience,
+			Label skillPoints)
 		{
 			Name = name;
 			Level = level;
-			Stats = stats;
-			Traits = traits;
-			Status = status;
 			PortraitButton = portraitButton;
+			Portrait = portrait;
+			Strength = strength;
+			Combat = combat;
+			Agility = agility;
+			Charisma = charisma;
+			Intellect = intellect;
+			StrengthUpgradeButton = strengthUpgradeButton;
+			CombatUpgradeButton = combatUpgradeButton;
+			AgilityUpgradeButton = agilityUpgradeButton;
+			CharismaUpgradeButton = charismaUpgradeButton;
+			IntellectUpgradeButton = intellectUpgradeButton;
+			TraitsText = traitsText;
+			BioText = bioText;
+			Experience = experience;
+			SkillPoints = skillPoints;
 		}
 
 		public Label Name { get; }
 		public Label Level { get; }
-		public Label Stats { get; }
-		public Label Traits { get; }
-		public Label Status { get; }
 		public Button PortraitButton { get; }
+		public TextureRect Portrait { get; }
+		public Label Strength { get; }
+		public Label Combat { get; }
+		public Label Agility { get; }
+		public Label Charisma { get; }
+		public Label Intellect { get; }
+		public Button StrengthUpgradeButton { get; }
+		public Button CombatUpgradeButton { get; }
+		public Button AgilityUpgradeButton { get; }
+		public Button CharismaUpgradeButton { get; }
+		public Button IntellectUpgradeButton { get; }
+		public RichTextLabel TraitsText { get; }
+		public RichTextLabel BioText { get; }
+		public Label Experience { get; }
+		public Label SkillPoints { get; }
 	}
 }

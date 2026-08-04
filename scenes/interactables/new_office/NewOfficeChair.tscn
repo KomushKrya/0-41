@@ -7,6 +7,8 @@
 [ext_resource type="Texture2D" uid="uid://co3vo5ipxnj6j" path="res://assets/models/environment/office_split/furniture/textures/кабинет_Stul_drow_Metallic.png" id="5_0o1if"]
 [ext_resource type="Texture2D" uid="uid://btuabyuvmsv4b" path="res://assets/models/environment/office_split/furniture/textures/кабинет_Stul_drow_Normal.png" id="6_l0u88"]
 
+[ext_resource type="Script" uid="uid://dkx27hodue2tf" path="res://scenes/FlyPlayer.cs" id="7_chair_camera"]
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2pnm3"]
 resource_name = "Black"
 cull_mode = 2
@@ -114,3 +116,10 @@ mesh = SubResource("ArrayMesh_bo56o")
 
 [node name="FocusCameraPose" type="Camera3D" parent="." unique_id=2110986752]
 transform = Transform3D(0.4048236, 0.043143805, -0.91337645, 0, 0.9988863, 0.047182906, 0.9143948, -0.019100754, 0.40437275, -0.015175819, 0.8476973, 0.102650166)
+script = ExtResource("7_chair_camera")
+
+[node name="InteractionRay" type="RayCast3D" parent="FocusCameraPose" unique_id=1797604442]
+target_position = Vector3(0, 0, -5)
+collision_mask = 2
+collide_with_areas = true
+collide_with_bodies = false
