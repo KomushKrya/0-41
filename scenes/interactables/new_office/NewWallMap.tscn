@@ -1,21 +1,19 @@
-[gd_scene format=4]
+[gd_scene format=4 uid="uid://b7sidp0hp84ot"]
 
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Doska_Ramka_BaseColor.png" id="1_gru50"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Doska_Ramka_Metallic-Doska_Ramka_Roughness.png" id="2_35pau"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Doska_Ramka_Normal.png" id="3_mf3mp"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Doska_Centr_BaseColor.png" id="4_ryy6o"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Doska_Centr_Metallic-Doska_Centr_Roughness.png" id="5_yqgjf"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Doska_Centr_Normal.png" id="6_q1n6x"]
-[ext_resource type="Texture2D" path="res://assets/textures/test man.png" id="7_8hgl3"]
-[ext_resource type="Script" path="res://scripts/interaction/InteractionOutline.cs" id="8_blm47"]
-[ext_resource type="Script" path="res://scripts/interaction/OutlineOnlyInteractable.cs" id="9_av6od"]
+[ext_resource type="Texture2D" uid="uid://bbit5tx4pgkq4" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Doska_Ramka_BaseColor.png" id="1_gru50"]
+[ext_resource type="Texture2D" uid="uid://bbk4p74sj0vat" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Doska_Ramka_Metallic-Doska_Ramka_Roughness.png" id="2_35pau"]
+[ext_resource type="Texture2D" uid="uid://dlfwru5qkku42" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Doska_Ramka_Normal.png" id="3_mf3mp"]
+[ext_resource type="Texture2D" uid="uid://diu3iby12il73" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Doska_Centr_BaseColor.png" id="4_ryy6o"]
+[ext_resource type="Texture2D" uid="uid://b7gav6jutx4cs" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Doska_Centr_Metallic-Doska_Centr_Roughness.png" id="5_yqgjf"]
+[ext_resource type="Texture2D" uid="uid://b3olagosnp3d7" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Doska_Centr_Normal.png" id="6_q1n6x"]
+[ext_resource type="Texture2D" uid="uid://ccjivqsnoseua" path="res://assets/textures/test man.png" id="7_8hgl3"]
+[ext_resource type="Script" uid="uid://d0fbn8kr5taka" path="res://scripts/interaction/InteractionOutline.cs" id="8_blm47"]
+[ext_resource type="Script" uid="uid://bg1h1jf7kjf0c" path="res://scripts/interaction/OutlineOnlyInteractable.cs" id="9_av6od"]
 [ext_resource type="PackedScene" path="res://scenes/ui/map/MapUI.tscn" id="10_owj42"]
-[ext_resource type="Script" path="res://scripts/ui/MapBuildingEditor.cs" id="11_2nxfm"]
-[ext_resource type="PackedScene" path="res://scenes/ui/map/MapDispatchRoute.tscn" id="12_vp6b3"]
-[ext_resource type="Script" path="res://scripts/interaction/SubViewportSurfaceRenderer.cs" id="13_gdq3u"]
-[ext_resource type="Script" path="res://scripts/interactables/map_marker/MapMarkerController.cs" id="14_hr888"]
+[ext_resource type="Script" uid="uid://dvqxuod1kiwne" path="res://scripts/interaction/SubViewportSurfaceRenderer.cs" id="13_gdq3u"]
+[ext_resource type="Script" uid="uid://53qnsdfl8qu3" path="res://scripts/interactables/map_marker/MapMarkerController.cs" id="14_hr888"]
 [ext_resource type="PackedScene" path="res://scenes/interactables/map_marker/MapMissionMarker.tscn" id="15_nhioq"]
-[ext_resource type="Script" path="res://scripts/interactables/MapBackgroundLayout.cs" id="16_dxt4x"]
+[ext_resource type="Script" uid="uid://l60j6pgw0w0b" path="res://scripts/interactables/MapBackgroundLayout.cs" id="16_dxt4x"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kmm7f"]
 resource_name = "Ramka.001"
@@ -111,7 +109,7 @@ material = SubResource("StandardMaterial3D_u85xb")
 size = Vector2(1.3, 0.93)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_4auss"]
-size = Vector3(0.1, 1.04, 1.46)
+size = Vector3(0.1, 0.9809216, 1.377146)
 
 [node name="WallMap" type="Node3D" unique_id=156684173 groups=["interactive"]]
 
@@ -141,6 +139,7 @@ script = ExtResource("9_av6od")
 Label = "Map"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionArea" unique_id=889285502]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.01876527, -0.013890386)
 shape = SubResource("BoxShape3D_4auss")
 
 [node name="MapViewport" type="SubViewport" parent="." unique_id=1064180370]
@@ -149,20 +148,7 @@ transparent_bg = true
 size = Vector2i(1024, 768)
 render_target_update_mode = 4
 
-[node name="MapUI" type="Control" parent="MapViewport" unique_id=578861665 instance=ExtResource("10_owj42")]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("11_2nxfm")
-BuildingLayerPath = NodePath("MapLayers/GeneratedMapGeometry/BuildingLayer")
-RoadLayerPath = NodePath("MapLayers/GeneratedMapGeometry/RoadLayer")
-DispatchRouteScene = ExtResource("12_vp6b3")
-HeadquartersBuildingName = "ImportedBuilding_569"
-HeadquartersBuildingId = "building_block_r04_c03"
-ShowHeadquartersLabel = false
+[node name="MapUI" parent="MapViewport" unique_id=578861665 instance=ExtResource("10_owj42")]
 
 [node name="MapSurfaceRenderer" type="Node" parent="." unique_id=2034064114]
 script = ExtResource("13_gdq3u")

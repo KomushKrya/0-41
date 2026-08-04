@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="UiPreviewData" format=3 uid="uid://bpoaur3vw477f"]
+
+[ext_resource type="Script" uid="uid://dsfgpmovy11vi" path="res://scripts/ui/preview/UiPreviewData.cs" id="1_preview"]
+
+[resource]
+script = ExtResource("1_preview")
+Title = "ЛИЧНОЕ ДЕЛО"
+Subtitle = "СОТРУДНИК КОНТУРА"
+PrimaryName = "УШАКОВ К. Р."
+PrimaryDetails = "ЗВАНИЕ: СТАРШИЙ ОПЕРАТИВНИК
+УРОВЕНЬ: 1
+ВОЗРАСТ: 28"
+Description = "ОСОБАЯ ЧЕРТА: ЛЕДЯНАЯ ВЫДЕРЖКА
+
+Телосложение атлетичное. Держится ровно даже на разборах. Вдовец, живёт с матерью. Имеет спортивные медали по лёгкой атлетике."

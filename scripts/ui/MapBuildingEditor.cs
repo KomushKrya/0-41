@@ -1,6 +1,7 @@
 using Godot;
 using System.Collections.Generic;
 
+[Tool]
 public partial class MapBuildingEditor : Control
 {
 	[Export] public NodePath BuildingLayerPath { get; set; } = new("MapLayers/BuildingLayer");
@@ -21,6 +22,8 @@ public partial class MapBuildingEditor : Control
 	[Export] public Color MissionCountdownRingTrackColor { get; set; } = new(0.0f, 0.0f, 0.0f, 0.0f);
 	[Export] public Color MissionCountdownRingProgressColor { get; set; } = new(0.38f, 0.38f, 0.38f, 1.0f);
 	[Export] public Color MissionTravellingRingColor { get; set; } = new(0.36f, 0.68f, 0.44f, 1.0f);
+	[Export] public UiPreviewData PreviewData { get; set; }
+	[Export] public NodePath EditorPreviewPanelPath { get; set; } = new("OverlayLayer/EditorPreviewPanel");
 
 	private const string StartAttachmentNode = "route_start";
 	private const string TargetAttachmentNode = "route_target";
@@ -49,6 +52,7 @@ public partial class MapBuildingEditor : Control
 	private Control _mapLayers = null!;
 	private Control _mapGeometry = null!;
 	private Line2D _paperFrame = null!;
+	private Control _editorPreviewPanel = null!;
 	private Polygon2D _selectedBuilding = null!;
 	private float _routeLength;
 	private float _activeMarkerSpeed;
@@ -73,6 +77,7 @@ public partial class MapBuildingEditor : Control
 		_mapGeometry = _buildingLayer.GetParent<Control>();
 		_mapLayers = _mapGeometry.GetParent<Control>();
 		_paperFrame = GetNode<Line2D>(PaperFramePath);
+		_editorPreviewPanel = GetNode<Control>(EditorPreviewPanelPath);
 
 		FitMapViewportToPaperFrame();
 		BuildRoadGraph();
@@ -81,9 +86,23 @@ public partial class MapBuildingEditor : Control
 
 		_routeRenderer.ClearRoute();
 		_movingMarker.Visible = false;
+		ApplyEditorPreview();
 		SetLayoutDebugEnabled(true);
 		UpdateSelectionUi();
 		UpdateRouteStatus("МАРШРУТ: назначь штаб и объект");
+	}
+
+	private void ApplyEditorPreview()
+	{
+		_editorPreviewPanel.Visible = Engine.IsEditorHint() && PreviewData != null;
+		if (!Engine.IsEditorHint() || PreviewData == null)
+		{
+			return;
+		}
+
+		_editorPreviewPanel.GetNode<Label>("Title").Text = PreviewData.Title;
+		_editorPreviewPanel.GetNode<Label>("Subtitle").Text = PreviewData.Subtitle;
+		_editorPreviewPanel.GetNode<Label>("Details").Text = $"{PreviewData.Parameters}\n{PreviewData.Status}";
 	}
 
 	public void SetLayoutDebugEnabled(bool isEnabled)

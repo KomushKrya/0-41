@@ -1,9 +1,10 @@
-[gd_scene format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/MapBuildingEditor.cs" id="1_map_editor"]
 [ext_resource type="Script" path="res://scripts/ui/DashedRouteRenderer.cs" id="2_dashed_route"]
 [ext_resource type="PackedScene" path="res://scenes/ui/map/GeneratedMapGeometry.tscn" id="3_geometry"]
 [ext_resource type="PackedScene" path="res://scenes/ui/map/MapDispatchRoute.tscn" id="4_dispatch_route"]
+[ext_resource type="Resource" path="res://assets/ui_preview/MapPreview.tres" id="5_preview"]
 
 [node name="MapUI" type="Control"]
 layout_mode = 3
@@ -25,6 +26,7 @@ HeadquartersBuildingName = "ImportedBuilding_569"
 HeadquartersBuildingId = "building_block_r04_c03"
 ShowHeadquartersLabel = false
 DispatchRouteScene = ExtResource("4_dispatch_route")
+PreviewData = ExtResource("5_preview")
 
 [node name="Background" type="ColorRect" parent="."]
 layout_mode = 1
@@ -146,3 +148,45 @@ default_color = Color(0.12, 0.2, 0.24, 0.9)
 joint_mode = 2
 begin_cap_mode = 2
 end_cap_mode = 2
+
+[node name="EditorPreviewPanel" type="Control" parent="OverlayLayer"]
+visible = false
+z_index = 10
+layout_mode = 0
+offset_left = 60.0
+offset_top = 88.0
+offset_right = 350.0
+offset_bottom = 180.0
+mouse_filter = 2
+
+[node name="Title" type="Label" parent="OverlayLayer/EditorPreviewPanel"]
+layout_mode = 1
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 0.25
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.12, 0.2, 0.16, 1)
+theme_override_font_sizes/font_size = 16
+
+[node name="Subtitle" type="Label" parent="OverlayLayer/EditorPreviewPanel"]
+layout_mode = 1
+anchors_preset = 0
+anchor_top = 0.27
+anchor_right = 1.0
+anchor_bottom = 0.47
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.21, 0.31, 0.22, 1)
+theme_override_font_sizes/font_size = 12
+
+[node name="Details" type="Label" parent="OverlayLayer/EditorPreviewPanel"]
+layout_mode = 1
+anchors_preset = 0
+anchor_top = 0.52
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.18, 0.25, 0.18, 1)
+theme_override_font_sizes/font_size = 12

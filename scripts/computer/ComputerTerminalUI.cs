@@ -3,11 +3,13 @@ using Godot;
 using Kontur.Core.Api;
 using Kontur.Core.Events;
 
+[Tool]
 public partial class ComputerTerminalUI : Control
 {
 	[Export] public NodePath StartShiftButtonPath { get; set; } = new("StartShiftButton");
 	[Export] public NodePath StatusLabelPath { get; set; } = new("StatusLines");
 	[Export] public NodePath ShiftSelectorPath { get; set; } = new("ShiftSelector");
+	[Export] public UiPreviewData PreviewData { get; set; }
 
 	private Button _startShiftButton = null!;
 	private Label _statusLabel = null!;
@@ -22,6 +24,12 @@ public partial class ComputerTerminalUI : Control
 		_startShiftButton = GetNode<Button>(StartShiftButtonPath);
 		_statusLabel = GetNode<Label>(StatusLabelPath);
 		_shiftSelector = GetNode<OptionButton>(ShiftSelectorPath);
+		if (Engine.IsEditorHint())
+		{
+			ApplyEditorPreview();
+			return;
+		}
+
 		_startShiftButton.Pressed += StartNextShift;
 		_shiftSelector.ItemSelected += OnShiftSelected;
 
@@ -37,6 +45,22 @@ public partial class ComputerTerminalUI : Control
 		_gameOverSubscription = _runtime.Session.Events.Subscribe<GameOverTriggered>(_ => RefreshState());
 		PopulateShiftSelector();
 		RefreshState();
+	}
+
+	public void ApplyEditorPreview(UiPreviewData preview = null)
+	{
+		preview ??= PreviewData;
+		if (preview == null)
+		{
+			return;
+		}
+
+		_statusLabel.Text = $"{preview.Subtitle}\n{preview.Parameters}\n{preview.Status}";
+		_startShiftButton.Text = "PREVIEW SHIFT";
+		_startShiftButton.Disabled = true;
+		_shiftSelector.Clear();
+		_shiftSelector.AddItem("SHIFT 01");
+		_shiftSelector.Disabled = true;
 	}
 
 	public override void _ExitTree()

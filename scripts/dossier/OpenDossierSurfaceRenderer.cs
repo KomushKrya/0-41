@@ -1,11 +1,11 @@
 using Godot;
 
-/// <summary>Renders the left and right halves of one dossier UI texture onto separate 3D pages.</summary>
+/// <summary>Renders one dossier page texture onto both 3D page surfaces.</summary>
 [Tool]
 public partial class OpenDossierSurfaceRenderer : Node
 {
-	[Export] public NodePath LeftPagePath { get; set; } = new("../VisualRoot/LeftPageSurface");
-	[Export] public NodePath RightPagePath { get; set; } = new("../VisualRoot/RightPageSurface");
+	[Export] public NodePath LeftPagePath { get; set; } = new("../VisualRoot/CoverPivot/LeftPageSurface");
+	[Export] public NodePath RightPagePath { get; set; } = new("../VisualRoot/RightPage/RightPageSurface");
 	[Export] public NodePath ViewportPath { get; set; } = new("../DossierViewport");
 	[Export] public Shader PageShader { get; set; } = null!;
 	[Export(PropertyHint.Range, "0,1,0.01")] public float EmissionEnergy { get; set; } = 0.08f;
@@ -21,15 +21,14 @@ public partial class OpenDossierSurfaceRenderer : Node
 			return;
 		}
 
-		leftPage.MaterialOverride = CreatePageMaterial(viewport.GetTexture(), 0.0f);
-		rightPage.MaterialOverride = CreatePageMaterial(viewport.GetTexture(), 0.5f);
+		leftPage.MaterialOverride = CreatePageMaterial(viewport.GetTexture());
+		rightPage.MaterialOverride = CreatePageMaterial(viewport.GetTexture());
 	}
 
-	private ShaderMaterial CreatePageMaterial(Texture2D texture, float offset)
+	private ShaderMaterial CreatePageMaterial(Texture2D texture)
 	{
 		var material = new ShaderMaterial { Shader = PageShader };
 		material.SetShaderParameter("dossier_texture", texture);
-		material.SetShaderParameter("page_offset", offset);
 		material.SetShaderParameter("emission_energy", EmissionEnergy);
 		return material;
 	}

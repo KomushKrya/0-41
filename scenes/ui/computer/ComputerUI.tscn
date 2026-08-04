@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://bm77c8pw658tt"]
+[gd_scene load_steps=8 format=3 uid="uid://bm77c8pw658tt"]
 
 [ext_resource type="Script" uid="uid://dd3xobbl8y0uc" path="res://scripts/computer/ComputerUI.cs" id="1_ui"]
 [ext_resource type="PackedScene" path="res://scenes/ui/computer/screens/ComputerHome.tscn" id="2_home"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/computer/screens/MissionDispatch.tscn" id="6_mission_dispatch"]
 [ext_resource type="PackedScene" path="res://scenes/ui/computer/screens/EquipmentSelection.tscn" id="4_equipment"]
 [ext_resource type="PackedScene" path="res://scenes/ui/computer/screens/Encyclopedia.tscn" id="5_encyclopedia"]
+[ext_resource type="Resource" path="res://assets/ui_preview/ComputerDispatchPreview.tres" id="7_preview"]
 
 [node name="ComputerUI" type="Control" unique_id=509066466]
 custom_minimum_size = Vector2(900, 600)
@@ -21,6 +22,7 @@ EmployeesScreenScene = ExtResource("3_employees")
 MissionDispatchScreenScene = ExtResource("6_mission_dispatch")
 EquipmentScreenScene = ExtResource("4_equipment")
 EncyclopediaScreenScene = ExtResource("5_encyclopedia")
+PreviewData = ExtResource("7_preview")
 
 [node name="Background" type="ColorRect" parent="." unique_id=1414671496]
 layout_mode = 1

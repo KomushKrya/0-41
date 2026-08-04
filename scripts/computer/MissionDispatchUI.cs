@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using Godot;
 using Kontur.Core.Api;
 
+[Tool]
 public partial class MissionDispatchUI : Control, IComputerScreen
 {
 	[Export] public NodePath CallTitlePath { get; set; } = new("CallSheet/CallTitle");
 	[Export] public NodePath CallTranscriptPath { get; set; } = new("CallSheet/CallTranscript");
 	[Export] public NodePath DispatchButtonPath { get; set; } = new("DispatchButton");
 	[Export] public NodePath FeedbackPath { get; set; } = new("Feedback");
+	[Export] public UiPreviewData PreviewData { get; set; }
 
 	private readonly Control[] _employeeSlots = new Control[3];
 	private readonly Label[] _employeeNames = new Label[3];
@@ -28,6 +30,11 @@ public partial class MissionDispatchUI : Control, IComputerScreen
 		_employeeNames[2] = GetNode<Label>("EmployeeSlotThree/Empty");
 		_dispatchButton = GetNode<Button>(DispatchButtonPath);
 		_feedback = GetNode<Label>(FeedbackPath);
+		if (Engine.IsEditorHint())
+		{
+			ApplyEditorPreview();
+			return;
+		}
 
 		for (int index = 0; index < _employeeSlots.Length; index++)
 		{
@@ -42,6 +49,21 @@ public partial class MissionDispatchUI : Control, IComputerScreen
 		}
 
 		_dispatchButton.Pressed += () => DispatchRequested?.Invoke();
+	}
+
+	public void ApplyEditorPreview(UiPreviewData preview = null)
+	{
+		preview ??= PreviewData;
+		if (preview == null)
+		{
+			return;
+		}
+
+		GetNode<Label>(CallTitlePath).Text = preview.Title;
+		GetNode<Label>(CallTranscriptPath).Text = preview.Description;
+		SetEmployeeNames(preview.GetListItems());
+		_feedback.Text = preview.Status;
+		_dispatchButton.Disabled = true;
 	}
 
 	public void OnScreenOpened()

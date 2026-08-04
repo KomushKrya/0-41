@@ -1,6 +1,7 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/computer/MissionDispatchUI.cs" id="1_dispatch_ui"]
+[ext_resource type="Resource" path="res://assets/ui_preview/ComputerDispatchPreview.tres" id="2_preview"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_call_sheet"]
 bg_color = Color(0.035, 0.09, 0.055, 1)
@@ -62,6 +63,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_dispatch_ui")
+PreviewData = ExtResource("2_preview")
 
 [node name="CallSheet" type="Panel" parent="."]
 layout_mode = 1

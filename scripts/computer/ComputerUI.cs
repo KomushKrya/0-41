@@ -17,6 +17,7 @@ public interface IComputerScreen
 }
 
 /// <summary>Оболочка терминала: хранит экраны ПК и отвечает только за навигацию между ними.</summary>
+[Tool]
 public partial class ComputerUI : Control
 {
 	[Export] public NodePath ScreenContainerPath { get; set; } = new("SafeArea/ScreenContainer");
@@ -26,6 +27,8 @@ public partial class ComputerUI : Control
 	[Export] public PackedScene MissionDispatchScreenScene { get; set; } = null!;
 	[Export] public PackedScene EquipmentScreenScene { get; set; } = null!;
 	[Export] public PackedScene EncyclopediaScreenScene { get; set; } = null!;
+	[Export] public UiPreviewData PreviewData { get; set; }
+	[Export] public ComputerScreen EditorPreviewScreen { get; set; } = ComputerScreen.MissionDispatch;
 
 	private readonly Dictionary<ComputerScreen, Control> _screens = new();
 	private readonly Stack<ComputerScreen> _navigationHistory = new();
@@ -46,20 +49,35 @@ public partial class ComputerUI : Control
 	{
 		_screenContainer = GetNode<Control>(ScreenContainerPath);
 		_backButton = GetNode<Button>(BackButtonPath);
-		_backButton.Pressed += GoBack;
+		if (!Engine.IsEditorHint())
+		{
+			_backButton.Pressed += GoBack;
+		}
 
 		AddScreen(ComputerScreen.Home, HomeScreenScene);
 		AddScreen(ComputerScreen.Employees, EmployeesScreenScene);
 		AddScreen(ComputerScreen.MissionDispatch, MissionDispatchScreenScene);
 		AddScreen(ComputerScreen.Equipment, EquipmentScreenScene);
 		AddScreen(ComputerScreen.Encyclopedia, EncyclopediaScreenScene);
-		OpenScreen(ComputerScreen.Home, false);
+		OpenScreen(Engine.IsEditorHint() ? EditorPreviewScreen : ComputerScreen.Home, false);
 		if (_screens.TryGetValue(ComputerScreen.MissionDispatch, out Control dispatchScreen)
 			&& dispatchScreen is MissionDispatchUI missionDispatch)
 		{
 			_missionDispatchUi = missionDispatch;
-			_missionDispatchUi.EmployeeSlotRequested += OnDispatchSlotRequested;
-			_missionDispatchUi.DispatchRequested += OnDispatchRequested;
+			if (Engine.IsEditorHint())
+			{
+				_missionDispatchUi.ApplyEditorPreview(PreviewData);
+			}
+			else
+			{
+				_missionDispatchUi.EmployeeSlotRequested += OnDispatchSlotRequested;
+				_missionDispatchUi.DispatchRequested += OnDispatchRequested;
+			}
+		}
+
+		if (Engine.IsEditorHint())
+		{
+			ApplyEditorPreview();
 		}
 	}
 
@@ -68,6 +86,21 @@ public partial class ComputerUI : Control
 		if (_backButton != null)
 		{
 			_backButton.Pressed -= GoBack;
+		}
+	}
+
+	private void ApplyEditorPreview()
+	{
+		if (PreviewData == null)
+		{
+			return;
+		}
+
+		GetNode<Label>("SafeArea/Header/Title").Text = PreviewData.Subtitle;
+		if (_screens.TryGetValue(ComputerScreen.Home, out Control home)
+			&& home is ComputerTerminalUI terminal)
+		{
+			terminal.ApplyEditorPreview(PreviewData);
 		}
 	}
 

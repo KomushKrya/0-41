@@ -98,7 +98,9 @@ public partial class DossierDispatchController : Node3D
 		{
 			GlobalTransform = _editorRestingTransform;
 			_visualRoot.Rotation = Vector3.Zero;
-			SetClosedPageTransform();
+			// Keep the authored open transform in the editor. Applying the runtime closed
+			// transform here dirtied the scene and accumulated ClosedCoverLift on reload.
+			_leftPage.Transform = _openLeftPageTransform;
 			Show();
 			return;
 		}

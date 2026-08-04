@@ -6,37 +6,105 @@ using Godot;
 using Kontur.Core.Api;
 using Kontur.Core.Model;
 
+[Tool]
 public partial class DossierDispatchUI : Control
 {
-	[Export] public NodePath LeftPagePath { get; set; } = new("LeftPage");
-	[Export] public NodePath RightPagePath { get; set; } = new("RightPage");
-	[Export] public NodePath PagePath { get; set; } = new("PageNumber");
+	[Export] public NodePath PageContainerPath { get; set; } = new("Page");
+	[Export] public NodePath PageNumberPath { get; set; } = new("PageNumber");
 	[Export] public NodePath PreviousPagePath { get; set; } = new("PreviousPage");
 	[Export] public NodePath NextPagePath { get; set; } = new("NextPage");
+	private UiPreviewData? _previewData;
+
+	[Export]
+	public UiPreviewData? PreviewData
+	{
+		get => _previewData;
+		set
+		{
+			if (_previewData == value)
+			{
+				return;
+			}
+
+			if (_previewData != null)
+			{
+				_previewData.Changed -= OnPreviewDataChanged;
+			}
+
+			_previewData = value;
+			if (_previewData != null)
+			{
+				_previewData.Changed += OnPreviewDataChanged;
+			}
+
+			RequestEditorPreviewRefresh();
+		}
+	}
 
 	private readonly List<EmployeeView> _roster = new();
-	private DossierPage _leftPage = null!;
-	private DossierPage _rightPage = null!;
-	private Label _page = null!;
+	private DossierPage _pageContainer = null!;
+	private Label _pageNumber = null!;
 	private Button _previousPage = null!;
 	private Button _nextPage = null!;
 	private ComputerUI? _dispatchComputer;
-	private int _spreadStartIndex;
+	private int _pageIndex;
 
 	public event Action<EmployeeView>? EmployeeConfirmed;
 
 	public override void _Ready()
 	{
-		_leftPage = GetPage(LeftPagePath);
-		_rightPage = GetPage(RightPagePath);
-		_page = GetNode<Label>(PagePath);
+		_pageContainer = GetPage(PageContainerPath);
+		_pageNumber = GetNode<Label>(PageNumberPath);
 		_previousPage = GetNode<Button>(PreviousPagePath);
 		_nextPage = GetNode<Button>(NextPagePath);
-		_leftPage.PortraitButton.Pressed += () => ConfirmEmployeeAt(_spreadStartIndex);
-		_rightPage.PortraitButton.Pressed += () => ConfirmEmployeeAt(_spreadStartIndex + 1);
-		_previousPage.Pressed += PreviousSpread;
-		_nextPage.Pressed += NextSpread;
+		if (Engine.IsEditorHint())
+		{
+			ApplyEditorPreview();
+			return;
+		}
+
+		_pageContainer.PortraitButton.Pressed += () => ConfirmEmployeeAt(_pageIndex);
+		_previousPage.Pressed += PreviousPage;
+		_nextPage.Pressed += NextPage;
 		Refresh();
+	}
+
+	private void ApplyEditorPreview()
+	{
+		UiPreviewData? preview = PreviewData;
+		if (preview == null)
+		{
+			return;
+		}
+
+		ApplyEditorPreviewPage(_pageContainer, preview);
+		_pageNumber.Text = "1 / 1";
+		_previousPage.Disabled = true;
+		_nextPage.Disabled = true;
+	}
+
+	private void OnPreviewDataChanged()
+	{
+		RequestEditorPreviewRefresh();
+	}
+
+	private void RequestEditorPreviewRefresh()
+	{
+		if (Engine.IsEditorHint() && IsInsideTree())
+		{
+			CallDeferred(nameof(ApplyEditorPreview));
+		}
+	}
+
+	private static void ApplyEditorPreviewPage(DossierPage page, UiPreviewData preview)
+	{
+		page.Name.Text = preview.PrimaryName;
+		page.Level.Text = preview.PrimaryDetails;
+		page.Stats.Text = preview.Parameters;
+		page.Traits.Text = preview.Description;
+		page.Status.Text = preview.Status;
+		page.PortraitButton.Text = "PHOTO\nPREVIEW";
+		page.PortraitButton.Disabled = true;
 	}
 
 	public void OpenForDispatch(ComputerUI computerUi)
@@ -52,29 +120,29 @@ public partial class DossierDispatchUI : Control
 			}
 		}
 
-		_spreadStartIndex = FindFirstSelectableIndex() / 2 * 2;
+		_pageIndex = FindFirstSelectableIndex();
 		Refresh();
 	}
 
-	private void PreviousSpread()
+	private void PreviousPage()
 	{
-		if (_spreadStartIndex <= 0)
+		if (_pageIndex <= 0)
 		{
 			return;
 		}
 
-		_spreadStartIndex -= 2;
+		_pageIndex--;
 		Refresh();
 	}
 
-	private void NextSpread()
+	private void NextPage()
 	{
-		if (_spreadStartIndex + 2 >= _roster.Count)
+		if (_pageIndex + 1 >= _roster.Count)
 		{
 			return;
 		}
 
-		_spreadStartIndex += 2;
+		_pageIndex++;
 		Refresh();
 	}
 
@@ -109,21 +177,19 @@ public partial class DossierDispatchUI : Control
 
 	private void Refresh()
 	{
-		RefreshPage(_leftPage, _spreadStartIndex);
-		RefreshPage(_rightPage, _spreadStartIndex + 1);
+		RefreshPage(_pageContainer, _pageIndex);
 
 		if (_roster.Count == 0)
 		{
-			_page.Text = "- / -";
+			_pageNumber.Text = "- / -";
 			_previousPage.Disabled = true;
 			_nextPage.Disabled = true;
 			return;
 		}
 
-		int spreadCount = Mathf.CeilToInt(_roster.Count / 2.0f);
-		_page.Text = $"{_spreadStartIndex / 2 + 1} / {spreadCount}";
-		_previousPage.Disabled = _spreadStartIndex == 0;
-		_nextPage.Disabled = _spreadStartIndex + 2 >= _roster.Count;
+		_pageNumber.Text = $"{_pageIndex + 1} / {_roster.Count}";
+		_previousPage.Disabled = _pageIndex == 0;
+		_nextPage.Disabled = _pageIndex + 1 >= _roster.Count;
 	}
 
 	private void RefreshPage(DossierPage page, int employeeIndex)
@@ -162,10 +228,10 @@ public partial class DossierDispatchUI : Control
 		Node page = GetNode(pagePath);
 		return new DossierPage(
 			page.GetNode<Label>("EmployeeName"),
-			page.GetNode<Label>("Level"),
+			page.GetNode<Label>("LevelText"),
 			page.GetNode<Label>("Stats"),
 			page.GetNode<Label>("Traits"),
-			page.GetNode<Label>("Status"),
+			page.GetNode<Label>("Bio"),
 			page.GetNode<Button>("PortraitButton"));
 	}
 

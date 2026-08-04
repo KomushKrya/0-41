@@ -1,38 +1,32 @@
-[gd_scene format=4]
+[gd_scene format=4 uid="uid://84krsaigl1fp"]
 
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Clava_Parts_BaseColor.png" id="1_8guh2"]
-[ext_resource type="Script" path="res://scripts/computer/DeskComputerInteraction.cs" id="1_uh1o1"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Clava_Parts_Metallic-Clava_Parts_Roughness.png" id="2_r7fow"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Clava_Parts_Normal.png" id="3_flcul"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PCNew_monitor_BaseColor.png" id="4_bille"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PCNew_monitor_Metallic-PCNew_monitor_Roughness.png" id="5_selxj"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PCNew_monitor_Normal.png" id="6_nggj0"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PC_Corpus_99.png" id="7_vrhe4"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PC_Corpus.001_Metallic-PC_Corpus.png" id="8_vba8y"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PC_Corpus.png" id="9_3qpk8"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PC_Black_102.png" id="10_wegwb"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PC_Black.001_Metallic-PC_Black.png" id="11_55m5p"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PC_Black.png" id="12_tegfy"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PCNew_BlackMaterial_BaseColor.png" id="13_uh1o1"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PCNew_BlackMaterial_Metallic-PCNew_BlackMaterial_Roughness.png" id="14_8ajrj"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PCNew_BlackMaterial_Normal.png" id="15_utxay"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PCNew_krutilki_BaseColor.png" id="16_3y7em"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PCNew_krutilki_Metallic-PCNew_krutilki_Roughness.png" id="17_8ya51"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PCNew_krutilki_Normal.png" id="18_vasbb"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PCNew_korpus_BaseColor.png" id="19_f6t1i"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PCNew_korpus_Metallic-PCNew_korpus_Roughness.png" id="20_d38t4"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PCNew_korpus_Normal.png" id="21_v7uom"]
-[ext_resource type="PackedScene" path="res://scenes/ui/computer/ComputerUI.tscn" id="23_8ajrj"]
-[ext_resource type="Script" path="res://scripts/computer/ComputerUI.cs" id="24_utxay"]
-[ext_resource type="PackedScene" path="res://scenes/ui/computer/screens/ComputerHome.tscn" id="25_3y7em"]
-[ext_resource type="PackedScene" path="res://scenes/ui/computer/screens/EmployeeSelection.tscn" id="26_8ya51"]
-[ext_resource type="PackedScene" path="res://scenes/ui/computer/screens/MissionDispatch.tscn" id="27_vasbb"]
-[ext_resource type="PackedScene" path="res://scenes/ui/computer/screens/EquipmentSelection.tscn" id="28_f6t1i"]
-[ext_resource type="PackedScene" path="res://scenes/ui/computer/screens/Encyclopedia.tscn" id="29_d38t4"]
-[ext_resource type="Script" path="res://scripts/computer/DeskComputerInteractable.cs" id="30_v7uom"]
-[ext_resource type="Script" path="res://scripts/computer/ComputerScreenRenderer.cs" id="31_pvmk2"]
-[ext_resource type="Script" path="res://scripts/interaction/SubViewportInputController.cs" id="32_fojee"]
-[ext_resource type="Script" path="res://scripts/interaction/InteractionOutline.cs" id="33_1du24"]
+[ext_resource type="Texture2D" uid="uid://g777owwdhx77" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Clava_Parts_BaseColor.png" id="1_8guh2"]
+[ext_resource type="Script" uid="uid://ddn5p1xirvbik" path="res://scripts/computer/DeskComputerInteraction.cs" id="1_uh1o1"]
+[ext_resource type="Texture2D" uid="uid://bosav7w2s00vp" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Clava_Parts_Metallic-Clava_Parts_Roughness.png" id="2_r7fow"]
+[ext_resource type="Texture2D" uid="uid://cxdb3o6wv4mau" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Clava_Parts_Normal.png" id="3_flcul"]
+[ext_resource type="Texture2D" uid="uid://dr4t421csravc" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PCNew_monitor_BaseColor.png" id="4_bille"]
+[ext_resource type="Texture2D" uid="uid://bcfhmkq4cc1c0" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PCNew_monitor_Metallic-PCNew_monitor_Roughness.png" id="5_selxj"]
+[ext_resource type="Texture2D" uid="uid://c6mehexyp8dh5" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PCNew_monitor_Normal.png" id="6_nggj0"]
+[ext_resource type="Texture2D" uid="uid://cm2ohh1m8cjff" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PC_Corpus_99.png" id="7_vrhe4"]
+[ext_resource type="Texture2D" uid="uid://b0n4o7ayl3016" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PC_Corpus.001_Metallic-PC_Corpus.png" id="8_vba8y"]
+[ext_resource type="Texture2D" uid="uid://dh803b1ihqwkm" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PC_Corpus.png" id="9_3qpk8"]
+[ext_resource type="Texture2D" uid="uid://35tj25qwo2e" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PC_Black_102.png" id="10_wegwb"]
+[ext_resource type="Texture2D" uid="uid://cb04i0dkuvsuu" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PC_Black.001_Metallic-PC_Black.png" id="11_55m5p"]
+[ext_resource type="Texture2D" uid="uid://d1ou2ggnws4lm" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PC_Black.png" id="12_tegfy"]
+[ext_resource type="Texture2D" uid="uid://bxnijmaksv1c0" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PCNew_BlackMaterial_BaseColor.png" id="13_uh1o1"]
+[ext_resource type="Texture2D" uid="uid://bwmuiwfvmn654" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PCNew_BlackMaterial_Metallic-PCNew_BlackMaterial_Roughness.png" id="14_8ajrj"]
+[ext_resource type="Texture2D" uid="uid://badi2d6o27hk0" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PCNew_BlackMaterial_Normal.png" id="15_utxay"]
+[ext_resource type="Texture2D" uid="uid://cu4gwpyd8rix6" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PCNew_krutilki_BaseColor.png" id="16_3y7em"]
+[ext_resource type="Texture2D" uid="uid://20lvpr56ljhy" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PCNew_krutilki_Metallic-PCNew_krutilki_Roughness.png" id="17_8ya51"]
+[ext_resource type="Texture2D" uid="uid://cva4e7kavdly4" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PCNew_krutilki_Normal.png" id="18_vasbb"]
+[ext_resource type="Texture2D" uid="uid://dnsq5imxba07b" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PCNew_korpus_BaseColor.png" id="19_f6t1i"]
+[ext_resource type="Texture2D" uid="uid://c6selanlyqcl5" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PCNew_korpus_Metallic-PCNew_korpus_Roughness.png" id="20_d38t4"]
+[ext_resource type="Texture2D" uid="uid://cvhinm6weg5wr" path="res://assets/models/environment/office_split/interactive/textures/кабинет_PCNew_korpus_Normal.png" id="21_v7uom"]
+[ext_resource type="PackedScene" uid="uid://bm77c8pw658tt" path="res://scenes/ui/computer/ComputerUI.tscn" id="23_8ajrj"]
+[ext_resource type="Script" uid="uid://bjwfxhtauk3gn" path="res://scripts/computer/DeskComputerInteractable.cs" id="30_v7uom"]
+[ext_resource type="Script" uid="uid://ddp610k3mi5c2" path="res://scripts/computer/ComputerScreenRenderer.cs" id="31_pvmk2"]
+[ext_resource type="Script" uid="uid://cxbebiv6k1myu" path="res://scripts/interaction/SubViewportInputController.cs" id="32_fojee"]
+[ext_resource type="Script" uid="uid://d0fbn8kr5taka" path="res://scripts/interaction/InteractionOutline.cs" id="33_1du24"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pvmk2"]
 resource_name = "Parts.002"
@@ -334,12 +328,13 @@ blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_30fs1")
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_cxm3n"]
-size = Vector3(0.85, 0.75, 0.72)
+size = Vector3(0.43729553, 0.26068115, 0.40689453)
 
 [node name="DeskComputer" type="Node3D" unique_id=1253439774 groups=["desk_computer", "interactive"]]
 script = ExtResource("1_uh1o1")
 
 [node name="VisualRoot" type="Node3D" parent="." unique_id=548599292]
+transform = Transform3D(-4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0, 1, 0, 0, 0)
 
 [node name="Keyboard" type="MeshInstance3D" parent="VisualRoot" unique_id=23798350]
 transform = Transform3D(0.29441908, -0.95566106, -0.0054090717, 0.93781614, 0.29000124, -0.19078782, 0.18389724, 0.051098865, 0.9816162, 0.14319128, 0.07802141, 0.12598991)
@@ -362,20 +357,7 @@ disable_3d = true
 size = Vector2i(900, 600)
 render_target_update_mode = 4
 
-[node name="ComputerUI" type="Control" parent="ComputerViewport" unique_id=509066466 instance=ExtResource("23_8ajrj")]
-custom_minimum_size = Vector2(900, 600)
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("24_utxay")
-HomeScreenScene = ExtResource("25_3y7em")
-EmployeesScreenScene = ExtResource("26_8ya51")
-MissionDispatchScreenScene = ExtResource("27_vasbb")
-EquipmentScreenScene = ExtResource("28_f6t1i")
-EncyclopediaScreenScene = ExtResource("29_d38t4")
+[node name="ComputerUI" parent="ComputerViewport" unique_id=509066466 instance=ExtResource("23_8ajrj")]
 
 [node name="InteractionArea" type="Area3D" parent="." unique_id=2012734791]
 collision_layer = 2
@@ -385,14 +367,15 @@ ComputerPath = NodePath("..")
 OutlinePath = NodePath("../InteractionOutline")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionArea" unique_id=18749439]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 0, 0.12)
+transform = Transform3D(0.9797566, 0, -0.20019233, 0, 1, 0, 0.20019233, 0, 0.9797566, -0.05299839, -0.0640564, 0.13558446)
 shape = SubResource("BoxShape3D_cxm3n")
 
 [node name="FocusCameraPose" type="Camera3D" parent="." unique_id=692900305]
-transform = Transform3D(0.5428995, 0.36452726, -0.756558, 0, 0.9008813, 0.43406558, 0.8397977, -0.23565398, 0.489088, -0.48, 0.26, 0.45)
+transform = Transform3D(0.17365362, 0.047663886, 0.98365265, 0, 0.99882805, -0.048399225, -0.9848068, 0.0084047, 0.1734501, 0.11632717, -0.02162889, 0.15296876)
+fov = 52.707977
 
 [node name="DossierFocusCameraPose" type="Camera3D" parent="FocusCameraPose" unique_id=272338560]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.02, 0.18)
+transform = Transform3D(0.9992291, 0.014532559, -0.0364708, 0.0019001346, 0.90997505, 0.4146588, 0.039213583, -0.41440842, 0.90924585, -0.012402043, 0.02217285, 0.06513655)
 
 [node name="ScreenRenderer" type="Node3D" parent="." unique_id=612644870]
 script = ExtResource("31_pvmk2")

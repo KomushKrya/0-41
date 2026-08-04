@@ -1,11 +1,11 @@
-[gd_scene format=4]
+[gd_scene format=4 uid="uid://bsifn1v3xofmp"]
 
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/furniture/textures/кабинет_Stul_Black_BaseColor.png" id="1_tvu2v"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/furniture/textures/кабинет_Stul_Black_Metallic.png" id="2_41qcf"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/furniture/textures/кабинет_Stul_Black_Normal.png" id="3_1ptff"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/furniture/textures/кабинет_Stul_drow_BaseColor.png" id="4_l606c"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/furniture/textures/кабинет_Stul_drow_Metallic.png" id="5_0o1if"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/furniture/textures/кабинет_Stul_drow_Normal.png" id="6_l0u88"]
+[ext_resource type="Texture2D" uid="uid://dleb171ros83g" path="res://assets/models/environment/office_split/furniture/textures/кабинет_Stul_Black_BaseColor.png" id="1_tvu2v"]
+[ext_resource type="Texture2D" uid="uid://iwefeci38o2u" path="res://assets/models/environment/office_split/furniture/textures/кабинет_Stul_Black_Metallic.png" id="2_41qcf"]
+[ext_resource type="Texture2D" uid="uid://coilba7s16h7t" path="res://assets/models/environment/office_split/furniture/textures/кабинет_Stul_Black_Normal.png" id="3_1ptff"]
+[ext_resource type="Texture2D" uid="uid://b0vrbi001dgpo" path="res://assets/models/environment/office_split/furniture/textures/кабинет_Stul_drow_BaseColor.png" id="4_l606c"]
+[ext_resource type="Texture2D" uid="uid://co3vo5ipxnj6j" path="res://assets/models/environment/office_split/furniture/textures/кабинет_Stul_drow_Metallic.png" id="5_0o1if"]
+[ext_resource type="Texture2D" uid="uid://btuabyuvmsv4b" path="res://assets/models/environment/office_split/furniture/textures/кабинет_Stul_drow_Normal.png" id="6_l0u88"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2pnm3"]
 resource_name = "Black"
@@ -101,9 +101,6 @@ _surfaces = [{
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_w8jvk")
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_tvu2v"]
-size = Vector3(0.72, 0.96, 0.72)
-
 [node name="OfficeChair" type="Node3D" unique_id=764890244 groups=["seat_anchor"]]
 
 [node name="VisualRoot" type="Node3D" parent="." unique_id=471111996]
@@ -116,10 +113,4 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28018427, 0.29310632, -0.00
 mesh = SubResource("ArrayMesh_bo56o")
 
 [node name="FocusCameraPose" type="Camera3D" parent="." unique_id=2110986752]
-transform = Transform3D(0.08054552, -0.13912146, 0.98699427, 0, 0.9902115, 0.13957494, -0.9967509, -0.011242137, 0.07975711, 0.28, 1.24, 0)
-
-[node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=999090656]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=596376012]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, 0.48, 0)
-shape = SubResource("BoxShape3D_tvu2v")
+transform = Transform3D(0.4048236, 0.043143805, -0.91337645, 0, 0.9988863, 0.047182906, 0.9143948, -0.019100754, 0.40437275, -0.015175819, 0.8476973, 0.102650166)
