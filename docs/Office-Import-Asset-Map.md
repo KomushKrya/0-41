@@ -1,10 +1,10 @@
 # Office Import Asset Map
 
-Источник: `assets/models/environment/import/кабинет.glb`.
+Исходный файл `assets/models/environment/import/кабинет.glb` удалён после разделения и проверки 45 самостоятельных GLB-файлов.
 
-Редактируемая распакованная сцена: `scenes/environment/NewOffice.tscn`. Все 45 объектов в ней переименованы на английский; воспроизводимый генератор находится в `tools/editor/unpack_office_scene.gd`.
+Редактируемая распакованная сцена: `scenes/environment/NewOffice.tscn`. Все 45 объектов в ней переименованы на английский.
 
-Самостоятельные GLB-файлы находятся в `assets/models/environment/office_split` и распределены по каталогам `architecture`, `furniture`, `interactive`, `lighting` и `decor`. Точные исходные трансформации и размеры записаны в `manifest.json`; повторный экспорт и проверка выполняются скриптами `tools/editor/split_office_glb.gd` и `tools/editor/validate_split_office_glb.gd`.
+Самостоятельные GLB-файлы находятся в `assets/models/environment/office_split` и распределены по каталогам `architecture`, `furniture`, `interactive`, `lighting` и `decor`. Исходные текстуры перенесены в каталоги `textures` соответствующих категорий, а общие — в `shared_textures`. Точные исходные трансформации и размеры записаны в `manifest.json`; проверка выполняется скриптом `tools/editor/validate_split_office_glb.gd`.
 
 Интерактивные модели вынесены из базовой сцены в отдельные заготовки с корнем предмета и дочерним `VisualRoot`:
 

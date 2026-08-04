@@ -1,7 +1,7 @@
 @tool
 extends SceneTree
 
-const SOURCE_GLB := "res://assets/models/environment/import/кабинет.glb"
+const ORIGINAL_SOURCE_GLB := "assets/models/environment/import/кабинет.glb"
 const EDITABLE_OFFICE_SCENE := "res://scenes/environment/NewOffice.tscn"
 const OUTPUT_ROOT := "res://assets/models/environment/office_split"
 
@@ -130,7 +130,8 @@ func _run() -> void:
 
 	var manifest := {
 		"format_version": 1,
-		"source_glb": SOURCE_GLB.trim_prefix("res://"),
+		"original_source_glb": ORIGINAL_SOURCE_GLB,
+		"original_source_glb_deleted": true,
 		"coordinate_system": "Godot 4, meters, Y-up; each GLB origin is rebased while basis and dimensions are preserved",
 		"object_count": exported_count,
 		"total_file_size_bytes": total_bytes,

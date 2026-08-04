@@ -1,11 +1,11 @@
 [gd_scene format=4]
 
-[ext_resource type="Texture2D" path="res://assets/models/environment/import/кабинет_Stul_Black_BaseColor.png" id="1_tvu2v"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/import/кабинет_Stul_Black_Metallic.png" id="2_41qcf"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/import/кабинет_Stul_Black_Normal.png" id="3_1ptff"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/import/кабинет_Stul_drow_BaseColor.png" id="4_l606c"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/import/кабинет_Stul_drow_Metallic.png" id="5_0o1if"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/import/кабинет_Stul_drow_Normal.png" id="6_l0u88"]
+[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/furniture/textures/кабинет_Stul_Black_BaseColor.png" id="1_tvu2v"]
+[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/furniture/textures/кабинет_Stul_Black_Metallic.png" id="2_41qcf"]
+[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/furniture/textures/кабинет_Stul_Black_Normal.png" id="3_1ptff"]
+[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/furniture/textures/кабинет_Stul_drow_BaseColor.png" id="4_l606c"]
+[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/furniture/textures/кабинет_Stul_drow_Metallic.png" id="5_0o1if"]
+[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/furniture/textures/кабинет_Stul_drow_Normal.png" id="6_l0u88"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2pnm3"]
 resource_name = "Black"
