@@ -93,7 +93,6 @@ public partial class DeskComputerInteraction : Node3D
 		}
 
 		_activePlayer.FocusViewAt(_focusCameraPose.GlobalTransform);
-		_activePlayer.SetMovementEnabled(false);
 		_viewportInput.BeginInteraction();
 	}
 
@@ -125,7 +124,6 @@ public partial class DeskComputerInteraction : Node3D
 
 		if (_activePlayer != null)
 		{
-			_activePlayer.SetMovementEnabled(true);
 			if (_onModeExit != null && _activePlayer.IsViewFocused)
 			{
 				_activePlayer.FocusedViewReturned += FinishModeExit;

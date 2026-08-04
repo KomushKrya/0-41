@@ -67,31 +67,11 @@ public partial class Content : Node
 
 		foreach (string directoryName in DirAccess.GetDirectoriesAt(root))
 		{
-			if (IsLegacyDirectory(root, directoryName))
-			{
-				continue;
-			}
-
 			foreach (string nested in EnumerateJsonFiles($"{root}/{directoryName}"))
 			{
 				yield return nested;
 			}
 		}
-	}
-
-	/// <summary>
-	/// После перехода на плоскую структуру конвертера архивные copies оставили
-	/// рядом с новыми файлами. Они не удаляются автоматически, чтобы не потерять
-	/// материал редакторов, однако грузить оба набора нельзя: старый JSON
-	/// перезаписывает свежие записи с теми же id в зависимости от порядка обхода.
-	/// </summary>
-	private static bool IsLegacyDirectory(string root, string directoryName)
-	{
-		bool isLocaleRoot = root.StartsWith(LocalisationRoot + "/")
-			&& root.Substring(LocalisationRoot.Length + 1).IndexOf('/') < 0;
-
-		return (isLocaleRoot && directoryName == "missions")
-			|| (root.EndsWith("/UI") && directoryName == "hover_footnote");
 	}
 
 	public ContentEntry GetEntry(string id)

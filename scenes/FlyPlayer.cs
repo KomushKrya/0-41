@@ -4,20 +4,15 @@ using Godot;
 
 public partial class FlyPlayer : CharacterBody3D
 {
-	[Export] public float MoveSpeed { get; set; } = 3.0f;
-	[Export] public float VerticalSpeed { get; set; } = 2.5f;
 	[Export] public float MouseSensitivity { get; set; } = 0.0025f;
 	[Export] public float CameraTransitionDuration { get; set; } = 0.45f;
-	[Export] public float CharacterHeight { get; set; } = 1.75f;
-	[Export] public float FloorHeight { get; set; } = 0.0f;
 	[Export] public NodePath HeadPath { get; set; } = new("Head");
 	[Export] public NodePath InteractionRayPath { get; set; } = new("Head/Camera3D/InteractionRay");
+	[Export] public NodePath InitialSeatPosePath { get; set; } = new("../OfficeChair/FocusCameraPose");
 
 	public bool IsSeated => _isSeated;
 	public bool IsViewFocused => _isViewFocused;
 	public bool IsCameraTransitioning => _transitionKind != CameraTransitionKind.None;
-	public bool IsNoclipEnabled => _isNoclipEnabled;
-	public bool MovementEnabled { get; private set; } = true;
 	public event System.Action? FocusedViewReturned;
 
 	private Node3D _head = null!;
@@ -27,7 +22,6 @@ public partial class FlyPlayer : CharacterBody3D
 	private bool _isSeated;
 	private bool _isViewFocused;
 	private Transform3D _seatedCameraTransform;
-	private Transform3D _standUpTransform;
 	private CameraTransitionKind _transitionKind = CameraTransitionKind.None;
 	private Transform3D _transitionStartTransform;
 	private Transform3D _transitionEndTransform;
@@ -35,23 +29,19 @@ public partial class FlyPlayer : CharacterBody3D
 	private Vector3 _transitionEndHeadRotation;
 	private float _transitionElapsed;
 	private float _transitionDuration;
-	private uint _defaultCollisionMask;
-	private bool _isNoclipEnabled;
 
 	private enum CameraTransitionKind
 	{
 		None,
-		Sit,
 		Focus,
-		ReturnToSeat,
-		Stand
+		ReturnToSeat
 	}
 
 	public override void _Ready()
 	{
 		_head = GetNode<Node3D>(HeadPath);
 		_interactionRay = GetNode<RayCast3D>(InteractionRayPath);
-		_defaultCollisionMask = CollisionMask;
+		AnchorAtSeat(GetNode<Node3D>(InitialSeatPosePath).GlobalTransform);
 		Input.MouseMode = Input.MouseModeEnum.Captured;
 	}
 
@@ -63,31 +53,13 @@ public partial class FlyPlayer : CharacterBody3D
 			return;
 		}
 
-		if (@event is InputEventKey keyEvent && keyEvent.Pressed && !keyEvent.Echo && keyEvent.Keycode == Key.F12)
-		{
-			SetNoclipEnabled(!_isNoclipEnabled);
-			GetViewport().SetInputAsHandled();
-			return;
-		}
-
 		if (@event.IsActionPressed("ui_cancel"))
 		{
 			if (_isViewFocused)
 			{
 				ReturnToSeatView();
+				GetViewport().SetInputAsHandled();
 			}
-			else if (_isSeated)
-			{
-				StandUpFromSeat();
-			}
-			else
-			{
-				Input.MouseMode = Input.MouseMode == Input.MouseModeEnum.Captured
-					? Input.MouseModeEnum.Visible
-					: Input.MouseModeEnum.Captured;
-			}
-
-			GetViewport().SetInputAsHandled();
 			return;
 		}
 
@@ -134,53 +106,20 @@ public partial class FlyPlayer : CharacterBody3D
 
 	public override void _PhysicsProcess(double delta)
 	{
-		if (!MovementEnabled || _isSeated || _transitionKind != CameraTransitionKind.None)
-		{
-			Velocity = Vector3.Zero;
-			return;
-		}
-
-		Vector2 inputDirection = Input.GetVector(
-			"move_left",
-			"move_right",
-			"move_forward",
-			"move_back"
-		);
-
-		Vector3 direction = (Transform.Basis * new Vector3(inputDirection.X, 0.0f, inputDirection.Y)).Normalized();
-		float verticalDirection = 0.0f;
-
-		if (Input.IsActionPressed("fly_up"))
-		{
-			verticalDirection += 1.0f;
-		}
-
-		if (Input.IsActionPressed("fly_down"))
-		{
-			verticalDirection -= 1.0f;
-		}
-
-		Vector3 velocity = direction * MoveSpeed;
-		velocity.Y = verticalDirection * VerticalSpeed;
-		Velocity = velocity;
-
-		MoveAndSlide();
-		if (!_isNoclipEnabled)
-		{
-			ClampFlightHeight();
-		}
+		// Оператор не покидает кресло: CharacterBody3D остаётся контейнером
+		// камеры и луча взаимодействия.
+		Velocity = Vector3.Zero;
 	}
 
-	public void SitAt(Transform3D cameraTransform, Transform3D standUpTransform)
+	private void AnchorAtSeat(Transform3D cameraTransform)
 	{
 		_isSeated = true;
 		_isViewFocused = false;
 		_seatedCameraTransform = cameraTransform;
-		_standUpTransform = standUpTransform;
 		Velocity = Vector3.Zero;
-
-		StartCameraTransition(CameraTransitionKind.Sit, cameraTransform);
-		Input.MouseMode = Input.MouseModeEnum.Captured;
+		GlobalTransform = GetPlayerTransformForCamera(cameraTransform);
+		_head.Rotation = Vector3.Zero;
+		_pitch = 0.0f;
 	}
 
 	public void FocusViewAt(Transform3D cameraTransform)
@@ -196,36 +135,12 @@ public partial class FlyPlayer : CharacterBody3D
 		Input.MouseMode = Input.MouseModeEnum.Captured;
 	}
 
-	public void SetMovementEnabled(bool enabled)
-	{
-		MovementEnabled = enabled;
-		if (!MovementEnabled)
-		{
-			Velocity = Vector3.Zero;
-		}
-	}
-
-	private void SetNoclipEnabled(bool enabled)
-	{
-		_isNoclipEnabled = enabled;
-		CollisionMask = enabled ? 0u : _defaultCollisionMask;
-		GD.Print($"[KONTUR] Noclip: {(enabled ? "ON" : "OFF")}");
-	}
-
 	public void ExitFocusedView()
 	{
 		if (_isViewFocused)
 		{
 			ReturnToSeatView();
 		}
-	}
-
-	private void StandUpFromSeat()
-	{
-		_isViewFocused = false;
-		Velocity = Vector3.Zero;
-		StartPlayerTransition(CameraTransitionKind.Stand, _standUpTransform);
-		Input.MouseMode = Input.MouseModeEnum.Captured;
 	}
 
 	private void ReturnToSeatView()
@@ -266,21 +181,6 @@ public partial class FlyPlayer : CharacterBody3D
 	{
 		_hoveredInteractable?.SetHovered(false);
 		_hoveredInteractable = null;
-	}
-
-	private void ClampFlightHeight()
-	{
-		float minimumCenterHeight = FloorHeight + (CharacterHeight * 0.5f);
-		if (GlobalPosition.Y >= minimumCenterHeight)
-		{
-			return;
-		}
-
-		GlobalPosition = new Vector3(GlobalPosition.X, minimumCenterHeight, GlobalPosition.Z);
-		if (Velocity.Y < 0.0f)
-		{
-			Velocity = new Vector3(Velocity.X, 0.0f, Velocity.Z);
-		}
 	}
 
 	private static IInteractable? FindInteractable(Node node)
@@ -345,12 +245,6 @@ public partial class FlyPlayer : CharacterBody3D
 		_pitch = 0.0f;
 
 		CameraTransitionKind completedTransition = _transitionKind;
-		if (completedTransition == CameraTransitionKind.Stand)
-		{
-			_isSeated = false;
-			_isViewFocused = false;
-		}
-
 		_transitionKind = CameraTransitionKind.None;
 		if (completedTransition == CameraTransitionKind.ReturnToSeat)
 		{
