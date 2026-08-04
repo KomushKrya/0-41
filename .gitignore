@@ -34,11 +34,9 @@ desktop.ini
 # Godot generated translations
 *.translation
 
-# Собранный текст: генерируется из content/raw конвертером content/engine/converter/build.py.
-# В отладочной сборке автозагрузка ContentHotReload собирает его при запуске игры,
-# вручную — python content/engine/converter/build.py.
-# ВАЖНО: перед экспортом билда конвертер надо прогнать, иначе в .pck не попадёт текст.
-/content/localisation/
+# Собранный текст генерируется из content/raw конвертером content/engine/converter/build.py.
+# Результат хранится в репозитории: чистый клон должен запускаться без локального кеша
+# и без обязательного шага генерации перед первым запуском.
 .obsidian/
 
 # Claude Code project config / local MCP server registration

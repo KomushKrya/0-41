@@ -1,0 +1,189 @@
+{
+	"call_black_mold": {
+		"id": "call_black_mold",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ЗВОНОК ПЕРЕНАПРАВЛЕН НА ЛИНИЮ ИЗ РАЙОННОЙ СЛУЖБЫ ЖЭК",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Алло? Алло. Да, здравствуйте. Меня зовут Наталья. У меня возникла проблема.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "У меня неделю назад отклеились обои от стен, а под ними я обнаружила какую-то непонятную плесень.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "У меня неделю назад отклеились обои от стен, а под ними я обнаружила какую-то непонятную ",
+						"highlight": false
+					},
+					{
+						"text": "плесень",
+						"highlight": true
+					},
+					{
+						"text": ".",
+						"highlight": false
+					}
+				]
+			},
+			{
+				"text": "Я пыталась её хлоркой оттереть, но ничего не выходит.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Можете, пожалуйста, специалиста прислать или кого-то, чтобы посмотрели?",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Только, прошу, побыстрее. Сегодня, завтра.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "У меня дочка маленькая, не хочу, чтобы она чем-то там надышалась.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "У меня ",
+						"highlight": false
+					},
+					{
+						"text": "дочка маленькая",
+						"highlight": true
+					},
+					{
+						"text": ", не хочу, чтобы она чем-то там ",
+						"highlight": false
+					},
+					{
+						"text": "надышалась",
+						"highlight": true
+					},
+					{
+						"text": ".",
+						"highlight": false
+					}
+				]
+			}
+		],
+		"variables": [],
+		"mission_type": "radio"
+	},
+	"call_pensioner_door": {
+		"id": "call_pensioner_door",
+		"type": "call",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "ЗВОНОК В ГАЗОВУЮ СЛУЖБУ. НА ЛИНИИ НАПУГАННО ЗВУЧАЩИЙ СТАРИК",
+				"kind": "call_meta",
+				"reveal": null
+			},
+			{
+				"text": "Алло, газовая служба? Помогите, пожалуйста, у меня тут газ потёк.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Алло, газовая служба? Помогите, пожалуйста, у меня тут ",
+						"highlight": false
+					},
+					{
+						"text": "газ потёк",
+						"highlight": true
+					},
+					{
+						"text": ".",
+						"highlight": false
+					}
+				]
+			},
+			{
+				"text": "Я сейчас тут умру! Ой. Задыхаюсь. Настолько дурно, что идти не могу…",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Выйти бы из квартиры. Ох, милок, знал бы ты.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Я в коридор выхожу, иду — и как будто дойти до конца не могу. Сил нет.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Я в коридор выхожу, иду — и как будто ",
+						"highlight": false
+					},
+					{
+						"text": "дойти до конца не могу",
+						"highlight": true
+					},
+					{
+						"text": ". Сил нет.",
+						"highlight": false
+					}
+				]
+			},
+			{
+				"text": "Да и дурно так глазам, будто двери не вижу.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Да и дурно так глазам, будто ",
+						"highlight": false
+					},
+					{
+						"text": "двери не вижу",
+						"highlight": true
+					},
+					{
+						"text": ".",
+						"highlight": false
+					}
+				]
+			},
+			{
+				"text": "Улица Карла Маркса, дом шесть, квартира двенадцать.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Приезжайте поскорее, молю, помогите.",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Приезжайте ",
+						"highlight": false
+					},
+					{
+						"text": "поскорее",
+						"highlight": true
+					},
+					{
+						"text": ", молю, помогите.",
+						"highlight": false
+					}
+				]
+			}
+		],
+		"variables": [],
+		"mission_type": "radio"
+	}
+}

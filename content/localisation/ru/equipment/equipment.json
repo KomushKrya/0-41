@@ -1,0 +1,242 @@
+{
+	"eq_antenna": {
+		"id": "eq_antenna",
+		"type": "equipment",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Устойчивая связь с управлением на всём выезде. Пока она развёрнута, оператор слышит группу, а группа слышит оператора — половина принятых на месте решений держится на этом.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "+{{bonus.charisma}} к харизме группы.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Обычное",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Обычное",
+						"highlight": false,
+						"bold": true
+					}
+				]
+			}
+		],
+		"variables": [
+			"bonus.charisma"
+		],
+		"name": "Направленная антенна"
+	},
+	"eq_armor": {
+		"id": "eq_armor",
+		"type": "equipment",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Тяжёлый, но заметно снижает риск потерь. В узких помещениях и на длинных выездах за него платят временем, а не здоровьем.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "+{{bonus.combat}} к боевой подготовке группы. Вдвое снижает риск гибели сотрудника.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Обычное",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Обычное",
+						"highlight": false,
+						"bold": true
+					}
+				]
+			}
+		],
+		"variables": [
+			"bonus.combat"
+		],
+		"name": "Бронежилет 6Б"
+	},
+	"eq_dosimeter": {
+		"id": "eq_dosimeter",
+		"type": "equipment",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Импортный прибор, каких в отделе не выдают. Радиацию он меряет между делом; ценен другим — стрелка начинает плясать рядом с заражённым бетоном раньше, чем человек замечает, что коридор стал длиннее. Слышно и тише, и раньше.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "+{{bonus.intellect}} к интеллекту, +{{bonus.charisma}} к харизме и +{{bonus.combat}} к боевой подготовке группы.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Сюжетное",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Сюжетное",
+						"highlight": false,
+						"bold": true
+					}
+				]
+			}
+		],
+		"variables": [
+			"bonus.charisma",
+			"bonus.combat",
+			"bonus.intellect"
+		],
+		"name": "Японский дозиметр"
+	},
+	"eq_earplugs": {
+		"id": "eq_earplugs",
+		"type": "equipment",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Гасят низкочастотный фон. Спасают на звуковых аномалиях, но и связь с группой в них слышно вполовину — на выезде это решают заранее, а не на месте.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "+{{bonus.charisma}} к харизме группы.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Расходник",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Расходник",
+						"highlight": false,
+						"bold": true
+					}
+				]
+			}
+		],
+		"variables": [
+			"bonus.charisma"
+		],
+		"name": "Заглушки СЛ-2"
+	},
+	"eq_filters": {
+		"id": "eq_filters",
+		"type": "equipment",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Комплект свежих фильтров к респираторам. Со склада выдают по счёту и требуют сдавать отработанные — в отчёте они идут отдельной строкой.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "+{{bonus.combat}} к боевой подготовке группы.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Расходник",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Расходник",
+						"highlight": false,
+						"bold": true
+					}
+				]
+			}
+		],
+		"variables": [
+			"bonus.combat"
+		],
+		"name": "Новые фильтры"
+	},
+	"eq_flare": {
+		"id": "eq_flare",
+		"type": "equipment",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Освещают объект и сбивают ориентацию аномалии. Работает не свет сам по себе, а резкая смена обстановки: пока существо перестраивается, у группы есть несколько секунд.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "+{{bonus.intellect}} к интеллекту группы.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Расходник",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Расходник",
+						"highlight": false,
+						"bold": true
+					}
+				]
+			}
+		],
+		"variables": [
+			"bonus.intellect"
+		],
+		"name": "Сигнальные ракеты"
+	},
+	"eq_sedative": {
+		"id": "eq_sedative",
+		"type": "equipment",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Транквилизатор для крупных особей. На человека применять запрещено — в том числе на том, кто перестал им быть, но пока об этом не знает.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "+{{bonus.strength}} к силе группы.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Расходник",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Расходник",
+						"highlight": false,
+						"bold": true
+					}
+				]
+			}
+		],
+		"variables": [
+			"bonus.strength"
+		],
+		"name": "Ампулы Т-14"
+	}
+}

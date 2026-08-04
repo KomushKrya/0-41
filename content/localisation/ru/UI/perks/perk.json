@@ -1,0 +1,88 @@
+{
+	"ab_calm": {
+		"id": "ab_calm",
+		"type": "perk",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "+{{bonus.composure}} к хладнокровию всегда.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [
+			"bonus.composure"
+		],
+		"name": "Ледяная выдержка"
+	},
+	"ab_filter_master": {
+		"id": "ab_filter_master",
+		"type": "perk",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "+{{bonus.endurance}} к выносливости и +{{bonus.composure}} к хладнокровию при использовании расходника «Новые фильтры».",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [
+			"bonus.composure",
+			"bonus.endurance"
+		],
+		"name": "Работа в фильтрах"
+	},
+	"ab_mimic_hunter": {
+		"id": "ab_mimic_hunter",
+		"type": "perk",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Различает подмену раньше остальных. +{{allStatsBonus}} ко всем характеристикам против мимиков.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [
+			"allStatsBonus"
+		],
+		"name": "Насмотренность"
+	},
+	"ab_signal": {
+		"id": "ab_signal",
+		"type": "perk",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "+{{bonus.perception}} к восприятию против звуковых аномалий.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [
+			"bonus.perception"
+		],
+		"name": "Слух на помехи"
+	},
+	"ab_skin_breaker": {
+		"id": "ab_skin_breaker",
+		"type": "perk",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "+{{bonus.strength}} к силе против перекожников.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [
+			"bonus.strength"
+		],
+		"name": "Тяжёлая рука"
+	}
+}
