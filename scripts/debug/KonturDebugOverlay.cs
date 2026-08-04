@@ -1019,7 +1019,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 			}
 			else if (IsWaitingForPlayer(incident.Phase))
 			{
-				// Обучающая смена: таймеры игрока отключены, вызов ждёт действия сколько угодно.
+				// В конфигурации этой смены таймеры игрока отключены: вызов ждёт действия сколько угодно.
 				builder.Append(" [color=#6f7a6f]ждёт действия[/color]");
 			}
 

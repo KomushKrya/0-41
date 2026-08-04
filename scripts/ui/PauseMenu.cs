@@ -20,6 +20,7 @@ public partial class PauseMenu : CanvasLayer
 	private Control _root;
 	private SettingsScreen _settings;
 	private Label _hint;
+	private Button _saveButton;
 	private Button _loadButton;
 
 	/// <summary>Что было с курсором до паузы — чтобы вернуть ровно это.</summary>
@@ -134,6 +135,7 @@ public partial class PauseMenu : CanvasLayer
 		column.AddChild(new Control { CustomMinimumSize = new Vector2(0.0f, 16.0f) });
 
 		AddButton(column, Content.Label("ui_pause_resume"), Close);
+		_saveButton = AddButton(column, Content.Label("ui_pause_save"), OnSave);
 		_loadButton = AddButton(column, Content.Label("ui_pause_load"), OnLoad);
 		AddButton(column, Content.Label("ui_pause_settings"), OnSettings);
 		AddButton(column, Content.Label("ui_pause_main_menu"), OnMainMenu);
@@ -176,6 +178,8 @@ public partial class PauseMenu : CanvasLayer
 		Input.MouseMode = Input.MouseModeEnum.Visible;
 
 		_hint.Text = string.Empty;
+		_saveButton.Disabled = !CanSave();
+		_saveButton.TooltipText = CanSave() ? string.Empty : Content.Label("ui_hint_save_unavailable");
 		_loadButton.Disabled = !HasSave();
 		_loadButton.TooltipText = HasSave() ? string.Empty : Content.Label("ui_hint_no_saves");
 
@@ -197,11 +201,33 @@ public partial class PauseMenu : CanvasLayer
 		Input.MouseMode = _mouseModeBeforePause;
 	}
 
+	private static bool CanSave()
+	{
+		return GameFlow.Instance != null
+			&& GameFlow.Instance.Runtime != null
+			&& GameFlow.Instance.Simulation != null
+			&& !GameFlow.Instance.Simulation.IsGameOver;
+	}
+
 	private static bool HasSave()
 	{
 		return GameFlow.Instance != null
 			&& GameFlow.Instance.Runtime != null
 			&& GameFlow.Instance.Runtime.HasSlot(GameFlow.QuickSlot);
+	}
+
+	private void OnSave()
+	{
+		if (!CanSave())
+		{
+			_hint.Text = Content.Label("ui_hint_save_unavailable");
+			return;
+		}
+
+		bool saved = GameFlow.Instance.Runtime.SaveToSlot(GameFlow.QuickSlot, "Быстрое сохранение");
+		_hint.Text = Content.Label(saved ? "ui_hint_save_complete" : "ui_hint_save_failed");
+		_loadButton.Disabled = !HasSave();
+		_loadButton.TooltipText = HasSave() ? string.Empty : Content.Label("ui_hint_no_saves");
 	}
 
 	private void OnSettings()

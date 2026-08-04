@@ -708,18 +708,19 @@ namespace Kontur.Harness
 			Check("Разный seed — разный прогон", first != third);
 		}
 
-		/// <summary>Обучающая смена: сценарный порядок, вызовы по одному, таймеры игрока выключены.</summary>
+		/// <summary>Сценарная смена: фиксированный порядок, вызовы по одному, обычные таймеры игрока.</summary>
 		private static void TestTutorialShift(ContentDatabase content)
 		{
 			Kontur.Core.Config.DayConfig day1 = content.Config.GetDay(1);
 			Check("День 1 помечен как сценарный", day1.IsScripted);
-			Check("День 1 без таймеров игрока", day1.DisableTimers);
+			Check("День 1 использует таймеры игрока", !day1.DisableTimers);
 
 			var simulation = new KonturSimulation(content, 5);
 
 			var order = new List<string>();
 			int maxSimultaneous = 0;
 			double ringSeconds = -1.0;
+			bool missedCall = false;
 
 			simulation.Events.Subscribe<IncidentCreated>(e =>
 			{
@@ -729,14 +730,15 @@ namespace Kontur.Harness
 					ringSeconds = e.RingSeconds;
 				}
 			});
+			simulation.Events.Subscribe<CallMissed>(_ => missedCall = true);
 
 			simulation.StartShift(1);
 
-			// Никаких команд: на обучающей смене без таймеров ничего не должно произойти само.
-			RunSeconds(simulation, 120.0, 0.25);
-
-			Check("Без действий игрока звонок не срывается", simulation.GetActiveIncidents().Count == 1);
-			Check("Телефон звонит без обратного отсчёта", Math.Abs(ringSeconds) < 1e-9);
+			RunSeconds(simulation, 14.0, 0.25);
+			Check("Звонок не срывается до истечения таймера", !missedCall);
+			Check("Телефон получает обычный обратный отсчёт", Math.Abs(ringSeconds - content.Config.Timings.PhoneRingSeconds) < 1e-9);
+			RunSeconds(simulation, 2.0, 0.25);
+			Check("Звонок сценарной смены срывается по таймеру", missedCall);
 			Check("Первым идёт вызов из сценария", order.Count > 0 && order[0] == day1.MissionOrder[0]);
 
 			// Теперь проходим смену автопилотом и смотрим порядок и наложение.
