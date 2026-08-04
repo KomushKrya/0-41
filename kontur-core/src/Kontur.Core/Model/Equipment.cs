@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Kontur.Core.Model
 {
 	/// <summary>Три вида снаряжения (ДД, раздел 6).</summary>
@@ -23,20 +25,46 @@ namespace Kontur.Core.Model
 
 		public EquipmentKind Kind { get; set; } = EquipmentKind.Consumable;
 
+		/// <summary>Когда действует бонус: всегда или только против существа с указанным тегом.</summary>
+		public AbilityConditionKind Condition { get; set; } = AbilityConditionKind.Always;
+
+		/// <summary>Тег существа — используется только при Condition == AgainstCreatureTag.</summary>
+		public string ConditionValue { get; set; } = string.Empty;
+
 		/// <summary>Бонус действует на всю отправленную группу целиком (ДД, раздел 6).</summary>
 		public StatBlock Bonus { get; set; } = StatBlock.Zero;
 
 		public int AllStatsBonus { get; set; }
 
-		/// <summary>Прямая прибавка к шансу успеха при броске кубика, 0..1.</summary>
-		public double SuccessChanceBonus { get; set; }
-
-		/// <summary>Множитель шанса гибели сотрудника (например, 0.5 для брони).</summary>
-		public double DeathChanceMultiplier { get; set; } = 1.0;
-
 		public StatBlock GetEffectiveBonus()
 		{
 			return AllStatsBonus == 0 ? Bonus : Bonus.Add(StatBlock.Uniform(AllStatsBonus));
+		}
+
+		public bool IsActive(IReadOnlyCollection<string> creatureTags)
+		{
+			switch (Condition)
+			{
+				case AbilityConditionKind.Always:
+					return true;
+				case AbilityConditionKind.AgainstCreatureTag:
+					if (creatureTags == null || string.IsNullOrEmpty(ConditionValue))
+					{
+						return false;
+					}
+
+					foreach (string tag in creatureTags)
+					{
+						if (string.Equals(tag, ConditionValue, System.StringComparison.OrdinalIgnoreCase))
+						{
+							return true;
+						}
+					}
+
+					return false;
+				default:
+					return false;
+			}
 		}
 	}
 

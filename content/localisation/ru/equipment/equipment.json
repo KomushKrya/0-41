@@ -40,12 +40,12 @@
 		"properties": [],
 		"chunks": [
 			{
-				"text": "Тяжёлый, но заметно снижает риск потерь. В узких помещениях и на длинных выездах за него платят временем, а не здоровьем.",
+				"text": "Тяжёлый, но привычный: в нём проще держать строй и не сбиваться с приёмов даже в узких помещениях и на длинных выездах.",
 				"kind": "text",
 				"reveal": null
 			},
 			{
-				"text": "+{{bonus.combat}} к боевой подготовке группы. Вдвое снижает риск гибели сотрудника.",
+				"text": "+{{bonus.combat}} к боевой подготовке группы.",
 				"kind": "text",
 				"reveal": null
 			},
@@ -183,7 +183,7 @@
 				"reveal": null
 			},
 			{
-				"text": "+{{bonus.intellect}} к интеллекту группы.",
+				"text": "+{{bonus.agility}} к ловкости группы.",
 				"kind": "text",
 				"reveal": null
 			},
@@ -201,9 +201,111 @@
 			}
 		],
 		"variables": [
-			"bonus.intellect"
+			"bonus.agility"
 		],
 		"name": "Сигнальные ракеты"
+	},
+	"eq_gloves": {
+		"id": "eq_gloves",
+		"type": "equipment",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Прорезиненные, шершавые на ладони. С ними не роняют инструмент на скользком полу и не думают, во что впились пальцы, когда держат то, что вырывается.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "+{{bonus.combat}} к боевой подготовке группы.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Расходник",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Расходник",
+						"highlight": false,
+						"bold": true
+					}
+				]
+			}
+		],
+		"variables": [
+			"bonus.combat"
+		],
+		"name": "Перчатки с усиленным хватом"
+	},
+	"eq_headlamp": {
+		"id": "eq_headlamp",
+		"type": "equipment",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Освобождает руки и не гаснет от одного удара о косяк. С ним замечают то, что обычный фонарь в кармане пропускает: неровность на стене, лишнюю тень, деталь, которая в отчёт потом идёт отдельной строкой.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "+{{bonus.intellect}} к интеллекту группы.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Обычное",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Обычное",
+						"highlight": false,
+						"bold": true
+					}
+				]
+			}
+		],
+		"variables": [
+			"bonus.intellect"
+		],
+		"name": "Налобный фонарь"
+	},
+	"eq_rope": {
+		"id": "eq_rope",
+		"type": "equipment",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Моток на карабине, размотать можно одной рукой. По завалам, лестничным пролётам без перил и обвалившимся полам с ней проходят быстрее и не проверяют на прочность каждую ступеньку.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "+{{bonus.agility}} к ловкости группы.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Расходник",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Расходник",
+						"highlight": false,
+						"bold": true
+					}
+				]
+			}
+		],
+		"variables": [
+			"bonus.agility"
+		],
+		"name": "Верёвка страховочная"
 	},
 	"eq_sedative": {
 		"id": "eq_sedative",
@@ -213,6 +315,40 @@
 		"chunks": [
 			{
 				"text": "Транквилизатор для крупных особей. На человека применять запрещено — в том числе на том, кто перестал им быть, но пока об этом не знает.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "+{{bonus.strength}} к боевой подготовке группы.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Расходник",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Расходник",
+						"highlight": false,
+						"bold": true
+					}
+				]
+			}
+		],
+		"variables": [
+			"bonus.strength"
+		],
+		"name": "Ампулы Т-14"
+	},
+	"eq_tonic": {
+		"id": "eq_tonic",
+		"type": "equipment",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Не медицина, а привычка ночной смены: горячее и крепкое, чтобы руки не дрожали к третьему часу выезда. На складе проходит по статье «прочее», но берут его чаще фильтров.",
 				"kind": "text",
 				"reveal": null
 			},
@@ -237,6 +373,40 @@
 		"variables": [
 			"bonus.strength"
 		],
-		"name": "Ампулы Т-14"
+		"name": "Термос с крепким чаем"
+	},
+	"eq_vest": {
+		"id": "eq_vest",
+		"type": "equipment",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Карманы под всё, что обычно теряется на бегу. Ничего не звенит, ничего не бьёт по рёбрам на лестнице — руки остаются свободными, а шаг не сбивается.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "+{{bonus.agility}} к ловкости группы.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Обычное",
+				"kind": "text",
+				"reveal": null,
+				"spans": [
+					{
+						"text": "Обычное",
+						"highlight": false,
+						"bold": true
+					}
+				]
+			}
+		],
+		"variables": [
+			"bonus.agility"
+		],
+		"name": "Разгрузочный жилет"
 	}
 }

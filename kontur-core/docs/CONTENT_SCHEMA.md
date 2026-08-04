@@ -108,12 +108,19 @@
 
 ```json
 { "id": "eq_armor", "name": "Бронежилет 6Б", "kind": "Standard",
-  "bonus": { "endurance": 3 }, "deathChanceMultiplier": 0.5 }
+  "condition": "Always", "bonus": { "combat": 3 } }
+{ "id": "ab_example", "kind": "Consumable",
+  "condition": "AgainstCreatureTag", "conditionValue": "мимик", "bonus": { "intellect": 2 } }
 ```
 
 `kind`: `Consumable` (тратится всегда) | `Standard` (возвращается после успеха) |
 `Story` (теряется только при гибели всей группы).
-`successChanceBonus` — прямая прибавка к шансу при броске, `0..1`.
+`condition`: `Always` | `AgainstCreatureTag` (то же, что у `abilities.json`; `WithEquipment`
+для снаряжения запрещён загрузчиком). `conditionValue` — тег существа при
+`AgainstCreatureTag`. `bonus`/`allStatsBonus` — как у способностей: снаряжение либо
+просто прибавляет характеристики, либо прибавляет их против конкретного существа.
+Прямых бонусов к шансу успеха или множителей риска гибели у снаряжения больше нет —
+вся его сила выражается через характеристики.
 
 ## `employees.json` — один объект
 

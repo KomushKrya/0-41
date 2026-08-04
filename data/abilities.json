@@ -15,8 +15,7 @@
 	},
 	{
 		"id": "ab_filter_master",
-		"condition": "WithEquipment",
-		"conditionValue": "eq_filters",
+		"condition": "Always",
 		"bonus": {
 			"combat": 2,
 			"agility": 2
