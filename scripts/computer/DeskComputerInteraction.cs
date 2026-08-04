@@ -35,6 +35,9 @@ public partial class DeskComputerInteraction : Node3D
 		else
 		{
 			_dossier.SelectionConfirmed += ExitDossierMode;
+			SubViewport dossierViewport = _dossier.GetNodeOrNull<SubViewport>("DossierViewport");
+			Control dossierCursor = _dossier.GetNodeOrNull<Control>("DossierViewport/DossierUI/DossierCursor");
+			_dossierViewportInput.Configure(dossierViewport, dossierCursor);
 		}
 
 		_computerUi.DispatchSlotRequested += EnterDossierMode;

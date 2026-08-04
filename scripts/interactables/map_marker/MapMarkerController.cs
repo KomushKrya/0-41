@@ -271,7 +271,8 @@ public partial class MapMarkerController : Node
 
 		MapMissionMarker pin = MapMissionMarkerScene.Instantiate<MapMissionMarker>();
 		_markerContainer.AddChild(pin);
-		pin.Position = _mapSurface.Position + new Vector3(localMapPosition.X, localMapPosition.Y, SurfaceOffset);
+		Vector3 surfacePoint = _mapSurface.Transform * new Vector3(localMapPosition.X, localMapPosition.Y, SurfaceOffset);
+		pin.Transform = new Transform3D(_mapSurface.Basis.Orthonormalized(), surfacePoint);
 		pin.Initialize(incidentId);
 		_pins[incidentId] = pin;
 		_pinBuildingIds[incidentId] = buildingId;

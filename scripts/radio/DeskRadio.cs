@@ -29,8 +29,14 @@ public partial class DeskRadio : Node3D
 	public override void _Ready()
 	{
 		_signalLight = GetNode<OmniLight3D>(SignalLightPath);
-		_decisionUi = GetNode<RadioDecisionUI>(RadioDecisionUiPath);
+		_decisionUi = GetNodeOrNull<RadioDecisionUI>(RadioDecisionUiPath)
+			?? GetTree().GetFirstNodeInGroup("radio_decision_ui") as RadioDecisionUI;
 		SetActiveVisual(false);
+		if (_decisionUi == null)
+		{
+			GD.PushError("DeskRadio: radio decision UI is not available.");
+			return;
+		}
 
 		_runtime = GameRuntime.Get(this);
 		if (_runtime == null || !_runtime.IsReady)

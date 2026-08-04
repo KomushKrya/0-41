@@ -882,7 +882,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 		IReadOnlyList<string> employeeIds,
 		IReadOnlyList<string> equipmentIds)
 	{
-		MapMarkerController mapController = GetNodeOrNull<MapMarkerController>("../WallMap/MapMarkerController");
+		MapMarkerController mapController = GetTree().GetFirstNodeInGroup("map_marker_controller") as MapMarkerController;
 		return mapController == null
 			? CommandResult.Fail("Контроллер маршрута карты не найден.")
 			: mapController.TryDispatchSquad(incidentId, employeeIds, equipmentIds);

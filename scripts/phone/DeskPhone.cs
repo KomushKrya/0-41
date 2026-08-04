@@ -14,6 +14,7 @@ public partial class DeskPhone : Node3D
 {
 	[Export] public NodePath RingLightPath { get; set; } = new("VisualRoot/RingLight");
 	[Export] public NodePath PhoneCallAcceptanceUiPath { get; set; } = new("../../PhoneCallAcceptanceLayer/PhoneCallAcceptanceUI");
+	[Export] public bool Active { get; set; } = true;
 
 	private readonly List<string> _ringingIncidentIds = new();
 	private IDisposable _incidentCreatedSubscription = null!;
@@ -28,8 +29,19 @@ public partial class DeskPhone : Node3D
 	public override void _Ready()
 	{
 		_ringLight = GetNode<OmniLight3D>(RingLightPath);
-		_callAcceptanceUi = GetNode<PhoneCallAcceptanceUI>(PhoneCallAcceptanceUiPath);
 		SetRingingVisual(false);
+		if (!Active)
+		{
+			return;
+		}
+
+		_callAcceptanceUi = GetNodeOrNull<PhoneCallAcceptanceUI>(PhoneCallAcceptanceUiPath)
+			?? GetTree().GetFirstNodeInGroup("phone_call_acceptance_ui") as PhoneCallAcceptanceUI;
+		if (_callAcceptanceUi == null)
+		{
+			GD.PushError("DeskPhone: phone call acceptance UI is not available.");
+			return;
+		}
 
 		GameRuntime runtime = GameRuntime.Get(this);
 		if (runtime == null || !runtime.IsReady)
