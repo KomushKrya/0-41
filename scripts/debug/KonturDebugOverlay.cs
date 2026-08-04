@@ -690,6 +690,8 @@ public partial class KonturDebugOverlay : CanvasLayer
 
 		row.AddChild(CreateButton("Сброс партии", ResetGame));
 		row.AddChild(CreateButton("START ROSTER", ConfirmDebugStartingRoster));
+		row.AddChild(CreateButton("+ СОТРУДНИК", AddGeneratedEmployee));
+		row.AddChild(CreateButton("- СЛУЧАЙНЫЙ", RemoveRandomEmployee));
 		row.AddChild(CreateButton("Закрыть смену", ForceEndShift));
 
 		return row;
@@ -818,6 +820,20 @@ public partial class KonturDebugOverlay : CanvasLayer
 		var ids = new List<string>();
 		for (int i = 0; i < candidates.Count && i < limit; i++) ids.Add(candidates[i].Id);
 		Report("Confirm starting roster", _runtime.Session.ConfirmStartingRoster(ids));
+	}
+
+	private void AddGeneratedEmployee()
+	{
+		if (!HasCore()) return;
+		CommandResult result = _runtime.Session.DebugAddGeneratedEmployee(out string employeeName);
+		Report(result.IsSuccess ? $"Добавлен сотрудник: {employeeName}" : "Добавить сотрудника", result);
+	}
+
+	private void RemoveRandomEmployee()
+	{
+		if (!HasCore()) return;
+		CommandResult result = _runtime.Session.DebugRemoveRandomAvailableEmployee(out string employeeName);
+		Report(result.IsSuccess ? $"Удалён сотрудник: {employeeName}" : "Удалить случайного сотрудника", result);
 	}
 
 	private void ForceEndShift()

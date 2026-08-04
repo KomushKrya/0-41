@@ -32,6 +32,7 @@ size = Vector3(0.42, 0.08, 0.55)
 [node name="EmployeeDossierFolder" type="Node3D" unique_id=1960104668 groups=["employee_dossier", "interactive"]]
 script = ExtResource("4_dispatch_controller")
 LeftPagePath = NodePath("VisualRoot/CoverPivot")
+OpenLeftPageTransform = Transform3D(-1, 8.742278e-08, 0, -8.742278e-08, -1, 0, 0, 0, 1, -0.106, 0.00555, 0)
 ClosedCoverLift = 0.0
 
 [node name="VisualRoot" type="Node3D" parent="." unique_id=834980233]
@@ -89,3 +90,4 @@ PageShader = ExtResource("6_page_shader")
 
 [editable path="VisualRoot/CoverPivot/CoverModel"]
 [editable path="VisualRoot/RightPage/BodyModel"]
+[editable path="VisualRoot/CoverPivot"]

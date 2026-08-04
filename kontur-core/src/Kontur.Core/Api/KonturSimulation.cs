@@ -386,6 +386,95 @@ namespace Kontur.Core.Api
 			_rosterSystem.RefreshHireOffers(day);
 		}
 
+		/// <summary>Creates a random employee for debug tools, ignoring the staff limit.</summary>
+		public CommandResult DebugAddGeneratedEmployee(out string employeeName)
+		{
+			employeeName = string.Empty;
+			int day = System.Math.Max(1, _state.Day);
+			var names = new List<string>();
+			var ids = new List<string>(_state.HiredCandidateIds);
+			var portraits = new List<string>();
+
+			CollectEmployeeIdentity(_state.Roster, names, ids, portraits);
+			CollectEmployeeIdentity(_state.HireOffers, names, ids, portraits);
+			CollectEmployeeIdentity(_state.StartingChoice, names, ids, portraits);
+
+			IReadOnlyList<HireCandidate> generated = _employeeFactory.Generate(day, 1, names, ids, portraits);
+			if (generated.Count == 0)
+			{
+				return CommandResult.Fail("Employee generation is unavailable.");
+			}
+
+			Employee employee = generated[0].Template.Clone();
+			employee.Status = EmployeeStatus.Available;
+			employee.CurrentIncidentId = null;
+			_state.Roster.Add(employee);
+			_state.HiredCandidateIds.Add(employee.Id);
+			_bus.Publish(new EmployeeHired(employee.Id, employee.Name, day));
+			employeeName = employee.Name;
+			return CommandResult.Ok();
+		}
+
+		/// <summary>Removes a random available employee for debug tools.</summary>
+		public CommandResult DebugRemoveRandomAvailableEmployee(out string employeeName)
+		{
+			employeeName = string.Empty;
+			var removable = new List<int>();
+			for (int i = 0; i < _state.Roster.Count; i++)
+			{
+				if (_state.Roster[i].Status == EmployeeStatus.Available)
+				{
+					removable.Add(i);
+				}
+			}
+
+			if (removable.Count == 0)
+			{
+				return CommandResult.Fail("No available employees can be removed.");
+			}
+
+			Employee employee = _state.Roster[removable[_random.NextInt(0, removable.Count)]];
+			employeeName = employee.Name;
+			_state.Roster.Remove(employee);
+			return CommandResult.Ok();
+		}
+
+		private static void CollectEmployeeIdentity(
+			IReadOnlyList<Employee> employees,
+			List<string> names,
+			List<string> ids,
+			List<string> portraits)
+		{
+			for (int i = 0; i < employees.Count; i++)
+			{
+				Employee employee = employees[i];
+				names.Add(employee.Name);
+				ids.Add(employee.Id);
+				if (employee.PortraitId.Length > 0)
+				{
+					portraits.Add(employee.PortraitId);
+				}
+			}
+		}
+
+		private static void CollectEmployeeIdentity(
+			IReadOnlyList<HireCandidate> candidates,
+			List<string> names,
+			List<string> ids,
+			List<string> portraits)
+		{
+			for (int i = 0; i < candidates.Count; i++)
+			{
+				Employee employee = candidates[i].Template;
+				names.Add(employee.Name);
+				ids.Add(employee.Id);
+				if (employee.PortraitId.Length > 0)
+				{
+					portraits.Add(employee.PortraitId);
+				}
+			}
+		}
+
 		public bool NeedsStartingChoice
 		{
 			get { return !_state.StartingRosterConfirmed && _rosterSystem.GetStartingChoice().Count > 0; }

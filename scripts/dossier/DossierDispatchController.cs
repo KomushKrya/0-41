@@ -11,6 +11,7 @@ public partial class DossierDispatchController : Node3D
 	[Export] public NodePath LeftPagePath { get; set; } = new("VisualRoot/CoverPivot");
 	[Export] public NodePath DispatchComputerPath { get; set; } = new("../DeskComputer");
 	[Export] public DossierPresentationLayout PresentationLayout { get; set; } = null!;
+	[Export] public Transform3D OpenLeftPageTransform { get; set; } = Transform3D.Identity;
 	[Export(PropertyHint.Range, "0.1,2.0,0.05")] public float TransitionDuration { get; set; } = 0.45f;
 	[Export(PropertyHint.Range, "0.0,0.1,0.001")] public float ClosedCoverLift { get; set; } = 0.026f;
 
@@ -37,7 +38,7 @@ public partial class DossierDispatchController : Node3D
 
 		_visualRoot = GetNode<Node3D>(VisualRootPath);
 		_leftPage = GetNode<Node3D>(LeftPagePath);
-		_openLeftPageTransform = _leftPage.Transform;
+		_openLeftPageTransform = OpenLeftPageTransform;
 		_restingTransform = GlobalTransform;
 		_dossierUi.EmployeeConfirmed += ConfirmEmployee;
 		Show();
