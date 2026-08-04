@@ -3,12 +3,14 @@
 using Godot;
 
 // Kept under the old name because the interaction API already uses FlyPlayer.
-// The controller now lives directly on the chair camera rather than on a player body.
+// The controller lives on the physical camera inside a yaw/pitch rig.
 public partial class FlyPlayer : Camera3D
 {
 	[Export] public float MouseSensitivity { get; set; } = 0.0025f;
 	[Export] public float CameraTransitionDuration { get; set; } = 0.45f;
 	[Export] public NodePath InteractionRayPath { get; set; } = new("InteractionRay");
+	[Export] public NodePath YawPivotPath { get; set; } = new("../..");
+	[Export] public NodePath PitchPivotPath { get; set; } = new("..");
 
 	public bool IsSeated => true;
 	public bool IsViewFocused => _isViewFocused;
@@ -16,13 +18,18 @@ public partial class FlyPlayer : Camera3D
 	public event System.Action? FocusedViewReturned;
 
 	private RayCast3D _interactionRay = null!;
+	private Node3D _yawPivot = null!;
+	private Node3D _pitchPivot = null!;
 	private IInteractable? _hoveredInteractable;
 	private float _pitch;
 	private bool _isViewFocused;
-	private Transform3D _seatedCameraTransform;
+	private Transform3D _seatedYawTransform;
 	private CameraTransitionKind _transitionKind = CameraTransitionKind.None;
 	private Transform3D _transitionStartTransform;
 	private Transform3D _transitionEndTransform;
+	private float _seatedFov;
+	private float _transitionStartFov;
+	private float _transitionEndFov;
 	private float _transitionElapsed;
 	private float _transitionDuration;
 
@@ -31,7 +38,10 @@ public partial class FlyPlayer : Camera3D
 	public override void _Ready()
 	{
 		_interactionRay = GetNode<RayCast3D>(InteractionRayPath);
-		_seatedCameraTransform = GlobalTransform;
+		_yawPivot = GetNode<Node3D>(YawPivotPath);
+		_pitchPivot = GetNode<Node3D>(PitchPivotPath);
+		_seatedYawTransform = _yawPivot.GlobalTransform;
+		_seatedFov = Fov;
 		Current = true;
 		Input.MouseMode = Input.MouseModeEnum.Captured;
 	}
@@ -69,11 +79,10 @@ public partial class FlyPlayer : Camera3D
 
 		if (!_isViewFocused && @event is InputEventMouseMotion mouseMotion && Input.MouseMode == Input.MouseModeEnum.Captured)
 		{
-			RotateObjectLocal(Vector3.Up, -mouseMotion.Relative.X * MouseSensitivity);
-			float nextPitch = Mathf.Clamp(_pitch - mouseMotion.Relative.Y * MouseSensitivity,
+			_yawPivot.RotateY(-mouseMotion.Relative.X * MouseSensitivity);
+			_pitch = Mathf.Clamp(_pitch - mouseMotion.Relative.Y * MouseSensitivity,
 				Mathf.DegToRad(-85.0f), Mathf.DegToRad(85.0f));
-			RotateObjectLocal(Vector3.Right, nextPitch - _pitch);
-			_pitch = nextPitch;
+			_pitchPivot.Rotation = new Vector3(_pitch, 0.0f, 0.0f);
 		}
 	}
 
@@ -95,10 +104,16 @@ public partial class FlyPlayer : Camera3D
 		UpdateHoveredInteractable();
 	}
 
-	public void FocusViewAt(Transform3D cameraTransform)
+	public void FocusViewAt(Node3D cameraPose)
+	{
+		float targetFov = cameraPose is Camera3D camera ? camera.Fov : Fov;
+		FocusViewAt(cameraPose.GlobalTransform, targetFov);
+	}
+
+	public void FocusViewAt(Transform3D cameraTransform, float targetFov)
 	{
 		_isViewFocused = true;
-		StartCameraTransition(CameraTransitionKind.Focus, cameraTransform);
+		StartCameraTransition(CameraTransitionKind.Focus, cameraTransform, targetFov);
 		Input.MouseMode = Input.MouseModeEnum.Captured;
 	}
 
@@ -113,7 +128,7 @@ public partial class FlyPlayer : Camera3D
 	private void ReturnToSeatView()
 	{
 		_isViewFocused = false;
-		StartCameraTransition(CameraTransitionKind.ReturnToSeat, _seatedCameraTransform);
+		StartCameraTransition(CameraTransitionKind.ReturnToSeat, GetSeatedCameraTransform(), _seatedFov);
 		Input.MouseMode = Input.MouseModeEnum.Captured;
 	}
 
@@ -160,7 +175,7 @@ public partial class FlyPlayer : Camera3D
 		return null;
 	}
 
-	private void StartCameraTransition(CameraTransitionKind transitionKind, Transform3D targetTransform)
+	private void StartCameraTransition(CameraTransitionKind transitionKind, Transform3D targetTransform, float targetFov)
 	{
 		ClearHoveredInteractable();
 		_transitionKind = transitionKind;
@@ -168,6 +183,8 @@ public partial class FlyPlayer : Camera3D
 		_transitionDuration = Mathf.Max(CameraTransitionDuration, 0.01f);
 		_transitionStartTransform = GlobalTransform;
 		_transitionEndTransform = targetTransform;
+		_transitionStartFov = Fov;
+		_transitionEndFov = targetFov;
 	}
 
 	private void UpdateCameraTransition(float delta)
@@ -176,18 +193,34 @@ public partial class FlyPlayer : Camera3D
 		float progress = Mathf.Clamp(_transitionElapsed / _transitionDuration, 0.0f, 1.0f);
 		float easedProgress = progress * progress * (3.0f - 2.0f * progress);
 		GlobalTransform = _transitionStartTransform.InterpolateWith(_transitionEndTransform, easedProgress);
+		Fov = Mathf.Lerp(_transitionStartFov, _transitionEndFov, easedProgress);
 		if (progress < 1.0f)
 		{
 			return;
 		}
 
 		GlobalTransform = _transitionEndTransform;
+		Fov = _transitionEndFov;
 		_pitch = 0.0f;
 		CameraTransitionKind completedTransition = _transitionKind;
 		_transitionKind = CameraTransitionKind.None;
 		if (completedTransition == CameraTransitionKind.ReturnToSeat)
 		{
+			RestoreSeatedRig();
 			FocusedViewReturned?.Invoke();
 		}
+	}
+
+	private Transform3D GetSeatedCameraTransform()
+	{
+		Transform3D pitchTransform = new Transform3D(Basis.Identity, Vector3.Zero);
+		return _seatedYawTransform * pitchTransform;
+	}
+
+	private void RestoreSeatedRig()
+	{
+		_yawPivot.GlobalTransform = _seatedYawTransform;
+		_pitchPivot.Transform = Transform3D.Identity;
+		Transform = Transform3D.Identity;
 	}
 }

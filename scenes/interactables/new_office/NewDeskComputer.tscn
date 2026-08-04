@@ -28,6 +28,8 @@
 [ext_resource type="Script" uid="uid://cxbebiv6k1myu" path="res://scripts/interaction/SubViewportInputController.cs" id="32_fojee"]
 [ext_resource type="Script" uid="uid://d0fbn8kr5taka" path="res://scripts/interaction/InteractionOutline.cs" id="33_1du24"]
 
+[ext_resource type="Resource" path="res://assets/ui_preview/DossierPresentationLayout.tres" id="34_dossier_layout"]
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pvmk2"]
 resource_name = "Parts.002"
 cull_mode = 2
@@ -332,6 +334,7 @@ size = Vector3(0.43729553, 0.26068115, 0.40689453)
 
 [node name="DeskComputer" type="Node3D" unique_id=1253439774 groups=["desk_computer", "interactive"]]
 script = ExtResource("1_uh1o1")
+PresentationLayout = ExtResource("34_dossier_layout")
 
 [node name="VisualRoot" type="Node3D" parent="." unique_id=548599292]
 transform = Transform3D(-4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0, 1, 0, 0, 0)
@@ -373,9 +376,6 @@ shape = SubResource("BoxShape3D_cxm3n")
 [node name="FocusCameraPose" type="Camera3D" parent="." unique_id=692900305]
 transform = Transform3D(0.17365362, 0.047663886, 0.98365265, 0, 0.99882805, -0.048399225, -0.9848068, 0.0084047, 0.1734501, 0.11632717, -0.02162889, 0.15296876)
 fov = 52.707977
-
-[node name="DossierFocusCameraPose" type="Camera3D" parent="FocusCameraPose" unique_id=272338560]
-transform = Transform3D(0.9992291, 0.014532559, -0.0364708, 0.0019001346, 0.90997505, 0.4146588, 0.039213583, -0.41440842, 0.90924585, -0.012402043, 0.02217285, 0.06513655)
 
 [node name="ScreenRenderer" type="Node3D" parent="." unique_id=612644870]
 script = ExtResource("31_pvmk2")
