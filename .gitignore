@@ -39,12 +39,6 @@ desktop.ini
 # и без обязательного шага генерации перед первым запуском.
 .obsidian/
 
-# Запас портретов. В игру идут только те, что переименованы в port_*, — их id
-# перечислены в data/employees.json. Остальные лица лежат локально и ждут
-# расширения пула: держать 70 МБ неиспользуемых снимков в истории незачем.
-assets/portraits/face_*.png
-assets/portraits/face_*.png.import
-
 # Claude Code project config / local MCP server registration
 .claude/
 .mcp.json
