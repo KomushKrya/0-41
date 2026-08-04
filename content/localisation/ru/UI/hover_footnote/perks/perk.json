@@ -33,13 +33,13 @@
 				"reveal": null
 			},
 			{
-				"text": "+{{bonus.combat}} к боевой подготовке и +{{bonus.charisma}} к харизме при использовании расходника «Новые фильтры».",
+				"text": "+{{bonus.combat}} к боевой подготовке и +{{bonus.agility}} к ловкости группы.",
 				"kind": "text",
 				"reveal": null
 			}
 		],
 		"variables": [
-			"bonus.charisma",
+			"bonus.agility",
 			"bonus.combat"
 		],
 		"name": "Работа в фильтрах"

@@ -94,7 +94,12 @@
 | `eq_earplugs` | equipment | content/raw/ru/equipment/earplugs.md |
 | `eq_filters` | equipment | content/raw/ru/equipment/filters.md |
 | `eq_flare` | equipment | content/raw/ru/equipment/flare.md |
+| `eq_gloves` | equipment | content/raw/ru/equipment/gloves.md |
+| `eq_headlamp` | equipment | content/raw/ru/equipment/headlamp.md |
+| `eq_rope` | equipment | content/raw/ru/equipment/rope.md |
 | `eq_sedative` | equipment | content/raw/ru/equipment/sedative.md |
+| `eq_tonic` | equipment | content/raw/ru/equipment/tonic.md |
+| `eq_vest` | equipment | content/raw/ru/equipment/vest.md |
 | `infection` | scale | content/raw/ru/UI/hover_footnote/scales/infection.md |
 | `intellect` | characteristic | content/raw/ru/UI/hover_footnote/characteristics/intellect.md |
 | `loyalty` | scale | content/raw/ru/UI/hover_footnote/scales/loyalty.md |

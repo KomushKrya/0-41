@@ -91,9 +91,13 @@ namespace Kontur.Core.Systems
 			}
 
 			// Снаряжение действует на всю группу целиком, а не на каждого сотрудника (ДД, раздел 6).
+			// Бонус против существа с тегом учитывается только если это существо есть на вызове.
 			for (int i = 0; i < equipment.Count; i++)
 			{
-				total = total.Add(equipment[i].GetEffectiveBonus());
+				if (equipment[i].IsActive(creatureTags))
+				{
+					total = total.Add(equipment[i].GetEffectiveBonus());
+				}
 			}
 
 			return total;
@@ -168,16 +172,11 @@ namespace Kontur.Core.Systems
 			return true;
 		}
 
-		public double ComputeSuccessChance(double coverage, IReadOnlyList<EquipmentDefinition> equipment, bool radioMissed)
+		public double ComputeSuccessChance(double coverage, bool radioMissed)
 		{
 			ResolutionConfig resolution = _config.Resolution;
 
 			double chance = coverage;
-
-			for (int i = 0; i < equipment.Count; i++)
-			{
-				chance += equipment[i].SuccessChanceBonus;
-			}
 
 			if (radioMissed)
 			{
@@ -227,7 +226,7 @@ namespace Kontur.Core.Systems
 			}
 			else
 			{
-				double chance = ComputeSuccessChance(coverage, request.Equipment, request.RadioWasMissed);
+				double chance = ComputeSuccessChance(coverage, request.RadioWasMissed);
 				double roll = _random.NextDouble();
 
 				outcome.SuccessChance = chance;
@@ -265,11 +264,6 @@ namespace Kontur.Core.Systems
 			{
 				injuryMultiplier *= request.ChosenOption.InjuryChanceMultiplier;
 				deathMultiplier *= request.ChosenOption.DeathChanceMultiplier;
-			}
-
-			for (int i = 0; i < request.Equipment.Count; i++)
-			{
-				deathMultiplier *= request.Equipment[i].DeathChanceMultiplier;
 			}
 
 				double injuryChance = request.Mission.InjuryChance * injuryMultiplier;

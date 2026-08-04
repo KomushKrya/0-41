@@ -73,13 +73,14 @@ namespace Kontur.Core.Content
 
 		public string Kind { get; set; } = "Consumable";
 
+		/// <summary>Название и описание — в текстовом движке, здесь только механика.</summary>
+		public string Condition { get; set; } = "Always";
+
+		public string ConditionValue { get; set; } = string.Empty;
+
 		public StatBlockDto? Bonus { get; set; }
 
 		public int AllStatsBonus { get; set; }
-
-		public double SuccessChanceBonus { get; set; }
-
-		public double DeathChanceMultiplier { get; set; } = 1.0;
 	}
 
 	public sealed class CreatureDto

@@ -117,7 +117,6 @@ def load_world(root: Path) -> dict:
         "root": root,
         "missions": read_json(data / "missions.json"),
         "events": read_json(data / "radio.json"),
-        "zones": read_json(data / "zones.json"),
         "creatures": read_json(data / "creatures.json"),
         "roster": read_json(data / "employees.json"),
         "config": read_json(data / "config.json"),
@@ -299,7 +298,6 @@ def command_check(args) -> int:
         return f"{owner}: нет {kind} {text_id!r}"
 
     entries = world["entries"]
-    zones = {z["id"] for z in world["zones"]}
     creatures = {c["id"]: c for c in world["creatures"]}
     events = {e["id"]: e for e in world["events"]}
     mission_ids = {m["id"] for m in world["missions"]}
@@ -311,9 +309,6 @@ def command_check(args) -> int:
         mid = mission["id"]
         tier = mission.get("tier", "Filler")
         cap = mission.get("consequenceCap") or ("Death" if tier == "Story" else "Injury")
-
-        if mission.get("zoneId") not in zones:
-            problems.append(f"{mid}: район {mission.get('zoneId')!r} не найден в zones.json")
 
         requirements = mission.get("requirements") or {}
         if not any(v > 0 for v in requirements.values()):
@@ -549,7 +544,6 @@ def command_new(args) -> int:
 
     tier = ask("Уровень вызова", "Story", TIERS)
     day = int(ask("День (1–4)", "1"))
-    zone = ask("Район", world["zones"][0]["id"], tuple(z["id"] for z in world["zones"]))
 
     creature_options = tuple(c["id"] for c in world["creatures"]) + ("",)
     creature = ask("Существо (пусто — если статьи в энциклопедии нет)", "", creature_options)
@@ -582,7 +576,7 @@ def command_new(args) -> int:
         options = ask_options()
 
     mission = build_mission(
-        mission_id, slug, tier, day, zone, creature, requirements, primary, cap, options,
+        mission_id, slug, tier, day, creature, requirements, primary, cap, options,
         squad_limit)
 
     write_mission_files(root, world, slug, mission, options)
@@ -643,7 +637,6 @@ def build_mission(
     slug: str,
     tier: str,
     day: int,
-    zone: str,
     creature: str,
     requirements: dict,
     primary: str,
@@ -668,7 +661,6 @@ def build_mission(
         "id": mission_id,
         "day": day,
         "tier": tier,
-        "zoneId": zone,
         "creatureId": creature,
         "callId": f"call_{slug}",
         "missionEventId": f"radio_{slug}" if options else "",

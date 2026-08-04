@@ -108,16 +108,22 @@ namespace Kontur.Core.Content
 			List<EquipmentDto> items = ReadList<EquipmentDto>(source, EquipmentFile);
 			foreach (EquipmentDto dto in items)
 			{
+				AbilityConditionKind condition = ParseEnum(dto.Condition, AbilityConditionKind.Always, EquipmentFile, dto.Id, "condition");
+				if (condition == AbilityConditionKind.WithEquipment)
+				{
+					throw new ContentException($"{EquipmentFile}: запись '{dto.Id}' — снаряжение не может зависеть от другого снаряжения (condition WithEquipment).");
+				}
+
 				var equipment = new EquipmentDefinition
 				{
 					Id = dto.Id,
 					Name = dto.Name,
 					Description = dto.Description,
 					Kind = ParseEnum(dto.Kind, EquipmentKind.Consumable, EquipmentFile, dto.Id, "kind"),
+					Condition = condition,
+					ConditionValue = dto.ConditionValue,
 					Bonus = dto.Bonus == null ? StatBlock.Zero : dto.Bonus.ToModel(),
-					AllStatsBonus = dto.AllStatsBonus,
-					SuccessChanceBonus = dto.SuccessChanceBonus,
-					DeathChanceMultiplier = dto.DeathChanceMultiplier
+					AllStatsBonus = dto.AllStatsBonus
 				};
 
 				database.Equipment[equipment.Id] = equipment;

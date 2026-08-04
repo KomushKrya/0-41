@@ -142,15 +142,14 @@ namespace Kontur.Harness
 		{
 			ContentDatabase content = BuildMinimalContent();
 			var resolver = new MissionResolver(content, content.Config, new XorShiftRandom(1));
-			var empty = new List<Kontur.Core.Model.EquipmentDefinition>();
 
-			double half = resolver.ComputeSuccessChance(0.5, empty, false);
+			double half = resolver.ComputeSuccessChance(0.5, false);
 			Check("StatMatch score is used as the direct success chance", Math.Abs(half - 0.5) < 1e-9);
 
-			double capped = resolver.ComputeSuccessChance(0.99, empty, false);
+			double capped = resolver.ComputeSuccessChance(0.99, false);
 			Check("Шанс ограничен потолком 0.95", capped <= 0.95 + 1e-9);
 
-			double missed = resolver.ComputeSuccessChance(0.5, empty, true);
+			double missed = resolver.ComputeSuccessChance(0.5, true);
 			Check("Просроченное радио режет шанс вдвое", Math.Abs(missed - System.Math.Max(content.Config.Resolution.MinDiceChance, 0.5 * content.Config.Resolution.RadioMissedChanceMultiplier)) < 1e-9);
 		}
 

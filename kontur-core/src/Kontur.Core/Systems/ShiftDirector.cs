@@ -1040,7 +1040,7 @@ namespace Kontur.Core.Systems
 			bool isAutoSuccess = MissionResolver.IsPerfectMatch(matches);
 			double chance = isAutoSuccess
 				? 1.0
-				: _resolver.ComputeSuccessChance(matchScore, equipment, incident.RadioWasMissed);
+				: _resolver.ComputeSuccessChance(matchScore, incident.RadioWasMissed);
 
 			return new DispatchEstimateView(requirements, squadStats, matches, matchScore, chance, isAutoSuccess);
 		}
