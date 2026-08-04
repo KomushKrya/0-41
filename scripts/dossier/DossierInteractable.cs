@@ -25,7 +25,7 @@ public partial class DossierInteractable : Area3D, IInteractable
 	{
 		if (CanInteract(player))
 		{
-			_dossier.OpenFromDesk();
+			_dossier.OpenFromDesk(player);
 		}
 	}
 

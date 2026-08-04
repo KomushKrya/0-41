@@ -617,12 +617,18 @@ namespace Kontur.Core.Content
 				Level = dto.Level,
 				RankTitle = dto.RankTitle,
 				PortraitId = dto.PortraitId,
+				Age = dto.Age,
 				BaseStats = dto.Stats == null ? StatBlock.Zero : dto.Stats.ToModel()
 			};
 
 			if (dto.Abilities != null)
 			{
 				employee.AbilityIds.AddRange(dto.Abilities);
+			}
+
+			if (dto.Bio != null)
+			{
+				employee.BioIds.AddRange(dto.Bio);
 			}
 
 			return employee;

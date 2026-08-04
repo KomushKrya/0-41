@@ -12,7 +12,7 @@
 [ext_resource type="Script" path="res://scripts/interaction/InteractionOutline.cs" id="10_bekcl"]
 [ext_resource type="Script" path="res://scripts/interaction/OutlineOnlyInteractable.cs" id="11_gjqh3"]
 [ext_resource type="PackedScene" path="res://scenes/ui/notebook/NotebookUI.tscn" id="12_eorrw"]
-[ext_resource type="Script" path="res://scripts/ui/NotebookDebugBars.cs" id="13_w1pdd"]
+[ext_resource type="Script" path="res://scripts/ui/NotebookScalesUI.cs" id="13_w1pdd"]
 [ext_resource type="Script" path="res://scripts/interaction/SubViewportSurfaceRenderer.cs" id="14_tqgvk"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tqgvk"]

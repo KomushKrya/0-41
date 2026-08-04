@@ -1,6 +1,6 @@
 using Godot;
 
-/// <summary>Renders one dossier page texture onto both 3D page surfaces.</summary>
+/// <summary>Renders the two halves of the dossier spread onto the 3D page surfaces.</summary>
 [Tool]
 public partial class OpenDossierSurfaceRenderer : Node
 {
@@ -21,15 +21,18 @@ public partial class OpenDossierSurfaceRenderer : Node
 			return;
 		}
 
-		leftPage.MaterialOverride = CreatePageMaterial(viewport.GetTexture());
-		rightPage.MaterialOverride = CreatePageMaterial(viewport.GetTexture());
+		leftPage.MaterialOverride = CreatePageMaterial(viewport.GetTexture(), 0.0f);
+		rightPage.MaterialOverride = CreatePageMaterial(viewport.GetTexture(), 0.5f);
 	}
 
-	private ShaderMaterial CreatePageMaterial(Texture2D texture)
+	/// <param name="horizontalOffset">Left half of the spread is 0.0, right half is 0.5.</param>
+	private ShaderMaterial CreatePageMaterial(Texture2D texture, float horizontalOffset)
 	{
 		var material = new ShaderMaterial { Shader = PageShader };
 		material.SetShaderParameter("dossier_texture", texture);
 		material.SetShaderParameter("emission_energy", EmissionEnergy);
+		material.SetShaderParameter("uv_offset", new Vector2(horizontalOffset, 0.0f));
+		material.SetShaderParameter("uv_scale", new Vector2(0.5f, 1.0f));
 		return material;
 	}
 }

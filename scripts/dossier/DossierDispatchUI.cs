@@ -6,6 +6,13 @@ using Godot;
 using Kontur.Core.Api;
 using Kontur.Core.Model;
 
+/// <summary>
+/// Одна страница разворота досье.
+///
+/// Страница ничего не знает ни о штате, ни о том, кого показывает соседняя
+/// половина: и то и другое держит <see cref="DossierSpread"/>. Иначе две копии
+/// этого класса вели бы каждая свой список и разъехались бы на первом листании.
+/// </summary>
 [Tool]
 public partial class DossierDispatchUI : Control
 {
@@ -13,6 +20,10 @@ public partial class DossierDispatchUI : Control
 	[Export] public NodePath PageNumberPath { get; set; } = new("PageNumber");
 	[Export] public NodePath PreviousPagePath { get; set; } = new("PreviousPage");
 	[Export] public NodePath NextPagePath { get; set; } = new("NextPage");
+	[Export] public NodePath CursorPath { get; set; } = new("DossierCursor");
+
+	/// <summary>Подложка страницы: единственное, что остаётся на пустой половине разворота.</summary>
+	[Export] public NodePath PageBackgroundPath { get; set; } = new("Page/задний фон");
 
 	private UiPreviewData? _previewData;
 
@@ -42,15 +53,25 @@ public partial class DossierDispatchUI : Control
 		}
 	}
 
-	private readonly List<EmployeeView> _roster = new();
+	/// <summary>Насколько уголок светлеет под нажатием.</summary>
+	[Export] public Color PressedCornerTint { get; set; } = new(1.12f, 1.12f, 1.12f);
+
 	private DossierPage _page = null!;
 	private Label _pageNumber = null!;
 	private BaseButton _previousPage = null!;
 	private BaseButton _nextPage = null!;
-	private ComputerUI? _dispatchComputer;
-	private int _pageIndex;
+	private bool _ownsPreviousCorner;
+	private bool _ownsNextCorner;
+	private readonly List<CanvasItem> _pageContent = new();
 
-	public event Action<EmployeeView>? EmployeeConfirmed;
+	/// <summary>Игрок выбрал сотрудника с этой страницы для отправки.</summary>
+	public event Action? EmployeeChosen;
+
+	/// <summary>Игрок нажал плюсик у характеристики на этой странице.</summary>
+	public event Action<StatKind>? SkillPointRequested;
+
+	public event Action? PreviousPageRequested;
+	public event Action? NextPageRequested;
 
 	public override void _Ready()
 	{
@@ -58,21 +79,115 @@ public partial class DossierDispatchUI : Control
 		_pageNumber = GetNode<Label>(PageNumberPath);
 		_previousPage = GetNode<BaseButton>(PreviousPagePath);
 		_nextPage = GetNode<BaseButton>(NextPagePath);
+		CollectPageContent();
 		if (Engine.IsEditorHint())
 		{
 			ApplyEditorPreview();
 			return;
 		}
 
-		_page.PortraitButton.Pressed += () => ConfirmEmployeeAt(_pageIndex);
-		_previousPage.Pressed += PreviousPage;
-		_nextPage.Pressed += NextPage;
+		_page.PortraitButton.Pressed += () => EmployeeChosen?.Invoke();
+		_previousPage.Pressed += () => PreviousPageRequested?.Invoke();
+		_nextPage.Pressed += () => NextPageRequested?.Invoke();
+		BindCornerPressFeedback(_previousPage);
+		BindCornerPressFeedback(_nextPage);
 		BindUpgradeButton(_page.StrengthUpgradeButton, StatKind.Strength);
 		BindUpgradeButton(_page.CombatUpgradeButton, StatKind.Combat);
 		BindUpgradeButton(_page.AgilityUpgradeButton, StatKind.Agility);
 		BindUpgradeButton(_page.CharismaUpgradeButton, StatKind.Charisma);
 		BindUpgradeButton(_page.IntellectUpgradeButton, StatKind.Intellect);
-		Refresh();
+	}
+
+	/// <summary>
+	/// Уголки страницы — это и есть кнопки листания, поэтому на левой половине
+	/// разворота живёт только «назад», а на правой только «вперёд». Курсор на
+	/// разворот нужен один, и он ездит в координатах всего вьюпорта.
+	/// </summary>
+	public void ConfigureSide(bool showPrevious, bool showNext, bool showCursor)
+	{
+		_ownsPreviousCorner = showPrevious;
+		_ownsNextCorner = showNext;
+		_previousPage.Visible = showPrevious;
+		_nextPage.Visible = showNext;
+
+		if (!showCursor)
+		{
+			Control? cursor = GetNodeOrNull<Control>(CursorPath);
+			if (cursor != null)
+			{
+				cursor.Visible = false;
+			}
+		}
+	}
+
+	public void ShowEmployee(
+		EmployeeView employee,
+		bool selectable,
+		bool spendingAllowed,
+		int maxStat,
+		string pageNumber)
+	{
+		SetPageContentVisible(true);
+		_pageNumber.Visible = true;
+		_page.Name.Text = employee.Name.ToUpperInvariant();
+		_page.Level.Text = employee.Level.ToString();
+		_page.Strength.Text = employee.Stats.Strength.ToString();
+		_page.Combat.Text = employee.Stats.Combat.ToString();
+		_page.Agility.Text = employee.Stats.Agility.ToString();
+		_page.Charisma.Text = employee.Stats.Charisma.ToString();
+		_page.Intellect.Text = employee.Stats.Intellect.ToString();
+		_page.TraitsText.Text = BuildTraitsText(employee);
+		_page.BioText.Text = BuildBioText(employee);
+		_page.Experience.Text = $"{employee.Experience} / {employee.ExperienceToNextLevel}";
+		_page.SkillPoints.Text = employee.UnspentSkillPoints.ToString();
+		_page.Portrait.Texture = LoadPortrait(employee.PortraitId);
+		_page.PortraitButton.Text = string.Empty;
+		_page.PortraitButton.Disabled = !selectable;
+		_page.PortraitButton.Modulate = selectable ? Colors.White : new Color(0.65f, 0.65f, 0.65f, 1.0f);
+		_pageNumber.Text = pageNumber;
+		SetUpgradeButtons(
+			spendingAllowed && employee.UnspentSkillPoints > 0 && employee.Status != EmployeeStatus.Dead,
+			employee,
+			maxStat);
+	}
+
+	/// <summary>
+	/// Половина разворота, за которой сотрудника уже нет: чистая бумага.
+	///
+	/// Прочерки вместо цифр и пустые заголовки читались как сломанная страница,
+	/// поэтому от страницы остаётся только подложка.
+	/// </summary>
+	public void ShowBlank()
+	{
+		SetPageContentVisible(false);
+		_pageNumber.Visible = false;
+	}
+
+	/// <summary>Штата нет вовсе — это стоит сказать словами, а не пустой страницей.</summary>
+	public void ShowEmptyRoster()
+	{
+		SetPageContentVisible(false);
+		_pageNumber.Visible = false;
+		_page.Name.Visible = true;
+		_page.Name.Text = "ДОСЬЕ ПУСТО";
+	}
+
+	/// <summary>
+	/// Уголок, которым некуда листать, не гасится, а исчезает: у первой страницы
+	/// досье левого уголка физически нет, как и правого у последней.
+	/// </summary>
+	public void SetNavigation(bool canTurnBack, bool canTurnForward)
+	{
+		_previousPage.Visible = _ownsPreviousCorner && canTurnBack;
+		_nextPage.Visible = _ownsNextCorner && canTurnForward;
+		_previousPage.Disabled = !canTurnBack;
+		_nextPage.Disabled = !canTurnForward;
+	}
+
+	private void BindCornerPressFeedback(BaseButton corner)
+	{
+		corner.ButtonDown += () => corner.SelfModulate = PressedCornerTint;
+		corner.ButtonUp += () => corner.SelfModulate = Colors.White;
 	}
 
 	private void ApplyEditorPreview()
@@ -95,7 +210,7 @@ public partial class DossierDispatchUI : Control
 		_page.Experience.Text = "0 / 100";
 		_page.SkillPoints.Text = "0";
 		_page.PortraitButton.Disabled = true;
-		SetUpgradeButtonsEnabled(false, null);
+		SetUpgradeButtons(false, null, int.MaxValue);
 		_pageNumber.Text = "1 / 1";
 		_previousPage.Disabled = true;
 		_nextPage.Disabled = true;
@@ -111,190 +226,48 @@ public partial class DossierDispatchUI : Control
 		}
 	}
 
-	public void OpenForDispatch(ComputerUI computerUi)
-	{
-		_dispatchComputer = computerUi;
-		ReloadRoster();
-		_pageIndex = FindFirstSelectableIndex();
-		Refresh();
-	}
-
-	private void ReloadRoster()
-	{
-		_roster.Clear();
-		GameRuntime runtime = GameRuntime.Get(this);
-		if (runtime == null || !runtime.IsReady)
-		{
-			return;
-		}
-
-		foreach (EmployeeView employee in runtime.Simulation.GetRoster())
-		{
-			_roster.Add(employee);
-		}
-	}
-
-	private void PreviousPage()
-	{
-		if (_pageIndex <= 0)
-		{
-			return;
-		}
-
-		_pageIndex--;
-		Refresh();
-	}
-
-	private void NextPage()
-	{
-		if (_pageIndex + 1 >= _roster.Count)
-		{
-			return;
-		}
-
-		_pageIndex++;
-		Refresh();
-	}
-
-	private void ConfirmEmployeeAt(int employeeIndex)
-	{
-		if (employeeIndex < 0 || employeeIndex >= _roster.Count || !IsSelectable(_roster[employeeIndex]))
-		{
-			return;
-		}
-
-		EmployeeConfirmed?.Invoke(_roster[employeeIndex]);
-	}
-
-	private int FindFirstSelectableIndex()
-	{
-		for (int index = 0; index < _roster.Count; index++)
-		{
-			if (IsSelectable(_roster[index]))
-			{
-				return index;
-			}
-		}
-
-		return 0;
-	}
-
-	private bool IsSelectable(EmployeeView employee)
-	{
-		return employee.Status == EmployeeStatus.Available
-			&& (_dispatchComputer == null || !_dispatchComputer.IsEmployeeSelectedForDispatch(employee.Id));
-	}
-
 	private void BindUpgradeButton(Button button, StatKind stat)
 	{
-		button.Pressed += () => SpendSkillPoint(stat);
+		button.Pressed += () => SkillPointRequested?.Invoke(stat);
 	}
 
-	private void SpendSkillPoint(StatKind stat)
+	/// <summary>
+	/// Собирает всё содержимое страницы, кроме подложки: его целиком гасят
+	/// <see cref="ShowBlank"/> и <see cref="ShowEmptyRoster"/>.
+	/// </summary>
+	private void CollectPageContent()
 	{
-		if (_pageIndex < 0 || _pageIndex >= _roster.Count)
+		_pageContent.Clear();
+		Node pageNode = GetNode(PageContainerPath);
+		Node? background = GetNodeOrNull(PageBackgroundPath);
+		if (background == null)
 		{
-			return;
+			GD.PushWarning($"{nameof(DossierDispatchUI)}: подложка страницы не найдена по пути {PageBackgroundPath}.");
 		}
 
-		string employeeId = _roster[_pageIndex].Id;
-		GameRuntime runtime = GameRuntime.Get(this);
-		if (runtime == null || !runtime.IsReady)
+		foreach (Node child in pageNode.GetChildren())
 		{
-			return;
-		}
-
-		CommandResult result = runtime.Simulation.SpendSkillPoint(employeeId, stat);
-		if (!result.IsSuccess)
-		{
-			GD.PushWarning($"Dossier: {result.Error}");
-			return;
-		}
-
-		ReloadRoster();
-		_pageIndex = FindEmployeeIndex(employeeId);
-		Refresh();
-	}
-
-	private int FindEmployeeIndex(string employeeId)
-	{
-		for (int index = 0; index < _roster.Count; index++)
-		{
-			if (_roster[index].Id == employeeId)
+			if (child != background && child is CanvasItem item)
 			{
-				return index;
+				_pageContent.Add(item);
 			}
 		}
-
-		return 0;
 	}
 
-	private void Refresh()
+	private void SetPageContentVisible(bool isVisible)
 	{
-		if (_roster.Count == 0)
+		for (int i = 0; i < _pageContent.Count; i++)
 		{
-			RefreshEmptyPage();
-			return;
+			_pageContent[i].Visible = isVisible;
 		}
-
-		_pageIndex = Mathf.Clamp(_pageIndex, 0, _roster.Count - 1);
-		RefreshPage(_roster[_pageIndex]);
-		_pageNumber.Text = $"{_pageIndex + 1} / {_roster.Count}";
-		_previousPage.Disabled = _pageIndex == 0;
-		_nextPage.Disabled = _pageIndex + 1 >= _roster.Count;
 	}
 
-	private void RefreshEmptyPage()
+	/// <summary>
+	/// Плюсики не просто гаснут, а исчезают: кнопка, которая никогда не сработает,
+	/// на бумажной анкете выглядит опечаткой, а не отключённым элементом.
+	/// </summary>
+	private void SetUpgradeButtons(bool canSpend, EmployeeView? employee, int maxStat)
 	{
-		_page.Name.Text = "ДОСЬЕ ПУСТО";
-		_page.Level.Text = "-";
-		_page.Strength.Text = "-";
-		_page.Combat.Text = "-";
-		_page.Agility.Text = "-";
-		_page.Charisma.Text = "-";
-		_page.Intellect.Text = "-";
-		_page.TraitsText.Text = string.Empty;
-		_page.BioText.Text = string.Empty;
-		_page.Experience.Text = "- / -";
-		_page.SkillPoints.Text = "0";
-		_page.Portrait.Texture = LoadPortrait(string.Empty);
-		_page.PortraitButton.Text = string.Empty;
-		_page.PortraitButton.Disabled = true;
-		SetUpgradeButtonsEnabled(false, null);
-		_pageNumber.Text = "- / -";
-		_previousPage.Disabled = true;
-		_nextPage.Disabled = true;
-	}
-
-	private void RefreshPage(EmployeeView employee)
-	{
-		_page.Name.Text = employee.Name.ToUpperInvariant();
-		_page.Level.Text = employee.Level.ToString();
-		_page.Strength.Text = employee.Stats.Strength.ToString();
-		_page.Combat.Text = employee.Stats.Combat.ToString();
-		_page.Agility.Text = employee.Stats.Agility.ToString();
-		_page.Charisma.Text = employee.Stats.Charisma.ToString();
-		_page.Intellect.Text = employee.Stats.Intellect.ToString();
-		_page.TraitsText.Text = BuildTraitsText(employee);
-		_page.BioText.Text = BuildBioText(employee);
-		_page.Experience.Text = $"{employee.Experience} / {employee.ExperienceToNextLevel}";
-		_page.SkillPoints.Text = employee.UnspentSkillPoints.ToString();
-		_page.Portrait.Texture = LoadPortrait(employee.PortraitId);
-		_page.PortraitButton.Text = string.Empty;
-		_page.PortraitButton.Disabled = !IsSelectable(employee);
-		_page.PortraitButton.Modulate = IsSelectable(employee) ? Colors.White : new Color(0.65f, 0.65f, 0.65f, 1.0f);
-		SetUpgradeButtonsEnabled(employee.UnspentSkillPoints > 0 && employee.Status != EmployeeStatus.Dead, employee);
-	}
-
-	private void SetUpgradeButtonsEnabled(bool canSpend, EmployeeView? employee)
-	{
-		int maxStat = int.MaxValue;
-		GameRuntime runtime = GameRuntime.Get(this);
-		if (runtime != null && runtime.IsReady)
-		{
-			maxStat = runtime.Simulation.Config.Employees.MaxStatValue;
-		}
-
 		SetUpgradeButton(_page.StrengthUpgradeButton, canSpend, employee, StatKind.Strength, maxStat);
 		SetUpgradeButton(_page.CombatUpgradeButton, canSpend, employee, StatKind.Combat, maxStat);
 		SetUpgradeButton(_page.AgilityUpgradeButton, canSpend, employee, StatKind.Agility, maxStat);
@@ -304,7 +277,9 @@ public partial class DossierDispatchUI : Control
 
 	private static void SetUpgradeButton(Button button, bool canSpend, EmployeeView? employee, StatKind stat, int maxStat)
 	{
-		button.Disabled = !canSpend || employee == null || employee.Stats[stat] >= maxStat;
+		bool isAvailable = canSpend && employee != null && employee.Stats[stat] < maxStat;
+		button.Visible = isAvailable;
+		button.Disabled = !isAvailable;
 	}
 
 	private static Texture2D? LoadPortrait(string portraitId)
@@ -343,12 +318,19 @@ public partial class DossierDispatchUI : Control
 		return string.Join("\n", traits);
 	}
 
+	/// <summary>
+	/// Собирает досье одним абзацем, а не столбиком строк.
+	///
+	/// Слотов у генератора четыре, плюс возраст и пометки о состоянии — столбиком
+	/// это всегда упиралось в низ страницы. Сплошным текстом запись ещё и больше
+	/// похожа на то, что её писал живой человек, а не заполнил бланк.
+	/// </summary>
 	private static string BuildBioText(EmployeeView employee)
 	{
-		var lines = new List<string>();
+		var sentences = new List<string>();
 		if (employee.Age > 0)
 		{
-			lines.Add($"Возраст: {employee.Age}");
+			sentences.Add($"Возраст: {employee.Age}");
 		}
 
 		foreach (string bioId in employee.BioIds)
@@ -356,26 +338,49 @@ public partial class DossierDispatchUI : Control
 			string text = ResolveText(bioId);
 			if (!string.IsNullOrWhiteSpace(text))
 			{
-				lines.Add(text);
+				sentences.Add(text);
 			}
 		}
 
 		if (employee.IsInjured)
 		{
-			lines.Add("Травмирован");
+			sentences.Add("Травмирован");
 		}
 
 		if (!string.IsNullOrWhiteSpace(employee.CurrentIncidentId))
 		{
-			lines.Add("На задании: " + employee.CurrentIncidentId);
+			sentences.Add("На задании: " + employee.CurrentIncidentId);
 		}
 
 		if (employee.Status == EmployeeStatus.Dead)
 		{
-			lines.Add("Погиб");
+			sentences.Add("Погиб");
 		}
 
-		return string.Join("\n", lines);
+		for (int i = 0; i < sentences.Count; i++)
+		{
+			sentences[i] = EndSentence(sentences[i]);
+		}
+
+		return string.Join(" ", sentences);
+	}
+
+	/// <summary>
+	/// Закрывает фразу точкой, если автор её не поставил: в сплошном абзаце
+	/// строки без знака слипаются в одно предложение.
+	/// </summary>
+	private static string EndSentence(string text)
+	{
+		string trimmed = text.TrimEnd();
+		if (trimmed.Length == 0)
+		{
+			return trimmed;
+		}
+
+		char last = trimmed[trimmed.Length - 1];
+		return last == '.' || last == '!' || last == '?' || last == '…' || last == ';'
+			? trimmed
+			: trimmed + '.';
 	}
 
 	private static string ResolveName(string entryId)

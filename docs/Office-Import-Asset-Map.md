@@ -122,7 +122,7 @@ The functional migration is active in `scenes/main.tscn`:
 - `Main/NewOffice/Notebook` owns its document viewport, interaction area and outline;
 - `EmployeeDossierFolder`, `DossierDisplayPose` and `ShiftNote` were moved into `Main/NewOffice` with their existing functional scripts and viewports;
 - `Main/NewOffice/EnvironmentSystems` owns the room lighting and 13 static collision shapes for the shell, desk and large furniture;
-- `Main/NewOffice` occupies the final world origin, while the replaced old-office interaction instances were removed and `Main/OldOffice` is hidden with processing disabled;
+- `Main/NewOffice` occupies the final world origin; the whole `Main/OldOffice` branch has been deleted from the scene together with its orphaned meshes, materials and textures;
 - oversized environment textures are imported with 2048 px limits (4096 px for the panoramic wall texture), while their source images remain untouched.
 
 The imported GLB does not contain a dedicated employee-dossier model. The functional dossier therefore keeps its existing visual scene until a replacement asset is supplied.
