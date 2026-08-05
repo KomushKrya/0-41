@@ -1,19 +1,18 @@
-[gd_scene format=4]
+[gd_scene format=4 uid="uid://b3o1uq7xw67ik"]
 
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Bloknot_Bloknot_BaseColor.png" id="1_42aqj"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Bloknot_Colca_BaseColor.png" id="2_bujby"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Karandash_grifil_BaseColor.png" id="3_ucxt0"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Karandash_Color_BaseColor.png" id="4_2vx8d"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Karandash_Color_Metallic-Karandash_Color_Roughness.png" id="5_7tag2"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Karandash_Color_Normal.png" id="6_bekcl"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Karandash_Drov_BaseColor.png" id="7_gjqh3"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Karandash_Drov_Metallic-Karandash_Drov_Roughness.png" id="8_eorrw"]
-[ext_resource type="Texture2D" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Karandash_Drov_Normal.png" id="9_w1pdd"]
-[ext_resource type="Script" path="res://scripts/interaction/InteractionOutline.cs" id="10_bekcl"]
-[ext_resource type="Script" path="res://scripts/interaction/OutlineOnlyInteractable.cs" id="11_gjqh3"]
+[ext_resource type="Texture2D" uid="uid://girjpwmgp850" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Bloknot_Bloknot_BaseColor.png" id="1_42aqj"]
+[ext_resource type="Texture2D" uid="uid://boaanoq5l1im5" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Bloknot_Colca_BaseColor.png" id="2_bujby"]
+[ext_resource type="Texture2D" uid="uid://dtmxcstimc7cx" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Karandash_grifil_BaseColor.png" id="3_ucxt0"]
+[ext_resource type="Texture2D" uid="uid://c5h21x0e51eis" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Karandash_Color_BaseColor.png" id="4_2vx8d"]
+[ext_resource type="Texture2D" uid="uid://m88epuf54fky" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Karandash_Color_Metallic-Karandash_Color_Roughness.png" id="5_7tag2"]
+[ext_resource type="Texture2D" uid="uid://dn7w1p5dtoq0r" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Karandash_Color_Normal.png" id="6_bekcl"]
+[ext_resource type="Texture2D" uid="uid://01t5rq2g3fpc" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Karandash_Drov_BaseColor.png" id="7_gjqh3"]
+[ext_resource type="Texture2D" uid="uid://tirhhfk16iqa" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Karandash_Drov_Metallic-Karandash_Drov_Roughness.png" id="8_eorrw"]
+[ext_resource type="Texture2D" uid="uid://c5318peyolpxq" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Karandash_Drov_Normal.png" id="9_w1pdd"]
+[ext_resource type="Script" uid="uid://d0fbn8kr5taka" path="res://scripts/interaction/InteractionOutline.cs" id="10_bekcl"]
+[ext_resource type="Script" uid="uid://bg1h1jf7kjf0c" path="res://scripts/interaction/OutlineOnlyInteractable.cs" id="11_gjqh3"]
 [ext_resource type="PackedScene" path="res://scenes/ui/notebook/NotebookUI.tscn" id="12_eorrw"]
-[ext_resource type="Script" path="res://scripts/ui/NotebookScalesUI.cs" id="13_w1pdd"]
-[ext_resource type="Script" path="res://scripts/interaction/SubViewportSurfaceRenderer.cs" id="14_tqgvk"]
+[ext_resource type="Script" uid="uid://dvqxuod1kiwne" path="res://scripts/interaction/SubViewportSurfaceRenderer.cs" id="14_tqgvk"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tqgvk"]
 resource_name = "Bloknot"
@@ -200,7 +199,7 @@ shadow_mesh = SubResource("ArrayMesh_865hw")
 size = Vector2(0.18, 0.13)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ygfge"]
-size = Vector3(0.23, 0.06, 0.18)
+size = Vector3(0.20474488, 0.06, 0.15857789)
 
 [node name="Notebook" type="Node3D" unique_id=419049553 groups=["interactive"]]
 
@@ -229,6 +228,7 @@ script = ExtResource("11_gjqh3")
 Label = "Notebook"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionArea" unique_id=650861798]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00026550144, 0, 0.0023590028)
 shape = SubResource("BoxShape3D_ygfge")
 
 [node name="NotebookViewport" type="SubViewport" parent="." unique_id=439128071]
@@ -243,15 +243,9 @@ anchor_bottom = 1.0
 mouse_filter = 2
 color = Color(0.045, 0.065, 0.055, 1)
 
-[node name="NotebookUI" type="Control" parent="NotebookViewport" unique_id=144181230 instance=ExtResource("12_eorrw")]
+[node name="NotebookUI" parent="NotebookViewport" unique_id=144181230 instance=ExtResource("12_eorrw")]
 layout_mode = 3
 anchors_preset = 0
-offset_left = 2.0
-offset_top = 233.0
-offset_right = 1026.0
-offset_bottom = 1001.0
-scale = Vector2(0.68, 0.68)
-script = ExtResource("13_w1pdd")
 
 [node name="NotebookSurfaceRenderer" type="Node" parent="." unique_id=40112270]
 script = ExtResource("14_tqgvk")

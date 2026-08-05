@@ -13,7 +13,8 @@ public partial class PhoneCallAcceptanceUI : Control
 
 	private ColorRect _previousScreenBlur = null!;
 	private Label _title = null!;
-	private Label _description = null!;
+	/// <summary>Стенограмма приходит с разметкой движка, поэтому не Label.</summary>
+	private RichTextLabel _description = null!;
 	private TextureRect _illustration = null!;
 	private Label _illustrationPlaceholder = null!;
 	private Button _confirmButton = null!;
@@ -25,7 +26,7 @@ public partial class PhoneCallAcceptanceUI : Control
 	{
 		_previousScreenBlur = GetNode<ColorRect>(PreviousScreenBlurPath);
 		_title = GetNode<Label>(TitlePath);
-		_description = GetNode<Label>(DescriptionPath);
+		_description = GetNode<RichTextLabel>(DescriptionPath);
 		_illustration = GetNode<TextureRect>(IllustrationPath);
 		_illustrationPlaceholder = GetNode<Label>(IllustrationPlaceholderPath);
 		_confirmButton = GetNode<Button>(ConfirmButtonPath);

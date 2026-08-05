@@ -107,7 +107,10 @@ public partial class DeskPhone : Node3D
 				}
 
 				string title = ContentTextResolver.ResolveCallMeta(incident.CallId, incident.CallId);
-				string description = ContentTextResolver.ResolveEntryText(incident.CallId, incident.CallId);
+				string description = ContentSpanFormatter.ResolveEntryBbcode(
+					incident.CallId,
+					incident.CallId,
+					ContentSpanFormatter.DefaultHighlight);
 				_callAcceptanceUi.ShowCallAcceptance(
 					title,
 					description,

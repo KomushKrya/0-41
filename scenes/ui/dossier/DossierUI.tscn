@@ -95,6 +95,16 @@ offset_right = 244.56004
 offset_bottom = 22.860008
 text = "N"
 
+[node name="Portrait" type="TextureRect" parent="Page" unique_id=1164757576]
+layout_mode = 0
+offset_left = 94.0352
+offset_top = 133.41661
+offset_right = 240.87001
+offset_bottom = 319.92001
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
 [node name="PortraitButton" type="Button" parent="Page" unique_id=1014347683]
 layout_mode = 0
 offset_left = 94.0352
@@ -104,18 +114,7 @@ offset_bottom = 320.85004
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_fonts/font = ExtResource("2_dossier_font")
 theme_override_font_sizes/font_size = 16
-theme_override_styles/normal = SubResource("StyleBox_photo")
 disabled = true
-text = "PHOTO
-PREVIEW"
-
-[node name="Portrait" type="TextureRect" parent="Page/PortraitButton" unique_id=1164757576]
-layout_mode = 0
-offset_right = 146.83481
-offset_bottom = 186.5034
-mouse_filter = 2
-expand_mode = 1
-stretch_mode = 5
 
 [node name="Stats" type="Label" parent="Page" unique_id=321300735]
 custom_minimum_size = Vector2(1, 1)

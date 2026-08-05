@@ -30,7 +30,8 @@ public partial class RadioDecisionUI : Control
 	private ColorRect _previousScreenBlur = null!;
 	private ColorRect _inputBlocker = null!;
 	private Label _header = null!;
-	private Label _situationLabel = null!;
+	/// <summary>Доклад группы приходит с разметкой движка, поэтому не Label.</summary>
+	private RichTextLabel _situationLabel = null!;
 	private Label _illustrationPlaceholder = null!;
 	private Label _illustrationCaption = null!;
 	private Label _prompt = null!;
@@ -54,7 +55,7 @@ public partial class RadioDecisionUI : Control
 		_previousScreenBlur = GetNode<ColorRect>(PreviousScreenBlurPath);
 		_inputBlocker = GetNode<ColorRect>(InputBlockerPath);
 		_header = GetNode<Label>(HeaderPath);
-		_situationLabel = GetNode<Label>(SituationLabelPath);
+		_situationLabel = GetNode<RichTextLabel>(SituationLabelPath);
 		_illustrationPlaceholder = GetNode<Label>(IllustrationPlaceholderPath);
 		_illustrationCaption = GetNode<Label>(IllustrationCaptionPath);
 		_prompt = GetNode<Label>(PromptPath);
@@ -126,7 +127,10 @@ public partial class RadioDecisionUI : Control
 		_awaitingOutcome = false;
 		_showingOutcome = false;
 		_header.Text = $"К.О.Н.Т.У.Р.-Д  /  РАДИО: {missionTitle}";
-		_situationLabel.Text = ContentTextResolver.ResolveEntryText(_contentId, string.Empty);
+		_situationLabel.Text = ContentSpanFormatter.ResolveEntryBbcode(
+			_contentId,
+			string.Empty,
+			ContentSpanFormatter.DefaultHighlight);
 
 		for (int index = 0; index < _optionButtons.Count; index++)
 		{
@@ -168,7 +172,10 @@ public partial class RadioDecisionUI : Control
 		_header.Text = outcome.IsSuccess
 			? "\u041a.\u041e.\u041d.\u0422.\u0423.\u0420.-\u0414  /  \u0418\u0422\u041e\u0413 \u041e\u041f\u0415\u0420\u0410\u0426\u0418\u0418: \u0423\u0421\u041f\u0415\u0425"
 			: "\u041a.\u041e.\u041d.\u0422.\u0423.\u0420.-\u0414  /  \u0418\u0422\u041e\u0413 \u041e\u041f\u0415\u0420\u0410\u0426\u0418\u0418: \u0421\u0411\u041e\u0419";
-		_situationLabel.Text = ContentTextResolver.ResolveEntryText(_contentId, string.Empty);
+		_situationLabel.Text = ContentSpanFormatter.ResolveEntryBbcode(
+			_contentId,
+			string.Empty,
+			ContentSpanFormatter.DefaultHighlight);
 		_prompt.Text = "\u0421\u0412\u042f\u0417\u042c \u0417\u0410\u0412\u0415\u0420\u0428\u0415\u041d\u0410. \u0417\u0410\u0424\u0418\u041a\u0421\u0418\u0420\u0423\u0419\u0422\u0415 \u0418\u0422\u041e\u0413:";
 		_illustrationPlaceholder.Text = string.IsNullOrWhiteSpace(outcome.CreatureId)
 			? "[ \u0418\u041b\u041b\u042e\u0421\u0422\u0420\u0410\u0426\u0418\u042f\\n  \u041d\u0415\u0414\u041e\u0421\u0422\u0423\u041f\u041d\u0410 ]"

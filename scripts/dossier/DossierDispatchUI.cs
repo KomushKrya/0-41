@@ -56,6 +56,11 @@ public partial class DossierDispatchUI : Control
 	/// <summary>Насколько уголок светлеет под нажатием.</summary>
 	[Export] public Color PressedCornerTint { get; set; } = new(1.12f, 1.12f, 1.12f);
 
+	/// <summary>Подсветка портрета под курсором: кнопка прозрачная, светлеет только наведением.</summary>
+	[Export] public Color PortraitHoverTint { get; set; } = new(1.0f, 1.0f, 1.0f, 0.16f);
+
+	private const string DesaturateShaderPath = "res://assets/shaders/PortraitDesaturate.gdshader";
+
 	private DossierPage _page = null!;
 	private Label _pageNumber = null!;
 	private BaseButton _previousPage = null!;
@@ -87,6 +92,7 @@ public partial class DossierDispatchUI : Control
 		}
 
 		_page.PortraitButton.Pressed += () => EmployeeChosen?.Invoke();
+		ApplyPortraitButtonLook();
 		_previousPage.Pressed += () => PreviousPageRequested?.Invoke();
 		_nextPage.Pressed += () => NextPageRequested?.Invoke();
 		BindCornerPressFeedback(_previousPage);
@@ -143,7 +149,10 @@ public partial class DossierDispatchUI : Control
 		_page.Portrait.Texture = LoadPortrait(employee.PortraitId);
 		_page.PortraitButton.Text = string.Empty;
 		_page.PortraitButton.Disabled = !selectable;
-		_page.PortraitButton.Modulate = selectable ? Colors.White : new Color(0.65f, 0.65f, 0.65f, 1.0f);
+
+		// Гибель читается прямо с фотографии: погибший — чёрно-белый снимок.
+		// Травма по фото не видна намеренно, о ней узнают с терминала.
+		SetPortraitDesaturated(employee.Status == EmployeeStatus.Dead);
 		_pageNumber.Text = pageNumber;
 		SetUpgradeButtons(
 			spendingAllowed && employee.UnspentSkillPoints > 0 && employee.Status != EmployeeStatus.Dead,
@@ -182,6 +191,38 @@ public partial class DossierDispatchUI : Control
 		_nextPage.Visible = _ownsNextCorner && canTurnForward;
 		_previousPage.Disabled = !canTurnBack;
 		_nextPage.Disabled = !canTurnForward;
+	}
+
+	/// <summary>
+	/// Кнопка лежит поверх фотографии и сама ничего не рисует: рамку и снимок
+	/// даёт страница, а кнопка только ловит нажатие и светлеет под курсором.
+	/// </summary>
+	private void ApplyPortraitButtonLook()
+	{
+		var transparent = new StyleBoxEmpty();
+		_page.PortraitButton.AddThemeStyleboxOverride("normal", transparent);
+		_page.PortraitButton.AddThemeStyleboxOverride("pressed", transparent);
+		_page.PortraitButton.AddThemeStyleboxOverride("focus", transparent);
+		_page.PortraitButton.AddThemeStyleboxOverride("disabled", transparent);
+		_page.PortraitButton.AddThemeStyleboxOverride("hover", new StyleBoxFlat { BgColor = PortraitHoverTint });
+	}
+
+	private void SetPortraitDesaturated(bool isDesaturated)
+	{
+		if (!isDesaturated)
+		{
+			_page.Portrait.Material = null;
+			return;
+		}
+
+		var shader = GD.Load<Shader>(DesaturateShaderPath);
+		if (shader == null)
+		{
+			GD.PushWarning($"{nameof(DossierDispatchUI)}: шейдер {DesaturateShaderPath} не найден.");
+			return;
+		}
+
+		_page.Portrait.Material = new ShaderMaterial { Shader = shader };
 	}
 
 	private void BindCornerPressFeedback(BaseButton corner)
@@ -412,7 +453,7 @@ public partial class DossierDispatchUI : Control
 			page.GetNode<Label>("EmployeeName"),
 			page.GetNode<Label>("LevelText/LabelID"),
 			page.GetNode<Button>("PortraitButton"),
-			page.GetNode<TextureRect>("PortraitButton/Portrait"),
+			page.GetNode<TextureRect>("Portrait"),
 			page.GetNode<Label>("strength/strengthID"),
 			page.GetNode<Label>("combat/combatID"),
 			page.GetNode<Label>("agility/agilityID"),
