@@ -3,8 +3,6 @@ id: radio_black_mold
 type: radio
 mission_id: m_black_mold
 status: draft
-requirements:
-  -
 properties:
   -
 ---

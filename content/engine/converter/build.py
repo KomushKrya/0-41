@@ -58,6 +58,11 @@ TYPE_FIELDS = {
 # radio — вызов с вмешательством игрока, filler — одна проверка характеристик.
 CALL_MISSION_TYPES = ("radio", "filler")
 
+# Типы, у которых нет флагов появления. Вмешательство не всплывает само: его показывают
+# ровно тогда, когда сработало радио на своей миссии, — гейт на записи не гейтит ничего.
+# Условие «показывать ли это вмешательство» живёт на миссии, в data/missions.json.
+NO_REQUIREMENTS_TYPES = ("radio",)
+
 # Виджет нижнего текста: кусок должен влезать примерно в две строки. Всё остальное —
 # энциклопедия, отчёты, звонки — рендерится на своих экранах, где абзац уместен.
 BOTTOM_TEXT_TYPES = ("cutscene",)
@@ -488,9 +493,18 @@ def parse_file(path: Path, expected_type: str, repo_root: Path) -> dict:
     entry: dict = {
         "id": frontmatter["id"],
         "type": frontmatter["type"],
-        "requirements": frontmatter.get("requirements", []),
         "properties": frontmatter.get("properties", []),
     }
+
+    if expected_type in NO_REQUIREMENTS_TYPES:
+        if "requirements" in frontmatter:
+            raise BuildFailed(
+                f"{path}: у типа {expected_type!r} нет поля requirements — "
+                f"вмешательство показывается по своей миссии, а не по флагу записи; "
+                f"условие появления живёт в data/missions.json"
+            )
+    else:
+        entry["requirements"] = frontmatter.get("requirements", [])
 
     if expected_type == "radio":
         intro_lines, entry["options"] = parse_options(body_lines, path)

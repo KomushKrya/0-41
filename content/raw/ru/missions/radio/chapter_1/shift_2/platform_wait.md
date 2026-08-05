@@ -3,8 +3,6 @@ id: radio_platform_wait
 type: radio
 mission_id: m_platform_wait
 status: draft
-requirements:
-  -
 properties:
   -
 ---

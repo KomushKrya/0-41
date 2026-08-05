@@ -3,8 +3,6 @@ id: radio_workshop_site
 type: radio
 mission_id: m_workshop_site
 status: ready
-requirements:
-  - flag_truck_written_off
 properties:
   -
 ---

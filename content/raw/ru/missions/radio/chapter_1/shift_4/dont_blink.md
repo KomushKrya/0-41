@@ -3,8 +3,6 @@ id: radio_dont_blink
 type: radio
 mission_id: m_dont_blink
 status: draft
-requirements:
-  -
 properties:
   -
 ---

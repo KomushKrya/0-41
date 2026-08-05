@@ -2,8 +2,8 @@
 	"shift_note_day_1": {
 		"id": "shift_note_day_1",
 		"type": "shift_note",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "Здравствуй! Будем знакомы — меня Толя зовут. Сижу на этом посту уже третий год, если что.",
@@ -27,8 +27,8 @@
 	"shift_note_day_2": {
 		"id": "shift_note_day_2",
 		"type": "shift_note",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "Слушай, чуть не забыл — из управления вчера дважды звонили, спрашивали по отчётам. Отвечай коротко, не оправдывайся, они это любят потом использовать против нас.",
@@ -47,8 +47,8 @@
 	"shift_note_day_3": {
 		"id": "shift_note_day_3",
 		"type": "shift_note",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "Расходники в этот раз выдали не всем — придётся самому ругаться с хозчастью, я уже пробовал, толку ноль.",
@@ -72,8 +72,8 @@
 	"shift_note_day_4": {
 		"id": "shift_note_day_4",
 		"type": "shift_note",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "Слушай, сегодня тебе придётся одному — дежурного по этажу сняли, телефон переключили на тебя целиком.",

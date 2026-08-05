@@ -3,8 +3,6 @@ id: radio_dogs_go_down
 type: radio
 mission_id: m_dogs_go_down
 status: draft
-requirements:
-  -
 properties:
   -
 ---

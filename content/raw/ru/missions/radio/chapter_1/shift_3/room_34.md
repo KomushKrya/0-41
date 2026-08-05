@@ -3,8 +3,6 @@ id: radio_room_34
 type: radio
 mission_id: m_room_34
 status: ready
-requirements:
-  -
 properties:
   -
 ---

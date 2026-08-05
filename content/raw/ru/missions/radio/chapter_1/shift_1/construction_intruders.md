@@ -3,8 +3,6 @@ id: radio_construction_intruders
 type: radio
 mission_id: m_construction_intruders
 status: draft
-requirements:
-  -
 properties:
   -
 ---

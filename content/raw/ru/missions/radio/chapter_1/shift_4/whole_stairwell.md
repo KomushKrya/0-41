@@ -3,8 +3,6 @@ id: radio_whole_stairwell
 type: radio
 mission_id: m_whole_stairwell
 status: draft
-requirements:
-  -
 properties:
   -
 ---

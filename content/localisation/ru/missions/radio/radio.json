@@ -2,7 +2,6 @@
 	"radio_black_mold": {
 		"id": "radio_black_mold",
 		"type": "radio",
-		"requirements": [],
 		"properties": [],
 		"options": [
 			{
@@ -73,7 +72,6 @@
 	"radio_brother_smile": {
 		"id": "radio_brother_smile",
 		"type": "radio",
-		"requirements": [],
 		"properties": [],
 		"options": [
 			{
@@ -147,7 +145,6 @@
 	"radio_construction_intruders": {
 		"id": "radio_construction_intruders",
 		"type": "radio",
-		"requirements": [],
 		"properties": [],
 		"options": [
 			{
@@ -207,7 +204,6 @@
 	"radio_false_gas_alarm": {
 		"id": "radio_false_gas_alarm",
 		"type": "radio",
-		"requirements": [],
 		"properties": [],
 		"options": [
 			{
@@ -255,7 +251,6 @@
 	"radio_missing_daughter": {
 		"id": "radio_missing_daughter",
 		"type": "radio",
-		"requirements": [],
 		"properties": [],
 		"options": [
 			{
@@ -329,7 +324,6 @@
 	"radio_pensioner_door": {
 		"id": "radio_pensioner_door",
 		"type": "radio",
-		"requirements": [],
 		"properties": [],
 		"options": [
 			{
@@ -401,7 +395,6 @@
 	"radio_urgent_evacuation": {
 		"id": "radio_urgent_evacuation",
 		"type": "radio",
-		"requirements": [],
 		"properties": [],
 		"options": [
 			{
@@ -451,7 +444,6 @@
 	"radio_workshop_intro": {
 		"id": "radio_workshop_intro",
 		"type": "radio",
-		"requirements": [],
 		"properties": [],
 		"options": [
 			{
@@ -511,7 +503,6 @@
 	"radio_bench_man": {
 		"id": "radio_bench_man",
 		"type": "radio",
-		"requirements": [],
 		"properties": [],
 		"options": [
 			{
@@ -561,7 +552,6 @@
 	"radio_intercom_voice": {
 		"id": "radio_intercom_voice",
 		"type": "radio",
-		"requirements": [],
 		"properties": [],
 		"options": [
 			{
@@ -611,7 +601,6 @@
 	"radio_platform_wait": {
 		"id": "radio_platform_wait",
 		"type": "radio",
-		"requirements": [],
 		"properties": [],
 		"options": [
 			{
@@ -661,7 +650,6 @@
 	"radio_workshop_truck": {
 		"id": "radio_workshop_truck",
 		"type": "radio",
-		"requirements": [],
 		"properties": [],
 		"options": [
 			{
@@ -722,7 +710,6 @@
 	"radio_dense_flock": {
 		"id": "radio_dense_flock",
 		"type": "radio",
-		"requirements": [],
 		"properties": [],
 		"options": [
 			{
@@ -796,7 +783,6 @@
 	"radio_night_pharmacy": {
 		"id": "radio_night_pharmacy",
 		"type": "radio",
-		"requirements": [],
 		"properties": [],
 		"options": [
 			{
@@ -870,7 +856,6 @@
 	"radio_room_34": {
 		"id": "radio_room_34",
 		"type": "radio",
-		"requirements": [],
 		"properties": [],
 		"options": [
 			{
@@ -947,7 +932,6 @@
 	"radio_tram_last_run": {
 		"id": "radio_tram_last_run",
 		"type": "radio",
-		"requirements": [],
 		"properties": [],
 		"options": [
 			{
@@ -1023,9 +1007,6 @@
 	"radio_workshop_empty": {
 		"id": "radio_workshop_empty",
 		"type": "radio",
-		"requirements": [
-			"flag_truck_seized"
-		],
 		"properties": [],
 		"options": [
 			{
@@ -1085,9 +1066,6 @@
 	"radio_workshop_site": {
 		"id": "radio_workshop_site",
 		"type": "radio",
-		"requirements": [
-			"flag_truck_written_off"
-		],
 		"properties": [],
 		"options": [
 			{
@@ -1161,7 +1139,6 @@
 	"radio_comms_outage": {
 		"id": "radio_comms_outage",
 		"type": "radio",
-		"requirements": [],
 		"properties": [],
 		"options": [
 			{
@@ -1216,7 +1193,6 @@
 	"radio_dogs_go_down": {
 		"id": "radio_dogs_go_down",
 		"type": "radio",
-		"requirements": [],
 		"properties": [],
 		"options": [
 			{
@@ -1271,7 +1247,6 @@
 	"radio_dont_blink": {
 		"id": "radio_dont_blink",
 		"type": "radio",
-		"requirements": [],
 		"properties": [],
 		"options": [
 			{
@@ -1326,7 +1301,6 @@
 	"radio_flooded_basement": {
 		"id": "radio_flooded_basement",
 		"type": "radio",
-		"requirements": [],
 		"properties": [],
 		"options": [
 			{
@@ -1386,7 +1360,6 @@
 	"radio_racing_pulse": {
 		"id": "radio_racing_pulse",
 		"type": "radio",
-		"requirements": [],
 		"properties": [],
 		"options": [
 			{
@@ -1441,7 +1414,6 @@
 	"radio_silent_collector": {
 		"id": "radio_silent_collector",
 		"type": "radio",
-		"requirements": [],
 		"properties": [],
 		"options": [
 			{
@@ -1496,7 +1468,6 @@
 	"radio_talking_dog": {
 		"id": "radio_talking_dog",
 		"type": "radio",
-		"requirements": [],
 		"properties": [],
 		"options": [
 			{
@@ -1551,7 +1522,6 @@
 	"radio_wall_infection": {
 		"id": "radio_wall_infection",
 		"type": "radio",
-		"requirements": [],
 		"properties": [],
 		"options": [
 			{
@@ -1623,7 +1593,6 @@
 	"radio_whole_stairwell": {
 		"id": "radio_whole_stairwell",
 		"type": "radio",
-		"requirements": [],
 		"properties": [],
 		"options": [
 			{

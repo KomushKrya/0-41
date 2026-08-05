@@ -3,8 +3,6 @@ id: radio_
 type: radio
 mission_id: m_
 status: draft
-requirements:
-  -
 properties:
   -
 ---

@@ -3,8 +3,6 @@ id: radio_wall_infection
 type: radio
 mission_id: m_wall_infection
 status: draft
-requirements:
-  -
 properties:
   -
 ---

@@ -3,8 +3,6 @@ id: radio_comms_outage
 type: radio
 mission_id: m_comms_outage
 status: draft
-requirements:
-  -
 properties:
   -
 ---

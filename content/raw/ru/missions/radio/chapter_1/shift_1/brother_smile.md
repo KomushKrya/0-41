@@ -3,8 +3,6 @@ id: radio_brother_smile
 type: radio
 mission_id: m_brother_smile
 status: draft
-requirements:
-  -
 properties:
   -
 ---

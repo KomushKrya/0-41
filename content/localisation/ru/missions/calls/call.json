@@ -2,8 +2,8 @@
 	"call_black_mold": {
 		"id": "call_black_mold",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ПЕРЕНАПРАВЛЕН НА ЛИНИЮ ИЗ РАЙОННОЙ СЛУЖБЫ ЖЭК",
@@ -73,8 +73,8 @@
 	"call_brother_smile": {
 		"id": "call_brother_smile",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК В ГАЗОВУЮ СЛУЖБУ. ГОЛОС МАЛЕНЬКОЙ ДЕВОЧКИ",
@@ -127,8 +127,8 @@
 	"call_construction_intruders": {
 		"id": "call_construction_intruders",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК В ГАЗОВУЮ СЛУЖБУ. МУЖЧИНА С ХРИПЛОВАТЫМ ГЛУБОКИМ ГОЛОСОМ",
@@ -181,8 +181,8 @@
 	"call_false_gas_alarm": {
 		"id": "call_false_gas_alarm",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК В ГАЗОВУЮ СЛУЖБУ. ЗВОНИТ ПАРЕНЬ-ПОДРОСТОК",
@@ -235,8 +235,8 @@
 	"call_missing_daughter": {
 		"id": "call_missing_daughter",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ИЗ ПРИЁМНОЙ УЧАСТКОВОГО. ГОЛОС СЕРЬЁЗНЫЙ, ПО-ВОЕННОМУ СУХОЙ",
@@ -289,8 +289,8 @@
 	"call_pensioner_door": {
 		"id": "call_pensioner_door",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК В ГАЗОВУЮ СЛУЖБУ. НА ЛИНИИ НАПУГАННО ЗВУЧАЩИЙ СТАРИК",
@@ -353,8 +353,8 @@
 	"call_urgent_evacuation": {
 		"id": "call_urgent_evacuation",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ОТ СТАРШЕГО ИССЛЕДОВАТЕЛЯ С ОБЪЕКТА",
@@ -407,8 +407,8 @@
 	"call_workshop_intro": {
 		"id": "call_workshop_intro",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ИЗ ДИСПЕТЧЕРСКОЙ СТРОЙБАЗЫ №2",
@@ -478,8 +478,8 @@
 	"call_bench_man": {
 		"id": "call_bench_man",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ОТ МЕСТНЫХ ЖИТЕЛЕЙ. НЕСКОЛЬКО ГОЛОСОВ, ПЕРЕБИВАЮТ ДРУГ ДРУГА",
@@ -549,8 +549,8 @@
 	"call_ceiling_leak": {
 		"id": "call_ceiling_leak",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ОТ ЖИЛЬЦА ЧАСТНОГО ДОМА. МУЖЧИНА, УСТАЛЫЙ",
@@ -606,8 +606,8 @@
 	"call_intercom_voice": {
 		"id": "call_intercom_voice",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ОТ ЖИЛЬЦА ПОДЪЕЗДА. ЖЕНЩИНА, ИСПУГАННАЯ",
@@ -667,8 +667,8 @@
 	"call_night_watchman": {
 		"id": "call_night_watchman",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК С ПРОХОДНОЙ ЦЕХА. МУЖЧИНА, СБИВЧИВЫЙ",
@@ -724,8 +724,8 @@
 	"call_platform_wait": {
 		"id": "call_platform_wait",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ОТ ДИСПЕТЧЕРА ВОКЗАЛА. МУЖЧИНА, НАПРЯЖЁННЫЙ ГОЛОС",
@@ -795,8 +795,8 @@
 	"call_upstairs_neighbors": {
 		"id": "call_upstairs_neighbors",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ОТ СОСЕДКИ СНИЗУ. ЖЕНЩИНА, РАЗДРАЖЁННАЯ",
@@ -852,8 +852,8 @@
 	"call_workshop_truck": {
 		"id": "call_workshop_truck",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "НА ЛИНИИ ЗНАКОМЫЙ ГОЛОС. НОМЕР ОТДЕЛА ОН ГДЕ-ТО ВЗЯЛ САМ",
@@ -923,8 +923,8 @@
 	"call_cement_night_shift": {
 		"id": "call_cement_night_shift",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЦЕМЕНТНЫЙ ЗАВОД, ЗВОНИТ МАСТЕР НОЧНОЙ СМЕНЫ",
@@ -998,8 +998,8 @@
 	"call_dense_flock": {
 		"id": "call_dense_flock",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "СТОРОЖ АВТОБАЗЫ №3, ЗВОНИТ С ПРОХОДНОЙ",
@@ -1069,8 +1069,8 @@
 	"call_dogs_at_grate": {
 		"id": "call_dogs_at_grate",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ОТ ДВОРНИКА УЧАСТКА №7",
@@ -1134,8 +1134,8 @@
 	"call_dosimeter_yard": {
 		"id": "call_dosimeter_yard",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ОТ ЧАСТНОГО ЛИЦА. ГОВОРИТ ГРОМКО, ВОКРУГ ГОЛОСА",
@@ -1209,8 +1209,8 @@
 	"call_night_pharmacy": {
 		"id": "call_night_pharmacy",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "НОЧНАЯ АПТЕКА №4, НА ЛИНИИ ДЕЖУРНЫЙ ФАРМАЦЕВТ",
@@ -1280,8 +1280,8 @@
 	"call_ninth_silence": {
 		"id": "call_ninth_silence",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "ВНУТРЕННЯЯ ЛИНИЯ. СМЕННЫЙ ИНЖЕНЕР УЗЛА СВЯЗИ",
@@ -1345,8 +1345,8 @@
 	"call_room_34": {
 		"id": "call_room_34",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ИЗ ОБЩЕЖИТИЯ №6, НА ЛИНИИ КОМЕНДАНТ",
@@ -1416,8 +1416,8 @@
 	"call_shelter_basement": {
 		"id": "call_shelter_basement",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ИЗ ЖЭК-4, НА ЛИНИИ ДЕЖУРНЫЙ СЛЕСАРЬ",
@@ -1490,8 +1490,8 @@
 	"call_tram_last_run": {
 		"id": "call_tram_last_run",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ИЗ ДИСПЕТЧЕРСКОЙ ТРАМВАЙНОГО ПАРКА",
@@ -1554,10 +1554,10 @@
 	"call_workshop_empty": {
 		"id": "call_workshop_empty",
 		"type": "call",
+		"properties": [],
 		"requirements": [
 			"flag_truck_seized"
 		],
-		"properties": [],
 		"chunks": [
 			{
 				"text": "ГОЛОС НЕЗНАКОМЫЙ. ОБОРОТЫ ЗНАКОМЫЕ",
@@ -1627,10 +1627,10 @@
 	"call_workshop_site": {
 		"id": "call_workshop_site",
 		"type": "call",
+		"properties": [],
 		"requirements": [
 			"flag_truck_written_off"
 		],
-		"properties": [],
 		"chunks": [
 			{
 				"text": "ТОТ ЖЕ ГОЛОС. НА ЭТОТ РАЗ ГОВОРИТ БЫСТРО",
@@ -1700,8 +1700,8 @@
 	"call_comms_outage": {
 		"id": "call_comms_outage",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК С УЗЛА СВЯЗИ",
@@ -1754,8 +1754,8 @@
 	"call_dogs_go_down": {
 		"id": "call_dogs_go_down",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК В ГАЗОВУЮ СЛУЖБУ. ЖЕНЩИНА, ВЗВОЛНОВАННАЯ",
@@ -1808,8 +1808,8 @@
 	"call_dont_blink": {
 		"id": "call_dont_blink",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК В ГАЗОВУЮ СЛУЖБУ. МУЖЧИНА, ПЕРЕПУГАННЫЙ",
@@ -1862,8 +1862,8 @@
 	"call_flooded_basement": {
 		"id": "call_flooded_basement",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК В ГАЗОВУЮ СЛУЖБУ. ГОЛОС ДВОРНИКА, ХРИПЛЫЙ",
@@ -1916,8 +1916,8 @@
 	"call_infection_ward_audit": {
 		"id": "call_infection_ward_audit",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ИЗ ИНФЕКЦИОННОГО ОТДЕЛЕНИЯ",
@@ -1973,8 +1973,8 @@
 	"call_racing_pulse": {
 		"id": "call_racing_pulse",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК С ОБЪЕКТА. ШЁПОТОМ, ПРЕРЫВИСТО",
@@ -2027,8 +2027,8 @@
 	"call_silent_collector": {
 		"id": "call_silent_collector",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ОТ ДИСПЕТЧЕРСКОЙ ВОДОКАНАЛА",
@@ -2081,8 +2081,8 @@
 	"call_talking_dog": {
 		"id": "call_talking_dog",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК В ГАЗОВУЮ СЛУЖБУ. ЖЕНЩИНА, В ГОЛОСЕ ИСТЕРИКА",
@@ -2135,8 +2135,8 @@
 	"call_wall_infection": {
 		"id": "call_wall_infection",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК В ГАЗОВУЮ СЛУЖБУ. ЖЕНСКИЙ ГОЛОС, УСТАЛЫЙ",
@@ -2189,8 +2189,8 @@
 	"call_whole_stairwell": {
 		"id": "call_whole_stairwell",
 		"type": "call",
-		"requirements": [],
 		"properties": [],
+		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ОТ УПРАВДОМА. ГОЛОС РОВНЫЙ, НО С ТРУДОМ",

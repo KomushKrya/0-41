@@ -3,8 +3,6 @@ id: radio_workshop_intro
 type: radio
 mission_id: m_workshop_intro
 status: ready
-requirements:
-  -
 properties:
   -
 ---
