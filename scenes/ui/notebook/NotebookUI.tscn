@@ -3,6 +3,8 @@
 [ext_resource type="Script" uid="uid://uqbfh34yvy8p" path="res://scripts/ui/NotebookScalesUI.cs" id="1_notebook_bars"]
 [ext_resource type="Texture2D" uid="uid://bvpts5ivxfmpf" path="res://assets/textures/Текстура для блокнота.png" id="2_page_texture"]
 [ext_resource type="FontFile" uid="uid://vmatnh8klcum" path="res://assets/fonts/BadScript-Regular.ttf" id="3_hand_font"]
+[ext_resource type="Texture2D" uid="uid://bs3a84xa45yge" path="res://assets/textures/hatch_pencil.png" id="4_hatch"]
+[ext_resource type="Texture2D" uid="uid://buh567c8ugkrf" path="res://assets/textures/bar_frame_pencil.png" id="5_bar_frame"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_row"]
 bg_color = Color(0.16, 0.15, 0.14, 0)
@@ -11,14 +13,6 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.16, 0.15, 0.14, 0)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bar_border"]
-bg_color = Color(0, 0, 0, 0)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.16, 0.15, 0.14, 0.75)
 
 [node name="NotebookUI" type="Control" unique_id=209089483]
 layout_mode = 3
@@ -51,56 +45,73 @@ text = "БЛОКНОТ СМЕНЫ"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Parameters" type="VBoxContainer" parent="." unique_id=1089044142]
-layout_mode = 0
-offset_left = 49.470413
-offset_top = 366.23523
-offset_right = 992.4704
-offset_bottom = 816.23517
-theme_override_constants/separation = 20
+[node name="Parameters" type="Control" parent="." unique_id=1089044142]
+anchors_preset = 0
+offset_left = 58.824
+offset_top = 285.294
+offset_right = 975.0
+offset_bottom = 967.0
 
-[node name="InfectionRow" type="PanelContainer" parent="Parameters" unique_id=1558206123]
-custom_minimum_size = Vector2(0, 122)
-layout_mode = 2
+[node name="InfectionRow" type="Panel" parent="Parameters" unique_id=1558206123]
+layout_mode = 0
+offset_right = 916.176
+offset_bottom = 208.706
 theme_override_styles/panel = SubResource("StyleBoxFlat_row")
 
-[node name="MarginContainer" type="MarginContainer" parent="Parameters/InfectionRow" unique_id=706511803]
-layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 14
+[node name="MarginContainer" type="Control" parent="Parameters/InfectionRow" unique_id=706511803]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="RowContent" type="HBoxContainer" parent="Parameters/InfectionRow/MarginContainer" unique_id=1075855089]
-layout_mode = 2
-theme_override_constants/separation = 16
+[node name="RowContent" type="Control" parent="Parameters/InfectionRow/MarginContainer" unique_id=1075855089]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="NameLabel" type="Label" parent="Parameters/InfectionRow/MarginContainer/RowContent" unique_id=1635922076]
-custom_minimum_size = Vector2(210, 0)
-layout_mode = 2
+layout_mode = 0
+offset_left = 7.352
+offset_right = 271.352
+offset_bottom = 78.0
 theme_override_colors/font_color = Color(0.16, 0.15, 0.14, 1)
 theme_override_fonts/font = ExtResource("3_hand_font")
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/font_size = 39
 text = "ЗАРАЖЕНИЕ"
 vertical_alignment = 1
 
-[node name="BarColumn" type="VBoxContainer" parent="Parameters/InfectionRow/MarginContainer/RowContent" unique_id=737321195]
-custom_minimum_size = Vector2(260, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 10
+[node name="BarColumn" type="Control" parent="Parameters/InfectionRow/MarginContainer/RowContent" unique_id=737321195]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="Caption" type="Label" parent="Parameters/InfectionRow/MarginContainer/RowContent/BarColumn" unique_id=763524323]
-layout_mode = 2
+layout_mode = 0
+offset_top = 92.647
+offset_right = 689.0
+offset_bottom = 160.647
 theme_override_colors/font_color = Color(0.16, 0.15, 0.14, 0.72)
 theme_override_fonts/font = ExtResource("3_hand_font")
 theme_override_font_sizes/font_size = 34
 text = "(контроль организации над распространением грибка)"
 
 [node name="AnimatedBar" type="Control" parent="Parameters/InfectionRow/MarginContainer/RowContent/BarColumn" unique_id=606540848]
-custom_minimum_size = Vector2(0, 36)
+layout_mode = 0
+anchors_preset = 0
+offset_left = 320.302
+offset_top = 12.8145
+offset_right = 913.655
+offset_bottom = 53.2265
+rotation = -0.0096
 clip_contents = true
-layout_mode = 2
 
 [node name="Background" type="ColorRect" parent="Parameters/InfectionRow/MarginContainer/RowContent/BarColumn/AnimatedBar" unique_id=1235547592]
 layout_mode = 1
@@ -109,69 +120,99 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.16, 0.15, 0.14, 0.07)
+color = Color(0.16, 0.15, 0.14, 0)
 
-[node name="MainFill" type="ColorRect" parent="Parameters/InfectionRow/MarginContainer/RowContent/BarColumn/AnimatedBar" unique_id=904715607]
+[node name="MainFill" type="TextureRect" parent="Parameters/InfectionRow/MarginContainer/RowContent/BarColumn/AnimatedBar" unique_id=904715607]
+texture_repeat = 2
 layout_mode = 0
-color = Color(0.16, 0.15, 0.14, 0.62)
+texture = ExtResource("4_hatch")
+expand_mode = 1
+stretch_mode = 1
 
 [node name="FlashFill" type="ColorRect" parent="Parameters/InfectionRow/MarginContainer/RowContent/BarColumn/AnimatedBar" unique_id=2076132601]
 visible = false
 layout_mode = 0
 color = Color(0.16, 0.15, 0.14, 0.5)
 
-[node name="Border" type="Panel" parent="Parameters/InfectionRow/MarginContainer/RowContent/BarColumn/AnimatedBar" unique_id=678444478]
+[node name="BarFrame" type="NinePatchRect" parent="Parameters/InfectionRow/MarginContainer/RowContent/BarColumn" unique_id=902537888]
+layout_mode = 0
+anchors_preset = 0
+offset_left = 313.235
+offset_top = 5.882
+offset_right = 920.588
+offset_bottom = 60.294
+rotation = -0.0096
+texture = ExtResource("5_bar_frame")
+patch_margin_left = 16
+patch_margin_top = 16
+patch_margin_right = 16
+patch_margin_bottom = 16
+axis_stretch_horizontal = 2
+axis_stretch_vertical = 2
+
+[node name="PublicityRow" type="Panel" parent="Parameters" unique_id=490983752]
+layout_mode = 0
+offset_left = 1.176
+offset_top = 230.883
+offset_right = 916.176
+offset_bottom = 439.706
+theme_override_styles/panel = SubResource("StyleBoxFlat_row")
+
+[node name="MarginContainer" type="Control" parent="Parameters/PublicityRow" unique_id=1087575695]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_bar_border")
 
-[node name="PublicityRow" type="PanelContainer" parent="Parameters" unique_id=490983752]
-custom_minimum_size = Vector2(0, 122)
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_row")
-
-[node name="MarginContainer" type="MarginContainer" parent="Parameters/PublicityRow" unique_id=1087575695]
-layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 14
-
-[node name="RowContent" type="HBoxContainer" parent="Parameters/PublicityRow/MarginContainer" unique_id=185249260]
-layout_mode = 2
-theme_override_constants/separation = 16
+[node name="RowContent" type="Control" parent="Parameters/PublicityRow/MarginContainer" unique_id=185249260]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="NameLabel" type="Label" parent="Parameters/PublicityRow/MarginContainer/RowContent" unique_id=1848972820]
-custom_minimum_size = Vector2(210, 0)
-layout_mode = 2
+layout_mode = 0
+offset_left = 19.412
+offset_right = 240.412
+offset_bottom = 78.0
 theme_override_colors/font_color = Color(0.16, 0.15, 0.14, 1)
 theme_override_fonts/font = ExtResource("3_hand_font")
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/font_size = 39
 text = "ГЛАСНОСТЬ"
 vertical_alignment = 1
 
-[node name="BarColumn" type="VBoxContainer" parent="Parameters/PublicityRow/MarginContainer/RowContent" unique_id=69836591]
-custom_minimum_size = Vector2(260, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 10
+[node name="BarColumn" type="Control" parent="Parameters/PublicityRow/MarginContainer/RowContent" unique_id=69836591]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="Caption" type="Label" parent="Parameters/PublicityRow/MarginContainer/RowContent/BarColumn" unique_id=2091934437]
-layout_mode = 2
+layout_mode = 0
+offset_left = 7.647
+offset_top = 92.647
+offset_right = 703.647
+offset_bottom = 160.647
 theme_override_colors/font_color = Color(0.16, 0.15, 0.14, 0.72)
 theme_override_fonts/font = ExtResource("3_hand_font")
 theme_override_font_sizes/font_size = 34
 text = "(контроль над СМИ)"
 
 [node name="AnimatedBar" type="Control" parent="Parameters/PublicityRow/MarginContainer/RowContent/BarColumn" unique_id=129368127]
-custom_minimum_size = Vector2(0, 36)
+layout_mode = 0
+anchors_preset = 0
+offset_left = 320.593
+offset_top = 11.3463
+offset_right = 913.946
+offset_bottom = 53.2283
+rotation = -0.0092
 clip_contents = true
-layout_mode = 2
 
 [node name="Background" type="ColorRect" parent="Parameters/PublicityRow/MarginContainer/RowContent/BarColumn/AnimatedBar" unique_id=2055050992]
 layout_mode = 1
@@ -180,69 +221,99 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.16, 0.15, 0.14, 0.07)
+color = Color(0.16, 0.15, 0.14, 0)
 
-[node name="MainFill" type="ColorRect" parent="Parameters/PublicityRow/MarginContainer/RowContent/BarColumn/AnimatedBar" unique_id=954347601]
+[node name="MainFill" type="TextureRect" parent="Parameters/PublicityRow/MarginContainer/RowContent/BarColumn/AnimatedBar" unique_id=954347601]
+texture_repeat = 2
 layout_mode = 0
-color = Color(0.16, 0.15, 0.14, 0.62)
+texture = ExtResource("4_hatch")
+expand_mode = 1
+stretch_mode = 1
 
 [node name="FlashFill" type="ColorRect" parent="Parameters/PublicityRow/MarginContainer/RowContent/BarColumn/AnimatedBar" unique_id=1948924089]
 visible = false
 layout_mode = 0
 color = Color(0.16, 0.15, 0.14, 0.5)
 
-[node name="Border" type="Panel" parent="Parameters/PublicityRow/MarginContainer/RowContent/BarColumn/AnimatedBar" unique_id=1646039342]
+[node name="BarFrame" type="NinePatchRect" parent="Parameters/PublicityRow/MarginContainer/RowContent/BarColumn" unique_id=263252240]
+layout_mode = 0
+anchors_preset = 0
+offset_left = 313.529
+offset_top = 4.411
+offset_right = 920.882
+offset_bottom = 60.293
+rotation = -0.0092
+texture = ExtResource("5_bar_frame")
+patch_margin_left = 16
+patch_margin_top = 16
+patch_margin_right = 16
+patch_margin_bottom = 16
+axis_stretch_horizontal = 2
+axis_stretch_vertical = 2
+
+[node name="LoyaltyRow" type="Panel" parent="Parameters" unique_id=400063977]
+layout_mode = 0
+offset_left = 1.176
+offset_top = 470.589
+offset_right = 916.176
+offset_bottom = 681.706
+theme_override_styles/panel = SubResource("StyleBoxFlat_row")
+
+[node name="MarginContainer" type="Control" parent="Parameters/LoyaltyRow" unique_id=418641864]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_bar_border")
 
-[node name="LoyaltyRow" type="PanelContainer" parent="Parameters" unique_id=400063977]
-custom_minimum_size = Vector2(0, 122)
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_row")
-
-[node name="MarginContainer" type="MarginContainer" parent="Parameters/LoyaltyRow" unique_id=418641864]
-layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 14
-
-[node name="RowContent" type="HBoxContainer" parent="Parameters/LoyaltyRow/MarginContainer" unique_id=1358614558]
-layout_mode = 2
-theme_override_constants/separation = 16
+[node name="RowContent" type="Control" parent="Parameters/LoyaltyRow/MarginContainer" unique_id=1358614558]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="NameLabel" type="Label" parent="Parameters/LoyaltyRow/MarginContainer/RowContent" unique_id=2045383675]
-custom_minimum_size = Vector2(210, 0)
-layout_mode = 2
+layout_mode = 0
+offset_left = 13.529
+offset_right = 266.529
+offset_bottom = 78.0
 theme_override_colors/font_color = Color(0.16, 0.15, 0.14, 1)
 theme_override_fonts/font = ExtResource("3_hand_font")
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/font_size = 39
 text = "ЛОЯЛЬНОСТЬ"
 vertical_alignment = 1
 
-[node name="BarColumn" type="VBoxContainer" parent="Parameters/LoyaltyRow/MarginContainer/RowContent" unique_id=1389924590]
-custom_minimum_size = Vector2(260, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 10
+[node name="BarColumn" type="Control" parent="Parameters/LoyaltyRow/MarginContainer/RowContent" unique_id=1389924590]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="Caption" type="Label" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/BarColumn" unique_id=1709582246]
-layout_mode = 2
+layout_mode = 0
+offset_left = 10.588
+offset_top = 95.588
+offset_right = 706.588
+offset_bottom = 163.588
 theme_override_colors/font_color = Color(0.16, 0.15, 0.14, 0.72)
 theme_override_fonts/font = ExtResource("3_hand_font")
 theme_override_font_sizes/font_size = 34
 text = "(доверие руководства ко мне)"
 
 [node name="AnimatedBar" type="Control" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/BarColumn" unique_id=351667921]
-custom_minimum_size = Vector2(0, 36)
+layout_mode = 0
+anchors_preset = 0
+offset_left = 320.613
+offset_top = 8.38479
+offset_right = 915.436
+offset_bottom = 51.7378
+rotation = -0.0121
 clip_contents = true
-layout_mode = 2
 
 [node name="Background" type="ColorRect" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/BarColumn/AnimatedBar" unique_id=1924366742]
 layout_mode = 1
@@ -251,23 +322,32 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.16, 0.15, 0.14, 0.07)
+color = Color(0.16, 0.15, 0.14, 0)
 
-[node name="MainFill" type="ColorRect" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/BarColumn/AnimatedBar" unique_id=2103446435]
+[node name="MainFill" type="TextureRect" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/BarColumn/AnimatedBar" unique_id=2103446435]
+texture_repeat = 2
 layout_mode = 0
-color = Color(0.16, 0.15, 0.14, 0.62)
+texture = ExtResource("4_hatch")
+expand_mode = 1
+stretch_mode = 1
 
 [node name="FlashFill" type="ColorRect" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/BarColumn/AnimatedBar" unique_id=669093665]
 visible = false
 layout_mode = 0
 color = Color(0.16, 0.15, 0.14, 0.5)
 
-[node name="Border" type="Panel" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/BarColumn/AnimatedBar" unique_id=1339988445]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_bar_border")
+[node name="BarFrame" type="NinePatchRect" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/BarColumn" unique_id=1907874988]
+layout_mode = 0
+anchors_preset = 0
+offset_left = 313.529
+offset_top = 1.47
+offset_right = 922.352
+offset_bottom = 58.823
+rotation = -0.0121
+texture = ExtResource("5_bar_frame")
+patch_margin_left = 16
+patch_margin_top = 16
+patch_margin_right = 16
+patch_margin_bottom = 16
+axis_stretch_horizontal = 2
+axis_stretch_vertical = 2

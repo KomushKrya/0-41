@@ -93,7 +93,7 @@ public partial class NotebookScalesUI : Control
 		return new Meter
 		{
 			Bar = GetNode<Control>($"{rowPath}/BarColumn/AnimatedBar"),
-			MainFill = GetNode<ColorRect>($"{rowPath}/BarColumn/AnimatedBar/MainFill"),
+			MainFill = GetNode<Control>($"{rowPath}/BarColumn/AnimatedBar/MainFill"),
 			FlashFill = GetNode<ColorRect>($"{rowPath}/BarColumn/AnimatedBar/FlashFill"),
 			CurrentValue = initialValue,
 			TargetValue = initialValue,
@@ -207,7 +207,7 @@ public partial class NotebookScalesUI : Control
 		}
 	}
 
-	private void SetFillRect(ColorRect fill, double fromValue, double toValue, float barWidth, float barHeight)
+	private void SetFillRect(Control fill, double fromValue, double toValue, float barWidth, float barHeight)
 	{
 		double clampedFrom = Mathf.Clamp(fromValue, MinValue, MaxValue);
 		double clampedTo = Mathf.Clamp(toValue, MinValue, MaxValue);
@@ -239,7 +239,7 @@ public partial class NotebookScalesUI : Control
 	private sealed class Meter
 	{
 		public Control Bar = null!;
-		public ColorRect MainFill = null!;
+		public Control MainFill = null!;
 		public ColorRect FlashFill = null!;
 		public double CurrentValue;
 		public double TargetValue;
