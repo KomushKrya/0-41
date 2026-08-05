@@ -23,9 +23,6 @@ public partial class PauseMenu : CanvasLayer
 	private Button _saveButton;
 	private Button _loadButton;
 
-	/// <summary>Что было с курсором до паузы — чтобы вернуть ровно это.</summary>
-	private Input.MouseModeEnum _mouseModeBeforePause = Input.MouseModeEnum.Captured;
-
 	public bool IsOpen => _root != null && _root.Visible;
 
 	public override void _Ready()
@@ -174,8 +171,7 @@ public partial class PauseMenu : CanvasLayer
 			return;
 		}
 
-		_mouseModeBeforePause = Input.MouseMode;
-		Input.MouseMode = Input.MouseModeEnum.Visible;
+		CursorMode.Show(this);
 
 		_hint.Text = string.Empty;
 		_saveButton.Disabled = !CanSave();
@@ -198,7 +194,7 @@ public partial class PauseMenu : CanvasLayer
 		_root.Visible = false;
 		GetTree().Paused = false;
 
-		Input.MouseMode = _mouseModeBeforePause;
+		CursorMode.Hide(this);
 	}
 
 	private static bool CanSave()

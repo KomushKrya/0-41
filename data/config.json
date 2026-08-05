@@ -2,8 +2,10 @@
   "timings": {
     "phoneRingSeconds": 15.0,
     "mapMarkerSeconds": 30.0,
-    "radioSeconds": 20.0,
+    "radioSeconds": 35.0,
     "shiftCallWindowSeconds": 300.0,
+    "firstCallSeconds": 10.0,
+    "callIntervalSeconds": 45.0,
     "minSecondsBetweenCalls": 12.0,
     "reportDelaySeconds": 1.0
   },
@@ -68,8 +70,8 @@
     {
       "day": 2,
       "staffLimit": 4,
-      "minCalls": 1,
-      "maxCalls": 1,
+      "minCalls": 3,
+      "maxCalls": 3,
       "requirementMultiplier": 1.15,
       "consumablesPerShift": 4,
       "standardPerShift": 1,
@@ -79,8 +81,8 @@
     {
       "day": 3,
       "staffLimit": 5,
-      "minCalls": 5,
-      "maxCalls": 7,
+      "minCalls": 4,
+      "maxCalls": 4,
       "requirementMultiplier": 1.3,
       "consumablesPerShift": 5,
       "standardPerShift": 2,
@@ -90,8 +92,8 @@
     {
       "day": 4,
       "staffLimit": 6,
-      "minCalls": 6,
-      "maxCalls": 9,
+      "minCalls": 5,
+      "maxCalls": 5,
       "requirementMultiplier": 1.5,
       "consumablesPerShift": 5,
       "standardPerShift": 2,

@@ -35,11 +35,16 @@ public partial class SettingsScreen : Control
 		new Vector2I(2560, 1440)
 	};
 
-	/// <summary>Чувствительность мыши: игрок крутит её здесь, читает игрок камеры.</summary>
-	public static float MouseSensitivity { get; private set; } = 1.0f;
+	/// <summary>
+	/// Полный экран стоит в том же списке, что и размеры окна.
+	/// Отдельного переключателя режима нет: для игрока это один вопрос — «какого
+	/// размера картинка», — и разносить его по двум спискам значит заставлять
+	/// помнить, что одна настройка отменяет другую.
+	/// Идентификатор заведомо вне диапазона индексов массива.
+	/// </summary>
+	private const int FullscreenItemId = 1000;
 
 	private OptionButton _resolution;
-	private OptionButton _windowMode;
 
 	public override void _Ready()
 	{
@@ -76,15 +81,48 @@ public partial class SettingsScreen : Control
 		}
 
 		var size = (Vector2I)file.GetValue("video", "resolution", DisplayServer.WindowGetSize());
-		var mode = (int)file.GetValue("video", "window_mode", (int)DisplayServer.WindowGetMode());
-		bool vsync = (bool)file.GetValue("video", "vsync", true);
+		bool fullscreen = (bool)file.GetValue("video", "fullscreen", false);
 
-		ApplyWindowMode((DisplayServer.WindowMode)mode, size);
-		DisplayServer.WindowSetVsyncMode(vsync
-			? DisplayServer.VSyncMode.Enabled
-			: DisplayServer.VSyncMode.Disabled);
+		if (fullscreen)
+		{
+			DisplayServer.WindowSetMode(DisplayServer.WindowMode.Fullscreen);
+			return;
+		}
 
-		MouseSensitivity = (float)(double)file.GetValue("input", "mouse_sensitivity", 1.0);
+		ApplyWindowedSize(size);
+	}
+
+	/// <summary>
+	/// Ставит окну размер — и делает это надёжно.
+	///
+	/// Здесь два подвоха, из-за которых наивный WindowSetSize молча ничего не
+	/// делает. Первый: развёрнутое или полноэкранное окно размер не меняет, из
+	/// него сначала надо выйти. Второй: размер больше экрана система обрежет
+	/// сама, и настройка «сработает» совсем не так, как выбрал игрок.
+	/// </summary>
+	private static void ApplyWindowedSize(Vector2I size)
+	{
+		if (DisplayServer.WindowGetMode() != DisplayServer.WindowMode.Windowed)
+		{
+			DisplayServer.WindowSetMode(DisplayServer.WindowMode.Windowed);
+		}
+
+		DisplayServer.WindowSetSize(FitToScreen(size));
+		CenterWindow();
+	}
+
+	/// <summary>Ужимает размер до экрана, оставляя запас на рамку и панель задач.</summary>
+	private static Vector2I FitToScreen(Vector2I size)
+	{
+		Vector2I screen = DisplayServer.ScreenGetSize();
+		if (screen.X <= 0 || screen.Y <= 0)
+		{
+			return size;
+		}
+
+		return new Vector2I(
+			Mathf.Min(size.X, screen.X - 32),
+			Mathf.Min(size.Y, screen.Y - 64));
 	}
 
 	private static void Save(string section, string key, Variant value)
@@ -129,8 +167,6 @@ public partial class SettingsScreen : Control
 		BuildAudio(column);
 		column.AddChild(new HSeparator());
 		BuildVideo(column);
-		column.AddChild(new HSeparator());
-		BuildInput(column);
 
 		column.AddChild(new Control { CustomMinimumSize = new Vector2(0.0f, 12.0f) });
 
@@ -178,57 +214,46 @@ public partial class SettingsScreen : Control
 		column.AddChild(new Label { Text = Content.Label("ui_settings_resolution") });
 
 		_resolution = new OptionButton();
-		Vector2I current = DisplayServer.WindowGetSize();
+
+		Vector2I screen = DisplayServer.ScreenGetSize();
 		for (int i = 0; i < Resolutions.Length; i++)
 		{
-			_resolution.AddItem($"{Resolutions[i].X} x {Resolutions[i].Y}", i);
-			if (Resolutions[i] == current)
+			// Размер, который заведомо не влезет в монитор, в списке не нужен:
+			// система обрежет окно, и игрок решит, что настройка сломана.
+			if (screen.X > 0 && (Resolutions[i].X > screen.X || Resolutions[i].Y > screen.Y))
 			{
-				_resolution.Select(i);
+				continue;
 			}
+
+			_resolution.AddItem($"{Resolutions[i].X} x {Resolutions[i].Y}", i);
 		}
 
+		_resolution.AddItem(Content.Label("ui_settings_window_fullscreen"), FullscreenItemId);
+
+		SelectCurrentMode();
 		_resolution.ItemSelected += OnResolutionSelected;
 		column.AddChild(_resolution);
-
-		column.AddChild(new Label { Text = Content.Label("ui_settings_window_mode") });
-
-		_windowMode = new OptionButton();
-		_windowMode.AddItem(Content.Label("ui_settings_window_windowed"), (int)DisplayServer.WindowMode.Windowed);
-		_windowMode.AddItem(Content.Label("ui_settings_window_fullscreen"), (int)DisplayServer.WindowMode.Fullscreen);
-		_windowMode.AddItem(Content.Label("ui_settings_window_borderless"), (int)DisplayServer.WindowMode.ExclusiveFullscreen);
-		_windowMode.Select(_windowMode.GetItemIndex((int)DisplayServer.WindowGetMode()));
-		_windowMode.ItemSelected += OnWindowModeSelected;
-		column.AddChild(_windowMode);
-
-		var vsync = new CheckBox
-		{
-			Text = Content.Label("ui_settings_vsync"),
-			ButtonPressed = DisplayServer.WindowGetVsyncMode() != DisplayServer.VSyncMode.Disabled
-		};
-		vsync.Toggled += OnVsyncToggled;
-		column.AddChild(vsync);
 	}
 
-	private void BuildInput(Container column)
+	/// <summary>Отмечает в списке то, что видно на экране прямо сейчас.</summary>
+	private void SelectCurrentMode()
 	{
-		column.AddChild(new Label { Text = Content.Label("ui_settings_mouse_sensitivity") });
-
-		var slider = new HSlider
+		if (DisplayServer.WindowGetMode() != DisplayServer.WindowMode.Windowed)
 		{
-			MinValue = 0.2,
-			MaxValue = 3.0,
-			Step = 0.1,
-			Value = MouseSensitivity
-		};
+			_resolution.Select(_resolution.GetItemIndex(FullscreenItemId));
+			return;
+		}
 
-		slider.ValueChanged += value =>
+		Vector2I current = DisplayServer.WindowGetSize();
+		for (int i = 0; i < _resolution.ItemCount; i++)
 		{
-			MouseSensitivity = (float)value;
-			Save("input", "mouse_sensitivity", value);
-		};
-
-		column.AddChild(slider);
+			int id = _resolution.GetItemId(i);
+			if (id != FullscreenItemId && Resolutions[id] == current)
+			{
+				_resolution.Select(i);
+				return;
+			}
+		}
 	}
 
 	// ------------------------------------------------------------------ действия
@@ -247,37 +272,24 @@ public partial class SettingsScreen : Control
 	/// <summary>Кого вернуть управление, решает тот, кто открыл: меню или пауза.</summary>
 	public event System.Action Closed;
 
+	/// <summary>
+	/// Выбран пункт списка. Приходит индекс строки, а не наш идентификатор:
+	/// строки, не влезающие в монитор, в список не попали, и нумерация сдвинута.
+	/// </summary>
 	private void OnResolutionSelected(long index)
 	{
-		Vector2I size = Resolutions[(int)index];
-		DisplayServer.WindowSetSize(size);
-		CenterWindow();
-		Save("video", "resolution", size);
-	}
+		int id = _resolution.GetItemId((int)index);
 
-	private void OnWindowModeSelected(long index)
-	{
-		var mode = (DisplayServer.WindowMode)_windowMode.GetItemId((int)index);
-		ApplyWindowMode(mode, DisplayServer.WindowGetSize());
-		Save("video", "window_mode", (int)mode);
-	}
-
-	private void OnVsyncToggled(bool pressed)
-	{
-		DisplayServer.WindowSetVsyncMode(pressed
-			? DisplayServer.VSyncMode.Enabled
-			: DisplayServer.VSyncMode.Disabled);
-		Save("video", "vsync", pressed);
-	}
-
-	private static void ApplyWindowMode(DisplayServer.WindowMode mode, Vector2I windowedSize)
-	{
-		DisplayServer.WindowSetMode(mode);
-
-		if (mode == DisplayServer.WindowMode.Windowed)
+		if (id == FullscreenItemId)
 		{
-			DisplayServer.WindowSetSize(windowedSize);
+			DisplayServer.WindowSetMode(DisplayServer.WindowMode.Fullscreen);
+			Save("video", "fullscreen", true);
+			return;
 		}
+
+		ApplyWindowedSize(Resolutions[id]);
+		Save("video", "fullscreen", false);
+		Save("video", "resolution", Resolutions[id]);
 	}
 
 	private static void CenterWindow()

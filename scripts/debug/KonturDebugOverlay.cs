@@ -32,7 +32,6 @@ public partial class KonturDebugOverlay : CanvasLayer
 	private IDisposable _radioSubscription;
 	private double _refreshAccumulator;
 	private bool _isOpen;
-	private Input.MouseModeEnum _previousMouseMode;
 	private Control _debugRoot = null!;
 	private Control _radioDecisionPreview = null!;
 
@@ -117,8 +116,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 
 		if (isOpen)
 		{
-			_previousMouseMode = Input.MouseMode;
-			Input.MouseMode = Input.MouseModeEnum.Visible;
+			CursorMode.Show(this);
 			Show();
 			RefreshStatus();
 			RefreshDispatch();
@@ -127,7 +125,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 
 		CloseRadioDecisionPreview();
 		Hide();
-		Input.MouseMode = _previousMouseMode;
+		CursorMode.Hide(this);
 	}
 
 	// ------------------------------------------------------------------ экран отправки
