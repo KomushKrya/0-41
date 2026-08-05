@@ -135,7 +135,15 @@ namespace Kontur.Core.Systems
 				}
 			}
 
-			if (!_callWindowClosed && _shiftTime >= _content.Config.Timings.ShiftCallWindowSeconds)
+			// Окно приёма закрывается, как только расписание исчерпано.
+			//
+			// Пятиминутный таймер остался от случайного подбора: тогда нельзя было
+			// знать, придёт ли ещё вызов, и приходилось ждать до упора. Сейчас
+			// расписание конечно и известно заранее — ждать нечего. Со старым
+			// правилом смена из трёх звонков, отработанная за полторы минуты,
+			// держала игрока в пустом кабинете ещё три с половиной. А расписание
+			// длиннее пяти минут, наоборот, обрывалось вместе со сменой.
+			if (!_callWindowClosed && _pending.Count == 0)
 			{
 				_callWindowClosed = true;
 				_bus.Publish(new CallWindowClosed(_state.Day, CountOpenIncidents()));
@@ -616,6 +624,15 @@ namespace Kontur.Core.Systems
 			// ДД, раздел 4: не автопровал — бросок с повышенным шансом провала.
 			incident.RadioWasMissed = true;
 			_bus.Publish(new RadioMissed(incident.Id));
+
+			// И сразу штраф по шкалам. Резать один только бросок мало: результат
+			// придёт через минуту вместе с исходом миссии, и игрок не свяжет его
+			// с тем, что промолчал в эфир. Шкалы дёргаются в тот же момент —
+			// как при пропущенном звонке, только мягче: группа на месте и действует.
+			_scales.Apply(
+				_content.Config.MissionEvents.ScalesOnMissedRadio.ToDelta(),
+				"не ответили по рации");
+
 			BeginMissionExecution(incident);
 		}
 

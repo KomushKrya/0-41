@@ -55,7 +55,7 @@ public partial class FlyPlayer : Camera3D
 		_seatedYawTransform = _yawPivot.GlobalTransform;
 		_seatedFov = Fov;
 		Current = true;
-		Input.MouseMode = Input.MouseModeEnum.Captured;
+		CursorMode.Apply();
 	}
 
 	public override void _UnhandledInput(InputEvent @event)
@@ -141,7 +141,7 @@ public partial class FlyPlayer : Camera3D
 		_returnsToFocusOrigin = returnsToViewOrigin;
 		_isViewFocused = true;
 		StartCameraTransition(CameraTransitionKind.Focus, cameraTransform, targetFov);
-		Input.MouseMode = Input.MouseModeEnum.Captured;
+		CursorMode.Apply();
 	}
 
 	public void ExitFocusedView()
@@ -162,7 +162,7 @@ public partial class FlyPlayer : Camera3D
 			CameraTransitionKind.ReturnToSeat,
 			GetRigCameraTransform(_returnYawTransform, _returnPitch),
 			returnFov);
-		Input.MouseMode = Input.MouseModeEnum.Captured;
+		CursorMode.Apply();
 	}
 
 	private void UpdateHoveredInteractable()

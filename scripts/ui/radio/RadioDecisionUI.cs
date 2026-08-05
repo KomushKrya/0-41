@@ -45,10 +45,14 @@ public partial class RadioDecisionUI : Control
 	private IReadOnlyList<RadioOptionOffer> _options = Array.Empty<RadioOptionOffer>();
 	private bool _awaitingOutcome;
 	private bool _showingOutcome;
-	private Input.MouseModeEnum _previousMouseMode;
 
 	public override void _Ready()
 	{
+		// Экран лежит поверх всего и обязан жить, даже когда дерево встало:
+		// иначе меню паузы, открытое поверх перехода, замораживает видео —
+		// а вместе с ним и невидимый блокировщик ввода на весь экран.
+		ProcessMode = ProcessModeEnum.Always;
+
 		_transitionPlayer = GetNode<VideoStreamPlayer>(TransitionPlayerPath);
 		_transitionGroup = GetNode<CanvasGroup>(TransitionGroupPath);
 		_screenContent = GetNode<Control>(ScreenContentPath);
@@ -78,6 +82,7 @@ public partial class RadioDecisionUI : Control
 
 	public override void _Process(double delta)
 	{
+
 		if (!_layoutInitialized)
 		{
 			FitScreenContentToWindow();
@@ -87,7 +92,10 @@ public partial class RadioDecisionUI : Control
 		if (_isTransitionPlaying)
 		{
 			SetMaskTexture();
+			TickTransitionGuard(delta);
 		}
+
+		TickOutcomeLock(delta);
 	}
 
 	public override void _ExitTree()
@@ -111,6 +119,7 @@ public partial class RadioDecisionUI : Control
 		_transitionPlayer.Show();
 		_transitionPlayer.Play();
 		_isTransitionPlaying = true;
+		_transitionElapsed = 0.0;
 		SetMaskTexture();
 	}
 
@@ -131,6 +140,7 @@ public partial class RadioDecisionUI : Control
 			_contentId,
 			string.Empty,
 			ContentSpanFormatter.DefaultHighlight);
+		RequestSituationFit();
 
 		for (int index = 0; index < _optionButtons.Count; index++)
 		{
@@ -144,9 +154,43 @@ public partial class RadioDecisionUI : Control
 			}
 		}
 
-		_previousMouseMode = Input.MouseMode;
-		Input.MouseMode = Input.MouseModeEnum.Visible;
+		CursorMode.Show(this);
 		ShowWithTransition();
+	}
+
+	/// <summary>Дольше этого переход не живёт, чем бы ни кончилось видео.</summary>
+	[Export] public double TransitionTimeoutSeconds { get; set; } = 4.0;
+
+	private double _transitionElapsed;
+
+	/// <summary>
+	/// Аварийное завершение перехода.
+	///
+	/// InputBlocker — прозрачный прямоугольник во весь экран с mouse_filter=Stop,
+	/// и снимался он ровно одним способом: сигналом Finished от видео. Способ
+	/// хрупкий. Стоило видео не доиграть — а оно не доигрывает, если дерево
+	/// встало на паузу или поток не открылся, — и сигнала не было уже никогда.
+	/// Экран оставался живым на вид и полностью глухим: ни мышь, ни клавиши
+	/// до кнопок не доходили.
+	///
+	/// Теперь у перехода есть предел по времени. Секунда лишнего затемнения
+	/// не стоит риска запереть игрока в смене без выхода.
+	/// </summary>
+	private void TickTransitionGuard(double delta)
+	{
+		_transitionElapsed += delta;
+
+		if (_transitionElapsed < TransitionTimeoutSeconds)
+		{
+			// Проигрыватель мог и вовсе не стартовать: например, поток не найден.
+			// Полсекунды форы на раскрутку, дальше молчание считаем отказом.
+			if (_transitionElapsed < 0.5 || _transitionPlayer.IsPlaying())
+			{
+				return;
+			}
+		}
+
+		StopTransition();
 	}
 
 	public void StopTransition()
@@ -168,6 +212,12 @@ public partial class RadioDecisionUI : Control
 
 		_awaitingOutcome = false;
 		_showingOutcome = true;
+
+		// Итог пришёл — значит, миссия отыграна и переход давно неактуален.
+		// Если он всё ещё «идёт», это сбой: снимаем принудительно, иначе
+		// блокировщик ввода не даст нажать кнопку подтверждения.
+		StopTransition();
+
 		_contentId = outcome.SummaryContentId ?? string.Empty;
 		_header.Text = outcome.IsSuccess
 			? "\u041a.\u041e.\u041d.\u0422.\u0423.\u0420.-\u0414  /  \u0418\u0422\u041e\u0413 \u041e\u041f\u0415\u0420\u0410\u0426\u0418\u0418: \u0423\u0421\u041f\u0415\u0425"
@@ -176,6 +226,7 @@ public partial class RadioDecisionUI : Control
 			_contentId,
 			string.Empty,
 			ContentSpanFormatter.DefaultHighlight);
+		RequestSituationFit();
 		_prompt.Text = "\u0421\u0412\u042f\u0417\u042c \u0417\u0410\u0412\u0415\u0420\u0428\u0415\u041d\u0410. \u0417\u0410\u0424\u0418\u041a\u0421\u0418\u0420\u0423\u0419\u0422\u0415 \u0418\u0422\u041e\u0413:";
 		_illustrationPlaceholder.Text = string.IsNullOrWhiteSpace(outcome.CreatureId)
 			? "[ \u0418\u041b\u041b\u042e\u0421\u0422\u0420\u0410\u0426\u0418\u042f\\n  \u041d\u0415\u0414\u041e\u0421\u0422\u0423\u041f\u041d\u0410 ]"
@@ -189,17 +240,77 @@ public partial class RadioDecisionUI : Control
 			bool isConfirm = index == 0;
 			_optionButtons[index].Visible = isConfirm;
 			_optionButtons[index].Disabled = !isConfirm;
-			if (isConfirm)
-			{
-				_optionButtons[index].Text = "[ ENTER ] \u041f\u041e\u0414\u0422\u0412\u0415\u0420\u0414\u0418\u0422\u042c \u0418\u0422\u041e\u0413";
-			}
 		}
+
+		StartOutcomeLock();
+	}
+
+	// ------------------------------------------------------------------ пауза на итог
+
+	/// <summary>Сколько секунд итог нельзя закрыть.</summary>
+	[Export] public double OutcomeLockSeconds { get; set; } = 3.0;
+
+	private double _outcomeLock;
+
+	/// <summary>
+	/// Держит экран итога закрытым для ввода первые секунды.
+	///
+	/// Игрок выбирает вариант нажатием ENTER, и итог появляется под тем же
+	/// пальцем: второе нажатие — своё или отскок клавиши — смахивало экран
+	/// раньше, чем взгляд успевал дойти до первой строки. Замок снимает гонку
+	/// целиком, а заодно даёт прочитать, чем всё кончилось.
+	///
+	/// Кнопка не прячется, а показывает остаток: исчезнувшая кнопка читается
+	/// как поломка, а обратный отсчёт — как «подожди, идёт приём».
+	/// </summary>
+	private void StartOutcomeLock()
+	{
+		_outcomeLock = OutcomeLockSeconds;
+		UpdateOutcomeButton();
+	}
+
+	private void TickOutcomeLock(double delta)
+	{
+		if (_outcomeLock <= 0.0)
+		{
+			return;
+		}
+
+		_outcomeLock -= delta;
+		UpdateOutcomeButton();
+	}
+
+	private void UpdateOutcomeButton()
+	{
+		if (_optionButtons.Count == 0)
+		{
+			return;
+		}
+
+		bool locked = _outcomeLock > 0.0;
+		bool wasLocked = _optionButtons[0].Disabled;
+		_optionButtons[0].Disabled = locked;
+
+		// Disabled снимает фокус, и после разблокировки кнопка остаётся ничьей.
+		// Возвращаем — тогда работает и ENTER, и пробел, и стрелки.
+		if (wasLocked && !locked)
+		{
+			_optionButtons[0].GrabFocus();
+		}
+		_optionButtons[0].Text = locked
+			? $"\u041f\u0420\u0418\u0401\u041c \u0417\u0410\u041f\u0418\u0421\u0418\u2026  {System.Math.Ceiling(_outcomeLock):0}"
+			: "[ ENTER ] \u041f\u041e\u0414\u0422\u0412\u0415\u0420\u0414\u0418\u0422\u042c \u0418\u0422\u041e\u0413";
 	}
 
 	private void ChooseOption(int optionIndex)
 	{
 		if (_showingOutcome)
 		{
+			if (_outcomeLock > 0.0)
+			{
+				return;
+			}
+
 			CloseDecision(false);
 			return;
 		}
@@ -238,6 +349,16 @@ public partial class RadioDecisionUI : Control
 
 	public override void _UnhandledInput(InputEvent @event)
 	{
+		// Кнопка обещает «[ ENTER ] ПОДТВЕРДИТЬ ИТОГ», но клавишу никто не слушал:
+		// сработать могла только мышь. Обещание в интерфейсе надо выполнять —
+		// иначе игрок жмёт ENTER, ничего не происходит, и экран выглядит зависшим.
+		if (Visible && _showingOutcome && _outcomeLock <= 0.0 && @event.IsActionPressed("ui_accept"))
+		{
+			CloseDecision(false);
+			GetViewport().SetInputAsHandled();
+			return;
+		}
+
 		if (Visible && !_awaitingOutcome && !_showingOutcome && @event.IsActionPressed("ui_cancel"))
 		{
 			CloseDecision(true);
@@ -271,7 +392,7 @@ public partial class RadioDecisionUI : Control
 		_options = Array.Empty<RadioOptionOffer>();
 		_awaitingOutcome = false;
 		_showingOutcome = false;
-		Input.MouseMode = _previousMouseMode;
+		CursorMode.Hide(this);
 	}
 
 	private void OnTransitionFinished()
@@ -302,5 +423,70 @@ public partial class RadioDecisionUI : Control
 			_transitionMaterial.SetShaderParameter("mask_texture", videoTexture);
 			_previousScreenBlurMaterial.SetShaderParameter("mask_texture", videoTexture);
 		}
+	}
+
+	// ------------------------------------------------------------------ подгонка текста
+
+	/// <summary>Крупнее этого текст не станет: размер из сцены.</summary>
+	private const int SituationFontMax = 22;
+
+	/// <summary>Мельче этого читать уже нельзя, дальше включается прокрутка.</summary>
+	private const int SituationFontMin = 14;
+
+	/// <summary>Сколько кадров ждать, пока рамке назначат размер.</summary>
+	private const int SituationFitAttempts = 8;
+
+	private int _situationFitAttempts;
+
+	private void RequestSituationFit()
+	{
+		_situationFitAttempts = SituationFitAttempts;
+		CallDeferred(nameof(FitSituationText));
+	}
+
+	/// <summary>
+	/// Подгоняет размер шрифта под рамку.
+	///
+	/// Рамка у сводки фиксированная, а длину текста пишут авторы, и она гуляет
+	/// от двух строк до полутора десятков. Лишнее просто вылезало за край и
+	/// уходило под строку «СВЯЗЬ ЗАВЕРШЕНА» — обрывалось на полуслове, причём
+	/// молча: ни прокрутки, ни многоточия, никакого признака, что текст есть
+	/// дальше. Игрок терял часть отчёта, не зная об этом.
+	///
+	/// Уменьшаем по одному пункту, пока не влезет. Прокрутка оставлена на
+	/// крайний случай: колесо в отчёте, который читают один раз, легко
+	/// не заметить, а вот шрифт на пару пунктов мельче — не помеха.
+	/// </summary>
+	private void FitSituationText()
+	{
+		if (_situationLabel == null)
+		{
+			return;
+		}
+
+		float available = _situationLabel.Size.Y;
+		if (available <= 1.0f)
+		{
+			// Рамке ещё не назначили размер. Ждём следующего кадра, но не вечно:
+			// на скрытом экране высота нулевая всегда, и цикл был бы бесконечным.
+			if (_situationFitAttempts-- > 0)
+			{
+				CallDeferred(nameof(FitSituationText));
+			}
+
+			return;
+		}
+
+		for (int size = SituationFontMax; size >= SituationFontMin; size--)
+		{
+			_situationLabel.AddThemeFontSizeOverride("normal_font_size", size);
+			if (_situationLabel.GetContentHeight() <= available)
+			{
+				_situationLabel.ScrollActive = false;
+				return;
+			}
+		}
+
+		_situationLabel.ScrollActive = true;
 	}
 }
