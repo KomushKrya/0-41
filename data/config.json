@@ -38,8 +38,8 @@
   "missionEvents": {
     "scalesOnMissedRadio": {
       "infection": 2.0,
-      "publicity": 2.0,
-      "loyalty": -3.0
+      "publicity": 0.0,
+      "loyalty": -2.0
     }
   },
   "loot": {

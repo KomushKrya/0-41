@@ -155,7 +155,7 @@ namespace Kontur.Core.Config
 
 	public sealed class MissionEventConfig
 	{
-		public ScaleDeltaConfig ScalesOnMissedRadio { get; set; } = new ScaleDeltaConfig { Infection = 2.0, Publicity = 2.0, Loyalty = -3.0 };
+		public ScaleDeltaConfig ScalesOnMissedRadio { get; set; } = new ScaleDeltaConfig { Infection = 2.0, Publicity = 0.0, Loyalty = -2.0 };
 
 		/// <summary>Надбавка к порогам за само вмешательство: выбор варианта сужает проверку, но не удешевляет её.</summary>
 		public int RequirementModifier { get; set; } = 1;

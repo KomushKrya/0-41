@@ -40,10 +40,6 @@
       "loyalty": -4.0
     },
     "reports": {
-      "": {
-        "success": "report_black_mold_carpets_success",
-        "failure": "report_black_mold_carpets_failure"
-      },
       "carpets": {
         "success": "report_black_mold_carpets_success",
         "failure": "report_black_mold_carpets_failure"
@@ -61,15 +57,13 @@
   {
     "id": "m_brother_smile",
     "day": 1,
-    "tier": "Story",
+    "tier": "Filler",
     "consequenceCap": "Injury",
     "creatureId": "creature_mimic",
     "callId": "call_brother_smile",
-    "missionEventId": "radio_brother_smile",
     "requirements": {
-      "strength": 4,
-      "intellect": 4,
-      "charisma": 4
+      "intellect": 7,
+      "charisma": 7
     },
     "primaryStat": "charisma",
     "squadLimit": 2,
@@ -102,20 +96,8 @@
     },
     "reports": {
       "": {
-        "success": "report_brother_smile_plain_success",
-        "failure": "report_brother_smile_talk_failure"
-      },
-      "pull": {
-        "success": "report_brother_smile_pull_success",
-        "failure": "report_brother_smile_pull_failure"
-      },
-      "doll": {
-        "success": "report_brother_smile_doll_success",
-        "failure": "report_brother_smile_doll_failure"
-      },
-      "talk": {
-        "success": "report_brother_smile_talk_success",
-        "failure": "report_brother_smile_talk_failure"
+        "success": "report_brother_smile_success",
+        "failure": "report_brother_smile_failure"
       }
     }
   },
@@ -161,10 +143,6 @@
       "loyalty": -5.0
     },
     "reports": {
-      "": {
-        "success": "report_construction_intruders_plain_success",
-        "failure": "report_construction_intruders_plain_failure"
-      },
       "distract": {
         "success": "report_construction_intruders_distract_success",
         "failure": "report_construction_intruders_distract_failure"
@@ -216,10 +194,6 @@
       "loyalty": -5.0
     },
     "reports": {
-      "": {
-        "success": "report_false_gas_alarm_seal",
-        "failure": "report_false_gas_alarm_seal"
-      },
       "check": {
         "success": "report_false_gas_alarm_check_success",
         "failure": "report_false_gas_alarm_seal"
@@ -272,10 +246,6 @@
       "loyalty": -5.0
     },
     "reports": {
-      "": {
-        "success": "report_missing_daughter_plain_success",
-        "failure": "report_missing_daughter_plain_failure"
-      },
       "pull": {
         "success": "report_missing_daughter_pull_success",
         "failure": "report_missing_daughter_pull_failure"
@@ -333,10 +303,6 @@
       "loyalty": -5.0
     },
     "reports": {
-      "": {
-        "success": "report_pensioner_door_plain_success",
-        "failure": "report_pensioner_door_plain_failure"
-      },
       "pass_by": {
         "success": "report_pensioner_door_pass_by_success",
         "failure": "report_pensioner_door_pass_by_failure"
@@ -393,10 +359,6 @@
       "loyalty": -5.0
     },
     "reports": {
-      "": {
-        "success": "report_urgent_evacuation_plain_success",
-        "failure": "report_urgent_evacuation_riot_failure"
-      },
       "threaten": {
         "success": "report_urgent_evacuation_threaten_success",
         "failure": "report_urgent_evacuation_riot_failure"
@@ -410,12 +372,11 @@
   {
     "id": "m_workshop_intro",
     "day": 1,
-    "tier": "Story",
+    "tier": "Filler",
     "creatureId": "",
     "callId": "call_workshop_intro",
-    "missionEventId": "radio_workshop_intro",
     "requirements": {
-      "strength": 4
+      "strength": 3
     },
     "primaryStat": "strength",
     "squadLimit": 1,
@@ -442,24 +403,17 @@
       "loyalty": -4.0
     },
     "scalesOnExpiredMarker": {
-      "infection": 3.0,
-      "publicity": 2.0,
-      "loyalty": -3.0
+      "infection": 0.0,
+      "publicity": 0.0,
+      "loyalty": -2.0
     },
     "reports": {
-      "help": {
-        "success": "report_workshop_intro_help_success",
-        "failure": "report_workshop_intro_help_failure"
-      },
-      "refuse": {
-        "success": "report_workshop_intro_refuse_success",
-        "failure": "report_workshop_intro_refuse_failure"
-      },
       "": {
-        "success": "report_workshop_intro_help_success",
-        "failure": "report_workshop_intro_help_failure"
+        "success": "report_workshop_intro_success",
+        "failure": "report_workshop_intro_failure"
       }
-    }
+    },
+    "consequenceCap": "Injury"
   },
   {
     "id": "m_ceiling_leak",
@@ -596,10 +550,6 @@
       "loyalty": -5.0
     },
     "reports": {
-      "": {
-        "success": "report_platform_wait_plain_success",
-        "failure": "report_platform_wait_plain_failure"
-      },
       "observe": {
         "success": "report_platform_wait_observe_success",
         "failure": "report_platform_wait_observe_failure"
@@ -704,10 +654,6 @@
       "refuse": {
         "success": "report_workshop_gravel_refuse_success",
         "failure": "report_workshop_gravel_refuse_failure"
-      },
-      "": {
-        "success": "report_workshop_gravel_deliver_success",
-        "failure": "report_workshop_gravel_deliver_failure"
       }
     }
   },
@@ -804,10 +750,6 @@
       "loyalty": -5.0
     },
     "reports": {
-      "": {
-        "success": "report_dense_flock_perimeter_success",
-        "failure": "report_dense_flock_perimeter_failure"
-      },
       "perimeter": {
         "success": "report_dense_flock_perimeter_success",
         "failure": "report_dense_flock_perimeter_failure"
@@ -962,10 +904,6 @@
       "loyalty": -5.0
     },
     "reports": {
-      "": {
-        "success": "report_night_pharmacy_closed_success",
-        "failure": "report_night_pharmacy_closed_failure"
-      },
       "closed": {
         "success": "report_night_pharmacy_closed_success",
         "failure": "report_night_pharmacy_closed_failure"
@@ -1073,10 +1011,6 @@
       "loyalty": -5.0
     },
     "reports": {
-      "": {
-        "success": "report_room_34_lists_success",
-        "failure": "report_room_34_lists_failure"
-      },
       "lists": {
         "success": "report_room_34_lists_success",
         "failure": "report_room_34_lists_failure"
@@ -1187,10 +1121,6 @@
       "count": {
         "success": "report_workshop_depot_count_success",
         "failure": "report_workshop_depot_count_failure"
-      },
-      "": {
-        "success": "report_workshop_depot_blind_success",
-        "failure": "report_workshop_depot_blind_failure"
       }
     }
   },
@@ -1242,10 +1172,6 @@
       "burn": {
         "success": "report_workshop_forest_burn_success",
         "failure": "report_workshop_forest_burn_failure"
-      },
-      "": {
-        "success": "report_workshop_forest_samples_success",
-        "failure": "report_workshop_forest_samples_failure"
       }
     }
   },
@@ -1291,10 +1217,6 @@
       "loyalty": -5.0
     },
     "reports": {
-      "": {
-        "success": "report_dont_blink_plain_success",
-        "failure": "report_dont_blink_plain_failure"
-      },
       "relieve": {
         "success": "report_dont_blink_relieve_success",
         "failure": "report_dont_blink_relieve_failure"
@@ -1347,10 +1269,6 @@
       "loyalty": -5.0
     },
     "reports": {
-      "": {
-        "success": "report_racing_pulse_plain_success",
-        "failure": "report_racing_pulse_plain_failure"
-      },
       "calm": {
         "success": "report_racing_pulse_calm_success",
         "failure": "report_racing_pulse_calm_failure"
@@ -1403,10 +1321,6 @@
       "loyalty": -5.0
     },
     "reports": {
-      "": {
-        "success": "report_silent_collector_plain_success",
-        "failure": "report_silent_collector_plain_failure"
-      },
       "call_out": {
         "success": "report_silent_collector_call_out_success",
         "failure": "report_silent_collector_call_out_failure"
@@ -1459,10 +1373,6 @@
       "loyalty": -5.0
     },
     "reports": {
-      "": {
-        "success": "report_talking_dog_plain_success",
-        "failure": "report_talking_dog_plain_failure"
-      },
       "listen": {
         "success": "report_talking_dog_listen_success",
         "failure": "report_talking_dog_listen_failure"
@@ -1515,10 +1425,6 @@
       "loyalty": -5.0
     },
     "reports": {
-      "": {
-        "success": "report_wall_infection_plain_success",
-        "failure": "report_wall_infection_plain_failure"
-      },
       "dosimeter": {
         "success": "report_wall_infection_dosimeter",
         "failure": "report_wall_infection_dosimeter"
@@ -1576,10 +1482,6 @@
       "loyalty": -7.0
     },
     "reports": {
-      "": {
-        "success": "report_whole_stairwell_plain_success",
-        "failure": "report_whole_stairwell_plain_failure"
-      },
       "relay": {
         "success": "report_whole_stairwell_relay_success",
         "failure": "report_whole_stairwell_relay_failure"
@@ -1642,10 +1544,6 @@
       "talk": {
         "success": "report_workshop_papers_talk_success",
         "failure": "report_workshop_papers_talk_failure"
-      },
-      "": {
-        "success": "report_workshop_papers_hide_success",
-        "failure": "report_workshop_papers_hide_failure"
       }
     }
   }

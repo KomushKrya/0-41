@@ -287,6 +287,7 @@ namespace Kontur.Core.Content
 				database.Missions[mission.Id] = mission;
 			}
 		}
+		}
 
 		private static void LoadMissionEvents(IContentSource source, ContentDatabase database, ITextCatalog? textCatalog)
 		{

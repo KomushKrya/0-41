@@ -77,25 +77,6 @@
     }
   },
   {
-    "id": "radio_brother_smile",
-    "options": {
-      "pull": {
-        "injuryChanceMultiplier": 1.6,
-        "consequenceCap": "Injury"
-      },
-      "doll": {
-        "extraScales": {
-          "loyalty": 1.0
-        }
-      },
-      "talk": {
-        "extraScales": {
-          "publicity": -1.0
-        }
-      }
-    }
-  },
-  {
     "id": "radio_construction_intruders",
     "options": {
       "distract": {
@@ -318,22 +299,6 @@
         "revealsPropertyId": "property_perekozhnik_heartbeat",
         "injuryChanceMultiplier": 1.8,
         "deathChanceMultiplier": 2.0
-      }
-    }
-  },
-  {
-    "id": "radio_workshop_intro",
-    "options": {
-      "help": {
-        "extraScales": {
-          "loyalty": 1.0
-        }
-      },
-      "refuse": {
-        "extraScales": {
-          "loyalty": -1.0
-        },
-        "consequenceCap": "None"
       }
     }
   },

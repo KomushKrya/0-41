@@ -714,6 +714,12 @@ namespace Kontur.Core.Systems
 				delta = delta.Add(incident.ChosenOption.ExtraScales);
 			}
 
+			// Непринятая рация штрафует всегда и одинаково, независимо от итога вызова.
+			if (incident.RadioWasMissed)
+			{
+				delta = delta.Add(_content.Config.MissionEvents.ScalesOnMissedRadio.ToDelta());
+			}
+
 			outcome.ScaleDelta = delta;
 			incident.Outcome = outcome;
 
@@ -743,7 +749,11 @@ namespace Kontur.Core.Systems
 				TryFindConsumable();
 			}
 
-			incident.Report = BuildReport(incident, outcome, creature, revealed);
+			// Рацию не приняли — отчёта не будет: бригада работала без указаний, и писать
+			// на компьютер нечего. Штраф за это уже начислен по шкалам.
+			incident.Report = incident.RadioWasMissed
+				? null
+				: BuildReport(incident, outcome, creature, revealed);
 
 			double returnSeconds = incident.OutboundTravelSeconds > 0.0
 				? incident.OutboundTravelSeconds
