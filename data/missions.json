@@ -909,57 +909,8 @@
         "failure": "report_night_pharmacy_placebo_failure"
       },
       "militia": {
-        "success": "report_night_pharmacy_militia_failure",
+        "success": "report_night_pharmacy_militia_success",
         "failure": "report_night_pharmacy_militia_failure"
-      }
-    }
-  },
-  {
-    "id": "m_ninth_silence",
-    "day": 3,
-    "tier": "Filler",
-    "consequenceCap": "Injury",
-    "creatureId": "",
-    "callId": "call_ninth_silence",
-    "missionEventId": "",
-    "requirements": {
-      "intellect": 4,
-      "strength": 3,
-      "combat": 3
-    },
-    "primaryStat": "intellect",
-    "squadLimit": 2,
-    "travelSeconds": 12.0,
-    "onSiteSeconds": 6.0,
-    "returnSeconds": 10.0,
-    "experienceOnSuccess": 60,
-    "experienceOnFailure": 15,
-    "injuryChance": 0.05,
-    "deathChance": 0.0,
-    "scalesOnSuccess": {
-      "infection": 0.0,
-      "publicity": 0.0,
-      "loyalty": 0.0
-    },
-    "scalesOnFailure": {
-      "infection": 0.0,
-      "publicity": 0.0,
-      "loyalty": -3.0
-    },
-    "scalesOnMissedCall": {
-      "infection": 6.0,
-      "publicity": 6.0,
-      "loyalty": -6.0
-    },
-    "scalesOnExpiredMarker": {
-      "infection": 5.0,
-      "publicity": 5.0,
-      "loyalty": -5.0
-    },
-    "reports": {
-      "": {
-        "success": "report_ninth_silence_success",
-        "failure": "report_ninth_silence_failure"
       }
     }
   },
@@ -1438,15 +1389,13 @@
   {
     "id": "m_whole_stairwell",
     "day": 4,
-    "tier": "Story",
-    "consequenceCap": "Death",
+    "tier": "Filler",
+    "consequenceCap": "Injury",
     "creatureId": "creature_perekozhnik",
     "callId": "call_whole_stairwell",
-    "missionEventId": "radio_whole_stairwell",
     "requirements": {
-      "combat": 5,
-      "charisma": 4,
-      "strength": 4
+      "combat": 6,
+      "charisma": 5
     },
     "primaryStat": "combat",
     "squadLimit": 2,
@@ -1478,17 +1427,9 @@
       "loyalty": -7.0
     },
     "reports": {
-      "relay": {
-        "success": "report_whole_stairwell_relay_success",
-        "failure": "report_whole_stairwell_relay_failure"
-      },
-      "soothe": {
-        "success": "report_whole_stairwell_soothe_success",
-        "failure": "report_whole_stairwell_soothe_failure"
-      },
-      "push_through": {
-        "success": "report_whole_stairwell_push_through_success",
-        "failure": "report_whole_stairwell_push_through_failure"
+      "": {
+        "success": "report_whole_stairwell_success",
+        "failure": "report_whole_stairwell_failure"
       }
     }
   },

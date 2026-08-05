@@ -22,7 +22,6 @@
 | 3.3 | Собаки у решётки | `m_dogs_at_grate` | chapter_1/shift_3/dogs_at_grate.md |
 | 3.4 | Дозиметр во дворе | `m_dosimeter_yard` | chapter_1/shift_3/dosimeter_yard.md |
 | 3.5 | Ночная аптека | `m_night_pharmacy` | chapter_1/shift_3/night_pharmacy.md |
-| 3.6 | Тишина на девятом | `m_ninth_silence` | chapter_1/shift_3/ninth_silence.md |
 | 3.7 | Комната 34 | `m_room_34` | chapter_1/shift_3/room_34.md |
 | 3.8 | Подвал под бомбоубежище | `m_shelter_basement` | chapter_1/shift_3/shelter_basement.md |
 | 4.1 | Дозиметр в стене | `m_wall_infection` | chapter_1/shift_4/wall_infection.md |
