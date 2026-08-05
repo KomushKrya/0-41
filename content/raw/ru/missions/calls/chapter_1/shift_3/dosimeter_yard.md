@@ -5,10 +5,7 @@ mission_id: m_dosimeter_yard
 status: draft
 mission_type: filler
 requires: харизма, боевая подготовка, интеллект
-requirements:
-  -
-properties:
-  -
+
 ---
 
 %% dev %%

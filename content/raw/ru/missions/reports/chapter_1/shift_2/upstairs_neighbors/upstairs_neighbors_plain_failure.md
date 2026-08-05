@@ -4,8 +4,7 @@ type: report
 mission_id: m_upstairs_neighbors
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: заражение растёт, жалобы соседей продолжатся до отдельного вызова. %%

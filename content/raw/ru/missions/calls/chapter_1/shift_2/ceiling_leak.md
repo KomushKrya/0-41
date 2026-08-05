@@ -5,10 +5,7 @@ mission_id: m_ceiling_leak
 status: draft
 mission_type: filler
 requires: сила, интеллект
-requirements:
-  -
-properties:
-  -
+
 ---
 
 %% dev %%

@@ -3,8 +3,6 @@ id: creature_
 type: creature
 status: draft
 name:
-requirements:
-  -
 properties:
   - property_
   - property_

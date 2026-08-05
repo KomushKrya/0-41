@@ -4,8 +4,7 @@ type: report
 mission_id: m_wall_infection
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: эффект — заражение уменьшается, гласность растёт (шумно, соседи услышали). %%

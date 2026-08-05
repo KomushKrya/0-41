@@ -4,8 +4,7 @@ type: report
 mission_id: m_ninth_silence
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: шкалы не двигаются. Ничем не заканчивается — так и задумано. %%

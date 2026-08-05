@@ -4,8 +4,7 @@ type: report
 mission_id: m_room_34
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: заражение вниз, лояльность вверх. Открывает property_mimic_routine. %%

@@ -4,8 +4,7 @@ type: report
 mission_id: m_construction_intruders
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: исход вызова без вмешательства. Эффект — гласность растёт, сотрудник ранен. %%

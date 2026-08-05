@@ -4,8 +4,7 @@ type: report
 mission_id: m_talking_dog
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: эффект — заражение растёт. %%

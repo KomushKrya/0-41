@@ -4,8 +4,7 @@ type: report
 mission_id: m_missing_daughter
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: исход вызова без вмешательства. Эффект — лояльность падает, гласность растёт. %%

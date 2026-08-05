@@ -3,10 +3,7 @@ id: radio_false_gas_alarm
 type: radio
 mission_id: m_false_gas_alarm
 status: draft
-requirements:
-  -
-properties:
-  -
+
 ---
 
 %% dev %%

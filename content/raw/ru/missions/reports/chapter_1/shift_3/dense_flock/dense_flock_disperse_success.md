@@ -4,8 +4,7 @@ type: report
 mission_id: m_dense_flock
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: заражение вниз, лояльность вверх. Открывает property_simulacre_unpredictable по данным радио. %%

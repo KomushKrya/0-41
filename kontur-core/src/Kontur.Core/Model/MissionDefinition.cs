@@ -82,6 +82,12 @@ namespace Kontur.Core.Model
 		/// <summary>Id записи звонка в текстовом движке. Пустое значение оставляет совместимый старый текст.</summary>
 		public string CallId { get; set; } = string.Empty;
 
+		/// <summary>
+		/// Флаги, без которых миссия не попадает в расписание смены. Приходят из
+		/// фронтматтера её звонка (`requirements`), выставляются ходом партии.
+		/// </summary>
+		public IReadOnlyList<string> RequiredFlags { get; set; } = new List<string>();
+
 		/// <summary>Нативное имя ссылки на запись звонка в новом ядре.</summary>
 
 		/// <summary>Краткое описание задания на экране после ответа на звонок.</summary>

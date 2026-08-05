@@ -4,8 +4,7 @@ type: report
 mission_id: m_ninth_silence
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: лояльность вниз. Формально выезд не отработан. %%

@@ -3,8 +3,6 @@ id: creature_perekozhnik
 type: creature
 status: ready
 name: Перекожник
-requirements:
-  -
 properties:
   - property_perekozhnik_eye_contact
   - property_perekozhnik_distance

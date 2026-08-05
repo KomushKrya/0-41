@@ -4,8 +4,7 @@ type: report
 mission_id: m_brother_smile
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: исход вызова без вмешательства. Эффект — заражение уменьшается. %%

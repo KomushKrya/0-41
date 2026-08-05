@@ -4,8 +4,7 @@ type: report
 mission_id: m_urgent_evacuation
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: эффект — заражение уменьшается. %%

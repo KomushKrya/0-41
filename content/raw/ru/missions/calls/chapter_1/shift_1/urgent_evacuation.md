@@ -4,10 +4,7 @@ type: call
 mission_id: m_urgent_evacuation
 status: draft
 mission_type: radio
-requirements:
-  -
-properties:
-  -
+
 ---
 
 %% dev %%

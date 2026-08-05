@@ -4,8 +4,7 @@ type: report
 mission_id: m_brother_smile
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: эффект — лояльность падает, заражение чуть растёт, сотрудник ранен, открывается статья [[creature:creature_mimic]]. %%

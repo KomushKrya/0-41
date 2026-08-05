@@ -4,8 +4,7 @@ type: report
 mission_id: m_urgent_evacuation
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: эффект — лояльность падает, гласность растёт, заражение растёт. %%

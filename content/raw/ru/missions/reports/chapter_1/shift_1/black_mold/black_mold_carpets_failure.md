@@ -4,8 +4,7 @@ type: report
 mission_id: m_black_mold
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: этот же отчёт идёт и при провале вызова без вмешательства. Эффект: гласность увеличивается, заражение не меняется либо слегка растёт. %%

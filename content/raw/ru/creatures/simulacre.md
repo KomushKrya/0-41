@@ -3,8 +3,6 @@ id: creature_simulacre
 type: creature
 status: ready
 name: Симулякр
-requirements:
-  -
 properties:
   - property_simulacre_speech
   - property_simulacre_unpredictable

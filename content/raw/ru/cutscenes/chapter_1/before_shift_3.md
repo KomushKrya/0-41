@@ -2,10 +2,7 @@
 id: cutscene_before_shift_3
 type: cutscene
 status: draft
-requirements:
-  -
-properties:
-  -
+
 ---
 
 %% dev %%

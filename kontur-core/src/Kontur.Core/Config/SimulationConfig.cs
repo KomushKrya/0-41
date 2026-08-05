@@ -156,20 +156,11 @@ namespace Kontur.Core.Config
 	public sealed class MissionEventConfig
 	{
 		public ScaleDeltaConfig ScalesOnMissedRadio { get; set; } = new ScaleDeltaConfig { Infection = 2.0, Publicity = 2.0, Loyalty = -3.0 };
-		public MissionEventQualityConfig Good { get; set; } = new MissionEventQualityConfig { RequirementModifier = 0, RiskMultiplier = 1.0 };
-		public MissionEventQualityConfig Neutral { get; set; } = new MissionEventQualityConfig { RequirementModifier = 1, RiskMultiplier = 1.0 };
-		public MissionEventQualityConfig Bad { get; set; } = new MissionEventQualityConfig { RequirementModifier = 2, RiskMultiplier = 1.5 };
-		public MissionEventQualityConfig For(Kontur.Core.Model.MissionEventQuality quality) => quality switch
-		{
-			Kontur.Core.Model.MissionEventQuality.Good => Good,
-			Kontur.Core.Model.MissionEventQuality.Bad => Bad,
-			_ => Neutral
-		};
-	}
 
-	public sealed class MissionEventQualityConfig
-	{
-		public int RequirementModifier { get; set; }
+		/// <summary>Надбавка к порогам за само вмешательство: выбор варианта сужает проверку, но не удешевляет её.</summary>
+		public int RequirementModifier { get; set; } = 1;
+
+		/// <summary>Множитель риска по умолчанию; конкретный вариант переопределяет его в data/radio.json.</summary>
 		public double RiskMultiplier { get; set; } = 1.0;
 	}
 

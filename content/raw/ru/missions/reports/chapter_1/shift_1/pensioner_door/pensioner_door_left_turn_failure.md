@@ -4,8 +4,7 @@ type: report
 mission_id: m_pensioner_door
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: эффект — заражение сильно увеличивается, открывается статья [[creature:creature_mimic]]. %%

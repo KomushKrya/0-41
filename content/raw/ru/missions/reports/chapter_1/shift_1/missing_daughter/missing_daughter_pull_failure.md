@@ -4,8 +4,7 @@ type: report
 mission_id: m_missing_daughter
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: эффект — гласность растёт, лояльность падает, сотрудник ранен, открывается статья [[creature:creature_perekozhnik]]. %%

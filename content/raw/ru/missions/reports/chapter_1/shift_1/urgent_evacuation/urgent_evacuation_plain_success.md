@@ -4,8 +4,7 @@ type: report
 mission_id: m_urgent_evacuation
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: исход вызова без вмешательства. Эффект — заражение уменьшилось. %%

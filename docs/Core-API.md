@@ -173,7 +173,7 @@ DispatchEstimateView estimate = simulation.EstimateDispatch(incidentId, employee
 
 | Событие | Поля | Кто реагирует |
 |---|---|---|
-| `ShiftStarted` | `Day`, `StaffLimit`, `ShiftNoteTitle`, `ShiftNoteText` | записка сменщика, номер дня |
+| `ShiftStarted` | `Day`, `StaffLimit`, `ShiftNoteId` | записка сменщика, номер дня; текст записки берётся из `Content` по `ShiftNoteId` |
 | `CallWindowClosed` | `Day`, `OpenIncidents` | необязательно: подсказка «новых вызовов не будет» |
 | `ShiftEnded` | `Day`, `OutroCutsceneId`, `Summary` | менеджер сцен → пререндеренный ролик |
 | `GameOverTriggered` | `Reason`, `Values`, `Day` | финальный экран под причину |

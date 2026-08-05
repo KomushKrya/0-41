@@ -4,8 +4,7 @@ type: report
 mission_id: m_ceiling_leak
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: эффект — заражение уменьшается, участок изолирован. %%

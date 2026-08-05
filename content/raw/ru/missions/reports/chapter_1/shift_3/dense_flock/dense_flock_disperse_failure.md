@@ -4,8 +4,7 @@ type: report
 mission_id: m_dense_flock
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: заражение вверх, травмы или гибель. Открывает [[creature:creature_simulacre]]. %%

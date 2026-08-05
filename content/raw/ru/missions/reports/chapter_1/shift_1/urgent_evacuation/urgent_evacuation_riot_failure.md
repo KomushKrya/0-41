@@ -4,8 +4,7 @@ type: report
 mission_id: m_urgent_evacuation
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: используется и как исход без вмешательства, и как провал варианта threaten. Эффект — заражение растёт, гласность растёт, сотрудник ранен. %%

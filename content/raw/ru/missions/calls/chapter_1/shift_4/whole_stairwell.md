@@ -4,10 +4,7 @@ type: call
 mission_id: m_whole_stairwell
 status: draft
 mission_type: radio
-requirements:
-  -
-properties:
-  -
+
 ---
 
 %% dev %%

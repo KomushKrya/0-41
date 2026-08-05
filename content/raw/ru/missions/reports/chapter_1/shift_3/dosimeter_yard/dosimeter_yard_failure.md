@@ -4,8 +4,7 @@ type: report
 mission_id: m_dosimeter_yard
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: гласность вверх. Аномалии нет вообще. %%

@@ -4,8 +4,7 @@ type: report
 mission_id: m_night_pharmacy
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: проверки нет, исход один. Гласность вверх сильно, заражение вверх. %%

@@ -3,10 +3,7 @@ id:
 type: characteristic
 status: draft
 name: 
-requirements:
-  -
-properties:
-  -
+
 ---
 
 <!-- id совпадает с id характеристики в ядре (StatKind): strength, combat,

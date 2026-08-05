@@ -4,8 +4,7 @@ type: report
 mission_id: m_false_gas_alarm
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: используется как исход варианта seal и как провал варианта check, а также на ключе "" — предрешённый исход без проверки. Эффект — гласность чуть растёт, лояльность падает. %%

@@ -2,10 +2,7 @@
 id: cutscene_intro
 type: cutscene
 status: ready
-requirements:
-  -
-properties:
-  -
+
 ---
 
 Поздравляем, оператор! Вы успешно прошли отбор и зачислены в штат специальной газовой службы.

@@ -4,8 +4,7 @@ type: report
 mission_id: m_silent_collector
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: эффект — заражение растёт. %%

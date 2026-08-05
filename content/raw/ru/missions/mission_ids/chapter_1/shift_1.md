@@ -11,9 +11,9 @@ day: 1
 |------------------|----------|
 | m_black_mold      | Чёрная плесень |
 | m_pensioner_door  | Жалоба пенсионера |
-| m_workshop_intro  | Недостача на стройбазе |
 | m_missing_daughter | Пропавшая дочь |
 | m_brother_smile   | Странная улыбка брата |
 | m_construction_intruders | Шпана пробралась на заброшенную стройку |
 | m_urgent_evacuation | Срочная эвакуация граждан |
 | m_false_gas_alarm | Пожилая отравилась газом (ложный вызов) |
+| m_workshop_intro | Знакомство с цеховиком |

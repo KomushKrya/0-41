@@ -2,10 +2,7 @@
 id: cutscene_part_1_end
 type: cutscene
 status: draft
-requirements:
-  -
-properties:
-  -
+
 ---
 
 %% dev %%

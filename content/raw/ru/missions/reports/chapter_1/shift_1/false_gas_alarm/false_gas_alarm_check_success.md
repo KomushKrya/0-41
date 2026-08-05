@@ -4,8 +4,7 @@ type: report
 mission_id: m_false_gas_alarm
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: эффект — влияния на шкалы нет, это чистый ложный вызов. %%
