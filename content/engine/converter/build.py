@@ -553,12 +553,12 @@ def parse_file(path: Path, expected_type: str, repo_root: Path) -> dict:
 
     if expected_type == "call":
         # requires автор пишет для себя и для сверки с data/missions.json, в JSON он не едет.
-        # У филлера проверка одна на всю миссию, поэтому она обязана быть составной.
+        # У филлера это единственная проверка смены, поэтому пустой она быть не может.
         requires = parse_requires(frontmatter.get("requires", ""), entry["id"], path)
-        if fields["mission_type"] == "filler" and len(requires) < 2:
+        if fields["mission_type"] == "filler" and not requires:
             raise BuildFailed(
-                f"{path}: у филлера в requires меньше двух характеристик — "
-                f"вся миссия держится на одной проверке, она должна быть составной"
+                f"{path}: у филлера пустой requires — вся миссия держится на одной "
+                f"проверке, и назвать её нужно здесь"
             )
 
     if expected_type == "creature":

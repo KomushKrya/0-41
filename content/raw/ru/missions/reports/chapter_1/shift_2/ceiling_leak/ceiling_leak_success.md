@@ -1,5 +1,5 @@
 ---
-id: report_ceiling_leak_plain_success
+id: report_ceiling_leak_success
 type: report
 mission_id: m_ceiling_leak
 status: draft
