@@ -1,7 +1,6 @@
 [gd_scene format=4 uid="uid://b3o1uq7xw67ik"]
 
 [ext_resource type="PackedScene" uid="uid://7377wvdr5u6r" path="res://assets/models/environment/office_split/interactive/notebook.glb" id="1_notebook_model"]
-[ext_resource type="PackedScene" uid="uid://cftcm74jn6lgk" path="res://assets/models/environment/office_split/interactive/pencil.glb" id="2_pencil_model"]
 [ext_resource type="Script" uid="uid://d0fbn8kr5taka" path="res://scripts/interaction/InteractionOutline.cs" id="10_bekcl"]
 [ext_resource type="Script" path="res://scripts/interaction/InspectableItemInteractable.cs" id="11_gjqh3"]
 [ext_resource type="Script" path="res://scripts/interaction/InspectableItemController.cs" id="15_item_controller"]
@@ -10,7 +9,7 @@
 [ext_resource type="Script" uid="uid://dvqxuod1kiwne" path="res://scripts/interaction/SubViewportSurfaceRenderer.cs" id="14_tqgvk"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_cyp48"]
-size = Vector2(0.16063, 0.117)
+size = Vector2(0.117, 0.16063)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ygfge"]
 size = Vector3(0.18271, 0.05307, 0.14272)
@@ -19,16 +18,14 @@ size = Vector3(0.18271, 0.05307, 0.14272)
 script = ExtResource("15_item_controller")
 ViewportInputPath = NodePath("NotebookViewportInput")
 ViewDistance = 0.16
+ViewRoll = 90.0
 
 [node name="VisualRoot" type="Node3D" parent="." unique_id=460292743]
 
 [node name="Notebook" parent="VisualRoot" unique_id=1119456037 instance=ExtResource("1_notebook_model")]
 
-[node name="Pencil" parent="VisualRoot" unique_id=57012710 instance=ExtResource("2_pencil_model")]
-transform = Transform3D(1.8328961e-10, 0.90630793, 0.42261812, -1.0000001, -2.0292296e-07, 5.4182891e-08, 2.1003209e-07, -0.42261825, 0.90630796, -0.0054301783, -0.0042575002, -0.1030509)
-
 [node name="ViewportSurface" type="MeshInstance3D" parent="VisualRoot" unique_id=1060317117]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0115, 0)
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 0, 0.0115, 0)
 mesh = SubResource("PlaneMesh_cyp48")
 
 [node name="InteractionOutline" type="Node" parent="." unique_id=60536165]
