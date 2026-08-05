@@ -54,7 +54,7 @@ public partial class SubViewportInputController : Node
 
 		IsActive = true;
 		_cursorPosition = GetCursorBounds().GetCenter();
-		Input.MouseMode = Input.MouseModeEnum.Captured;
+		CursorMode.Apply();
 		UpdateCursorVisual();
 	}
 
@@ -67,7 +67,7 @@ public partial class SubViewportInputController : Node
 			_cursor.Visible = false;
 		}
 
-		Input.MouseMode = Input.MouseModeEnum.Captured;
+		CursorMode.Apply();
 	}
 
 	public bool HandleInput(InputEvent @event)

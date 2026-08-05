@@ -156,6 +156,7 @@ namespace Kontur.Core.Content
 		public double PrimaryWeight { get; set; } = 3.0;
 		public double SecondaryWeight { get; set; } = 2.0;
 		public int StartingChoicePoolSize { get; set; }
+		public int StartingRosterSize { get; set; } = 2;
 		public int AbilitiesBase { get; set; } = 1;
 		public int SecondAbilityFromLevel { get; set; } = 3;
 	}

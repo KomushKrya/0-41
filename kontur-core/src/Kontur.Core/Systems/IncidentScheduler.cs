@@ -43,11 +43,19 @@ namespace Kontur.Core.Systems
 				return BuildScriptedSchedule(dayConfig, timings, day);
 			}
 
-			int minCalls = dayConfig.MinCalls;
-			int maxCalls = dayConfig.MaxCalls < minCalls ? minCalls : dayConfig.MaxCalls;
-			int count = _random.NextInt(minCalls, maxCalls + 1);
+			int count;
+			if (dayConfig.CallTimes.Count > 0)
+			{
+				count = dayConfig.CallTimes.Count;
+			}
+			else
+			{
+				int minCalls = dayConfig.MinCalls;
+				int maxCalls = dayConfig.MaxCalls < minCalls ? minCalls : dayConfig.MaxCalls;
+				count = _random.NextInt(minCalls, maxCalls + 1);
+			}
 
-			List<double> times = BuildCallTimes(count, timings);
+			List<double> times = BuildCallTimes(count, timings, dayConfig);
 			var usedThisShift = new HashSet<string>();
 			var usedBuildingIds = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
 
@@ -118,7 +126,20 @@ namespace Kontur.Core.Systems
 			return schedule;
 		}
 
-		private List<double> BuildCallTimes(int count, TimingConfig timings)
+		/// <summary>
+		/// Времена звонков от начала смены.
+		///
+		/// Раньше здесь были равномерные слоты с джиттером, и на дне со «звонком
+		/// ровно один» единственный вызов мог выпасть на четвёртую минуту — смена
+		/// выглядела пустой. Хуже того, времена за пределами окна молча
+		/// выбрасывались: чем больше вызовов просил день, тем меньше их доходило.
+		///
+		/// Теперь расписание жёсткое и предсказуемое: первый звонок через
+		/// FirstCallSeconds, дальше через равные CallIntervalSeconds. Никакого
+		/// броска, ничего не теряется. День, которому нужен свой ритм, задаёт
+		/// его списком callTimes.
+		/// </summary>
+		private List<double> BuildCallTimes(int count, TimingConfig timings, DayConfig dayConfig)
 		{
 			var times = new List<double>();
 			if (count <= 0)
@@ -126,29 +147,20 @@ namespace Kontur.Core.Systems
 				return times;
 			}
 
-			// Равномерные слоты с джиттером — вызовы приходят вразнобой, но не пачкой.
-			double window = timings.ShiftCallWindowSeconds;
-			double slot = window / count;
+			if (dayConfig.CallTimes.Count > 0)
+			{
+				times.AddRange(dayConfig.CallTimes);
+				times.Sort();
+				return times;
+			}
 
-			double previous = -timings.MinSecondsBetweenCalls;
+			double interval = timings.CallIntervalSeconds > 0.0
+				? timings.CallIntervalSeconds
+				: timings.MinSecondsBetweenCalls;
+
 			for (int i = 0; i < count; i++)
 			{
-				double slotStart = slot * i;
-				double jitter = _random.NextDouble() * slot * 0.8;
-				double time = slotStart + jitter;
-
-				if (time - previous < timings.MinSecondsBetweenCalls)
-				{
-					time = previous + timings.MinSecondsBetweenCalls;
-				}
-
-				if (time > window)
-				{
-					break;
-				}
-
-				times.Add(time);
-				previous = time;
+				times.Add(timings.FirstCallSeconds + (interval * i));
 			}
 
 			return times;

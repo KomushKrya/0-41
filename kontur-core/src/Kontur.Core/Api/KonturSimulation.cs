@@ -137,6 +137,12 @@ namespace Kontur.Core.Api
 			_state.Day = 0;
 
 			_scalesSystem.Reset();
+
+			// Автонабор идёт последним и вытесняет состав, расписанный в контенте.
+			// Обратный порядок был бы логичнее, но тогда отключить генерацию можно
+			// было бы только удалив людей из employees.json — а они там нужны как
+			// готовый именной состав для отладки и как образец разметки.
+			_rosterSystem.FillStartingRoster();
 		}
 
 		public CommandResult StartShift(int day)

@@ -180,6 +180,17 @@ text = "20.00%"
 horizontal_alignment = 2
 vertical_alignment = 1
 
+[node name="DeltaLabel" type="Label" parent="Parameters/InfectionRow/MarginContainer/RowContent"]
+custom_minimum_size = Vector2(92, 0)
+layout_mode = 2
+mouse_filter = 2
+modulate = Color(1, 1, 1, 0)
+theme_override_colors/font_color = Color(1, 0.42, 0.32, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 30
+text = ""
+vertical_alignment = 1
+
 [node name="Controls" type="HBoxContainer" parent="Parameters/InfectionRow/MarginContainer/RowContent"]
 layout_mode = 2
 theme_override_constants/separation = 8
@@ -307,6 +318,17 @@ theme_override_fonts/font = SubResource("SystemFont_terminal")
 theme_override_font_sizes/font_size = 26
 text = "15.00%"
 horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="DeltaLabel" type="Label" parent="Parameters/PublicityRow/MarginContainer/RowContent"]
+custom_minimum_size = Vector2(92, 0)
+layout_mode = 2
+mouse_filter = 2
+modulate = Color(1, 1, 1, 0)
+theme_override_colors/font_color = Color(1, 0.42, 0.32, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 30
+text = ""
 vertical_alignment = 1
 
 [node name="Controls" type="HBoxContainer" parent="Parameters/PublicityRow/MarginContainer/RowContent"]
@@ -438,6 +460,17 @@ text = "70.00%"
 horizontal_alignment = 2
 vertical_alignment = 1
 
+[node name="DeltaLabel" type="Label" parent="Parameters/LoyaltyRow/MarginContainer/RowContent"]
+custom_minimum_size = Vector2(92, 0)
+layout_mode = 2
+mouse_filter = 2
+modulate = Color(1, 1, 1, 0)
+theme_override_colors/font_color = Color(1, 0.42, 0.32, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 30
+text = ""
+vertical_alignment = 1
+
 [node name="Controls" type="HBoxContainer" parent="Parameters/LoyaltyRow/MarginContainer/RowContent"]
 layout_mode = 2
 theme_override_constants/separation = 8
@@ -496,3 +529,15 @@ theme_override_colors/font_color = Color(0.52, 0.78, 0.48, 1)
 theme_override_fonts/font = SubResource("SystemFont_terminal")
 theme_override_font_sizes/font_size = 24
 text = "СВОДКА СОСТОЯНИЯ СЕКТОРА"
+
+[node name="SummaryLine" type="Label" parent="."]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 686.0
+offset_right = 948.0
+offset_bottom = 748.0
+theme_override_colors/font_color = Color(0.95, 0.66, 0.52, 1)
+theme_override_fonts/font = SubResource("SystemFont_terminal")
+theme_override_font_sizes/font_size = 26
+text = "обстановка в пределах нормы"
+vertical_alignment = 1

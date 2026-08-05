@@ -192,6 +192,7 @@ namespace Kontur.Core.Content
 			settings.StatPointsBase = dto.StatPointsBase; settings.StatPointsPerLevel = dto.StatPointsPerLevel;
 			settings.PrimaryWeight = dto.PrimaryWeight; settings.SecondaryWeight = dto.SecondaryWeight;
 			settings.StartingChoicePoolSize = dto.StartingChoicePoolSize;
+			settings.StartingRosterSize = dto.StartingRosterSize;
 			settings.AbilitiesBase = dto.AbilitiesBase; settings.SecondAbilityFromLevel = dto.SecondAbilityFromLevel;
 			if (dto.BioSlots != null) settings.BioSlots.AddRange(dto.BioSlots);
 			if (dto.Surnames != null) settings.Surnames.AddRange(dto.Surnames);

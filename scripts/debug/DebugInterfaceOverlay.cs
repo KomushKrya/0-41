@@ -213,11 +213,11 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 		{
 			CloseInterface();
 			SetInteractionAreaDebugEnabled(false);
-			Input.MouseMode = Input.MouseModeEnum.Captured;
+			CursorMode.Hide(this);
 			return;
 		}
 
-		Input.MouseMode = Input.MouseModeEnum.Visible;
+		CursorMode.Show(this);
 		UpdateText();
 	}
 
@@ -628,7 +628,9 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 
 		string areasState = _isInteractionAreaDebugEnabled ? "areas:on" : "areas:off";
 		string layoutState = _isMapLayoutDebugEnabled ? "map-layout:on" : "map-layout:off";
-		_title.Text = $"DEBUG INTERFACE: {_activeInterfaceName} | {areasState} | {layoutState}";
+		// Кто держит курсор — прямо в заголовке: пропавшая мышь всегда означает,
+		// что держатель не отпустил, и искать его лучше по имени, а не по коду.
+		_title.Text = $"DEBUG INTERFACE: {_activeInterfaceName} | {areasState} | {layoutState} | {CursorMode.DescribeHolders()}";
 		_help.Text = "F1: interaction ray + all hitboxes | F2: session data | F3: debug on/off | F4: interaction areas | F5: map layout | F6: core simulation | F12: noclip | 1: PC | 2: MAP | 3: DOSSIER | 4: NOTEBOOK | Esc: close";
 	}
 }

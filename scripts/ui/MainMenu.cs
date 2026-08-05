@@ -17,7 +17,7 @@ public partial class MainMenu : Control
 	{
 		// Меню может открыться после кабинета, где курсор захвачен камерой.
 		// Сам экран отвечает за свой режим ввода, а не рассчитывает на путь перехода.
-		Input.MouseMode = Input.MouseModeEnum.Visible;
+		CursorMode.Show(this);
 
 		AnchorRight = 1.0f;
 		AnchorBottom = 1.0f;

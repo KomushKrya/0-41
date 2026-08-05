@@ -68,6 +68,50 @@ namespace Kontur.Core.Systems
 			return _state.StartingChoice;
 		}
 
+		/// <summary>
+		/// Набирает стартовый состав случайными людьми — вместо того чтобы
+		/// спрашивать игрока до начала игры.
+		///
+		/// Выбор состава на пустом месте выбором не был: у игрока ещё нет ни
+		/// одной миссии, по которой он мог бы понять, кто ему нужен, и решение
+		/// принималось наугад из шести незнакомых карточек. Диспетчер и по сюжету
+		/// получает смену такой, какая есть.
+		///
+		/// Ничего не удалено и всё обратимо: ноль в <c>startingRosterSize</c>
+		/// возвращает именной состав из employees.json, а ненулевой
+		/// <c>startingChoicePoolSize</c> — экран выбора.
+		/// </summary>
+		public void FillStartingRoster()
+		{
+			int wanted = System.Math.Min(_content.Generator.StartingRosterSize, GetStaffLimit(1));
+			if (wanted <= 0 || !_content.Generator.IsEnabled)
+			{
+				return;
+			}
+
+			// Именной состав из контента уже лежит в списке — он проигрывает генератору.
+			_state.Roster.Clear();
+
+			IReadOnlyList<HireCandidate> generated = _factory.Generate(
+				1,
+				wanted,
+				CollectNames(),
+				CollectIds(),
+				CollectPortraits());
+
+			for (int i = 0; i < generated.Count; i++)
+			{
+				Employee employee = generated[i].Template.Clone();
+				employee.Status = EmployeeStatus.Available;
+				_state.Roster.Add(employee);
+				_state.HiredCandidateIds.Add(employee.Id);
+				_bus.Publish(new EmployeeHired(employee.Id, employee.Name, 1));
+			}
+
+			// Иначе поток игры на первом же кадре спросит про стартовый состав.
+			_state.StartingRosterConfirmed = true;
+		}
+
 		public bool TryConfirmStartingRoster(IReadOnlyList<string> candidateIds, out string error)
 		{
 			if (_state.StartingRosterConfirmed)

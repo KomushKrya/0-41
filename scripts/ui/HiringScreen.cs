@@ -34,6 +34,10 @@ public partial class HiringScreen : Control
 		AnchorRight = 1.0f;
 		AnchorBottom = 1.0f;
 
+		// Сюда приходят прямо из кабинета, где мышь захвачена игроком.
+		// Без этой строки карточки кандидатов не нажать: курсора не видно.
+		CursorMode.Show(this);
+
 		if (GameFlow.Instance != null)
 		{
 			_isStartingChoice = GameFlow.Instance.HiringIsStartingChoice;
@@ -184,7 +188,15 @@ public partial class HiringScreen : Control
 		{
 			CustomMinimumSize = new Vector2(240.0f, 0.0f),
 			SizeFlagsHorizontal = SizeFlags.ExpandFill,
-			SizeFlagsVertical = SizeFlags.ExpandFill
+			SizeFlagsVertical = SizeFlags.ExpandFill,
+
+			// Страховка от наползания карточек друг на друга. Подпись без переноса
+			// требует себе всю ширину строки, и колонка внутри карточки честно
+			// вырастает под неё — Panel детей не обрезает, поэтому лишнее
+			// рисовалось поверх соседа. Перенос ниже убирает причину, а это —
+			// последствие: даже если завтра появится длинное слово без пробелов,
+			// оно упрётся в край карточки, а не в чужую.
+			ClipContents = true
 		};
 
 		var column = new VBoxContainer
@@ -199,7 +211,11 @@ public partial class HiringScreen : Control
 		column.AddThemeConstantOverride("separation", 8);
 		card.AddChild(column);
 
-		var name = new Label { Text = candidate.Name };
+		var name = new Label
+		{
+			Text = candidate.Name,
+			TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis
+		};
 		name.AddThemeFontSizeOverride("font_size", 20);
 		column.AddChild(name);
 
@@ -208,7 +224,12 @@ public partial class HiringScreen : Control
 			Text = Content.Label("ui_hiring_candidate_rank",
 				"rank", candidate.RankTitle,
 				"level", candidate.Level.ToString()),
-			Modulate = new Color(1.0f, 1.0f, 1.0f, 0.6f)
+			Modulate = new Color(1.0f, 1.0f, 1.0f, 0.6f),
+
+			// «техник-оператор, уровень 1» в 240 пикселей не влезает. Без переноса
+			// подпись растягивала колонку и выталкивала её за край карточки —
+			// вместе со всеми числами характеристик.
+			AutowrapMode = TextServer.AutowrapMode.WordSmart
 		});
 
 		column.AddChild(new HSeparator());
@@ -224,7 +245,12 @@ public partial class HiringScreen : Control
 			line.AddChild(new Label
 			{
 				Text = Content.NameOf(kind.ToString().ToLowerInvariant()),
-				SizeFlagsHorizontal = SizeFlags.ExpandFill
+				SizeFlagsHorizontal = SizeFlags.ExpandFill,
+
+				// Подпись ужимается многоточием, число справа не двигается:
+				// «Боевая подготовка» без этого выпихивало бы шестёрку за карточку.
+				TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis,
+				ClipText = true
 			});
 			line.AddChild(new Label { Text = candidate.Stats[kind].ToString() });
 			column.AddChild(line);
@@ -304,7 +330,11 @@ public partial class HiringScreen : Control
 			Text = "· " + caption,
 			TooltipText = tooltip,
 			MouseFilter = MouseFilterEnum.Stop,
-			Modulate = new Color(0.62f, 0.85f, 0.62f)
+			Modulate = new Color(0.62f, 0.85f, 0.62f),
+
+			// Названия особенностей пишут авторы, и длину их никто не ограничивает.
+			// Переносим, а не режем: обрубленное название особенности бесполезно.
+			AutowrapMode = TextServer.AutowrapMode.WordSmart
 		};
 	}
 

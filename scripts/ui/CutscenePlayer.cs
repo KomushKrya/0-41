@@ -29,6 +29,8 @@ public partial class CutscenePlayer : Control
 		AnchorRight = 1.0f;
 		AnchorBottom = 1.0f;
 
+		CursorMode.Show(this);
+
 		BuildUi();
 
 		string cutsceneId = GameFlow.Instance != null
