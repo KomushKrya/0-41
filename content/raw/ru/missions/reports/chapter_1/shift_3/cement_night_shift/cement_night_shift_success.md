@@ -4,8 +4,7 @@ type: report
 mission_id: m_cement_night_shift
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: заражение вниз. Тот самый отвал — источник заражения города. %%

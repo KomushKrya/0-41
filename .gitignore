@@ -44,13 +44,17 @@ __pycache__/
 *.pyc
 venv/
 
-# Собранный текст генерируется из content/raw конвертером content/engine/converter/build.py.
-# Результат хранится в репозитории: чистый клон должен запускаться без локального кеша
-# и без обязательного шага генерации перед первым запуском.
 .obsidian/
+
+# Собранный текст — производная от content/raw, генерируется конвертером
+# content/engine/converter/build.py. В репозитории держим только исходники:
+#     python content/engine/converter/build.py --include-drafts
+/content/localisation/
 
 # Claude Code project config / local MCP server registration
 .claude/
 .mcp.json
 AGENTS.md
 /content/raw/Миссии всех смен.docx
+/content/raw/4 миссия цеховика.docx
+/content/raw/Что нужно_3.docx

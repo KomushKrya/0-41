@@ -12,18 +12,28 @@ using Kontur.Core.Model;
 /// Разница только в источнике списка и в правиле «сколько можно взять», поэтому
 /// делать два экрана было бы копированием без смысла.
 ///
-/// Художественного оформления нет: это рабочий каркас с настоящими данными.
+/// Вёрстка лежит в HiringScreen.tscn и правится в редакторе. Сама карточка —
+/// отдельная сцена HireCandidateCard.tscn: их число зависит от пула, поэтому
+/// в сцене экрана их нет, скрипт создаёт нужное количество копий шаблона.
 /// </summary>
 public partial class HiringScreen : Control
 {
+	[Export] public NodePath TitlePath { get; set; } = new("Column/Title");
+	[Export] public NodePath CardRowPath { get; set; } = new("Column/Scroll/Row");
+	[Export] public NodePath CounterPath { get; set; } = new("Column/Footer/Counter");
+	[Export] public NodePath ConfirmButtonPath { get; set; } = new("Column/Footer/ConfirmButton");
+
+	/// <summary>Сцена карточки кандидата. Задаётся в HiringScreen.tscn.</summary>
+	[Export] public PackedScene CandidateCardScene { get; set; }
+
 	private readonly List<HireCandidateView> _candidates = new();
 	private readonly HashSet<string> _picked = new();
-	private readonly Dictionary<string, Panel> _cards = new();
+	private readonly Dictionary<string, HireCandidateCard> _cards = new();
 
 	private Label _title;
 	private Label _counter;
 	private Button _confirm;
-	private HBoxContainer _row;
+	private Control _row;
 
 	private bool _isStartingChoice;
 	private int _day = 1;
@@ -31,9 +41,6 @@ public partial class HiringScreen : Control
 
 	public override void _Ready()
 	{
-		AnchorRight = 1.0f;
-		AnchorBottom = 1.0f;
-
 		// Сюда приходят прямо из кабинета, где мышь захвачена игроком.
 		// Без этой строки карточки кандидатов не нажать: курсора не видно.
 		CursorMode.Show(this);
@@ -44,7 +51,7 @@ public partial class HiringScreen : Control
 			_day = GameFlow.Instance.HiringDay;
 		}
 
-		BuildUi();
+		BindUi();
 		LoadCandidates();
 	}
 
@@ -64,11 +71,15 @@ public partial class HiringScreen : Control
 			? simulation.GetStartingChoice()
 			: simulation.GetHireCandidates(_day));
 
-		// Сколько человек можно взять. При стартовом выборе это весь штат,
-		// при доборе — только свободные места.
+		// Сколько человек можно взять. При стартовом выборе это весь штат первой
+		// смены, при доборе — только свободные места.
+		//
+		// Штат берётся у первого дня, а не из текущего состояния: до начала смены
+		// день ещё нулевой, и GetStatus вернул бы лимит для несуществующего дня.
+		// Ядро при подтверждении сверяется именно с лимитом первой смены.
 		ShiftStatusView status = simulation.GetStatus();
 		_slots = _isStartingChoice
-			? status.StaffLimit
+			? simulation.Config.GetStaffLimit(1)
 			: CountFreeSlots(simulation, status);
 
 		_title.Text = _isStartingChoice
@@ -102,245 +113,55 @@ public partial class HiringScreen : Control
 		return free < 0 ? 0 : free;
 	}
 
-	// ------------------------------------------------------------------ вёрстка
+	// ------------------------------------------------------------------ узлы сцены
 
-	private void BuildUi()
+	private void BindUi()
 	{
-		var background = new ColorRect
-		{
-			Color = new Color(0.06f, 0.07f, 0.09f),
-			AnchorRight = 1.0f,
-			AnchorBottom = 1.0f
-		};
-		AddChild(background);
+		_title = GetNode<Label>(TitlePath);
+		_row = GetNode<Control>(CardRowPath);
+		_counter = GetNode<Label>(CounterPath);
 
-		var column = new VBoxContainer
-		{
-			AnchorRight = 1.0f,
-			AnchorBottom = 1.0f,
-			OffsetLeft = 32.0f,
-			OffsetTop = 24.0f,
-			OffsetRight = -32.0f,
-			OffsetBottom = -24.0f
-		};
-		column.AddThemeConstantOverride("separation", 16);
-		AddChild(column);
-
-		_title = new Label { Text = Content.Label("ui_hiring_title") };
-		_title.AddThemeFontSizeOverride("font_size", 28);
-		column.AddChild(_title);
-
-		// Карточек бывает больше трёх: список найма растёт вместе с дырой в штате,
-		// и на поздних сменах их может быть вдвое больше мест. Без прокрутки
-		// HBoxContainer сжал бы их до нечитаемой ширины.
-		var scroll = new ScrollContainer
-		{
-			SizeFlagsVertical = SizeFlags.ExpandFill,
-			HorizontalScrollMode = ScrollContainer.ScrollMode.Auto,
-			VerticalScrollMode = ScrollContainer.ScrollMode.Disabled
-		};
-		column.AddChild(scroll);
-
-		_row = new HBoxContainer
-		{
-			SizeFlagsVertical = SizeFlags.ExpandFill
-		};
-		_row.AddThemeConstantOverride("separation", 12);
-		scroll.AddChild(_row);
-
-		var footer = new HBoxContainer();
-		footer.AddThemeConstantOverride("separation", 12);
-		column.AddChild(footer);
-
-		_counter = new Label { SizeFlagsHorizontal = SizeFlags.ExpandFill };
-		footer.AddChild(_counter);
-
-		_confirm = new Button
-		{
-			Text = Content.Label("ui_hiring_confirm"),
-			CustomMinimumSize = new Vector2(160.0f, 40.0f)
-		};
+		_confirm = GetNode<Button>(ConfirmButtonPath);
+		_confirm.Text = Content.Label("ui_hiring_confirm");
 		_confirm.Pressed += OnConfirm;
-		footer.AddChild(_confirm);
+
+		_title.Text = Content.Label("ui_hiring_title");
 	}
 
 	private void BuildCards()
 	{
 		foreach (Node child in _row.GetChildren())
 		{
+			_row.RemoveChild(child);
 			child.QueueFree();
 		}
 
 		_cards.Clear();
 
+		if (CandidateCardScene == null)
+		{
+			// Без шаблона рисовать нечего, а молчать нельзя: экран выглядел бы
+			// пустым, и причину пришлось бы искать в сцене вслепую.
+			GD.PushError("[НАЙМ] Не задана сцена карточки кандидата (CandidateCardScene).");
+			return;
+		}
+
 		for (int i = 0; i < _candidates.Count; i++)
 		{
 			HireCandidateView candidate = _candidates[i];
-			Panel card = BuildCard(candidate);
+
+			var card = CandidateCardScene.Instantiate<HireCandidateCard>();
 			_row.AddChild(card);
+			card.Setup(candidate);
+			card.PickToggled += OnCardToggled;
+
 			_cards[candidate.Id] = card;
 		}
 	}
 
-	private Panel BuildCard(HireCandidateView candidate)
-	{
-		var card = new Panel
-		{
-			CustomMinimumSize = new Vector2(240.0f, 0.0f),
-			SizeFlagsHorizontal = SizeFlags.ExpandFill,
-			SizeFlagsVertical = SizeFlags.ExpandFill,
-
-			// Страховка от наползания карточек друг на друга. Подпись без переноса
-			// требует себе всю ширину строки, и колонка внутри карточки честно
-			// вырастает под неё — Panel детей не обрезает, поэтому лишнее
-			// рисовалось поверх соседа. Перенос ниже убирает причину, а это —
-			// последствие: даже если завтра появится длинное слово без пробелов,
-			// оно упрётся в край карточки, а не в чужую.
-			ClipContents = true
-		};
-
-		var column = new VBoxContainer
-		{
-			AnchorRight = 1.0f,
-			AnchorBottom = 1.0f,
-			OffsetLeft = 12.0f,
-			OffsetTop = 12.0f,
-			OffsetRight = -12.0f,
-			OffsetBottom = -12.0f
-		};
-		column.AddThemeConstantOverride("separation", 8);
-		card.AddChild(column);
-
-		var name = new Label
-		{
-			Text = candidate.Name,
-			TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis
-		};
-		name.AddThemeFontSizeOverride("font_size", 20);
-		column.AddChild(name);
-
-		column.AddChild(new Label
-		{
-			Text = Content.Label("ui_hiring_candidate_rank",
-				"rank", candidate.RankTitle,
-				"level", candidate.Level.ToString()),
-			Modulate = new Color(1.0f, 1.0f, 1.0f, 0.6f),
-
-			// «техник-оператор, уровень 1» в 240 пикселей не влезает. Без переноса
-			// подпись растягивала колонку и выталкивала её за край карточки —
-			// вместе со всеми числами характеристик.
-			AutowrapMode = TextServer.AutowrapMode.WordSmart
-		});
-
-		column.AddChild(new HSeparator());
-
-		// Характеристики. Подпись берётся из текстового движка, а не пишется здесь
-		// строкой: id записи characteristic совпадает с именем StatKind, поэтому
-		// переименование правится в одном месте — в content/raw.
-		for (int i = 0; i < StatKinds.All.Length; i++)
-		{
-			StatKind kind = StatKinds.All[i];
-
-			var line = new HBoxContainer();
-			line.AddChild(new Label
-			{
-				Text = Content.NameOf(kind.ToString().ToLowerInvariant()),
-				SizeFlagsHorizontal = SizeFlags.ExpandFill,
-
-				// Подпись ужимается многоточием, число справа не двигается:
-				// «Боевая подготовка» без этого выпихивало бы шестёрку за карточку.
-				TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis,
-				ClipText = true
-			});
-			line.AddChild(new Label { Text = candidate.Stats[kind].ToString() });
-			column.AddChild(line);
-		}
-
-		column.AddChild(new HSeparator());
-		column.AddChild(new Label
-		{
-			Text = Content.Label("ui_hiring_abilities"),
-			Modulate = new Color(1.0f, 1.0f, 1.0f, 0.6f)
-		});
-
-		if (candidate.AbilityIds.Count == 0)
-		{
-			column.AddChild(new Label
-			{
-				Text = Content.Label("ui_hiring_abilities_none"),
-				Modulate = new Color(1.0f, 1.0f, 1.0f, 0.4f)
-			});
-		}
-		else
-		{
-			for (int i = 0; i < candidate.AbilityIds.Count; i++)
-			{
-				column.AddChild(BuildPerkLabel(candidate.AbilityIds[i]));
-			}
-		}
-
-		column.AddChild(new Control { SizeFlagsVertical = SizeFlags.ExpandFill });
-
-		var pick = new Button
-		{
-			Text = Content.Label("ui_hiring_take"),
-			ToggleMode = true,
-			CustomMinimumSize = new Vector2(0.0f, 36.0f)
-		};
-		pick.Toggled += pressed => OnCardToggled(candidate.Id, pressed, pick);
-		column.AddChild(pick);
-
-		return card;
-	}
-
-	/// <summary>
-	/// Название перка и пояснение берутся из текстового движка по тому же id,
-	/// что лежит в данных способности. Нет записи — показываем сам id: так
-	/// пропущенный текст виден сразу, а не выглядит пустым местом.
-	/// </summary>
-	private Label BuildPerkLabel(string abilityId)
-	{
-		string caption = abilityId;
-		string tooltip = string.Empty;
-
-		Content content = Content.Instance;
-		if (content != null && content.TryGetEntry(abilityId, out ContentEntry entry))
-		{
-			if (!string.IsNullOrEmpty(entry.Name))
-			{
-				caption = entry.Name;
-			}
-
-			var builder = new System.Text.StringBuilder();
-			for (int i = 0; i < entry.Chunks.Count; i++)
-			{
-				if (i > 0)
-				{
-					builder.Append('\n');
-				}
-
-				builder.Append(entry.Chunks[i].Text);
-			}
-
-			tooltip = builder.ToString();
-		}
-
-		return new Label
-		{
-			Text = "· " + caption,
-			TooltipText = tooltip,
-			MouseFilter = MouseFilterEnum.Stop,
-			Modulate = new Color(0.62f, 0.85f, 0.62f),
-
-			// Названия особенностей пишут авторы, и длину их никто не ограничивает.
-			// Переносим, а не режем: обрубленное название особенности бесполезно.
-			AutowrapMode = TextServer.AutowrapMode.WordSmart
-		};
-	}
-
 	// ------------------------------------------------------------------ выбор
 
-	private void OnCardToggled(string candidateId, bool pressed, Button button)
+	private void OnCardToggled(HireCandidateCard card, bool pressed)
 	{
 		if (pressed)
 		{
@@ -348,15 +169,15 @@ public partial class HiringScreen : Control
 			// нельзя: игрок не поймёт, куда делся его выбор.
 			if (_picked.Count >= _slots)
 			{
-				button.SetPressedNoSignal(false);
+				card.SetPickedNoSignal(false);
 				return;
 			}
 
-			_picked.Add(candidateId);
+			_picked.Add(card.CandidateId);
 		}
 		else
 		{
-			_picked.Remove(candidateId);
+			_picked.Remove(card.CandidateId);
 		}
 
 		RefreshCounter();

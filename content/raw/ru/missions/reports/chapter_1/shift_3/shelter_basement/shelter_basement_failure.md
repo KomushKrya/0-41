@@ -4,8 +4,7 @@ type: report
 mission_id: m_shelter_basement
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: заражение вверх, травмы. %%

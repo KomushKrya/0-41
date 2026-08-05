@@ -6,16 +6,6 @@ public sealed class ContentEntry
 	public string Id = string.Empty;
 	public string Type = string.Empty;
 	public string Name = string.Empty;
-	public string Outcome = string.Empty;
-
-	/// <summary>Только у call: "radio" — вмешательство по рации, "filler" — одна проверка.</summary>
-	public string MissionType = string.Empty;
-
-	/// <summary>
-	/// У call, radio и report: id миссии из mission_ids/. Название миссии живёт там
-	/// одно на всех, а тексты ссылаются на него, а не хранят своё.
-	/// </summary>
-	public string MissionId = string.Empty;
 
 	/// <summary>
 	/// Только у bio_line: в какое место анкеты встаёт фраза — build, temper,
@@ -23,12 +13,14 @@ public sealed class ContentEntry
 	/// </summary>
 	public string Slot = string.Empty;
 
-	public int Day;
-	public IReadOnlyList<string> Requirements = new List<string>();
+	/// <summary>Только у creature: id условных блоков %% reveal %% в теле статьи.</summary>
 	public IReadOnlyList<string> Properties = new List<string>();
 
-	/// <summary>Имена подстановок {{имя}}, встреченные в тексте: что игра должна заполнить.</summary>
-	public IReadOnlyList<string> Variables = new List<string>();
+	/// <summary>
+	/// Только у call: флаги, без которых вызов не попадает в расписание смены.
+	/// Выставляет их геймплей по ходу партии — например, выбором на прошлом выезде.
+	/// </summary>
+	public IReadOnlyList<string> Requirements = new List<string>();
 
 	public IReadOnlyList<ContentChunk> Chunks = new List<ContentChunk>();
 	public IReadOnlyList<ContentOption> Options = new List<ContentOption>();

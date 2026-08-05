@@ -4,8 +4,7 @@ type: report
 mission_id: m_black_mold
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: эффект — гласность уменьшается, заражение уменьшается. %%

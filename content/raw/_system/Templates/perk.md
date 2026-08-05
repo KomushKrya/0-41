@@ -3,10 +3,7 @@ id: ab_
 type: perk
 status: draft
 name:
-requirements:
-  -
-properties:
-  -
+
 ---
 
 <!-- Перк (спецспособность) сотрудника. Показывается в досье на столе.

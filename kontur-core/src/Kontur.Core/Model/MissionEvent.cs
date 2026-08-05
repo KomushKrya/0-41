@@ -8,12 +8,14 @@ namespace Kontur.Core.Model
 	{
 		public string Id { get; set; } = string.Empty;
 		public int RequirementModifier { get; set; }
-		public MissionEventQuality Quality { get; set; } = MissionEventQuality.Neutral;
 		public IReadOnlyList<StatKind> CheckedStats { get; set; } = new List<StatKind>();
 		public double DeathChanceMultiplier { get; set; } = 1.0;
 		public double InjuryChanceMultiplier { get; set; } = 1.0;
 		public ScaleDelta ExtraScales { get; set; } = ScaleDelta.Zero;
 		public string? RevealsPropertyId { get; set; }
+
+		/// <summary>Флаг, который выбор ставит партии: по нему открываются вызовы дальше.</summary>
+		public string? SetsFlagId { get; set; }
 		public ConsequenceCap? ConsequenceCapOverride { get; set; }
 		public string? RequiresEquipmentId { get; set; }
 

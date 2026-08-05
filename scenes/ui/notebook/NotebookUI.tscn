@@ -1,543 +1,353 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene format=3 uid="uid://c402kta88y4m7"]
 
-[ext_resource type="Script" path="res://scripts/ui/NotebookScalesUI.cs" id="1_notebook_bars"]
-
-[sub_resource type="SystemFont" id="SystemFont_terminal"]
-font_names = PackedStringArray("Cascadia Mono", "Consolas", "Courier New")
-subpixel_positioning = 0
+[ext_resource type="Script" uid="uid://uqbfh34yvy8p" path="res://scripts/ui/NotebookScalesUI.cs" id="1_notebook_bars"]
+[ext_resource type="Texture2D" uid="uid://bvpts5ivxfmpf" path="res://assets/textures/Текстура для блокнота.png" id="2_page_texture"]
+[ext_resource type="FontFile" uid="uid://vmatnh8klcum" path="res://assets/fonts/BadScript-Regular.ttf" id="3_hand_font"]
+[ext_resource type="Texture2D" uid="uid://bs3a84xa45yge" path="res://assets/textures/hatch_pencil.png" id="4_hatch"]
+[ext_resource type="Texture2D" uid="uid://buh567c8ugkrf" path="res://assets/textures/bar_frame_pencil.png" id="5_bar_frame"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_row"]
-bg_color = Color(0.055, 0.075, 0.065, 0.92)
+bg_color = Color(0.16, 0.15, 0.14, 0)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.22, 0.32, 0.25, 1)
+border_color = Color(0.16, 0.15, 0.14, 0)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bar_border"]
-bg_color = Color(0, 0, 0, 0)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.34, 0.45, 0.37, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_normal"]
-bg_color = Color(0.075, 0.11, 0.09, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.35, 0.5, 0.4, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_hover"]
-bg_color = Color(0.12, 0.18, 0.14, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.58, 0.82, 0.64, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_pressed"]
-bg_color = Color(0.17, 0.25, 0.2, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.76, 1, 0.75, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_input_normal"]
-bg_color = Color(0.018, 0.03, 0.025, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.32, 0.45, 0.36, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_input_focus"]
-bg_color = Color(0.03, 0.05, 0.04, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.72, 1, 0.76, 1)
-
-[node name="NotebookUI" type="Control"]
-layout_mode = 0
-offset_left = 2.0
-offset_top = 233.0
-offset_right = 1026.0
-offset_bottom = 1001.0
+[node name="NotebookUI" type="Control" unique_id=209089483]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1029.4117
+offset_bottom = 1455.8823
 scale = Vector2(0.68, 0.68)
 script = ExtResource("1_notebook_bars")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Background" type="TextureRect" parent="." unique_id=1495489861]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.045, 0.065, 0.055, 1)
+texture = ExtResource("2_page_texture")
+expand_mode = 1
 
-[node name="Header" type="Label" parent="."]
+[node name="Header" type="Label" parent="." unique_id=59514038]
 layout_mode = 0
-offset_left = 56.0
-offset_top = 44.0
-offset_right = 944.0
-offset_bottom = 96.0
-theme_override_colors/font_color = Color(0.75, 1, 0.72, 1)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 36
+offset_left = 76.47058
+offset_top = 127.94118
+offset_right = 974.9999
+offset_bottom = 223.94118
+theme_override_colors/font_color = Color(0.16, 0.15, 0.14, 1)
+theme_override_fonts/font = ExtResource("3_hand_font")
+theme_override_font_sizes/font_size = 48
 text = "БЛОКНОТ СМЕНЫ"
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="Parameters" type="VBoxContainer" parent="."]
+[node name="Parameters" type="Control" parent="." unique_id=1089044142]
+anchors_preset = 0
+offset_left = 58.824
+offset_top = 285.294
+offset_right = 975.0
+offset_bottom = 967.0
+
+[node name="InfectionRow" type="Panel" parent="Parameters" unique_id=1558206123]
 layout_mode = 0
-offset_left = 48.0
-offset_top = 128.0
-offset_right = 976.0
-offset_bottom = 578.0
-theme_override_constants/separation = 20
-
-[node name="InfectionRow" type="PanelContainer" parent="Parameters"]
-custom_minimum_size = Vector2(0, 122)
-layout_mode = 2
+offset_right = 916.176
+offset_bottom = 208.706
 theme_override_styles/panel = SubResource("StyleBoxFlat_row")
 
-[node name="MarginContainer" type="MarginContainer" parent="Parameters/InfectionRow"]
-layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 14
+[node name="MarginContainer" type="Control" parent="Parameters/InfectionRow" unique_id=706511803]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="RowContent" type="HBoxContainer" parent="Parameters/InfectionRow/MarginContainer"]
-layout_mode = 2
-theme_override_constants/separation = 16
+[node name="RowContent" type="Control" parent="Parameters/InfectionRow/MarginContainer" unique_id=1075855089]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="NameLabel" type="Label" parent="Parameters/InfectionRow/MarginContainer/RowContent"]
-custom_minimum_size = Vector2(170, 0)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.95, 0.66, 0.52, 1)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 26
+[node name="NameLabel" type="Label" parent="Parameters/InfectionRow/MarginContainer/RowContent" unique_id=1635922076]
+layout_mode = 0
+offset_left = 7.352
+offset_right = 271.352
+offset_bottom = 78.0
+theme_override_colors/font_color = Color(0.16, 0.15, 0.14, 1)
+theme_override_fonts/font = ExtResource("3_hand_font")
+theme_override_font_sizes/font_size = 39
 text = "ЗАРАЖЕНИЕ"
 vertical_alignment = 1
 
-[node name="BarColumn" type="VBoxContainer" parent="Parameters/InfectionRow/MarginContainer/RowContent"]
-custom_minimum_size = Vector2(260, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 10
-
-[node name="Caption" type="Label" parent="Parameters/InfectionRow/MarginContainer/RowContent/BarColumn"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.86, 0.72, 1)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 18
-text = "биологический риск сектора"
-
-[node name="AnimatedBar" type="Control" parent="Parameters/InfectionRow/MarginContainer/RowContent/BarColumn"]
-clip_contents = true
-custom_minimum_size = Vector2(0, 36)
-layout_mode = 2
-
-[node name="Background" type="ColorRect" parent="Parameters/InfectionRow/MarginContainer/RowContent/BarColumn/AnimatedBar"]
+[node name="BarColumn" type="Control" parent="Parameters/InfectionRow/MarginContainer/RowContent" unique_id=737321195]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.015, 0.025, 0.022, 1)
 
-[node name="MainFill" type="ColorRect" parent="Parameters/InfectionRow/MarginContainer/RowContent/BarColumn/AnimatedBar"]
+[node name="Caption" type="Label" parent="Parameters/InfectionRow/MarginContainer/RowContent/BarColumn" unique_id=763524323]
 layout_mode = 0
-color = Color(0.78, 0.22, 0.12, 1)
+offset_top = 92.647
+offset_right = 689.0
+offset_bottom = 160.647
+theme_override_colors/font_color = Color(0.16, 0.15, 0.14, 0.72)
+theme_override_fonts/font = ExtResource("3_hand_font")
+theme_override_font_sizes/font_size = 34
+text = "(контроль организации над распространением грибка)"
 
-[node name="FlashFill" type="ColorRect" parent="Parameters/InfectionRow/MarginContainer/RowContent/BarColumn/AnimatedBar"]
+[node name="AnimatedBar" type="Control" parent="Parameters/InfectionRow/MarginContainer/RowContent/BarColumn" unique_id=606540848]
+layout_mode = 0
+anchors_preset = 0
+offset_left = 320.302
+offset_top = 12.8145
+offset_right = 913.655
+offset_bottom = 53.2265
+rotation = -0.0096
+clip_contents = true
+
+[node name="Background" type="ColorRect" parent="Parameters/InfectionRow/MarginContainer/RowContent/BarColumn/AnimatedBar" unique_id=1235547592]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.16, 0.15, 0.14, 0)
+
+[node name="MainFill" type="TextureRect" parent="Parameters/InfectionRow/MarginContainer/RowContent/BarColumn/AnimatedBar" unique_id=904715607]
+texture_repeat = 2
+layout_mode = 0
+texture = ExtResource("4_hatch")
+expand_mode = 1
+stretch_mode = 1
+
+[node name="FlashFill" type="ColorRect" parent="Parameters/InfectionRow/MarginContainer/RowContent/BarColumn/AnimatedBar" unique_id=2076132601]
 visible = false
 layout_mode = 0
-color = Color(1, 1, 1, 0.86)
+color = Color(0.16, 0.15, 0.14, 0.5)
 
-[node name="Border" type="Panel" parent="Parameters/InfectionRow/MarginContainer/RowContent/BarColumn/AnimatedBar"]
+[node name="BarFrame" type="NinePatchRect" parent="Parameters/InfectionRow/MarginContainer/RowContent/BarColumn" unique_id=902537888]
+layout_mode = 0
+anchors_preset = 0
+offset_left = 313.235
+offset_top = 5.882
+offset_right = 920.588
+offset_bottom = 60.294
+rotation = -0.0096
+texture = ExtResource("5_bar_frame")
+patch_margin_left = 16
+patch_margin_top = 16
+patch_margin_right = 16
+patch_margin_bottom = 16
+axis_stretch_horizontal = 2
+axis_stretch_vertical = 2
+
+[node name="PublicityRow" type="Panel" parent="Parameters" unique_id=490983752]
+layout_mode = 0
+offset_left = 1.176
+offset_top = 230.883
+offset_right = 916.176
+offset_bottom = 439.706
+theme_override_styles/panel = SubResource("StyleBoxFlat_row")
+
+[node name="MarginContainer" type="Control" parent="Parameters/PublicityRow" unique_id=1087575695]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_bar_border")
 
-[node name="ValueLabel" type="Label" parent="Parameters/InfectionRow/MarginContainer/RowContent"]
-custom_minimum_size = Vector2(106, 0)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.98, 0.84, 1)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 26
-text = "20.00%"
-horizontal_alignment = 2
-vertical_alignment = 1
+[node name="RowContent" type="Control" parent="Parameters/PublicityRow/MarginContainer" unique_id=185249260]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="DeltaLabel" type="Label" parent="Parameters/InfectionRow/MarginContainer/RowContent"]
-custom_minimum_size = Vector2(92, 0)
-layout_mode = 2
-mouse_filter = 2
-modulate = Color(1, 1, 1, 0)
-theme_override_colors/font_color = Color(1, 0.42, 0.32, 1)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 30
-text = ""
-vertical_alignment = 1
-
-[node name="Controls" type="HBoxContainer" parent="Parameters/InfectionRow/MarginContainer/RowContent"]
-layout_mode = 2
-theme_override_constants/separation = 8
-alignment = 1
-
-[node name="MinusButton" type="Button" parent="Parameters/InfectionRow/MarginContainer/RowContent/Controls"]
-custom_minimum_size = Vector2(42, 48)
-layout_mode = 2
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 24
-theme_override_styles/normal = SubResource("StyleBoxFlat_button_normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
-text = "-"
-
-[node name="PlusButton" type="Button" parent="Parameters/InfectionRow/MarginContainer/RowContent/Controls"]
-custom_minimum_size = Vector2(42, 48)
-layout_mode = 2
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 24
-theme_override_styles/normal = SubResource("StyleBoxFlat_button_normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
-text = "+"
-
-[node name="DeltaInput" type="LineEdit" parent="Parameters/InfectionRow/MarginContainer/RowContent/Controls"]
-custom_minimum_size = Vector2(92, 48)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.98, 0.84, 1)
-theme_override_colors/caret_color = Color(0.72, 1, 0.76, 1)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxFlat_input_normal")
-theme_override_styles/focus = SubResource("StyleBoxFlat_input_focus")
-placeholder_text = "-100..100"
-text = "25.00"
-alignment = 2
-
-[node name="ApplyButton" type="Button" parent="Parameters/InfectionRow/MarginContainer/RowContent/Controls"]
-custom_minimum_size = Vector2(48, 48)
-layout_mode = 2
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxFlat_button_normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
-text = "OK"
-
-[node name="PublicityRow" type="PanelContainer" parent="Parameters"]
-custom_minimum_size = Vector2(0, 122)
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_row")
-
-[node name="MarginContainer" type="MarginContainer" parent="Parameters/PublicityRow"]
-layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 14
-
-[node name="RowContent" type="HBoxContainer" parent="Parameters/PublicityRow/MarginContainer"]
-layout_mode = 2
-theme_override_constants/separation = 16
-
-[node name="NameLabel" type="Label" parent="Parameters/PublicityRow/MarginContainer/RowContent"]
-custom_minimum_size = Vector2(170, 0)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.95, 0.78, 0.42, 1)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 26
+[node name="NameLabel" type="Label" parent="Parameters/PublicityRow/MarginContainer/RowContent" unique_id=1848972820]
+layout_mode = 0
+offset_left = 19.412
+offset_right = 240.412
+offset_bottom = 78.0
+theme_override_colors/font_color = Color(0.16, 0.15, 0.14, 1)
+theme_override_fonts/font = ExtResource("3_hand_font")
+theme_override_font_sizes/font_size = 39
 text = "ГЛАСНОСТЬ"
 vertical_alignment = 1
 
-[node name="BarColumn" type="VBoxContainer" parent="Parameters/PublicityRow/MarginContainer/RowContent"]
-custom_minimum_size = Vector2(260, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 10
-
-[node name="Caption" type="Label" parent="Parameters/PublicityRow/MarginContainer/RowContent/BarColumn"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.86, 0.72, 1)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 18
-text = "видимость инцидента"
-
-[node name="AnimatedBar" type="Control" parent="Parameters/PublicityRow/MarginContainer/RowContent/BarColumn"]
-clip_contents = true
-custom_minimum_size = Vector2(0, 36)
-layout_mode = 2
-
-[node name="Background" type="ColorRect" parent="Parameters/PublicityRow/MarginContainer/RowContent/BarColumn/AnimatedBar"]
+[node name="BarColumn" type="Control" parent="Parameters/PublicityRow/MarginContainer/RowContent" unique_id=69836591]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.015, 0.025, 0.022, 1)
 
-[node name="MainFill" type="ColorRect" parent="Parameters/PublicityRow/MarginContainer/RowContent/BarColumn/AnimatedBar"]
+[node name="Caption" type="Label" parent="Parameters/PublicityRow/MarginContainer/RowContent/BarColumn" unique_id=2091934437]
 layout_mode = 0
-color = Color(0.92, 0.68, 0.24, 1)
+offset_left = 7.647
+offset_top = 92.647
+offset_right = 703.647
+offset_bottom = 160.647
+theme_override_colors/font_color = Color(0.16, 0.15, 0.14, 0.72)
+theme_override_fonts/font = ExtResource("3_hand_font")
+theme_override_font_sizes/font_size = 34
+text = "(контроль над СМИ)"
 
-[node name="FlashFill" type="ColorRect" parent="Parameters/PublicityRow/MarginContainer/RowContent/BarColumn/AnimatedBar"]
+[node name="AnimatedBar" type="Control" parent="Parameters/PublicityRow/MarginContainer/RowContent/BarColumn" unique_id=129368127]
+layout_mode = 0
+anchors_preset = 0
+offset_left = 320.593
+offset_top = 11.3463
+offset_right = 913.946
+offset_bottom = 53.2283
+rotation = -0.0092
+clip_contents = true
+
+[node name="Background" type="ColorRect" parent="Parameters/PublicityRow/MarginContainer/RowContent/BarColumn/AnimatedBar" unique_id=2055050992]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.16, 0.15, 0.14, 0)
+
+[node name="MainFill" type="TextureRect" parent="Parameters/PublicityRow/MarginContainer/RowContent/BarColumn/AnimatedBar" unique_id=954347601]
+texture_repeat = 2
+layout_mode = 0
+texture = ExtResource("4_hatch")
+expand_mode = 1
+stretch_mode = 1
+
+[node name="FlashFill" type="ColorRect" parent="Parameters/PublicityRow/MarginContainer/RowContent/BarColumn/AnimatedBar" unique_id=1948924089]
 visible = false
 layout_mode = 0
-color = Color(1, 1, 1, 0.86)
+color = Color(0.16, 0.15, 0.14, 0.5)
 
-[node name="Border" type="Panel" parent="Parameters/PublicityRow/MarginContainer/RowContent/BarColumn/AnimatedBar"]
+[node name="BarFrame" type="NinePatchRect" parent="Parameters/PublicityRow/MarginContainer/RowContent/BarColumn" unique_id=263252240]
+layout_mode = 0
+anchors_preset = 0
+offset_left = 313.529
+offset_top = 4.411
+offset_right = 920.882
+offset_bottom = 60.293
+rotation = -0.0092
+texture = ExtResource("5_bar_frame")
+patch_margin_left = 16
+patch_margin_top = 16
+patch_margin_right = 16
+patch_margin_bottom = 16
+axis_stretch_horizontal = 2
+axis_stretch_vertical = 2
+
+[node name="LoyaltyRow" type="Panel" parent="Parameters" unique_id=400063977]
+layout_mode = 0
+offset_left = 1.176
+offset_top = 470.589
+offset_right = 916.176
+offset_bottom = 681.706
+theme_override_styles/panel = SubResource("StyleBoxFlat_row")
+
+[node name="MarginContainer" type="Control" parent="Parameters/LoyaltyRow" unique_id=418641864]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_bar_border")
 
-[node name="ValueLabel" type="Label" parent="Parameters/PublicityRow/MarginContainer/RowContent"]
-custom_minimum_size = Vector2(106, 0)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.98, 0.84, 1)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 26
-text = "15.00%"
-horizontal_alignment = 2
-vertical_alignment = 1
+[node name="RowContent" type="Control" parent="Parameters/LoyaltyRow/MarginContainer" unique_id=1358614558]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="DeltaLabel" type="Label" parent="Parameters/PublicityRow/MarginContainer/RowContent"]
-custom_minimum_size = Vector2(92, 0)
-layout_mode = 2
-mouse_filter = 2
-modulate = Color(1, 1, 1, 0)
-theme_override_colors/font_color = Color(1, 0.42, 0.32, 1)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 30
-text = ""
-vertical_alignment = 1
-
-[node name="Controls" type="HBoxContainer" parent="Parameters/PublicityRow/MarginContainer/RowContent"]
-layout_mode = 2
-theme_override_constants/separation = 8
-alignment = 1
-
-[node name="MinusButton" type="Button" parent="Parameters/PublicityRow/MarginContainer/RowContent/Controls"]
-custom_minimum_size = Vector2(42, 48)
-layout_mode = 2
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 24
-theme_override_styles/normal = SubResource("StyleBoxFlat_button_normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
-text = "-"
-
-[node name="PlusButton" type="Button" parent="Parameters/PublicityRow/MarginContainer/RowContent/Controls"]
-custom_minimum_size = Vector2(42, 48)
-layout_mode = 2
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 24
-theme_override_styles/normal = SubResource("StyleBoxFlat_button_normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
-text = "+"
-
-[node name="DeltaInput" type="LineEdit" parent="Parameters/PublicityRow/MarginContainer/RowContent/Controls"]
-custom_minimum_size = Vector2(92, 48)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.98, 0.84, 1)
-theme_override_colors/caret_color = Color(0.72, 1, 0.76, 1)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxFlat_input_normal")
-theme_override_styles/focus = SubResource("StyleBoxFlat_input_focus")
-placeholder_text = "-100..100"
-text = "25.00"
-alignment = 2
-
-[node name="ApplyButton" type="Button" parent="Parameters/PublicityRow/MarginContainer/RowContent/Controls"]
-custom_minimum_size = Vector2(48, 48)
-layout_mode = 2
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxFlat_button_normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
-text = "OK"
-
-[node name="LoyaltyRow" type="PanelContainer" parent="Parameters"]
-custom_minimum_size = Vector2(0, 122)
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_row")
-
-[node name="MarginContainer" type="MarginContainer" parent="Parameters/LoyaltyRow"]
-layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 14
-
-[node name="RowContent" type="HBoxContainer" parent="Parameters/LoyaltyRow/MarginContainer"]
-layout_mode = 2
-theme_override_constants/separation = 16
-
-[node name="NameLabel" type="Label" parent="Parameters/LoyaltyRow/MarginContainer/RowContent"]
-custom_minimum_size = Vector2(170, 0)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.62, 0.95, 0.78, 1)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 26
+[node name="NameLabel" type="Label" parent="Parameters/LoyaltyRow/MarginContainer/RowContent" unique_id=2045383675]
+layout_mode = 0
+offset_left = 13.529
+offset_right = 266.529
+offset_bottom = 78.0
+theme_override_colors/font_color = Color(0.16, 0.15, 0.14, 1)
+theme_override_fonts/font = ExtResource("3_hand_font")
+theme_override_font_sizes/font_size = 39
 text = "ЛОЯЛЬНОСТЬ"
 vertical_alignment = 1
 
-[node name="BarColumn" type="VBoxContainer" parent="Parameters/LoyaltyRow/MarginContainer/RowContent"]
-custom_minimum_size = Vector2(260, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 10
-
-[node name="Caption" type="Label" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/BarColumn"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.86, 0.72, 1)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 18
-text = "готовность персонала"
-
-[node name="AnimatedBar" type="Control" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/BarColumn"]
-clip_contents = true
-custom_minimum_size = Vector2(0, 36)
-layout_mode = 2
-
-[node name="Background" type="ColorRect" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/BarColumn/AnimatedBar"]
+[node name="BarColumn" type="Control" parent="Parameters/LoyaltyRow/MarginContainer/RowContent" unique_id=1389924590]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.015, 0.025, 0.022, 1)
 
-[node name="MainFill" type="ColorRect" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/BarColumn/AnimatedBar"]
+[node name="Caption" type="Label" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/BarColumn" unique_id=1709582246]
 layout_mode = 0
-color = Color(0.34, 0.72, 0.58, 1)
+offset_left = 10.588
+offset_top = 95.588
+offset_right = 706.588
+offset_bottom = 163.588
+theme_override_colors/font_color = Color(0.16, 0.15, 0.14, 0.72)
+theme_override_fonts/font = ExtResource("3_hand_font")
+theme_override_font_sizes/font_size = 34
+text = "(доверие руководства ко мне)"
 
-[node name="FlashFill" type="ColorRect" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/BarColumn/AnimatedBar"]
+[node name="AnimatedBar" type="Control" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/BarColumn" unique_id=351667921]
+layout_mode = 0
+anchors_preset = 0
+offset_left = 320.613
+offset_top = 8.38479
+offset_right = 915.436
+offset_bottom = 51.7378
+rotation = -0.0121
+clip_contents = true
+
+[node name="Background" type="ColorRect" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/BarColumn/AnimatedBar" unique_id=1924366742]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.16, 0.15, 0.14, 0)
+
+[node name="MainFill" type="TextureRect" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/BarColumn/AnimatedBar" unique_id=2103446435]
+texture_repeat = 2
+layout_mode = 0
+texture = ExtResource("4_hatch")
+expand_mode = 1
+stretch_mode = 1
+
+[node name="FlashFill" type="ColorRect" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/BarColumn/AnimatedBar" unique_id=669093665]
 visible = false
 layout_mode = 0
-color = Color(1, 1, 1, 0.86)
+color = Color(0.16, 0.15, 0.14, 0.5)
 
-[node name="Border" type="Panel" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/BarColumn/AnimatedBar"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_bar_border")
-
-[node name="ValueLabel" type="Label" parent="Parameters/LoyaltyRow/MarginContainer/RowContent"]
-custom_minimum_size = Vector2(106, 0)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.98, 0.84, 1)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 26
-text = "70.00%"
-horizontal_alignment = 2
-vertical_alignment = 1
-
-[node name="DeltaLabel" type="Label" parent="Parameters/LoyaltyRow/MarginContainer/RowContent"]
-custom_minimum_size = Vector2(92, 0)
-layout_mode = 2
-mouse_filter = 2
-modulate = Color(1, 1, 1, 0)
-theme_override_colors/font_color = Color(1, 0.42, 0.32, 1)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 30
-text = ""
-vertical_alignment = 1
-
-[node name="Controls" type="HBoxContainer" parent="Parameters/LoyaltyRow/MarginContainer/RowContent"]
-layout_mode = 2
-theme_override_constants/separation = 8
-alignment = 1
-
-[node name="MinusButton" type="Button" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/Controls"]
-custom_minimum_size = Vector2(42, 48)
-layout_mode = 2
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 24
-theme_override_styles/normal = SubResource("StyleBoxFlat_button_normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
-text = "-"
-
-[node name="PlusButton" type="Button" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/Controls"]
-custom_minimum_size = Vector2(42, 48)
-layout_mode = 2
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 24
-theme_override_styles/normal = SubResource("StyleBoxFlat_button_normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
-text = "+"
-
-[node name="DeltaInput" type="LineEdit" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/Controls"]
-custom_minimum_size = Vector2(92, 48)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.98, 0.84, 1)
-theme_override_colors/caret_color = Color(0.72, 1, 0.76, 1)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxFlat_input_normal")
-theme_override_styles/focus = SubResource("StyleBoxFlat_input_focus")
-placeholder_text = "-100..100"
-text = "25.00"
-alignment = 2
-
-[node name="ApplyButton" type="Button" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/Controls"]
-custom_minimum_size = Vector2(48, 48)
-layout_mode = 2
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxFlat_button_normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
-text = "OK"
-
-[node name="Footer" type="Label" parent="."]
+[node name="BarFrame" type="NinePatchRect" parent="Parameters/LoyaltyRow/MarginContainer/RowContent/BarColumn" unique_id=1907874988]
 layout_mode = 0
-offset_left = 76.0
-offset_top = 628.0
-offset_right = 920.0
-offset_bottom = 690.0
-theme_override_colors/font_color = Color(0.52, 0.78, 0.48, 1)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 24
-text = "СВОДКА СОСТОЯНИЯ СЕКТОРА"
-
-[node name="SummaryLine" type="Label" parent="."]
-layout_mode = 0
-offset_left = 76.0
-offset_top = 686.0
-offset_right = 948.0
-offset_bottom = 748.0
-theme_override_colors/font_color = Color(0.95, 0.66, 0.52, 1)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 26
-text = "обстановка в пределах нормы"
-vertical_alignment = 1
+anchors_preset = 0
+offset_left = 313.529
+offset_top = 1.47
+offset_right = 922.352
+offset_bottom = 58.823
+rotation = -0.0121
+texture = ExtResource("5_bar_frame")
+patch_margin_left = 16
+patch_margin_top = 16
+patch_margin_right = 16
+patch_margin_bottom = 16
+axis_stretch_horizontal = 2
+axis_stretch_vertical = 2

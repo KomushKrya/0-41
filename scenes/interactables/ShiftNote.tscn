@@ -7,9 +7,17 @@
 [ext_resource type="Script" path="res://scripts/interaction/InspectableItemController.cs" id="5_item_controller"]
 [ext_resource type="Script" path="res://scripts/interaction/SubViewportInputController.cs" id="6_viewport_input"]
 [ext_resource type="PackedScene" uid="uid://btkg0ayvhc075" path="res://assets/models/environment/office_split/interactive/shift_note_paper.glb" id="7_note_model"]
+[ext_resource type="Texture2D" path="res://assets/textures/Текстура записки.jpg" id="8_note_paper_texture"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_note"]
 size = Vector3(0.1326, 0.012, 0.1777)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_note_paper"]
+albedo_color = Color(0.55, 0.53, 0.5, 1)
+albedo_texture = ExtResource("8_note_paper_texture")
+roughness = 1.0
+uv1_scale = Vector3(4, 4, 1)
+uv1_offset = Vector3(-0.5, -1, 0)
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_note_surface"]
 size = Vector2(0.1181, 0.167)
@@ -17,12 +25,15 @@ size = Vector2(0.1181, 0.167)
 [node name="ShiftNote" type="Node3D" groups=["interactive"]]
 script = ExtResource("5_item_controller")
 ViewportInputPath = NodePath("ShiftNoteViewportInput")
-ViewDistance = 0.3
+ViewDistance = 0.11495
 
 [node name="VisualRoot" type="Node3D" parent="."]
 
 [node name="NotePage" parent="VisualRoot" instance=ExtResource("7_note_model")]
 transform = Transform3D(0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0)
+
+[node name="ShiftNotePaperMesh" parent="VisualRoot/NotePage" index="0"]
+material_override = SubResource("StandardMaterial3D_note_paper")
 
 [node name="ViewportSurface" type="MeshInstance3D" parent="VisualRoot"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0012, 0)

@@ -101,14 +101,10 @@ namespace Kontur.Core.Systems
 
 			IsShiftActive = true;
 
-			ShiftNoteDto? note;
-			_content.ShiftNotes.TryGetValue(day, out note);
-
 			_bus.Publish(new ShiftStarted(
 				day,
 				_roster.GetStaffLimit(day),
-				note == null ? string.Empty : note.Title,
-				note == null ? string.Empty : note.Text));
+				_content.Config.GetDay(day).ShiftNoteId));
 		}
 
 		public void Tick(double delta)
@@ -1259,6 +1255,13 @@ namespace Kontur.Core.Systems
 			}
 
 			incident.ChosenOption = option;
+
+			// Выбор запоминается партией: по флагу открываются вызовы следующих смен.
+			if (!string.IsNullOrEmpty(option.SetsFlagId))
+			{
+				_state.Flags.Set(option.SetsFlagId!);
+			}
+
 			_bus.Publish(new RadioOptionChosen(incident.Id, incident.MissionEvent.Id, option.Id));
 
 			BeginMissionExecution(incident);

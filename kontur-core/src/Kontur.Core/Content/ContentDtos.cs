@@ -185,6 +185,7 @@ namespace Kontur.Core.Content
 		public double? InjuryChanceMultiplier { get; set; }
 		public ScaleDeltaDto? ExtraScales { get; set; }
 		public string? RevealsPropertyId { get; set; }
+		public string? SetsFlagId { get; set; }
 		public string? RequiresEquipmentId { get; set; }
 		public string? ConsequenceCap { get; set; }
 	}
@@ -253,12 +254,7 @@ namespace Kontur.Core.Content
 	{
 		public int Day { get; set; } = 1;
 
-		public string Title { get; set; } = string.Empty;
-
-		/// <summary>Р В¤Р В»Р ВµР в„–Р Р†Р С•РЎР‚-РЎвЂљР ВµР С”РЎРѓРЎвЂљ Р С•РЎвЂљ Р Т‘Р Р…Р ВµР Р†Р Р…Р С•Р С–Р С• РЎРѓР СР ВµР Р…РЎвЂ°Р С‘Р С”Р В° (Р вЂќР вЂќ, РЎР‚Р В°Р В·Р Т‘Р ВµР В» 2).</summary>
-		public string Text { get; set; } = string.Empty;
-
-		/// <summary>Р ВР Т‘Р ВµР Р…РЎвЂљР С‘РЎвЂћР С‘Р С”Р В°РЎвЂљР С•РЎР‚ Р С—РЎР‚Р ВµРЎР‚Р ВµР Р…Р Т‘Р ВµРЎР‚Р ВµР Р…Р Р…Р С•Р С–Р С• РЎР‚Р С•Р В»Р С‘Р С”Р В° Р С—Р С•РЎРѓР В»Р Вµ РЎРѓР СР ВµР Р…РЎвЂ№.</summary>
+		/// <summary>Идентификатор пререндеренного ролика после смены.</summary>
 		public string OutroCutsceneId { get; set; } = string.Empty;
 	}
 }

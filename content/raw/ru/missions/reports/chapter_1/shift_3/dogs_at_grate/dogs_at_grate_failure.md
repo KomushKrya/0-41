@@ -4,8 +4,7 @@ type: report
 mission_id: m_dogs_at_grate
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: заражение вверх слабо. Ничего не нашли, потому что не там искали. %%

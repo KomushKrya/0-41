@@ -5,10 +5,7 @@ mission_id: m_cement_night_shift
 status: draft
 mission_type: filler
 requires: сила, интеллект, харизма
-requirements:
-  -
-properties:
-  -
+
 ---
 
 %% dev %%

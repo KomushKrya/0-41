@@ -10,12 +10,9 @@ day: 4
 | id | название |
 |---|---|
 | m_wall_infection | Дозиметр в стене |
-| m_flooded_basement | Потоп в подвале |
-| m_dogs_go_down | Собаки уходят вниз |
 | m_silent_collector | Тишина в коллекторе |
 | m_dont_blink | Не моргать |
 | m_racing_pulse | Учащённый пульс |
 | m_talking_dog | Пёс, который заговорил |
 | m_whole_stairwell | Целый подъезд |
-| m_infection_ward_audit | Ревизия в инфекционке |
-| m_comms_outage | Отключение узла связи |
+| m_workshop_papers | Торговля документами |

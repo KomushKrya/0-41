@@ -48,7 +48,7 @@ namespace Kontur.Harness
 			switch (e)
 			{
 				case ShiftStarted s:
-					return $"=== СМЕНА {s.Day} НАЧАТА. Лимит штата: {s.StaffLimit}. «{s.ShiftNoteTitle}»";
+					return $"=== СМЕНА {s.Day} НАЧАТА. Лимит штата: {s.StaffLimit}. Записка: {s.ShiftNoteId}";
 
 				case CallWindowClosed s:
 					return $"--- Окно приёма вызовов закрыто. Открытых вызовов: {s.OpenIncidents}";

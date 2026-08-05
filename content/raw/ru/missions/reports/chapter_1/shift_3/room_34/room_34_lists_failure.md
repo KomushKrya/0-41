@@ -4,8 +4,7 @@ type: report
 mission_id: m_room_34
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: заражение вверх. Открывает [[creature:creature_mimic]]. %%

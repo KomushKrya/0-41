@@ -457,11 +457,17 @@ def check_reports(mission: dict, events: dict, entries: dict, missing_text) -> l
     problems: list[str] = []
     reports = mission.get("reports") or {}
 
-    if "" not in reports:
-        problems.append(f"{mission['id']}: нет отчёта на исход без вмешательства (ключ \"\")")
-
     event = events.get(mission.get("missionEventId", ""))
     expected = set(event.get("options", {})) if event else set()
+
+    # Пропущенная рация — не отдельный исход, а дебаф: отчёт берётся у первого варианта.
+    # Поэтому ключ "" нужен ровно филлеру, у которого вариантов нет вовсе.
+    if not expected and "" not in reports:
+        problems.append(f"{mission['id']}: нет отчёта — у филлера это единственная пара")
+    if expected and "" in reports:
+        problems.append(
+            f"{mission['id']}: лишний ключ \"\" в reports — при пропущенной рации "
+            f"отчёт берётся у первого варианта, отдельного исхода нет")
 
     for key in expected - set(reports):
         problems.append(f"{mission['id']}: у варианта {key!r} нет отчётов")

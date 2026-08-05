@@ -3,8 +3,7 @@ id: shift_note_day_1
 type: shift_note
 status: draft
 day: 1
-properties:
-  -
+
 ---
 
 %% dev %%

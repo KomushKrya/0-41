@@ -238,10 +238,14 @@ descriptionBox.Open(stat.Id);                // описание — обычн�
 Существо 'creature_mimic': в статье нет блока %% reveal: property_mimic_TYPO %%
 ```
 
+**Записка сменщика — уже да.** `ShiftStarted` несёт только `ShiftNoteId`; текст лежит
+записью `shift_note` в `content/raw`, а id берётся из `shiftNoteId` дня в `config.json` и
+проверяется на загрузке ядра. Прозы в `data/shift_notes.json` больше нет.
+
 **Остальное — ещё нет.** Проза по-прежнему приходит из `data/*.json` в событиях:
-`ShiftStarted(ShiftNoteTitle, ShiftNoteText)`, `CallAnswered(Title, BriefingText)`,
-`RadioTriggered(SituationText)`, `RadioOptionChosen(OptionText)`. Для этих строк пока два
-источника правды. Переводятся тем же приёмом, что и существа, — по одному типу за раз.
+`CallAnswered(Title, BriefingText)`, `RadioTriggered(SituationText)`,
+`RadioOptionChosen(OptionText)`. Для этих строк пока два источника правды. Переводятся тем
+же приёмом, что и записка, — по одному типу за раз.
 
 Если пишешь новый бокс — бери текст из `Content` по id, даже если рядом лежит готовая
 строка из события.

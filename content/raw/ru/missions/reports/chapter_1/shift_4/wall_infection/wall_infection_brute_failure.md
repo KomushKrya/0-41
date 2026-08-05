@@ -4,8 +4,7 @@ type: report
 mission_id: m_wall_infection
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: эффект — заражение растёт сильно, лояльность падает, гласность растёт. %%

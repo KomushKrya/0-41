@@ -1,93 +1,119 @@
 [
   {
-	"id": "eq_filters",
-	"name": "Новые фильтры",
-	"description": "Комплект свежих фильтров к респираторам. Расходуется за выезд.",
-	"kind": "Consumable",
-	"bonus": { "combat": 1 }
+    "id": "eq_filters",
+    "name": "Новые фильтры",
+    "description": "Комплект свежих фильтров к респираторам. Расходуется за выезд.",
+    "kind": "Consumable",
+    "bonus": {
+      "combat": 1
+    }
   },
   {
-	"id": "eq_flare",
-	"name": "Сигнальные ракеты",
-	"description": "Освещают объект и сбивают ориентацию аномалии.",
-	"kind": "Consumable",
-	"bonus": { "intellect": 2 }
+    "id": "eq_flare",
+    "name": "Сигнальные ракеты",
+    "description": "Освещают объект и сбивают ориентацию аномалии.",
+    "kind": "Consumable",
+    "bonus": {
+      "intellect": 2
+    }
   },
   {
-	"id": "eq_sedative",
-	"name": "Ампулы Т-14",
-	"description": "Транквилизатор для крупных особей.",
-	"kind": "Consumable",
-	"bonus": { "strength": 2 }
+    "id": "eq_sedative",
+    "name": "Ампулы Т-14",
+    "description": "Транквилизатор для крупных особей.",
+    "kind": "Consumable",
+    "bonus": {
+      "strength": 2
+    }
   },
   {
-	"id": "eq_earplugs",
-	"name": "Заглушки СЛ-2",
-	"description": "Гасят низкочастотный фон. Спасают на звуковых аномалиях.",
-	"kind": "Consumable",
-	"bonus": { "charisma": 2 }
+    "id": "eq_earplugs",
+    "name": "Заглушки СЛ-2",
+    "description": "Гасят низкочастотный фон. Спасают на звуковых аномалиях.",
+    "kind": "Consumable",
+    "bonus": {
+      "charisma": 2
+    }
   },
   {
-	"id": "eq_rope",
-	"name": "Верёвка страховочная",
-	"description": "По завалам и лестницам без перил с ней проходят быстрее. Расходуется за выезд.",
-	"kind": "Consumable",
-	"bonus": { "agility": 2 }
+    "id": "eq_rope",
+    "name": "Верёвка страховочная",
+    "description": "По завалам и лестницам без перил с ней проходят быстрее. Расходуется за выезд.",
+    "kind": "Consumable",
+    "bonus": {
+      "agility": 2
+    }
   },
   {
-	"id": "eq_tonic",
-	"name": "Термос с крепким чаем",
-	"description": "Чтобы руки не дрожали к третьему часу выезда.",
-	"kind": "Consumable",
-	"bonus": { "strength": 1 }
+    "id": "eq_tonic",
+    "name": "Термос с крепким чаем",
+    "description": "Чтобы руки не дрожали к третьему часу выезда.",
+    "kind": "Consumable",
+    "bonus": {
+      "strength": 1
+    }
   },
   {
-	"id": "eq_gloves",
-	"name": "Перчатки с усиленным хватом",
-	"description": "Не роняют инструмент на скользком полу.",
-	"kind": "Consumable",
-	"bonus": { "combat": 2 }
+    "id": "eq_gloves",
+    "name": "Перчатки с усиленным хватом",
+    "description": "Не роняют инструмент на скользком полу.",
+    "kind": "Consumable",
+    "bonus": {
+      "combat": 2
+    }
   },
   {
-	"id": "eq_armor",
-	"name": "Бронежилет 6Б",
-	"description": "Тяжёлый, но заметно снижает риск потерь.",
-	"kind": "Standard",
-	"bonus": { "combat": 3 }
+    "id": "eq_armor",
+    "name": "Бронежилет 6Б",
+    "description": "Тяжёлый, но заметно снижает риск потерь.",
+    "kind": "Standard",
+    "bonus": {
+      "combat": 3
+    }
   },
   {
-	"id": "eq_antenna",
-	"name": "Направленная антенна",
-	"description": "Устойчивая связь с управлением на всём выезде.",
-	"kind": "Standard",
-	"bonus": { "charisma": 2 }
+    "id": "eq_antenna",
+    "name": "Направленная антенна",
+    "description": "Устойчивая связь с управлением на всём выезде.",
+    "kind": "Standard",
+    "bonus": {
+      "charisma": 2
+    }
   },
   {
-	"id": "eq_headlamp",
-	"name": "Налобный фонарь",
-	"description": "Освобождает руки, не гаснет от удара о косяк.",
-	"kind": "Standard",
-	"bonus": { "intellect": 2 }
+    "id": "eq_headlamp",
+    "name": "Налобный фонарь",
+    "description": "Освобождает руки, не гаснет от удара о косяк.",
+    "kind": "Standard",
+    "bonus": {
+      "intellect": 2
+    }
   },
   {
-	"id": "eq_vest",
-	"name": "Разгрузочный жилет",
-	"description": "Ничего не звенит и не бьёт по рёбрам на лестнице.",
-	"kind": "Standard",
-	"bonus": { "agility": 3 }
+    "id": "eq_vest",
+    "name": "Разгрузочный жилет",
+    "description": "Ничего не звенит и не бьёт по рёбрам на лестнице.",
+    "kind": "Standard",
+    "bonus": {
+      "agility": 3
+    }
   },
   {
-	"id": "eq_container",
-	"name": "Контейнер К-7",
-	"description": "Сюжетный образец. Позволяет изъять аномалию целиком.",
-	"kind": "Story",
-	"allStatsBonus": 2
+    "id": "eq_container",
+    "name": "Контейнер К-7",
+    "description": "Сюжетный образец. Позволяет изъять аномалию целиком.",
+    "kind": "Story",
+    "allStatsBonus": 2
   },
   {
-	"id": "eq_dosimeter",
-	"name": "Японский дозиметр",
-	"description": "Импортный дозиметр. Отдаёт workshop_truck (write_off, успех).",
-	"kind": "Story",
-	"bonus": { "intellect": 2, "charisma": 1, "combat": 1 }
+    "id": "eq_dosimeter",
+    "name": "Японский дозиметр",
+    "description": "Импортный дозиметр. Отдаёт workshop_gravel (deliver, успех).",
+    "kind": "Story",
+    "bonus": {
+      "intellect": 2,
+      "charisma": 1,
+      "combat": 1
+    }
   }
 ]

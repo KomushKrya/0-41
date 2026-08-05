@@ -23,6 +23,14 @@ public partial class InspectableItemController : Node3D
 	/// <summary>Сдвиг предмета в плоскости кадра, метры: X вправо, Y вверх.</summary>
 	[Export] public Vector2 ViewOffset { get; set; } = Vector2.Zero;
 
+	/// <summary>
+	/// Доворот предмета в плоскости кадра, градусы по часовой стрелке. Нужен
+	/// предметам, у которых верх страницы в модели смотрит не по -Z: например у
+	/// блокнота пружина идёт по короткой кромке -X, и без доворота он подлетает
+	/// лёжа на боку.
+	/// </summary>
+	[Export(PropertyHint.Range, "-180,180,90")] public float ViewRoll { get; set; }
+
 	/// <summary>Пока предмет читают, симуляция стоит. Досье ведёт себя так же.</summary>
 	[Export] public bool PausesSimulation { get; set; } = true;
 
@@ -118,15 +126,21 @@ public partial class InspectableItemController : Node3D
 	/// Страница лежит в плоскости XZ предмета: нормаль — его +Y, верх страницы —
 	/// его -Z. Значит, чтобы страница смотрела в камеру и не легла боком, +Y
 	/// предмета должен совпасть с «назад» камеры, а -Z — с её «вверх».
+	///
+	/// <see cref="ViewRoll"/> доворачивает эту рамку вокруг оси взгляда, если
+	/// верх страницы в модели смотрит не по -Z.
 	/// </summary>
 	public Transform3D GetPresentationTransform(Transform3D cameraTransform)
 	{
 		Basis cameraBasis = cameraTransform.Basis.Orthonormalized();
+		// Ось взгляда — +Z камеры (смотрит на игрока), поэтому по часовой стрелке
+		// для игрока — это отрицательный угол по правилу правой руки.
+		Basis frameBasis = cameraBasis.Rotated(cameraBasis.Z, Mathf.DegToRad(-ViewRoll));
 		Vector3 scale = _restingTransform.Basis.Scale;
 		var pageBasis = new Basis(
-			cameraBasis.X * scale.X,
-			cameraBasis.Z * scale.Y,
-			-cameraBasis.Y * scale.Z);
+			frameBasis.X * scale.X,
+			frameBasis.Z * scale.Y,
+			-frameBasis.Y * scale.Z);
 
 		Vector3 origin = cameraTransform.Origin
 			- (cameraBasis.Z * ViewDistance)

@@ -265,10 +265,10 @@ namespace Kontur.Harness
 			switch (Strategy)
 			{
 				case RadioStrategy.Best:
-					option = FindByQuality(missionEvent, MissionEventQuality.Good);
+					option = FindByCheckedStats(missionEvent, fewest: true);
 					break;
 				case RadioStrategy.Worst:
-					option = FindByQuality(missionEvent, MissionEventQuality.Bad);
+					option = FindByCheckedStats(missionEvent, fewest: false);
 					break;
 				default:
 					option = missionEvent.Options[_random.Next(missionEvent.Options.Count)];
@@ -278,17 +278,25 @@ namespace Kontur.Harness
 			_session.ChooseRadioOption(incident.Id, option.Id);
 		}
 
-		private static MissionEventOption FindByQuality(MissionEventDefinition missionEvent, MissionEventQuality quality)
+		/// <summary>
+		/// «Лучше» и «хуже» вариант измеряет числом проверяемых характеристик: вариант
+		/// сужает пороги миссии до своего списка, поэтому чем список короче, тем меньше
+		/// требований остаётся к группе. Оценки «хороший/плохой» в данных больше нет —
+		/// её место занял ровно этот счёт.
+		/// </summary>
+		private static MissionEventOption FindByCheckedStats(MissionEventDefinition missionEvent, bool fewest)
 		{
-			for (int i = 0; i < missionEvent.Options.Count; i++)
+			MissionEventOption best = missionEvent.Options[0];
+			for (int i = 1; i < missionEvent.Options.Count; i++)
 			{
-				if (missionEvent.Options[i].Quality == quality)
+				int count = missionEvent.Options[i].CheckedStats.Count;
+				if (fewest ? count < best.CheckedStats.Count : count > best.CheckedStats.Count)
 				{
-					return missionEvent.Options[i];
+					best = missionEvent.Options[i];
 				}
 			}
 
-			return missionEvent.Options[0];
+			return best;
 		}
 
 		private static StatKind FindWeakestStat(StatBlock stats)

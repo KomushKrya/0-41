@@ -3,18 +3,15 @@ id: call_whole_stairwell
 type: call
 mission_id: m_whole_stairwell
 status: draft
-mission_type: radio
-requirements:
-  -
-properties:
-  -
+mission_type: filler
+requires: боевая подготовка, харизма
+
 ---
 
 %% dev %%
-Кульминация перекожника ([[creature:creature_perekozhnik]]) в части 1 —
-не новое свойство, а совмещение уже раскрытых: дистанция ([[radio:radio_missing_daughter]]),
-зрительный контакт ([[radio:radio_dont_blink]]), пульс ([[radio:radio_racing_pulse]]).
-Ставки заметно выше: последняя тяжёлая миссия перед закрытием части.
+Кульминация перекожника ([[creature:creature_perekozhnik]]) в части 1 — не новое
+свойство, а совмещение уже раскрытых: дистанция, зрительный контакт, пульс. Филлер:
+вмешательства нет, всё решает одна проверка на месте — успели вывести этаж или нет.
 %% /dev %%
 
 %% call_meta: ЗВОНОК ОТ УПРАВДОМА. ГОЛОС РОВНЫЙ, НО С ТРУДОМ %%

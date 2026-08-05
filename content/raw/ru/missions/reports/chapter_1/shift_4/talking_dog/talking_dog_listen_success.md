@@ -4,8 +4,7 @@ type: report
 mission_id: m_talking_dog
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: эффект — заражение уменьшается, открывается статья [[creature:creature_simulacre]]. %%

@@ -4,8 +4,7 @@ type: report
 mission_id: m_cement_night_shift
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: заражение вверх. Завод продолжает отгрузку. %%

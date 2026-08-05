@@ -56,7 +56,7 @@ namespace Kontur.Core.Content
 			LoadRoster(source, database);
 			LoadMissionEvents(source, database, textCatalog);
 			LoadGeneratorBioLines(database, textCatalog);
-			LoadMissions(source, database);
+			LoadMissions(source, database, textCatalog);
 			LoadShiftNotes(source, database);
 
 			Validate(database, textCatalog);
@@ -232,7 +232,7 @@ namespace Kontur.Core.Content
 			}
 		}
 
-		private static void LoadMissions(IContentSource source, ContentDatabase database)
+		private static void LoadMissions(IContentSource source, ContentDatabase database, ITextCatalog? textCatalog)
 		{
 			List<MissionDto> missions = ReadList<MissionDto>(source, MissionsFile);
 			foreach (MissionDto dto in missions)
@@ -279,6 +279,12 @@ namespace Kontur.Core.Content
 					mission.ManifestedPropertyIds.AddRange(dto.ManifestedPropertyIds);
 				}
 
+				// Условие появления миссии живёт во фронтматтере её звонка: там его пишет автор.
+				if (textCatalog != null)
+				{
+					mission.RequiredFlags = textCatalog.GetRequirements(mission.CallId);
+				}
+
 				database.Missions[mission.Id] = mission;
 			}
 		}
@@ -304,7 +310,7 @@ namespace Kontur.Core.Content
 				}
 				else foreach (KeyValuePair<string, MissionEventOptionDto> pair in balance)
 				{
-					definition.Options.Add(ToMissionEventOption(new TextOption(pair.Key, MissionEventQuality.Neutral, null, Array.Empty<StatKind>()), pair.Value, database.Config));
+					definition.Options.Add(ToMissionEventOption(new TextOption(pair.Key, Array.Empty<StatKind>()), pair.Value, database.Config));
 				}
 
 				database.MissionEvents[definition.Id] = definition;
@@ -313,17 +319,17 @@ namespace Kontur.Core.Content
 
 		private static MissionEventOption ToMissionEventOption(TextOption textOption, MissionEventOptionDto? dto, SimulationConfig config)
 		{
-			MissionEventQualityConfig defaults = config.MissionEvents.For(textOption.Quality);
+			MissionEventConfig defaults = config.MissionEvents;
 			return new MissionEventOption
 			{
 				Id = textOption.Id,
-				Quality = textOption.Quality,
 				CheckedStats = textOption.CheckedStats,
-				RequirementModifier = textOption.RequirementModifier ?? defaults.RequirementModifier,
+				RequirementModifier = defaults.RequirementModifier,
 				DeathChanceMultiplier = dto?.DeathChanceMultiplier ?? defaults.RiskMultiplier,
 				InjuryChanceMultiplier = dto?.InjuryChanceMultiplier ?? defaults.RiskMultiplier,
 				ExtraScales = dto?.ExtraScales == null ? ScaleDelta.Zero : ToDelta(dto.ExtraScales),
 				RevealsPropertyId = dto?.RevealsPropertyId,
+				SetsFlagId = dto?.SetsFlagId,
 				ConsequenceCapOverride = dto == null ? null : ParseOptionalCap(dto.ConsequenceCap, MissionEventsFile, textOption.Id),
 				RequiresEquipmentId = dto?.RequiresEquipmentId
 			};
@@ -482,6 +488,12 @@ namespace Kontur.Core.Content
 				ValidateTextEntry(textCatalog, mission.CallId, $"mission '{mission.Id}', callId", errors);
 			}
 
+			// Записка сменщика приходит игроку по id, а не значением: неверный id раньше
+			// превратился бы в пустой лист на столе, теперь падает на загрузке.
+			foreach (DayConfig day in database.Config.Days)
+			{
+				ValidateTextEntry(textCatalog, day.ShiftNoteId, $"day {day.Day}, shiftNoteId", errors);
+			}
 		}
 
 		private static void ValidateGenerator(ContentDatabase database, ITextCatalog? textCatalog, List<string> errors)

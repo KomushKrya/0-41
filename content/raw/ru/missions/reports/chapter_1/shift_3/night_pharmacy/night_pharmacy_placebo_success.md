@@ -4,8 +4,7 @@ type: report
 mission_id: m_night_pharmacy
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: гласность вниз, лояльность вверх. Открывает property_mimic_speech по данным радио. %%

@@ -6,7 +6,8 @@ namespace Kontur.Core.Events
 	// Список сигналов из раздела 13 ДД. Каждый сигнал — иммутабельная запись:
 	// подписчик не может испортить состояние ядра, поменяв поле события.
 
-	public sealed record ShiftStarted(int Day, int StaffLimit, string ShiftNoteTitle, string ShiftNoteText) : IGameEvent;
+	/// <summary>Записка сменщика приходит идентификатором: сам текст интерфейс берёт из текстового движка.</summary>
+	public sealed record ShiftStarted(int Day, int StaffLimit, string ShiftNoteId) : IGameEvent;
 
 	/// <summary>Окно приёма новых вызовов закрылось (5 минут), но смена ещё идёт.</summary>
 	public sealed record CallWindowClosed(int Day, int OpenIncidents) : IGameEvent;
