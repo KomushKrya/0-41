@@ -457,8 +457,8 @@
     },
     "reports": {
       "": {
-        "success": "report_ceiling_leak_plain_success",
-        "failure": "report_ceiling_leak_plain_failure"
+        "success": "report_ceiling_leak_success",
+        "failure": "report_ceiling_leak_failure"
       }
     }
   },
@@ -504,8 +504,8 @@
     },
     "reports": {
       "": {
-        "success": "report_night_watchman_plain_success",
-        "failure": "report_night_watchman_plain_failure"
+        "success": "report_night_watchman_success",
+        "failure": "report_night_watchman_failure"
       }
     }
   },
@@ -602,8 +602,8 @@
     },
     "reports": {
       "": {
-        "success": "report_upstairs_neighbors_plain_success",
-        "failure": "report_upstairs_neighbors_plain_failure"
+        "success": "report_upstairs_neighbors_success",
+        "failure": "report_upstairs_neighbors_failure"
       }
     }
   },

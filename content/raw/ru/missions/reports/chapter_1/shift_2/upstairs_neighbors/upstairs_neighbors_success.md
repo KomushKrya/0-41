@@ -1,5 +1,5 @@
 ---
-id: report_upstairs_neighbors_plain_success
+id: report_upstairs_neighbors_success
 type: report
 mission_id: m_upstairs_neighbors
 status: draft

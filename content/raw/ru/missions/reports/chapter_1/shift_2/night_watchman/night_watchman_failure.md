@@ -1,5 +1,5 @@
 ---
-id: report_night_watchman_plain_failure
+id: report_night_watchman_failure
 type: report
 mission_id: m_night_watchman
 status: draft

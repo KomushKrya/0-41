@@ -156,8 +156,8 @@
 | `report_black_mold_resettle_success` | report | content/raw/ru/missions/reports/chapter_1/shift_1/black_mold/black_mold_resettle_success.md |
 | `report_brother_smile_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_1/brother_smile/brother_smile_failure.md |
 | `report_brother_smile_success` | report | content/raw/ru/missions/reports/chapter_1/shift_1/brother_smile/brother_smile_success.md |
-| `report_ceiling_leak_plain_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_2/ceiling_leak/ceiling_leak_plain_failure.md |
-| `report_ceiling_leak_plain_success` | report | content/raw/ru/missions/reports/chapter_1/shift_2/ceiling_leak/ceiling_leak_plain_success.md |
+| `report_ceiling_leak_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_2/ceiling_leak/ceiling_leak_failure.md |
+| `report_ceiling_leak_success` | report | content/raw/ru/missions/reports/chapter_1/shift_2/ceiling_leak/ceiling_leak_success.md |
 | `report_cement_night_shift_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_3/cement_night_shift/cement_night_shift_failure.md |
 | `report_cement_night_shift_success` | report | content/raw/ru/missions/reports/chapter_1/shift_3/cement_night_shift/cement_night_shift_success.md |
 | `report_construction_intruders_distract_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_1/construction_intruders/construction_intruders_distract_failure.md |
@@ -190,8 +190,8 @@
 | `report_night_pharmacy_militia_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_3/night_pharmacy/night_pharmacy_militia_failure.md |
 | `report_night_pharmacy_placebo_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_3/night_pharmacy/night_pharmacy_placebo_failure.md |
 | `report_night_pharmacy_placebo_success` | report | content/raw/ru/missions/reports/chapter_1/shift_3/night_pharmacy/night_pharmacy_placebo_success.md |
-| `report_night_watchman_plain_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_2/night_watchman/night_watchman_plain_failure.md |
-| `report_night_watchman_plain_success` | report | content/raw/ru/missions/reports/chapter_1/shift_2/night_watchman/night_watchman_plain_success.md |
+| `report_night_watchman_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_2/night_watchman/night_watchman_failure.md |
+| `report_night_watchman_success` | report | content/raw/ru/missions/reports/chapter_1/shift_2/night_watchman/night_watchman_success.md |
 | `report_ninth_silence_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_3/ninth_silence/ninth_silence_failure.md |
 | `report_ninth_silence_success` | report | content/raw/ru/missions/reports/chapter_1/shift_3/ninth_silence/ninth_silence_success.md |
 | `report_pensioner_door_capture_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_1/pensioner_door/pensioner_door_capture_failure.md |
@@ -224,8 +224,8 @@
 | `report_talking_dog_ignore_success` | report | content/raw/ru/missions/reports/chapter_1/shift_4/talking_dog/talking_dog_ignore_success.md |
 | `report_talking_dog_listen_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_4/talking_dog/talking_dog_listen_failure.md |
 | `report_talking_dog_listen_success` | report | content/raw/ru/missions/reports/chapter_1/shift_4/talking_dog/talking_dog_listen_success.md |
-| `report_upstairs_neighbors_plain_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_2/upstairs_neighbors/upstairs_neighbors_plain_failure.md |
-| `report_upstairs_neighbors_plain_success` | report | content/raw/ru/missions/reports/chapter_1/shift_2/upstairs_neighbors/upstairs_neighbors_plain_success.md |
+| `report_upstairs_neighbors_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_2/upstairs_neighbors/upstairs_neighbors_failure.md |
+| `report_upstairs_neighbors_success` | report | content/raw/ru/missions/reports/chapter_1/shift_2/upstairs_neighbors/upstairs_neighbors_success.md |
 | `report_urgent_evacuation_persuade_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_1/urgent_evacuation/urgent_evacuation_persuade_failure.md |
 | `report_urgent_evacuation_persuade_success` | report | content/raw/ru/missions/reports/chapter_1/shift_1/urgent_evacuation/urgent_evacuation_persuade_success.md |
 | `report_urgent_evacuation_riot_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_1/urgent_evacuation/urgent_evacuation_riot_failure.md |
