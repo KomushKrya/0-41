@@ -39,6 +39,9 @@ public partial class GameFlow : Node
 	/// <summary>Экран найма открыт для стартового выбора, а не для добора между сменами.</summary>
 	public bool HiringIsStartingChoice { get; private set; }
 
+	/// <summary>День, который ждёт кнопки «Приступить к смене». 0 — ждать нечего.</summary>
+	public int PendingShiftDay { get; private set; }
+
 	public override void _Ready()
 	{
 		Instance = this;
@@ -160,7 +163,13 @@ public partial class GameFlow : Node
 		BeginShift(nextDay);
 	}
 
-	/// <summary>Начинает смену и уводит игрока в кабинет.</summary>
+	/// <summary>
+	/// Уводит игрока в кабинет со сменой наготове.
+	///
+	/// Саму смену запускает игрок кнопкой на терминале: до неё он сидит в
+	/// кабинете при остановленном ядре и волен осмотреться. Поэтому здесь
+	/// только переход, а день кладётся в <see cref="PendingShiftDay"/>.
+	/// </summary>
 	public void BeginShift(int day)
 	{
 		if (!HasCore())
@@ -168,15 +177,33 @@ public partial class GameFlow : Node
 			return;
 		}
 
-		CommandResult result = _kontur.Simulation.StartShift(day);
+		PendingShiftDay = day;
+		GoToOffice();
+	}
+
+	/// <summary>Смена ещё не начата и ждёт кнопки на терминале.</summary>
+	public bool HasPendingShift => PendingShiftDay > 0 && HasReadyCore() && !_kontur.Simulation.IsShiftActive;
+
+	/// <summary>
+	/// Начинает отложенную смену. Ложь — ядро отказало, и терминал обязан
+	/// остаться запертым: выпускать игрока в кабинет, где время не идёт, нельзя.
+	/// </summary>
+	public bool StartPendingShift()
+	{
+		if (!HasCore() || PendingShiftDay <= 0)
+		{
+			return false;
+		}
+
+		CommandResult result = _kontur.Simulation.StartShift(PendingShiftDay);
 		if (!result.IsSuccess)
 		{
 			GD.PushError("[FLOW] Смена не началась: " + result.Error);
-			ShowMainMenu();
-			return;
+			return false;
 		}
 
-		GoToOffice();
+		PendingShiftDay = 0;
+		return true;
 	}
 
 	private void GoToOffice()
@@ -239,6 +266,12 @@ public partial class GameFlow : Node
 		{
 			_kontur.IsPaused = paused;
 		}
+	}
+
+	/// <summary>Тихая проверка для свойств: ядро есть, но ругаться незачем.</summary>
+	private bool HasReadyCore()
+	{
+		return _kontur != null && _kontur.IsReady;
 	}
 
 	private bool HasCore()

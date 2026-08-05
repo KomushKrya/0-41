@@ -58,6 +58,10 @@ public partial class EncyclopediaShots : Node
 		}
 
 		computer.EnterComputerMode(player);
+
+		// Сцена поднята напрямую, смена не начата — терминал встречает заставкой.
+		// Снимаем её: снимок нужен с картотекой, а не с кнопкой начала смены.
+		computerUi.EndShiftStartMode();
 		computerUi.OpenScreen(ComputerScreen.Encyclopedia);
 
 		// Курсор терминала встаёт в середину экрана и закрывает собой букву
