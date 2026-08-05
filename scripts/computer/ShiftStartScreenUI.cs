@@ -40,7 +40,7 @@ public partial class ShiftStartScreenUI : Control, IComputerScreen
 		_day.HorizontalAlignment = HorizontalAlignment.Center;
 		stack.AddChild(_day);
 
-		_start = DosTerminal.CreateRow("Приступить к смене");
+		_start = DosTerminal.CreateRow(StartCaption);
 		_start.Alignment = HorizontalAlignment.Center;
 		_start.SizeFlagsHorizontal = SizeFlags.ShrinkCenter;
 		_start.CustomMinimumSize = new Vector2(280.0f, 0.0f);
@@ -51,17 +51,30 @@ public partial class ShiftStartScreenUI : Control, IComputerScreen
 		DosTerminal.SetRowSelected(_start, true);
 		stack.AddChild(_start);
 
-		RefreshDay();
+		Refresh();
 	}
 
-	public void OnScreenOpened() => RefreshDay();
+	public void OnScreenOpened() => Refresh();
 
-	private void RefreshDay()
+	private const string StartCaption = "Приступить к смене";
+	private const string ResumeCaption = "Продолжить смену";
+
+	private void Refresh()
 	{
 		GameRuntime runtime = GameRuntime.Get(this);
 		if (runtime == null || !runtime.IsReady)
 		{
 			_day.Text = "ЯДРО НЕДОСТУПНО";
+			return;
+		}
+
+		// Партия из сохранения возвращается в середину смены: день там уже стоит
+		// свой, и кнопка не начинает смену, а отпускает остановленное время.
+		bool isResume = GameFlow.Instance != null && GameFlow.Instance.PendingShiftIsResume;
+		if (isResume)
+		{
+			_day.Text = $"СМЕНА {runtime.Session.Day}   ПРИОСТАНОВЛЕНА";
+			_start.Text = ResumeCaption;
 			return;
 		}
 
@@ -72,5 +85,6 @@ public partial class ShiftStartScreenUI : Control, IComputerScreen
 			: runtime.Session.Day + 1;
 
 		_day.Text = $"СМЕНА {day}   НЕ НАЧАТА";
+		_start.Text = StartCaption;
 	}
 }

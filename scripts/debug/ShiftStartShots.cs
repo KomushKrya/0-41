@@ -62,6 +62,10 @@ public partial class ShiftStartShots : Node
 			return;
 		}
 
+		// Кадр от стола: заставка обязана быть на мониторе до всякой интеракции.
+		GD.Print($"[SHOT] заставка до подхода к столу: {computerUi.IsShiftStartModeActive}");
+		Save("shift_start_desk");
+
 		computer.EnterComputerMode(player);
 		await Settle(FocusFrames);
 
@@ -84,7 +88,101 @@ public partial class ShiftStartShots : Node
 			+ $"заставка: {computerUi.IsShiftStartModeActive}, фокус камеры: {player.IsViewFocused}");
 		Save("shift_start_after");
 
+		if (runtime != null)
+		{
+			await DriveResume(runtime);
+		}
+
 		GetTree().Quit();
+	}
+
+	/// <summary>
+	/// Второй заход: партия сохраняется, поднимается «Продолжить» — терминал
+	/// обязан встретить той же заставкой, но с кнопкой продолжения.
+	/// </summary>
+	private async System.Threading.Tasks.Task DriveResume(GameRuntime runtime)
+	{
+		// Быстрый слот — живой файл игрока. Забираем его содержимое и кладём
+		// обратно, чтобы проверка не стёрла чужое сохранение.
+		string backup = ReadSlot(runtime);
+		runtime.SaveToSlot(GameFlow.QuickSlot, "проверка заставки");
+
+		if (GameFlow.Instance == null || !GameFlow.Instance.ContinueGame())
+		{
+			GD.PushError("[SHOT] Загрузка быстрого слота не удалась.");
+			RestoreSlot(backup);
+			return;
+		}
+
+		await Settle(WarmupFrames);
+
+		Node? scene = GetTree().CurrentScene;
+		var computer = scene?.GetNodeOrNull<DeskComputerInteraction>(ComputerPath);
+		var computerUi = scene?.GetNodeOrNull<ComputerUI>(ComputerUiPath);
+		var player = scene?.GetNodeOrNull<FlyPlayer>(PlayerPath);
+		if (computer == null || computerUi == null || player == null)
+		{
+			GD.PushError("[SHOT] Кабинет после загрузки не собрался.");
+			RestoreSlot(backup);
+			return;
+		}
+
+		GD.Print($"[SHOT] после загрузки заставка до подхода к столу: {computerUi.IsShiftStartModeActive}");
+		Save("shift_resume_desk");
+
+		computer.EnterComputerMode(player);
+		await Settle(FocusFrames);
+
+		GD.Print($"[SHOT] после загрузки — заставка: {computerUi.IsShiftStartModeActive}, "
+			+ $"время стоит: {runtime.Session.IsTimeFrozen}");
+		Save("shift_resume_screen");
+
+		Button? resume = FindStartButton(computerUi);
+		if (resume == null)
+		{
+			GD.PushError("[SHOT] Кнопка продолжения не найдена.");
+			RestoreSlot(backup);
+			return;
+		}
+
+		GD.Print($"[SHOT] подпись кнопки: «{resume.Text}»");
+		resume.EmitSignal(BaseButton.SignalName.Pressed);
+		await Settle(FocusFrames);
+
+		GD.Print($"[SHOT] после нажатия — время стоит: {runtime.Session.IsTimeFrozen}, "
+			+ $"владельцы паузы: {string.Join(",", runtime.Session.TimeFreezeOwners)}, "
+			+ $"фокус камеры: {player.IsViewFocused}");
+		Save("shift_resume_after");
+
+		RestoreSlot(backup);
+	}
+
+	private static string ReadSlot(GameRuntime runtime)
+	{
+		if (!runtime.HasSlot(GameFlow.QuickSlot))
+		{
+			return string.Empty;
+		}
+
+		using FileAccess file = FileAccess.Open(GameRuntime.GetSlotPath(GameFlow.QuickSlot), FileAccess.ModeFlags.Read);
+		return file == null ? string.Empty : file.GetAsText();
+	}
+
+	private static void RestoreSlot(string backup)
+	{
+		string path = GameRuntime.GetSlotPath(GameFlow.QuickSlot);
+		if (string.IsNullOrEmpty(backup))
+		{
+			if (FileAccess.FileExists(path))
+			{
+				DirAccess.RemoveAbsolute(path);
+			}
+
+			return;
+		}
+
+		using FileAccess file = FileAccess.Open(path, FileAccess.ModeFlags.Write);
+		file?.StoreString(backup);
 	}
 
 	private void Save(string name)
