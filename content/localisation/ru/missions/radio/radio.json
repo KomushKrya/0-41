@@ -2,7 +2,6 @@
 	"radio_black_mold": {
 		"id": "radio_black_mold",
 		"type": "radio",
-		"properties": [],
 		"options": [
 			{
 				"name": "Уксус и ковры",
@@ -65,14 +64,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_id": "m_black_mold"
+		]
 	},
 	"radio_brother_smile": {
 		"id": "radio_brother_smile",
 		"type": "radio",
-		"properties": [],
 		"options": [
 			{
 				"name": "Вырвать",
@@ -138,14 +134,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_id": "m_brother_smile"
+		]
 	},
 	"radio_construction_intruders": {
 		"id": "radio_construction_intruders",
 		"type": "radio",
-		"properties": [],
 		"options": [
 			{
 				"name": "Отвлечь",
@@ -197,14 +190,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_id": "m_construction_intruders"
+		]
 	},
 	"radio_false_gas_alarm": {
 		"id": "radio_false_gas_alarm",
 		"type": "radio",
-		"properties": [],
 		"options": [
 			{
 				"name": "Проверить",
@@ -244,14 +234,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_id": "m_false_gas_alarm"
+		]
 	},
 	"radio_missing_daughter": {
 		"id": "radio_missing_daughter",
 		"type": "radio",
-		"properties": [],
 		"options": [
 			{
 				"name": "Стрелять по волокнам",
@@ -317,14 +304,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_id": "m_missing_daughter"
+		]
 	},
 	"radio_pensioner_door": {
 		"id": "radio_pensioner_door",
 		"type": "radio",
-		"properties": [],
 		"options": [
 			{
 				"name": "Пройти мимо",
@@ -388,14 +372,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_id": "m_pensioner_door"
+		]
 	},
 	"radio_urgent_evacuation": {
 		"id": "radio_urgent_evacuation",
 		"type": "radio",
-		"properties": [],
 		"options": [
 			{
 				"name": "Припугнуть",
@@ -437,14 +418,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_id": "m_urgent_evacuation"
+		]
 	},
 	"radio_workshop_intro": {
 		"id": "radio_workshop_intro",
 		"type": "radio",
-		"properties": [],
 		"options": [
 			{
 				"name": "Оформить по бумагам",
@@ -496,14 +474,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_id": "m_workshop_intro"
+		]
 	},
 	"radio_bench_man": {
 		"id": "radio_bench_man",
 		"type": "radio",
-		"properties": [],
 		"options": [
 			{
 				"name": "Заговорить",
@@ -545,14 +520,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_id": "m_bench_man"
+		]
 	},
 	"radio_intercom_voice": {
 		"id": "radio_intercom_voice",
 		"type": "radio",
-		"properties": [],
 		"options": [
 			{
 				"name": "Ответить и потянуть время",
@@ -594,14 +566,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_id": "m_intercom_voice"
+		]
 	},
 	"radio_platform_wait": {
 		"id": "radio_platform_wait",
 		"type": "radio",
-		"properties": [],
 		"options": [
 			{
 				"name": "Наблюдать издали",
@@ -643,14 +612,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_id": "m_platform_wait"
+		]
 	},
 	"radio_workshop_truck": {
 		"id": "radio_workshop_truck",
 		"type": "radio",
-		"properties": [],
 		"options": [
 			{
 				"name": "Списать по браку",
@@ -703,14 +669,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_id": "m_workshop_truck"
+		]
 	},
 	"radio_dense_flock": {
 		"id": "radio_dense_flock",
 		"type": "radio",
-		"properties": [],
 		"options": [
 			{
 				"name": "Закрыть двор",
@@ -776,14 +739,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_id": "m_dense_flock"
+		]
 	},
 	"radio_night_pharmacy": {
 		"id": "radio_night_pharmacy",
 		"type": "radio",
-		"properties": [],
 		"options": [
 			{
 				"name": "Закрыть на переучёт",
@@ -849,14 +809,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_id": "m_night_pharmacy"
+		]
 	},
 	"radio_room_34": {
 		"id": "radio_room_34",
 		"type": "radio",
-		"properties": [],
 		"options": [
 			{
 				"name": "Сверить по спискам",
@@ -925,14 +882,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_id": "m_room_34"
+		]
 	},
 	"radio_tram_last_run": {
 		"id": "radio_tram_last_run",
 		"type": "radio",
-		"properties": [],
 		"options": [
 			{
 				"name": "Увести по маршруту",
@@ -1000,14 +954,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_id": "m_tram_last_run"
+		]
 	},
 	"radio_workshop_empty": {
 		"id": "radio_workshop_empty",
 		"type": "radio",
-		"properties": [],
 		"options": [
 			{
 				"name": "Осмотреть до конца",
@@ -1059,14 +1010,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_id": "m_workshop_empty"
+		]
 	},
 	"radio_workshop_site": {
 		"id": "radio_workshop_site",
 		"type": "radio",
-		"properties": [],
 		"options": [
 			{
 				"name": "Развести кладку",
@@ -1132,14 +1080,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_id": "m_workshop_site"
+		]
 	},
 	"radio_comms_outage": {
 		"id": "radio_comms_outage",
 		"type": "radio",
-		"properties": [],
 		"options": [
 			{
 				"name": "Убедить смену",
@@ -1186,14 +1131,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_id": "m_comms_outage"
+		]
 	},
 	"radio_dogs_go_down": {
 		"id": "radio_dogs_go_down",
 		"type": "radio",
-		"properties": [],
 		"options": [
 			{
 				"name": "Проследить",
@@ -1240,14 +1182,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_id": "m_dogs_go_down"
+		]
 	},
 	"radio_dont_blink": {
 		"id": "radio_dont_blink",
 		"type": "radio",
-		"properties": [],
 		"options": [
 			{
 				"name": "Перенять взгляд",
@@ -1294,14 +1233,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_id": "m_dont_blink"
+		]
 	},
 	"radio_flooded_basement": {
 		"id": "radio_flooded_basement",
 		"type": "radio",
-		"properties": [],
 		"options": [
 			{
 				"name": "Перекрыть сток",
@@ -1353,14 +1289,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_id": "m_flooded_basement"
+		]
 	},
 	"radio_racing_pulse": {
 		"id": "radio_racing_pulse",
 		"type": "radio",
-		"properties": [],
 		"options": [
 			{
 				"name": "Успокоить",
@@ -1407,14 +1340,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_id": "m_racing_pulse"
+		]
 	},
 	"radio_silent_collector": {
 		"id": "radio_silent_collector",
 		"type": "radio",
-		"properties": [],
 		"options": [
 			{
 				"name": "Позвать",
@@ -1461,14 +1391,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_id": "m_silent_collector"
+		]
 	},
 	"radio_talking_dog": {
 		"id": "radio_talking_dog",
 		"type": "radio",
-		"properties": [],
 		"options": [
 			{
 				"name": "Прислушаться",
@@ -1515,14 +1442,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_id": "m_talking_dog"
+		]
 	},
 	"radio_wall_infection": {
 		"id": "radio_wall_infection",
 		"type": "radio",
-		"properties": [],
 		"options": [
 			{
 				"name": "Дозиметр",
@@ -1586,14 +1510,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_id": "m_wall_infection"
+		]
 	},
 	"radio_whole_stairwell": {
 		"id": "radio_whole_stairwell",
 		"type": "radio",
-		"properties": [],
 		"options": [
 			{
 				"name": "Эстафета взглядов",
@@ -1654,8 +1575,6 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_id": "m_whole_stairwell"
+		]
 	}
 }

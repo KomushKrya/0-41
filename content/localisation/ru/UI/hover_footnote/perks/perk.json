@@ -2,8 +2,6 @@
 	"ab_calm": {
 		"id": "ab_calm",
 		"type": "perk",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "Не повышает голос и не ускоряет шаг, что бы ни стояло в конце коридора. На разборах такие держатся за протокол не из послушания, а потому что держаться больше не за что.",
@@ -16,16 +14,11 @@
 				"reveal": null
 			}
 		],
-		"variables": [
-			"bonus.charisma"
-		],
 		"name": "Ледяная выдержка"
 	},
 	"ab_filter_master": {
 		"id": "ab_filter_master",
 		"type": "perk",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "Отработал в резине столько, что перестал считать это неудобством: дышит ровно, стекло не потеет, объясняется жестами.",
@@ -38,17 +31,11 @@
 				"reveal": null
 			}
 		],
-		"variables": [
-			"bonus.agility",
-			"bonus.combat"
-		],
 		"name": "Работа в фильтрах"
 	},
 	"ab_mimic_hunter": {
 		"id": "ab_mimic_hunter",
 		"type": "perk",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "Различает подмену раньше остальных — по паузе не в том месте, по повторённому дважды жесту. Объяснить, что именно не так, обычно не может, и в отчёте это идёт как «предчувствие».",
@@ -61,16 +48,11 @@
 				"reveal": null
 			}
 		],
-		"variables": [
-			"allStatsBonus"
-		],
 		"name": "Насмотренность"
 	},
 	"ab_signal": {
 		"id": "ab_signal",
 		"type": "perk",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "Слышит низкий фон раньше, чем тот начинает давить: в трубе, за стеной, под полом. На звуковых объектах именно он говорит, когда пора уходить.",
@@ -83,16 +65,11 @@
 				"reveal": null
 			}
 		],
-		"variables": [
-			"bonus.intellect"
-		],
 		"name": "Слух на помехи"
 	},
 	"ab_skin_breaker": {
 		"id": "ab_skin_breaker",
 		"type": "perk",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "Знает, куда бить существо, которое носит чужую кожу, и не медлит, увидев под ней знакомое лицо. Второе даётся тяжелее первого.",
@@ -104,9 +81,6 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [
-			"bonus.strength"
 		],
 		"name": "Тяжёлая рука"
 	}

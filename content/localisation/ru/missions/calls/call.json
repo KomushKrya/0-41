@@ -2,8 +2,6 @@
 	"call_black_mold": {
 		"id": "call_black_mold",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ПЕРЕНАПРАВЛЕН НА ЛИНИЮ ИЗ РАЙОННОЙ СЛУЖБЫ ЖЭК",
@@ -64,17 +62,11 @@
 					}
 				]
 			}
-		],
-		"variables": [],
-		"mission_type": "radio",
-		"mission_id": "m_black_mold",
-		"requires": []
+		]
 	},
 	"call_brother_smile": {
 		"id": "call_brother_smile",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК В ГАЗОВУЮ СЛУЖБУ. ГОЛОС МАЛЕНЬКОЙ ДЕВОЧКИ",
@@ -118,17 +110,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_type": "radio",
-		"mission_id": "m_brother_smile",
-		"requires": []
+		]
 	},
 	"call_construction_intruders": {
 		"id": "call_construction_intruders",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК В ГАЗОВУЮ СЛУЖБУ. МУЖЧИНА С ХРИПЛОВАТЫМ ГЛУБОКИМ ГОЛОСОМ",
@@ -172,17 +158,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_type": "radio",
-		"mission_id": "m_construction_intruders",
-		"requires": []
+		]
 	},
 	"call_false_gas_alarm": {
 		"id": "call_false_gas_alarm",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК В ГАЗОВУЮ СЛУЖБУ. ЗВОНИТ ПАРЕНЬ-ПОДРОСТОК",
@@ -226,17 +206,11 @@
 					}
 				]
 			}
-		],
-		"variables": [],
-		"mission_type": "radio",
-		"mission_id": "m_false_gas_alarm",
-		"requires": []
+		]
 	},
 	"call_missing_daughter": {
 		"id": "call_missing_daughter",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ИЗ ПРИЁМНОЙ УЧАСТКОВОГО. ГОЛОС СЕРЬЁЗНЫЙ, ПО-ВОЕННОМУ СУХОЙ",
@@ -280,17 +254,11 @@
 					}
 				]
 			}
-		],
-		"variables": [],
-		"mission_type": "radio",
-		"mission_id": "m_missing_daughter",
-		"requires": []
+		]
 	},
 	"call_pensioner_door": {
 		"id": "call_pensioner_door",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК В ГАЗОВУЮ СЛУЖБУ. НА ЛИНИИ НАПУГАННО ЗВУЧАЩИЙ СТАРИК",
@@ -344,17 +312,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_type": "radio",
-		"mission_id": "m_pensioner_door",
-		"requires": []
+		]
 	},
 	"call_urgent_evacuation": {
 		"id": "call_urgent_evacuation",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ОТ СТАРШЕГО ИССЛЕДОВАТЕЛЯ С ОБЪЕКТА",
@@ -398,17 +360,11 @@
 					}
 				]
 			}
-		],
-		"variables": [],
-		"mission_type": "radio",
-		"mission_id": "m_urgent_evacuation",
-		"requires": []
+		]
 	},
 	"call_workshop_intro": {
 		"id": "call_workshop_intro",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ИЗ ДИСПЕТЧЕРСКОЙ СТРОЙБАЗЫ №2",
@@ -469,17 +425,11 @@
 					}
 				]
 			}
-		],
-		"variables": [],
-		"mission_type": "radio",
-		"mission_id": "m_workshop_intro",
-		"requires": []
+		]
 	},
 	"call_bench_man": {
 		"id": "call_bench_man",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ОТ МЕСТНЫХ ЖИТЕЛЕЙ. НЕСКОЛЬКО ГОЛОСОВ, ПЕРЕБИВАЮТ ДРУГ ДРУГА",
@@ -540,17 +490,11 @@
 					}
 				]
 			}
-		],
-		"variables": [],
-		"mission_type": "radio",
-		"mission_id": "m_bench_man",
-		"requires": []
+		]
 	},
 	"call_ceiling_leak": {
 		"id": "call_ceiling_leak",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ОТ ЖИЛЬЦА ЧАСТНОГО ДОМА. МУЖЧИНА, УСТАЛЫЙ",
@@ -594,20 +538,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_type": "filler",
-		"mission_id": "m_ceiling_leak",
-		"requires": [
-			"strength",
-			"intellect"
 		]
 	},
 	"call_intercom_voice": {
 		"id": "call_intercom_voice",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ОТ ЖИЛЬЦА ПОДЪЕЗДА. ЖЕНЩИНА, ИСПУГАННАЯ",
@@ -658,17 +593,11 @@
 					}
 				]
 			}
-		],
-		"variables": [],
-		"mission_type": "radio",
-		"mission_id": "m_intercom_voice",
-		"requires": []
+		]
 	},
 	"call_night_watchman": {
 		"id": "call_night_watchman",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК С ПРОХОДНОЙ ЦЕХА. МУЖЧИНА, СБИВЧИВЫЙ",
@@ -712,20 +641,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_type": "filler",
-		"mission_id": "m_night_watchman",
-		"requires": [
-			"intellect",
-			"combat"
 		]
 	},
 	"call_platform_wait": {
 		"id": "call_platform_wait",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ОТ ДИСПЕТЧЕРА ВОКЗАЛА. МУЖЧИНА, НАПРЯЖЁННЫЙ ГОЛОС",
@@ -786,17 +706,11 @@
 					}
 				]
 			}
-		],
-		"variables": [],
-		"mission_type": "radio",
-		"mission_id": "m_platform_wait",
-		"requires": []
+		]
 	},
 	"call_upstairs_neighbors": {
 		"id": "call_upstairs_neighbors",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ОТ СОСЕДКИ СНИЗУ. ЖЕНЩИНА, РАЗДРАЖЁННАЯ",
@@ -840,20 +754,11 @@
 					}
 				]
 			}
-		],
-		"variables": [],
-		"mission_type": "filler",
-		"mission_id": "m_upstairs_neighbors",
-		"requires": [
-			"intellect",
-			"charisma"
 		]
 	},
 	"call_workshop_truck": {
 		"id": "call_workshop_truck",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "НА ЛИНИИ ЗНАКОМЫЙ ГОЛОС. НОМЕР ОТДЕЛА ОН ГДЕ-ТО ВЗЯЛ САМ",
@@ -914,17 +819,11 @@
 					}
 				]
 			}
-		],
-		"variables": [],
-		"mission_type": "radio",
-		"mission_id": "m_workshop_truck",
-		"requires": []
+		]
 	},
 	"call_cement_night_shift": {
 		"id": "call_cement_night_shift",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЦЕМЕНТНЫЙ ЗАВОД, ЗВОНИТ МАСТЕР НОЧНОЙ СМЕНЫ",
@@ -985,21 +884,11 @@
 					}
 				]
 			}
-		],
-		"variables": [],
-		"mission_type": "filler",
-		"mission_id": "m_cement_night_shift",
-		"requires": [
-			"strength",
-			"intellect",
-			"charisma"
 		]
 	},
 	"call_dense_flock": {
 		"id": "call_dense_flock",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "СТОРОЖ АВТОБАЗЫ №3, ЗВОНИТ С ПРОХОДНОЙ",
@@ -1060,17 +949,11 @@
 					}
 				]
 			}
-		],
-		"variables": [],
-		"mission_type": "radio",
-		"mission_id": "m_dense_flock",
-		"requires": []
+		]
 	},
 	"call_dogs_at_grate": {
 		"id": "call_dogs_at_grate",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ОТ ДВОРНИКА УЧАСТКА №7",
@@ -1121,21 +1004,11 @@
 					}
 				]
 			}
-		],
-		"variables": [],
-		"mission_type": "filler",
-		"mission_id": "m_dogs_at_grate",
-		"requires": [
-			"intellect",
-			"strength",
-			"combat"
 		]
 	},
 	"call_dosimeter_yard": {
 		"id": "call_dosimeter_yard",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ОТ ЧАСТНОГО ЛИЦА. ГОВОРИТ ГРОМКО, ВОКРУГ ГОЛОСА",
@@ -1196,21 +1069,11 @@
 					}
 				]
 			}
-		],
-		"variables": [],
-		"mission_type": "filler",
-		"mission_id": "m_dosimeter_yard",
-		"requires": [
-			"charisma",
-			"combat",
-			"intellect"
 		]
 	},
 	"call_night_pharmacy": {
 		"id": "call_night_pharmacy",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "НОЧНАЯ АПТЕКА №4, НА ЛИНИИ ДЕЖУРНЫЙ ФАРМАЦЕВТ",
@@ -1271,17 +1134,11 @@
 					}
 				]
 			}
-		],
-		"variables": [],
-		"mission_type": "radio",
-		"mission_id": "m_night_pharmacy",
-		"requires": []
+		]
 	},
 	"call_ninth_silence": {
 		"id": "call_ninth_silence",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "ВНУТРЕННЯЯ ЛИНИЯ. СМЕННЫЙ ИНЖЕНЕР УЗЛА СВЯЗИ",
@@ -1332,21 +1189,11 @@
 					}
 				]
 			}
-		],
-		"variables": [],
-		"mission_type": "filler",
-		"mission_id": "m_ninth_silence",
-		"requires": [
-			"intellect",
-			"strength",
-			"combat"
 		]
 	},
 	"call_room_34": {
 		"id": "call_room_34",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ИЗ ОБЩЕЖИТИЯ №6, НА ЛИНИИ КОМЕНДАНТ",
@@ -1407,17 +1254,11 @@
 					}
 				]
 			}
-		],
-		"variables": [],
-		"mission_type": "radio",
-		"mission_id": "m_room_34",
-		"requires": []
+		]
 	},
 	"call_shelter_basement": {
 		"id": "call_shelter_basement",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ИЗ ЖЭК-4, НА ЛИНИИ ДЕЖУРНЫЙ СЛЕСАРЬ",
@@ -1478,20 +1319,11 @@
 					}
 				]
 			}
-		],
-		"variables": [],
-		"mission_type": "filler",
-		"mission_id": "m_shelter_basement",
-		"requires": [
-			"strength",
-			"charisma"
 		]
 	},
 	"call_tram_last_run": {
 		"id": "call_tram_last_run",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ИЗ ДИСПЕТЧЕРСКОЙ ТРАМВАЙНОГО ПАРКА",
@@ -1545,19 +1377,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_type": "radio",
-		"mission_id": "m_tram_last_run",
-		"requires": []
+		]
 	},
 	"call_workshop_empty": {
 		"id": "call_workshop_empty",
 		"type": "call",
-		"properties": [],
-		"requirements": [
-			"flag_truck_seized"
-		],
 		"chunks": [
 			{
 				"text": "ГОЛОС НЕЗНАКОМЫЙ. ОБОРОТЫ ЗНАКОМЫЕ",
@@ -1618,19 +1442,11 @@
 					}
 				]
 			}
-		],
-		"variables": [],
-		"mission_type": "radio",
-		"mission_id": "m_workshop_empty",
-		"requires": []
+		]
 	},
 	"call_workshop_site": {
 		"id": "call_workshop_site",
 		"type": "call",
-		"properties": [],
-		"requirements": [
-			"flag_truck_written_off"
-		],
 		"chunks": [
 			{
 				"text": "ТОТ ЖЕ ГОЛОС. НА ЭТОТ РАЗ ГОВОРИТ БЫСТРО",
@@ -1691,17 +1507,11 @@
 					}
 				]
 			}
-		],
-		"variables": [],
-		"mission_type": "radio",
-		"mission_id": "m_workshop_site",
-		"requires": []
+		]
 	},
 	"call_comms_outage": {
 		"id": "call_comms_outage",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК С УЗЛА СВЯЗИ",
@@ -1745,17 +1555,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_type": "radio",
-		"mission_id": "m_comms_outage",
-		"requires": []
+		]
 	},
 	"call_dogs_go_down": {
 		"id": "call_dogs_go_down",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК В ГАЗОВУЮ СЛУЖБУ. ЖЕНЩИНА, ВЗВОЛНОВАННАЯ",
@@ -1799,17 +1603,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_type": "radio",
-		"mission_id": "m_dogs_go_down",
-		"requires": []
+		]
 	},
 	"call_dont_blink": {
 		"id": "call_dont_blink",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК В ГАЗОВУЮ СЛУЖБУ. МУЖЧИНА, ПЕРЕПУГАННЫЙ",
@@ -1853,17 +1651,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_type": "radio",
-		"mission_id": "m_dont_blink",
-		"requires": []
+		]
 	},
 	"call_flooded_basement": {
 		"id": "call_flooded_basement",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК В ГАЗОВУЮ СЛУЖБУ. ГОЛОС ДВОРНИКА, ХРИПЛЫЙ",
@@ -1907,17 +1699,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_type": "radio",
-		"mission_id": "m_flooded_basement",
-		"requires": []
+		]
 	},
 	"call_infection_ward_audit": {
 		"id": "call_infection_ward_audit",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ИЗ ИНФЕКЦИОННОГО ОТДЕЛЕНИЯ",
@@ -1961,20 +1747,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_type": "filler",
-		"mission_id": "m_infection_ward_audit",
-		"requires": [
-			"strength",
-			"combat"
 		]
 	},
 	"call_racing_pulse": {
 		"id": "call_racing_pulse",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК С ОБЪЕКТА. ШЁПОТОМ, ПРЕРЫВИСТО",
@@ -2018,17 +1795,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_type": "radio",
-		"mission_id": "m_racing_pulse",
-		"requires": []
+		]
 	},
 	"call_silent_collector": {
 		"id": "call_silent_collector",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ОТ ДИСПЕТЧЕРСКОЙ ВОДОКАНАЛА",
@@ -2072,17 +1843,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_type": "radio",
-		"mission_id": "m_silent_collector",
-		"requires": []
+		]
 	},
 	"call_talking_dog": {
 		"id": "call_talking_dog",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК В ГАЗОВУЮ СЛУЖБУ. ЖЕНЩИНА, В ГОЛОСЕ ИСТЕРИКА",
@@ -2126,17 +1891,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_type": "radio",
-		"mission_id": "m_talking_dog",
-		"requires": []
+		]
 	},
 	"call_wall_infection": {
 		"id": "call_wall_infection",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК В ГАЗОВУЮ СЛУЖБУ. ЖЕНСКИЙ ГОЛОС, УСТАЛЫЙ",
@@ -2180,17 +1939,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": [],
-		"mission_type": "radio",
-		"mission_id": "m_wall_infection",
-		"requires": []
+		]
 	},
 	"call_whole_stairwell": {
 		"id": "call_whole_stairwell",
 		"type": "call",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "ЗВОНОК ОТ УПРАВДОМА. ГОЛОС РОВНЫЙ, НО С ТРУДОМ",
@@ -2241,10 +1994,6 @@
 					}
 				]
 			}
-		],
-		"variables": [],
-		"mission_type": "radio",
-		"mission_id": "m_whole_stairwell",
-		"requires": []
+		]
 	}
 }

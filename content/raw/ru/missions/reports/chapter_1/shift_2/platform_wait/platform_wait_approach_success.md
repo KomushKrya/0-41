@@ -4,7 +4,7 @@ type: report
 mission_id: m_platform_wait
 status: draft
 outcome: success
-  - property_perekozhnik_heartbeat
+
 ---
 
 %% dev: эффект — заражение уменьшается заметнее, чем у observe, открывается property_perekozhnik_heartbeat, но ценой большего риска. %%

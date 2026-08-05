@@ -3,829 +3,522 @@
 		"id": "ui_dossier_title",
 		"type": "ui_label",
 		"name": "ДОСЬЕ СОТРУДНИКОВ",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_dossier_empty": {
 		"id": "ui_dossier_empty",
 		"type": "ui_label",
 		"name": "В штате никого.",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_dossier_pager": {
 		"id": "ui_dossier_pager",
 		"type": "ui_label",
 		"name": "{{first}}–{{last}} из {{total}}",
-		"requirements": [],
-		"properties": [],
-		"variables": [
-			"first",
-			"last",
-			"total"
-		],
 		"chunks": []
 	},
 	"ui_dossier_experience": {
 		"id": "ui_dossier_experience",
 		"type": "ui_label",
 		"name": "ОПЫТ СОТРУДНИКА: {{current}}/{{next}}",
-		"requirements": [],
-		"properties": [],
-		"variables": [
-			"current",
-			"next"
-		],
 		"chunks": []
 	},
 	"ui_dossier_level": {
 		"id": "ui_dossier_level",
 		"type": "ui_label",
 		"name": "УРОВЕНЬ: {{level}}   {{rank}}",
-		"requirements": [],
-		"properties": [],
-		"variables": [
-			"level",
-			"rank"
-		],
 		"chunks": []
 	},
 	"ui_dossier_promotion": {
 		"id": "ui_dossier_promotion",
 		"type": "ui_label",
 		"name": "▲ ПОВЫШЕНИЕ: нераспределённых очков {{points}}",
-		"requirements": [],
-		"properties": [],
-		"variables": [
-			"points"
-		],
 		"chunks": []
 	},
 	"ui_dossier_status_dead": {
 		"id": "ui_dossier_status_dead",
 		"type": "ui_label",
 		"name": "ПОГИБ",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_dossier_status_injured": {
 		"id": "ui_dossier_status_injured",
 		"type": "ui_label",
 		"name": "ТРАВМИРОВАН",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_dossier_no_photo": {
 		"id": "ui_dossier_no_photo",
 		"type": "ui_label",
 		"name": "без фото",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_dossier_stats": {
 		"id": "ui_dossier_stats",
 		"type": "ui_label",
 		"name": "ХАРАКТЕРИСТИКИ",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_dossier_abilities": {
 		"id": "ui_dossier_abilities",
 		"type": "ui_label",
 		"name": "ОСОБЫЕ НАВЫКИ",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_dossier_bio": {
 		"id": "ui_dossier_bio",
 		"type": "ui_label",
 		"name": "ДРУГИЕ ДАННЫЕ",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_dossier_points_available": {
 		"id": "ui_dossier_points_available",
 		"type": "ui_label",
 		"name": "ДОСТУПНЫ ОЧКИ ХАРАКТЕРИСТИК: {{points}}",
-		"requirements": [],
-		"properties": [],
-		"variables": [
-			"points"
-		],
 		"chunks": []
 	},
 	"ui_dossier_spend_hint": {
 		"id": "ui_dossier_spend_hint",
 		"type": "ui_label",
 		"name": "Вложить очко в «{{stat}}»",
-		"requirements": [],
-		"properties": [],
-		"variables": [
-			"stat"
-		],
 		"chunks": []
 	},
 	"ui_dossier_age_one": {
 		"id": "ui_dossier_age_one",
 		"type": "ui_label",
 		"name": "{{years}} год.",
-		"requirements": [],
-		"properties": [],
-		"variables": [
-			"years"
-		],
 		"chunks": []
 	},
 	"ui_dossier_age_few": {
 		"id": "ui_dossier_age_few",
 		"type": "ui_label",
 		"name": "{{years}} года.",
-		"requirements": [],
-		"properties": [],
-		"variables": [
-			"years"
-		],
 		"chunks": []
 	},
 	"ui_dossier_age_many": {
 		"id": "ui_dossier_age_many",
 		"type": "ui_label",
 		"name": "{{years}} лет.",
-		"requirements": [],
-		"properties": [],
-		"variables": [
-			"years"
-		],
 		"chunks": []
 	},
 	"ui_hiring_title": {
 		"id": "ui_hiring_title",
 		"type": "ui_label",
 		"name": "Набор",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_hiring_title_day": {
 		"id": "ui_hiring_title_day",
 		"type": "ui_label",
 		"name": "Набор на смену {{day}}",
-		"requirements": [],
-		"properties": [],
-		"variables": [
-			"day"
-		],
 		"chunks": []
 	},
 	"ui_hiring_title_starting": {
 		"id": "ui_hiring_title_starting",
 		"type": "ui_label",
 		"name": "Соберите бригаду",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_hiring_no_core": {
 		"id": "ui_hiring_no_core",
 		"type": "ui_label",
 		"name": "Ядро недоступно",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_hiring_candidate_rank": {
 		"id": "ui_hiring_candidate_rank",
 		"type": "ui_label",
 		"name": "{{rank}}, уровень {{level}}",
-		"requirements": [],
-		"properties": [],
-		"variables": [
-			"level",
-			"rank"
-		],
 		"chunks": []
 	},
 	"ui_hiring_abilities": {
 		"id": "ui_hiring_abilities",
 		"type": "ui_label",
 		"name": "ОСОБЕННОСТИ",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_hiring_abilities_none": {
 		"id": "ui_hiring_abilities_none",
 		"type": "ui_label",
 		"name": "нет",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_hiring_take": {
 		"id": "ui_hiring_take",
 		"type": "ui_label",
 		"name": "Взять",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_hiring_confirm": {
 		"id": "ui_hiring_confirm",
 		"type": "ui_label",
 		"name": "Готово",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_hiring_skip": {
 		"id": "ui_hiring_skip",
 		"type": "ui_label",
 		"name": "Пропустить",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_hiring_picked_starting": {
 		"id": "ui_hiring_picked_starting",
 		"type": "ui_label",
 		"name": "Выбрано {{picked}} из {{slots}}",
-		"requirements": [],
-		"properties": [],
-		"variables": [
-			"picked",
-			"slots"
-		],
 		"chunks": []
 	},
 	"ui_hiring_picked": {
 		"id": "ui_hiring_picked",
 		"type": "ui_label",
 		"name": "Взято {{picked}}, свободных мест {{slots}}",
-		"requirements": [],
-		"properties": [],
-		"variables": [
-			"picked",
-			"slots"
-		],
 		"chunks": []
 	},
 	"ui_menu_title": {
 		"id": "ui_menu_title",
 		"type": "ui_label",
 		"name": "К.О.Н.Т.У.Р.",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_menu_subtitle": {
 		"id": "ui_menu_subtitle",
 		"type": "ui_label",
 		"name": "объект 0-41 · диспетчерская",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_menu_continue": {
 		"id": "ui_menu_continue",
 		"type": "ui_label",
 		"name": "Продолжить",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_menu_new_game": {
 		"id": "ui_menu_new_game",
 		"type": "ui_label",
 		"name": "Новая игра",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_menu_settings": {
 		"id": "ui_menu_settings",
 		"type": "ui_label",
 		"name": "Настройки",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_menu_quit": {
 		"id": "ui_menu_quit",
 		"type": "ui_label",
 		"name": "Выход",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_pause_title": {
 		"id": "ui_pause_title",
 		"type": "ui_label",
 		"name": "ПАУЗА",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_pause_resume": {
 		"id": "ui_pause_resume",
 		"type": "ui_label",
 		"name": "Возобновить",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_pause_save": {
 		"id": "ui_pause_save",
 		"type": "ui_label",
 		"name": "Сохранить",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_pause_load": {
 		"id": "ui_pause_load",
 		"type": "ui_label",
 		"name": "Загрузка",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_pause_settings": {
 		"id": "ui_pause_settings",
 		"type": "ui_label",
 		"name": "Настройки",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_pause_main_menu": {
 		"id": "ui_pause_main_menu",
 		"type": "ui_label",
 		"name": "Главное меню",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_hint_no_saves": {
 		"id": "ui_hint_no_saves",
 		"type": "ui_label",
 		"name": "Сохранений пока нет",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_hint_no_flow": {
 		"id": "ui_hint_no_flow",
 		"type": "ui_label",
 		"name": "Поток игры не запущен.",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_hint_no_flow_autoload": {
 		"id": "ui_hint_no_flow_autoload",
 		"type": "ui_label",
 		"name": "Поток игры не запущен — проверьте автозагрузку GameFlow.",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_hint_load_failed": {
 		"id": "ui_hint_load_failed",
 		"type": "ui_label",
 		"name": "Не удалось загрузить сохранение, подробности в Output.",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_hint_save_unavailable": {
 		"id": "ui_hint_save_unavailable",
 		"type": "ui_label",
 		"name": "Сохранение сейчас недоступно.",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_hint_save_complete": {
 		"id": "ui_hint_save_complete",
 		"type": "ui_label",
 		"name": "Игра сохранена.",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_hint_save_failed": {
 		"id": "ui_hint_save_failed",
 		"type": "ui_label",
 		"name": "Не удалось сохранить игру, подробности в Output.",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_settings_title": {
 		"id": "ui_settings_title",
 		"type": "ui_label",
 		"name": "НАСТРОЙКИ",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_settings_close": {
 		"id": "ui_settings_close",
 		"type": "ui_label",
 		"name": "Закрыть",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_settings_bus_master": {
 		"id": "ui_settings_bus_master",
 		"type": "ui_label",
 		"name": "Общая громкость",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_settings_bus_music": {
 		"id": "ui_settings_bus_music",
 		"type": "ui_label",
 		"name": "Музыка",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_settings_bus_sfx": {
 		"id": "ui_settings_bus_sfx",
 		"type": "ui_label",
 		"name": "Эффекты",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_settings_resolution": {
 		"id": "ui_settings_resolution",
 		"type": "ui_label",
 		"name": "Разрешение",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_settings_window_mode": {
 		"id": "ui_settings_window_mode",
 		"type": "ui_label",
 		"name": "Режим окна",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_settings_window_windowed": {
 		"id": "ui_settings_window_windowed",
 		"type": "ui_label",
 		"name": "Окно",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_settings_window_fullscreen": {
 		"id": "ui_settings_window_fullscreen",
 		"type": "ui_label",
 		"name": "Полный экран",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_settings_window_borderless": {
 		"id": "ui_settings_window_borderless",
 		"type": "ui_label",
 		"name": "Во весь экран без рамки",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_settings_vsync": {
 		"id": "ui_settings_vsync",
 		"type": "ui_label",
 		"name": "Вертикальная синхронизация",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_settings_mouse_sensitivity": {
 		"id": "ui_settings_mouse_sensitivity",
 		"type": "ui_label",
 		"name": "Чувствительность мыши",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_computer_incoming": {
 		"id": "ui_computer_incoming",
 		"type": "ui_label",
 		"name": "ВХОДЯЩИЙ ВЫЗОВ",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_computer_incoming_named": {
 		"id": "ui_computer_incoming_named",
 		"type": "ui_label",
 		"name": "ВХОДЯЩИЙ ВЫЗОВ: {{title}}",
-		"requirements": [],
-		"properties": [],
-		"variables": [
-			"title"
-		],
 		"chunks": []
 	},
 	"ui_computer_transcript": {
 		"id": "ui_computer_transcript",
 		"type": "ui_label",
 		"name": "Вызов от: {{caller}}. Требуется направить группу на объект: {{building}}.",
-		"requirements": [],
-		"properties": [],
-		"variables": [
-			"building",
-			"caller"
-		],
 		"chunks": []
 	},
 	"ui_computer_transcript_none": {
 		"id": "ui_computer_transcript_none",
 		"type": "ui_label",
 		"name": "Стенограмма вызова недоступна.",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_computer_employee_unavailable": {
 		"id": "ui_computer_employee_unavailable",
 		"type": "ui_label",
 		"name": "СОТРУДНИК НЕДОСТУПЕН",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_computer_slot_free": {
 		"id": "ui_computer_slot_free",
 		"type": "ui_label",
 		"name": "СЛОТ СВОБОДЕН",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_computer_no_incident": {
 		"id": "ui_computer_no_incident",
 		"type": "ui_label",
 		"name": "Нет активного вызова для отправки.",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_computer_no_employees": {
 		"id": "ui_computer_no_employees",
 		"type": "ui_label",
 		"name": "Выберите хотя бы одного сотрудника.",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_computer_no_route": {
 		"id": "ui_computer_no_route",
 		"type": "ui_label",
 		"name": "Контроллер маршрута карты недоступен.",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_roster_no_core": {
 		"id": "ui_roster_no_core",
 		"type": "ui_label",
 		"name": "ЯДРО НЕДОСТУПНО",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_roster_empty": {
 		"id": "ui_roster_empty",
 		"type": "ui_label",
 		"name": "СОТРУДНИКОВ НЕТ",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_roster_squad_none": {
 		"id": "ui_roster_squad_none",
 		"type": "ui_label",
 		"name": "СОСТАВ: —",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_roster_squad_unset": {
 		"id": "ui_roster_squad_unset",
 		"type": "ui_label",
 		"name": "СОСТАВ: НЕ ВЫБРАН",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_roster_squad_picked": {
 		"id": "ui_roster_squad_picked",
 		"type": "ui_label",
 		"name": "ВЫБРАНО СОТРУДНИКОВ: {{count}}",
-		"requirements": [],
-		"properties": [],
-		"variables": [
-			"count"
-		],
 		"chunks": []
 	},
 	"ui_roster_dispatch_missing": {
 		"id": "ui_roster_dispatch_missing",
 		"type": "ui_label",
 		"name": "ИНТЕРФЕЙС ОТПРАВКИ НЕДОСТУПЕН",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_phone_call_from": {
 		"id": "ui_phone_call_from",
 		"type": "ui_label",
 		"name": "Входящий вызов от: {{caller}}.",
-		"requirements": [],
-		"properties": [],
-		"variables": [
-			"caller"
-		],
 		"chunks": []
 	},
 	"ui_phone_call_incident": {
 		"id": "ui_phone_call_incident",
 		"type": "ui_label",
 		"name": "Инцидент: {{title}}.",
-		"requirements": [],
-		"properties": [],
-		"variables": [
-			"title"
-		],
 		"chunks": []
 	},
 	"ui_phone_call_confirm": {
 		"id": "ui_phone_call_confirm",
 		"type": "ui_label",
 		"name": "Подтвердите принятие вызова, чтобы открыть задание на карте.",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_phone_no_calls": {
 		"id": "ui_phone_no_calls",
 		"type": "ui_label",
 		"name": "Нет входящих звонков.",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_radio_header": {
 		"id": "ui_radio_header",
 		"type": "ui_label",
 		"name": "К.О.Н.Т.У.Р.-Д  /  РАДИО: {{title}}",
-		"requirements": [],
-		"properties": [],
-		"variables": [
-			"title"
-		],
 		"chunks": []
 	},
 	"ui_radio_no_pending": {
 		"id": "ui_radio_no_pending",
 		"type": "ui_label",
 		"name": "Нет ожидающих ответов по рации.",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_sim_not_ready": {
 		"id": "ui_sim_not_ready",
 		"type": "ui_label",
 		"name": "Симуляция ещё не готова.",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_map_no_route": {
 		"id": "ui_map_no_route",
 		"type": "ui_label",
 		"name": "Для этого задания не удалось построить маршрут на карте.",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_cutscene_hint_next": {
 		"id": "ui_cutscene_hint_next",
 		"type": "ui_label",
 		"name": "Пробел — дальше    ·    Esc — пропустить",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_cutscene_hint_last": {
 		"id": "ui_cutscene_hint_last",
 		"type": "ui_label",
 		"name": "Пробел — продолжить    ·    Esc — пропустить",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_encyclopedia_redacted": {
 		"id": "ui_encyclopedia_redacted",
 		"type": "ui_label",
 		"name": "[ДАННЫЕ НЕ ПОДТВЕРЖДЕНЫ]",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	},
 	"ui_encyclopedia_missing": {
 		"id": "ui_encyclopedia_missing",
 		"type": "ui_label",
 		"name": "Статья не загружена.",
-		"requirements": [],
-		"properties": [],
-		"variables": [],
 		"chunks": []
 	}
 }

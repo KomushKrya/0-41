@@ -4,7 +4,7 @@ type: report
 mission_id: m_platform_wait
 status: draft
 outcome: failure
-  - property_perekozhnik_heartbeat
+
 ---
 
 %% dev: эффект — заражение растёт резко, открывается property_perekozhnik_heartbeat ценой гибели. %%

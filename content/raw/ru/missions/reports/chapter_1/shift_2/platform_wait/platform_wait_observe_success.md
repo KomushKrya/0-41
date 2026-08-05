@@ -4,7 +4,7 @@ type: report
 mission_id: m_platform_wait
 status: draft
 outcome: success
-  - property_perekozhnik_eye_contact
+
 ---
 
 %% dev: эффект — заражение уменьшается, открывается свойство property_perekozhnik_eye_contact. %%

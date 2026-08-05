@@ -2,8 +2,6 @@
 	"cutscene_before_shift_2": {
 		"id": "cutscene_before_shift_2",
 		"type": "cutscene",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "Ключ попадает в скважину не с первого раза. Руки ещё не свои.",
@@ -20,14 +18,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": []
+		]
 	},
 	"cutscene_before_shift_3": {
 		"id": "cutscene_before_shift_3",
 		"type": "cutscene",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "Смена прошла тихо. Я начал думать, что привыкаю.",
@@ -69,14 +64,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": []
+		]
 	},
 	"cutscene_before_shift_4": {
 		"id": "cutscene_before_shift_4",
 		"type": "cutscene",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "Ноябрь. Возвращаюсь в темноте, и темнота уже привычнее света.",
@@ -123,14 +115,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": []
+		]
 	},
 	"cutscene_intro": {
 		"id": "cutscene_intro",
 		"type": "cutscene",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "Поздравляем, оператор! Вы успешно прошли отбор и зачислены в штат специальной газовой службы.",
@@ -177,14 +166,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": []
+		]
 	},
 	"cutscene_part_1_end": {
 		"id": "cutscene_part_1_end",
 		"type": "cutscene",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "Оператор, коллегия рассмотрела итоги вашей работы.",
@@ -226,14 +212,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": []
+		]
 	},
 	"cutscene_ending_infection": {
 		"id": "cutscene_ending_infection",
 		"type": "cutscene",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "Оператор, сводка по подведомственным районам за отчётный период рассмотрена.",
@@ -280,14 +263,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": []
+		]
 	},
 	"cutscene_ending_loyalty": {
 		"id": "cutscene_ending_loyalty",
 		"type": "cutscene",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "Оператор, коллегия рассмотрела итоги вашей работы.",
@@ -334,14 +314,11 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": []
+		]
 	},
 	"cutscene_ending_publicity": {
 		"id": "cutscene_ending_publicity",
 		"type": "cutscene",
-		"properties": [],
-		"requirements": [],
 		"chunks": [
 			{
 				"text": "Оператор, отмечен предельный уровень осведомлённости населения.",
@@ -388,7 +365,6 @@
 				"kind": "text",
 				"reveal": null
 			}
-		],
-		"variables": []
+		]
 	}
 }
