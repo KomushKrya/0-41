@@ -12,18 +12,20 @@ namespace Kontur.Core.Content
 		IReadOnlyList<string> GetBioLines(string slot);
 	}
 
+	/// <summary>
+	/// Вариант решения на выезде так, как его видит ядро: id для связи с балансом и
+	/// список характеристик, по которым идёт проверка. Ничего про «хороший/плохой»
+	/// вариант тут нет и быть не должно: строгость варианта — это и есть его набор
+	/// характеристик, а цена и риск живут в data/radio.json.
+	/// </summary>
 	public sealed class TextOption
 	{
-		public TextOption(string id, MissionEventQuality quality, int? requirementModifier, IReadOnlyList<StatKind> checkedStats)
+		public TextOption(string id, IReadOnlyList<StatKind> checkedStats)
 		{
 			Id = id;
-			Quality = quality;
-			RequirementModifier = requirementModifier;
 			CheckedStats = checkedStats ?? new List<StatKind>();
 		}
 		public string Id { get; }
-		public MissionEventQuality Quality { get; }
-		public int? RequirementModifier { get; }
 		public IReadOnlyList<StatKind> CheckedStats { get; }
 	}
 }

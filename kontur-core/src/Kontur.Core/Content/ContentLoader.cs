@@ -303,7 +303,7 @@ namespace Kontur.Core.Content
 				}
 				else foreach (KeyValuePair<string, MissionEventOptionDto> pair in balance)
 				{
-					definition.Options.Add(ToMissionEventOption(new TextOption(pair.Key, MissionEventQuality.Neutral, null, Array.Empty<StatKind>()), pair.Value, database.Config));
+					definition.Options.Add(ToMissionEventOption(new TextOption(pair.Key, Array.Empty<StatKind>()), pair.Value, database.Config));
 				}
 
 				database.MissionEvents[definition.Id] = definition;
@@ -312,13 +312,12 @@ namespace Kontur.Core.Content
 
 		private static MissionEventOption ToMissionEventOption(TextOption textOption, MissionEventOptionDto? dto, SimulationConfig config)
 		{
-			MissionEventQualityConfig defaults = config.MissionEvents.For(textOption.Quality);
+			MissionEventConfig defaults = config.MissionEvents;
 			return new MissionEventOption
 			{
 				Id = textOption.Id,
-				Quality = textOption.Quality,
 				CheckedStats = textOption.CheckedStats,
-				RequirementModifier = textOption.RequirementModifier ?? defaults.RequirementModifier,
+				RequirementModifier = defaults.RequirementModifier,
 				DeathChanceMultiplier = dto?.DeathChanceMultiplier ?? defaults.RiskMultiplier,
 				InjuryChanceMultiplier = dto?.InjuryChanceMultiplier ?? defaults.RiskMultiplier,
 				ExtraScales = dto?.ExtraScales == null ? ScaleDelta.Zero : ToDelta(dto.ExtraScales),
@@ -481,6 +480,12 @@ namespace Kontur.Core.Content
 				ValidateTextEntry(textCatalog, mission.CallId, $"mission '{mission.Id}', callId", errors);
 			}
 
+			// Записка сменщика приходит игроку по id, а не значением: неверный id раньше
+			// превратился бы в пустой лист на столе, теперь падает на загрузке.
+			foreach (DayConfig day in database.Config.Days)
+			{
+				ValidateTextEntry(textCatalog, day.ShiftNoteId, $"day {day.Day}, shiftNoteId", errors);
+			}
 		}
 
 		private static void ValidateGenerator(ContentDatabase database, ITextCatalog? textCatalog, List<string> errors)

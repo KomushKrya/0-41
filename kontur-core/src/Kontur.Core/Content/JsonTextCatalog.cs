@@ -48,12 +48,10 @@ namespace Kontur.Core.Content
 			}
 			if (!entry.TryGetProperty("options", out JsonElement options) || options.ValueKind != JsonValueKind.Array) return;
 			var parsed = new List<TextOption>();
-			foreach (JsonElement option in options.EnumerateArray()) parsed.Add(new TextOption(ReadString(option, "id"), ParseQuality(ReadString(option, "quality")), ReadOptionalInt(option, "requirement_modifier"), ReadStats(option)));
+			foreach (JsonElement option in options.EnumerateArray()) parsed.Add(new TextOption(ReadString(option, "id"), ReadStats(option)));
 			_options[id] = parsed;
 		}
 		private static string ReadString(JsonElement element, string name) => element.TryGetProperty(name, out JsonElement value) && value.ValueKind == JsonValueKind.String ? value.GetString() ?? string.Empty : string.Empty;
-		private static int? ReadOptionalInt(JsonElement element, string name) => element.TryGetProperty(name, out JsonElement value) && value.ValueKind == JsonValueKind.Number && value.TryGetInt32(out int result) ? result : (int?)null;
-		private static MissionEventQuality ParseQuality(string value) => Enum.TryParse(value, true, out MissionEventQuality quality) ? quality : MissionEventQuality.Neutral;
 		private static List<StatKind> ReadStats(JsonElement option)
 		{
 			var result = new List<StatKind>();

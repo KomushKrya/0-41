@@ -75,7 +75,7 @@ public sealed class GodotTextCatalog : ITextCatalog
 				}
 			}
 
-			result.Add(new TextOption(option.Id, MissionEventQuality.Neutral, null, stats));
+			result.Add(new TextOption(option.Id, stats));
 		}
 
 		return result;
