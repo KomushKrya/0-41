@@ -67,11 +67,15 @@ public partial class HiringScreen : Control
 			? simulation.GetStartingChoice()
 			: simulation.GetHireCandidates(_day));
 
-		// Сколько человек можно взять. При стартовом выборе это весь штат,
-		// при доборе — только свободные места.
+		// Сколько человек можно взять. При стартовом выборе это весь штат первой
+		// смены, при доборе — только свободные места.
+		//
+		// Штат берётся у первого дня, а не из текущего состояния: до начала смены
+		// день ещё нулевой, и GetStatus вернул бы лимит для несуществующего дня.
+		// Ядро при подтверждении сверяется именно с лимитом первой смены.
 		ShiftStatusView status = simulation.GetStatus();
 		_slots = _isStartingChoice
-			? status.StaffLimit
+			? simulation.Config.GetStaffLimit(1)
 			: CountFreeSlots(simulation, status);
 
 		_title.Text = _isStartingChoice
