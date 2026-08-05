@@ -11,12 +11,6 @@
 		"name": "Жалоба пенсионера",
 		"chunks": []
 	},
-	"m_workshop_intro": {
-		"id": "m_workshop_intro",
-		"type": "mission_id",
-		"name": "Недостача на стройбазе",
-		"chunks": []
-	},
 	"m_missing_daughter": {
 		"id": "m_missing_daughter",
 		"type": "mission_id",
@@ -47,22 +41,10 @@
 		"name": "Пожилая отравилась газом (ложный вызов)",
 		"chunks": []
 	},
-	"m_workshop_truck": {
-		"id": "m_workshop_truck",
-		"type": "mission_id",
-		"name": "Гружёный борт",
-		"chunks": []
-	},
 	"m_upstairs_neighbors": {
 		"id": "m_upstairs_neighbors",
 		"type": "mission_id",
 		"name": "Соседи сверху",
-		"chunks": []
-	},
-	"m_bench_man": {
-		"id": "m_bench_man",
-		"type": "mission_id",
-		"name": "Дед на скамейке",
 		"chunks": []
 	},
 	"m_platform_wait": {
@@ -81,12 +63,6 @@
 		"id": "m_ceiling_leak",
 		"type": "mission_id",
 		"name": "Течь потолка",
-		"chunks": []
-	},
-	"m_intercom_voice": {
-		"id": "m_intercom_voice",
-		"type": "mission_id",
-		"name": "Голос в домофоне",
 		"chunks": []
 	},
 	"m_cement_night_shift": {
@@ -137,40 +113,10 @@
 		"name": "Подвал под бомбоубежище",
 		"chunks": []
 	},
-	"m_tram_last_run": {
-		"id": "m_tram_last_run",
-		"type": "mission_id",
-		"name": "Последний рейс",
-		"chunks": []
-	},
-	"m_workshop_empty": {
-		"id": "m_workshop_empty",
-		"type": "mission_id",
-		"name": "Пустой адрес",
-		"chunks": []
-	},
-	"m_workshop_site": {
-		"id": "m_workshop_site",
-		"type": "mission_id",
-		"name": "Склад цеховика",
-		"chunks": []
-	},
 	"m_wall_infection": {
 		"id": "m_wall_infection",
 		"type": "mission_id",
 		"name": "Дозиметр в стене",
-		"chunks": []
-	},
-	"m_flooded_basement": {
-		"id": "m_flooded_basement",
-		"type": "mission_id",
-		"name": "Потоп в подвале",
-		"chunks": []
-	},
-	"m_dogs_go_down": {
-		"id": "m_dogs_go_down",
-		"type": "mission_id",
-		"name": "Собаки уходят вниз",
 		"chunks": []
 	},
 	"m_silent_collector": {

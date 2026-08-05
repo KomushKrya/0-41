@@ -9,10 +9,7 @@ day: 2
 
 | id               | название |
 |------------------|----------|
-| m_workshop_truck | Гружёный борт |
 | m_upstairs_neighbors | Соседи сверху |
-| m_bench_man | Дед на скамейке |
 | m_platform_wait | Тот, кто ждёт на путях |
 | m_night_watchman | Ночная смена вахтёра |
 | m_ceiling_leak | Течь потолка |
-| m_intercom_voice | Голос в домофоне |

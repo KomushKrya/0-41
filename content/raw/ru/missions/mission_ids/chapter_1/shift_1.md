@@ -11,7 +11,6 @@ day: 1
 |------------------|----------|
 | m_black_mold      | Чёрная плесень |
 | m_pensioner_door  | Жалоба пенсионера |
-| m_workshop_intro  | Недостача на стройбазе |
 | m_missing_daughter | Пропавшая дочь |
 | m_brother_smile   | Странная улыбка брата |
 | m_construction_intruders | Шпана пробралась на заброшенную стройку |

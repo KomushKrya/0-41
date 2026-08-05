@@ -212,117 +212,6 @@
     }
   },
   {
-    "id": "radio_tram_last_run",
-    "options": {
-      "route": {
-        "revealsPropertyId": "property_mimic_routine",
-        "extraScales": {
-          "infection": -3.0
-        },
-        "consequenceCap": "Death"
-      },
-      "driver": {
-        "revealsPropertyId": "property_mimic_break",
-        "extraScales": {
-          "infection": 3.0,
-          "loyalty": 2.0
-        },
-        "deathChanceMultiplier": 2.0,
-        "injuryChanceMultiplier": 1.6
-      },
-      "power": {
-        "extraScales": {
-          "infection": -2.0,
-          "loyalty": -3.0
-        },
-        "consequenceCap": "Injury"
-      }
-    }
-  },
-  {
-    "id": "radio_workshop_empty",
-    "options": {
-      "search": {
-        "extraScales": {},
-        "consequenceCap": "None"
-      },
-      "abort": {
-        "extraScales": {
-          "loyalty": 1.0
-        },
-        "consequenceCap": "None"
-      }
-    }
-  },
-  {
-    "id": "radio_workshop_intro",
-    "options": {
-      "papers": {
-        "extraScales": {
-          "loyalty": 2.0
-        },
-        "consequenceCap": "None"
-      },
-      "peace": {
-        "extraScales": {
-          "publicity": -2.0,
-          "loyalty": -1.0
-        },
-        "consequenceCap": "None"
-      }
-    }
-  },
-  {
-    "id": "radio_workshop_site",
-    "options": {
-      "cut": {
-        "extraScales": {
-          "infection": -4.0,
-          "loyalty": 2.0
-        },
-        "consequenceCap": "Injury"
-      },
-      "lead_out": {
-        "extraScales": {
-          "publicity": 4.0,
-          "loyalty": 2.0
-        },
-        "deathChanceMultiplier": 1.8,
-        "injuryChanceMultiplier": 1.5
-      },
-      "cordon": {
-        "extraScales": {
-          "infection": 5.0,
-          "publicity": -3.0,
-          "loyalty": -4.0
-        },
-        "consequenceCap": "None"
-      }
-    }
-  },
-  {
-    "id": "radio_workshop_truck",
-    "options": {
-      "write_off": {
-        "extraScales": {
-          "infection": 3.0,
-          "loyalty": -2.0
-        },
-        "consequenceCap": "Injury",
-        "setsFlagId": "flag_truck_written_off"
-      },
-      "seize": {
-        "extraScales": {
-          "infection": -4.0,
-          "loyalty": 2.0
-        },
-        "injuryChanceMultiplier": 1.4,
-        "consequenceCap": "Injury",
-        "setsFlagId": "flag_truck_seized"
-      }
-    }
-  },
-  {
     "id": "radio_wall_infection",
     "options": {
       "dosimeter": {
@@ -335,38 +224,6 @@
           "publicity": 2.0
         },
         "injuryChanceMultiplier": 1.3
-      }
-    }
-  },
-  {
-    "id": "radio_flooded_basement",
-    "options": {
-      "shut_valve": {
-        "revealsPropertyId": "property_kanalotvar_lair",
-        "extraScales": {
-          "infection": -1.0
-        },
-        "consequenceCap": "None"
-      },
-      "approach": {
-        "injuryChanceMultiplier": 1.5
-      }
-    }
-  },
-  {
-    "id": "radio_dogs_go_down",
-    "options": {
-      "follow": {
-        "revealsPropertyId": "property_kanalotvar_lure",
-        "extraScales": {
-          "infection": -1.0
-        }
-      },
-      "block": {
-        "extraScales": {
-          "loyalty": 1.0
-        },
-        "consequenceCap": "None"
       }
     }
   },
@@ -469,13 +326,6 @@
     }
   },
   {
-    "id": "radio_bench_man",
-    "options": {
-      "talk": {},
-      "cordon": {}
-    }
-  },
-  {
     "id": "radio_platform_wait",
     "options": {
       "observe": {
@@ -486,13 +336,6 @@
         "injuryChanceMultiplier": 1.8,
         "deathChanceMultiplier": 2.0
       }
-    }
-  },
-  {
-    "id": "radio_intercom_voice",
-    "options": {
-      "answer": {},
-      "cut_off": {}
     }
   }
 ]
