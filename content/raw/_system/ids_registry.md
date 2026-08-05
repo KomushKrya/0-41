@@ -50,7 +50,6 @@
 | `call_missing_daughter` | call | content/raw/ru/missions/calls/chapter_1/shift_1/missing_daughter.md |
 | `call_night_pharmacy` | call | content/raw/ru/missions/calls/chapter_1/shift_3/night_pharmacy.md |
 | `call_night_watchman` | call | content/raw/ru/missions/calls/chapter_1/shift_2/night_watchman.md |
-| `call_ninth_silence` | call | content/raw/ru/missions/calls/chapter_1/shift_3/ninth_silence.md |
 | `call_pensioner_door` | call | content/raw/ru/missions/calls/chapter_1/shift_1/pensioner_door.md |
 | `call_platform_wait` | call | content/raw/ru/missions/calls/chapter_1/shift_2/platform_wait.md |
 | `call_racing_pulse` | call | content/raw/ru/missions/calls/chapter_1/shift_4/racing_pulse.md |
@@ -110,7 +109,6 @@
 | `m_missing_daughter` | mission_id | content/raw/ru/missions/mission_ids/chapter_1/shift_1.md |
 | `m_night_pharmacy` | mission_id | content/raw/ru/missions/mission_ids/chapter_1/shift_3.md |
 | `m_night_watchman` | mission_id | content/raw/ru/missions/mission_ids/chapter_1/shift_2.md |
-| `m_ninth_silence` | mission_id | content/raw/ru/missions/mission_ids/chapter_1/shift_3.md |
 | `m_pensioner_door` | mission_id | content/raw/ru/missions/mission_ids/chapter_1/shift_1.md |
 | `m_platform_wait` | mission_id | content/raw/ru/missions/mission_ids/chapter_1/shift_2.md |
 | `m_racing_pulse` | mission_id | content/raw/ru/missions/mission_ids/chapter_1/shift_4.md |
@@ -142,7 +140,6 @@
 | `radio_silent_collector` | radio | content/raw/ru/missions/radio/chapter_1/shift_4/silent_collector.md |
 | `radio_talking_dog` | radio | content/raw/ru/missions/radio/chapter_1/shift_4/talking_dog.md |
 | `radio_wall_infection` | radio | content/raw/ru/missions/radio/chapter_1/shift_4/wall_infection.md |
-| `radio_whole_stairwell` | radio | content/raw/ru/missions/radio/chapter_1/shift_4/whole_stairwell.md |
 | `radio_workshop_depot` | radio | content/raw/ru/missions/radio/chapter_1/shift_3/workshop_depot.md |
 | `radio_workshop_forest` | radio | content/raw/ru/missions/radio/chapter_1/shift_3/workshop_forest.md |
 | `radio_workshop_gravel` | radio | content/raw/ru/missions/radio/chapter_1/shift_2/workshop_gravel.md |
@@ -189,12 +186,11 @@
 | `report_night_pharmacy_closed_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_3/night_pharmacy/night_pharmacy_closed_failure.md |
 | `report_night_pharmacy_closed_success` | report | content/raw/ru/missions/reports/chapter_1/shift_3/night_pharmacy/night_pharmacy_closed_success.md |
 | `report_night_pharmacy_militia_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_3/night_pharmacy/night_pharmacy_militia_failure.md |
+| `report_night_pharmacy_militia_success` | report | content/raw/ru/missions/reports/chapter_1/shift_3/night_pharmacy/night_pharmacy_militia_success.md |
 | `report_night_pharmacy_placebo_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_3/night_pharmacy/night_pharmacy_placebo_failure.md |
 | `report_night_pharmacy_placebo_success` | report | content/raw/ru/missions/reports/chapter_1/shift_3/night_pharmacy/night_pharmacy_placebo_success.md |
 | `report_night_watchman_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_2/night_watchman/night_watchman_failure.md |
 | `report_night_watchman_success` | report | content/raw/ru/missions/reports/chapter_1/shift_2/night_watchman/night_watchman_success.md |
-| `report_ninth_silence_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_3/ninth_silence/ninth_silence_failure.md |
-| `report_ninth_silence_success` | report | content/raw/ru/missions/reports/chapter_1/shift_3/ninth_silence/ninth_silence_success.md |
 | `report_pensioner_door_capture_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_1/pensioner_door/pensioner_door_capture_failure.md |
 | `report_pensioner_door_capture_success` | report | content/raw/ru/missions/reports/chapter_1/shift_1/pensioner_door/pensioner_door_capture_success.md |
 | `report_pensioner_door_left_turn_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_1/pensioner_door/pensioner_door_left_turn_failure.md |
@@ -234,12 +230,8 @@
 | `report_wall_infection_dosimeter` | report | content/raw/ru/missions/reports/chapter_1/shift_4/wall_infection/wall_infection_dosimeter.md |
 | `report_wall_infection_listen_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_4/wall_infection/wall_infection_listen_failure.md |
 | `report_wall_infection_listen_success` | report | content/raw/ru/missions/reports/chapter_1/shift_4/wall_infection/wall_infection_listen_success.md |
-| `report_whole_stairwell_push_through_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_4/whole_stairwell/whole_stairwell_push_through_failure.md |
-| `report_whole_stairwell_push_through_success` | report | content/raw/ru/missions/reports/chapter_1/shift_4/whole_stairwell/whole_stairwell_push_through_success.md |
-| `report_whole_stairwell_relay_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_4/whole_stairwell/whole_stairwell_relay_failure.md |
-| `report_whole_stairwell_relay_success` | report | content/raw/ru/missions/reports/chapter_1/shift_4/whole_stairwell/whole_stairwell_relay_success.md |
-| `report_whole_stairwell_soothe_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_4/whole_stairwell/whole_stairwell_soothe_failure.md |
-| `report_whole_stairwell_soothe_success` | report | content/raw/ru/missions/reports/chapter_1/shift_4/whole_stairwell/whole_stairwell_soothe_success.md |
+| `report_whole_stairwell_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_4/whole_stairwell/whole_stairwell_failure.md |
+| `report_whole_stairwell_success` | report | content/raw/ru/missions/reports/chapter_1/shift_4/whole_stairwell/whole_stairwell_success.md |
 | `report_workshop_depot_blind_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_3/workshop_depot/report_workshop_depot_blind_failure.md |
 | `report_workshop_depot_blind_success` | report | content/raw/ru/missions/reports/chapter_1/shift_3/workshop_depot/report_workshop_depot_blind_success.md |
 | `report_workshop_depot_count_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_3/workshop_depot/report_workshop_depot_count_failure.md |

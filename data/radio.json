@@ -25,34 +25,6 @@
     }
   },
   {
-    "id": "radio_dense_flock",
-    "options": {
-      "perimeter": {
-        "revealsPropertyId": "property_simulacre_survival",
-        "extraScales": {
-          "infection": -3.0
-        },
-        "consequenceCap": "Injury"
-      },
-      "disperse": {
-        "revealsPropertyId": "property_simulacre_unpredictable",
-        "extraScales": {
-          "infection": -2.0,
-          "loyalty": 2.0
-        },
-        "deathChanceMultiplier": 1.8,
-        "injuryChanceMultiplier": 1.5
-      },
-      "cordon": {
-        "extraScales": {
-          "infection": 6.0,
-          "publicity": -2.0
-        },
-        "consequenceCap": "None"
-      }
-    }
-  },
-  {
     "id": "radio_missing_daughter",
     "options": {
       "shoot": {
@@ -252,29 +224,6 @@
     }
   },
   {
-    "id": "radio_whole_stairwell",
-    "options": {
-      "relay": {
-        "extraScales": {
-          "loyalty": 1.0
-        }
-      },
-      "soothe": {
-        "injuryChanceMultiplier": 0.8,
-        "extraScales": {
-          "infection": -1.0
-        }
-      },
-      "push_through": {
-        "deathChanceMultiplier": 2.2,
-        "injuryChanceMultiplier": 1.8,
-        "extraScales": {
-          "publicity": 3.0
-        }
-      }
-    }
-  },
-  {
     "id": "radio_platform_wait",
     "options": {
       "observe": {
@@ -355,6 +304,34 @@
           "loyalty": 1.0
         },
         "deathChanceMultiplier": 1.2
+      }
+    }
+  },
+  {
+    "id": "radio_dense_flock",
+    "options": {
+      "perimeter": {
+        "revealsPropertyId": "property_simulacre_survival",
+        "extraScales": {
+          "infection": -3.0
+        },
+        "consequenceCap": "Injury"
+      },
+      "disperse": {
+        "revealsPropertyId": "property_simulacre_unpredictable",
+        "extraScales": {
+          "infection": -2.0,
+          "loyalty": 2.0
+        },
+        "deathChanceMultiplier": 1.8,
+        "injuryChanceMultiplier": 1.5
+      },
+      "cordon": {
+        "extraScales": {
+          "infection": 6.0,
+          "publicity": -2.0
+        },
+        "consequenceCap": "None"
       }
     }
   }
