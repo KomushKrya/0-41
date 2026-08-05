@@ -309,23 +309,6 @@
     }
   },
   {
-    "id": "radio_comms_outage",
-    "options": {
-      "persuade": {
-        "extraScales": {
-          "loyalty": 1.0
-        },
-        "consequenceCap": "None"
-      },
-      "handle_it": {
-        "extraScales": {
-          "publicity": -1.0
-        },
-        "consequenceCap": "None"
-      }
-    }
-  },
-  {
     "id": "radio_platform_wait",
     "options": {
       "observe": {
@@ -335,6 +318,93 @@
         "revealsPropertyId": "property_perekozhnik_heartbeat",
         "injuryChanceMultiplier": 1.8,
         "deathChanceMultiplier": 2.0
+      }
+    }
+  },
+  {
+    "id": "radio_workshop_intro",
+    "options": {
+      "help": {
+        "extraScales": {
+          "loyalty": 1.0
+        }
+      },
+      "refuse": {
+        "extraScales": {
+          "loyalty": -1.0
+        },
+        "consequenceCap": "None"
+      }
+    }
+  },
+  {
+    "id": "radio_workshop_gravel",
+    "options": {
+      "deliver": {
+        "setsFlagId": "flag_gravel_delivered",
+        "extraScales": {
+          "infection": 2.0,
+          "loyalty": -2.0
+        },
+        "consequenceCap": "Injury"
+      },
+      "refuse": {
+        "setsFlagId": "flag_gravel_refused",
+        "extraScales": {
+          "loyalty": 1.0
+        },
+        "consequenceCap": "None"
+      }
+    }
+  },
+  {
+    "id": "radio_workshop_forest",
+    "options": {
+      "samples": {
+        "extraScales": {
+          "infection": -2.0
+        }
+      },
+      "burn": {
+        "extraScales": {
+          "infection": -3.0,
+          "loyalty": -2.0
+        },
+        "injuryChanceMultiplier": 1.3
+      }
+    }
+  },
+  {
+    "id": "radio_workshop_depot",
+    "options": {
+      "blind": {
+        "extraScales": {
+          "loyalty": 1.0
+        },
+        "deathChanceMultiplier": 1.6,
+        "injuryChanceMultiplier": 1.4
+      },
+      "count": {
+        "extraScales": {
+          "loyalty": 3.0
+        },
+        "injuryChanceMultiplier": 1.2
+      }
+    }
+  },
+  {
+    "id": "radio_workshop_papers",
+    "options": {
+      "hide": {
+        "extraScales": {
+          "loyalty": 1.0
+        }
+      },
+      "talk": {
+        "extraScales": {
+          "loyalty": 1.0
+        },
+        "deathChanceMultiplier": 1.2
       }
     }
   }

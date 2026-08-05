@@ -17,3 +17,5 @@ day: 3
 | m_ninth_silence      | Тишина на девятом |
 | m_room_34            | Комната 34 |
 | m_shelter_basement   | Подвал под бомбоубежище |
+| m_workshop_forest | Поляна за городом |
+| m_workshop_depot | Склад образцов |

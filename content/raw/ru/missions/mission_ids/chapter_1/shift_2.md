@@ -13,3 +13,4 @@ day: 2
 | m_platform_wait | Тот, кто ждёт на путях |
 | m_night_watchman | Ночная смена вахтёра |
 | m_ceiling_leak | Течь потолка |
+| m_workshop_gravel | Первое задание |

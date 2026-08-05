@@ -15,5 +15,4 @@ day: 4
 | m_racing_pulse | Учащённый пульс |
 | m_talking_dog | Пёс, который заговорил |
 | m_whole_stairwell | Целый подъезд |
-| m_infection_ward_audit | Ревизия в инфекционке |
-| m_comms_outage | Отключение узла связи |
+| m_workshop_papers | Торговля документами |

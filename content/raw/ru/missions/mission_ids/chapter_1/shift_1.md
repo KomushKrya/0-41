@@ -16,3 +16,4 @@ day: 1
 | m_construction_intruders | Шпана пробралась на заброшенную стройку |
 | m_urgent_evacuation | Срочная эвакуация граждан |
 | m_false_gas_alarm | Пожилая отравилась газом (ложный вызов) |
+| m_workshop_intro | Знакомство с цеховиком |
