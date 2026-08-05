@@ -320,14 +320,13 @@
   {
     "id": "m_urgent_evacuation",
     "day": 1,
-    "tier": "Story",
+    "tier": "Filler",
     "consequenceCap": "Injury",
     "creatureId": "",
     "callId": "call_urgent_evacuation",
-    "missionEventId": "radio_urgent_evacuation",
     "requirements": {
-      "charisma": 5,
-      "intellect": 4
+      "charisma": 7,
+      "intellect": 5
     },
     "primaryStat": "charisma",
     "squadLimit": 2,
@@ -359,13 +358,9 @@
       "loyalty": -5.0
     },
     "reports": {
-      "threaten": {
-        "success": "report_urgent_evacuation_threaten_success",
-        "failure": "report_urgent_evacuation_riot_failure"
-      },
-      "persuade": {
-        "success": "report_urgent_evacuation_persuade_success",
-        "failure": "report_urgent_evacuation_persuade_failure"
+      "": {
+        "success": "report_urgent_evacuation_success",
+        "failure": "report_urgent_evacuation_failure"
       }
     }
   },

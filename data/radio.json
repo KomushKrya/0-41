@@ -90,21 +90,6 @@
     }
   },
   {
-    "id": "radio_urgent_evacuation",
-    "options": {
-      "threaten": {
-        "extraScales": {
-          "loyalty": -1.0
-        }
-      },
-      "persuade": {
-        "extraScales": {
-          "loyalty": 1.0
-        }
-      }
-    }
-  },
-  {
     "id": "radio_false_gas_alarm",
     "options": {
       "check": {

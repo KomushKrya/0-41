@@ -141,7 +141,6 @@
 | `radio_room_34` | radio | content/raw/ru/missions/radio/chapter_1/shift_3/room_34.md |
 | `radio_silent_collector` | radio | content/raw/ru/missions/radio/chapter_1/shift_4/silent_collector.md |
 | `radio_talking_dog` | radio | content/raw/ru/missions/radio/chapter_1/shift_4/talking_dog.md |
-| `radio_urgent_evacuation` | radio | content/raw/ru/missions/radio/chapter_1/shift_1/urgent_evacuation.md |
 | `radio_wall_infection` | radio | content/raw/ru/missions/radio/chapter_1/shift_4/wall_infection.md |
 | `radio_whole_stairwell` | radio | content/raw/ru/missions/radio/chapter_1/shift_4/whole_stairwell.md |
 | `radio_workshop_depot` | radio | content/raw/ru/missions/radio/chapter_1/shift_3/workshop_depot.md |
@@ -226,10 +225,8 @@
 | `report_talking_dog_listen_success` | report | content/raw/ru/missions/reports/chapter_1/shift_4/talking_dog/talking_dog_listen_success.md |
 | `report_upstairs_neighbors_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_2/upstairs_neighbors/upstairs_neighbors_failure.md |
 | `report_upstairs_neighbors_success` | report | content/raw/ru/missions/reports/chapter_1/shift_2/upstairs_neighbors/upstairs_neighbors_success.md |
-| `report_urgent_evacuation_persuade_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_1/urgent_evacuation/urgent_evacuation_persuade_failure.md |
-| `report_urgent_evacuation_persuade_success` | report | content/raw/ru/missions/reports/chapter_1/shift_1/urgent_evacuation/urgent_evacuation_persuade_success.md |
-| `report_urgent_evacuation_riot_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_1/urgent_evacuation/urgent_evacuation_riot_failure.md |
-| `report_urgent_evacuation_threaten_success` | report | content/raw/ru/missions/reports/chapter_1/shift_1/urgent_evacuation/urgent_evacuation_threaten_success.md |
+| `report_urgent_evacuation_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_1/urgent_evacuation/urgent_evacuation_failure.md |
+| `report_urgent_evacuation_success` | report | content/raw/ru/missions/reports/chapter_1/shift_1/urgent_evacuation/urgent_evacuation_success.md |
 | `report_wall_infection_brute_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_4/wall_infection/wall_infection_brute_failure.md |
 | `report_wall_infection_brute_success` | report | content/raw/ru/missions/reports/chapter_1/shift_4/wall_infection/wall_infection_brute_success.md |
 | `report_wall_infection_dosimeter` | report | content/raw/ru/missions/reports/chapter_1/shift_4/wall_infection/wall_infection_dosimeter.md |
