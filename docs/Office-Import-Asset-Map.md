@@ -2,6 +2,8 @@
 
 Исходный файл `assets/models/environment/import/кабинет.glb` удалён после разделения и проверки 45 самостоятельных GLB-файлов.
 
+Вторая поставка модели (`temp/кабинет new.glb`, 84 узла, 99 материалов, 152 изображения) разобрана 5 августа 2026 года. Подробности — в разделе «Вторая поставка» ниже.
+
 Редактируемая распакованная сцена: `scenes/environment/NewOffice.tscn`. Все 45 объектов в ней переименованы на английский.
 
 Самостоятельные GLB-файлы находятся в `assets/models/environment/office_split` и распределены по каталогам `architecture`, `furniture`, `interactive`, `lighting` и `decor`. Исходные текстуры перенесены в каталоги `textures` соответствующих категорий, а общие — в `shared_textures`. Точные исходные трансформации и размеры записаны в `manifest.json`; проверка выполняется скриптом `tools/editor/validate_split_office_glb.gd`.
@@ -126,3 +128,52 @@ The functional migration is active in `scenes/main.tscn`:
 - oversized environment textures are imported with 2048 px limits (4096 px for the panoramic wall texture), while their source images remain untouched.
 
 The imported GLB does not contain a dedicated employee-dossier model. The functional dossier therefore keeps its existing visual scene until a replacement asset is supplied.
+
+## Вторая поставка
+
+Художник передал файл `temp/кабинет new.glb`: 84 узла против 45, 99 материалов против 75, 152 изображения против 136. Сравнение выполнено по декодированным координатам вершин, кватернионам и позициям узлов.
+
+### Что осталось прежним
+
+38 из 45 объектов сохранили и геометрию, и позу — их GLB в `office_split` и меши в `scenes/main.tscn` не трогали.
+
+### Что изменилось
+
+| Объект | Изменение | Что сделано |
+| --- | --- | --- |
+| `WallFrame01` | сдвиг 8,5 см, разворот, вставка получила отдельный материал `Материал.029` | обновлён `transform` |
+| `WallFrame02` | сдвиг 10 см, разворот, вставка получила `Материал.030` | обновлён `transform` |
+| `CabinetLeft` | сдвиг 4 см | обновлён `transform` |
+| `Sofa` | сдвиг 2,4 см | обновлён `transform` |
+| `DeskPhone` | сдвиг 3 см, поворот на 13° | обновлён `transform` |
+| `Notebook` | сдвиг 8,9 см, поворот, меш уменьшен до 0,892 / 0,884 / 0,900 от прежнего | GLB пересобран, обновлены `ViewportSurface` и коллизия |
+| `Pencil` | сдвиг 8,9 см, поворот, меш уменьшен до 0,845 | GLB пересобран |
+
+### Новые объекты
+
+39 новых узлов. 36 из них расставлены в `Main/NewOffice/NotInteractable`, один пошёл в сцену сменной записки, два отброшены.
+
+| Исходный узел | Английское имя | Экз. | Где в сцене |
+| --- | --- | --- | --- |
+| `архивной папки`* | `ArchiveFolderA` / `ArchiveFolderB` | 18 | `NotInteractable/CabinetContents` |
+| `каробка`* | `StorageBox` | 11 | `NotInteractable/CabinetContents` |
+| `шторы` | `Curtains` | 1 | `NotInteractable` |
+| `Cube.004` | `DeskPaper` | 1 | `NotInteractable` |
+| `Torus` | `DeskItem01` | 1 | `NotInteractable` |
+| `выключатель` | `LightSwitch` | 1 | `NotInteractable` |
+| `розетка` | `PowerSocket` | 1 | `NotInteractable` |
+| `лампочка` | `CeilingLampFixture` | 1 | `NotInteractable`, потолочный плафон по центру комнаты |
+| `линейная люминесцентная лампа` | `FluorescentTube` | 1 | `NotInteractable` |
+| `записка` | `ShiftNotePaper` | 1 | `scenes/interactables/ShiftNote.tscn` |
+| `кнопка` | — | — | не переносилась |
+| `Куб` | — | — | пустой меш за стеной кабинета, отброшен |
+
+18 архивных папок собраны из двух уникальных мешей, 11 коробок — из одного. Поэтому 36 экземпляров стоят на 9 GLB общим весом около 35 МБ вместо 305 МБ монолита.
+
+### Свет
+
+`CeilingLampFixture` — плафон во всю комнату с центром `(1.1926, *, 1.2916)`. `EnvironmentSystems/CeilingLight` опущен с `y = 2.28` на `y = 2.2`, чтобы источник был под плафоном, а не внутри потолочной плиты. Для люминесцентной лампы добавлен второй бестеневой `OmniLight3D` — `EnvironmentSystems/FluorescentLight`.
+
+### Сменная записка
+
+Модель `записка` в исходнике висит на стене на `(2.895, 1.122, 2.473)`. По решению по задаче она перенесена на стол: `ShiftNote.tscn` использует меш из GLB, положенный плашмя, а поза в `main.tscn` осталась прежней (опущена на поверхность стола, `y = 0.7588`). Процедурный `BoxMesh` заменён, `ViewportSurface` и коллизия пересчитаны под реальный лист 17,8 × 13,3 см.

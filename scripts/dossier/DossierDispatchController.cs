@@ -136,8 +136,9 @@ public partial class DossierDispatchController : Node3D
 		_viewportInput.BeginInteraction();
 		// Фиксируем взгляд там, где он есть: папка прилетает в текущий кадр, и
 		// уводить камеру некуда — но и вертеть головой, пока читаешь, нельзя,
-		// иначе разворот уедет за край экрана.
-		player.FocusViewAt(player.GlobalTransform, player.Fov);
+		// иначе разворот уедет за край экрана. На выходе взгляд остаётся там же,
+		// откуда открывали.
+		player.FocusViewAt(player.GlobalTransform, player.Fov, returnsToViewOrigin: true);
 	}
 
 	/// <summary>

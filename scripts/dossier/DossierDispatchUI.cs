@@ -61,6 +61,9 @@ public partial class DossierDispatchUI : Control
 
 	private const string DesaturateShaderPath = "res://assets/shaders/PortraitDesaturate.gdshader";
 
+	/// <summary>Пропорция рамки портрета из DossierUI.tscn: 146.8 на 186.5.</summary>
+	private const float DefaultPortraitAspect = 0.787f;
+
 	private DossierPage _page = null!;
 	private Label _pageNumber = null!;
 	private BaseButton _previousPage = null!;
@@ -222,7 +225,16 @@ public partial class DossierDispatchUI : Control
 			return;
 		}
 
-		_page.Portrait.Material = new ShaderMaterial { Shader = shader };
+		var material = new ShaderMaterial { Shader = shader };
+
+		// Рамка портрета выше, чем шире, и без пропорции лента пошла бы не под 45°.
+		// До первой раскладки размер ещё нулевой, поэтому запасной вариант —
+		// пропорция из сцены, а не единица: иначе первый кадр рисуется с браком.
+		Vector2 frame = _page.Portrait.Size;
+		material.SetShaderParameter(
+			"aspect",
+			frame.X > 0.0f && frame.Y > 0.0f ? frame.X / frame.Y : DefaultPortraitAspect);
+		_page.Portrait.Material = material;
 	}
 
 	private void BindCornerPressFeedback(BaseButton corner)

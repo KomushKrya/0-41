@@ -33,6 +33,18 @@ public partial class FlyPlayer : Camera3D
 	private float _transitionElapsed;
 	private float _transitionDuration;
 
+	// Поза, из которой ушли в фокус: часть предметов возвращает взгляд именно
+	// туда, а не в исходную посадку.
+	private Transform3D _focusOriginYawTransform;
+	private float _focusOriginPitch;
+	private float _focusOriginFov;
+	private bool _returnsToFocusOrigin;
+
+	// Куда едем на выходе из фокуса — нужно, чтобы по завершении перелёта
+	// собрать риг именно в этой позе, а не в посадочной.
+	private Transform3D _returnYawTransform;
+	private float _returnPitch;
+
 	private enum CameraTransitionKind { None, Focus, ReturnToSeat }
 
 	public override void _Ready()
@@ -110,8 +122,23 @@ public partial class FlyPlayer : Camera3D
 		FocusViewAt(cameraPose.GlobalTransform, targetFov);
 	}
 
-	public void FocusViewAt(Transform3D cameraTransform, float targetFov)
+	/// <param name="returnsToViewOrigin">
+	/// Выйти из фокуса туда, откуда в него вошли, а не в посадочную позу. Так
+	/// ведут себя предметы, которые сами подлетают к камере: взгляд при входе
+	/// никуда не двигался, и на выходе дёргать его тоже нечестно.
+	/// </param>
+	public void FocusViewAt(Transform3D cameraTransform, float targetFov, bool returnsToViewOrigin = false)
 	{
+		// Из фокуса в фокус переходят, не выходя наружу (компьютер → досье):
+		// исходная поза при этом должна остаться самой первой.
+		if (!_isViewFocused)
+		{
+			_focusOriginYawTransform = _yawPivot.GlobalTransform;
+			_focusOriginPitch = _pitch;
+			_focusOriginFov = Fov;
+		}
+
+		_returnsToFocusOrigin = returnsToViewOrigin;
 		_isViewFocused = true;
 		StartCameraTransition(CameraTransitionKind.Focus, cameraTransform, targetFov);
 		Input.MouseMode = Input.MouseModeEnum.Captured;
@@ -128,7 +155,13 @@ public partial class FlyPlayer : Camera3D
 	private void ReturnToSeatView()
 	{
 		_isViewFocused = false;
-		StartCameraTransition(CameraTransitionKind.ReturnToSeat, GetSeatedCameraTransform(), _seatedFov);
+		_returnYawTransform = _returnsToFocusOrigin ? _focusOriginYawTransform : _seatedYawTransform;
+		_returnPitch = _returnsToFocusOrigin ? _focusOriginPitch : 0.0f;
+		float returnFov = _returnsToFocusOrigin ? _focusOriginFov : _seatedFov;
+		StartCameraTransition(
+			CameraTransitionKind.ReturnToSeat,
+			GetRigCameraTransform(_returnYawTransform, _returnPitch),
+			returnFov);
 		Input.MouseMode = Input.MouseModeEnum.Captured;
 	}
 
@@ -201,26 +234,29 @@ public partial class FlyPlayer : Camera3D
 
 		GlobalTransform = _transitionEndTransform;
 		Fov = _transitionEndFov;
-		_pitch = 0.0f;
 		CameraTransitionKind completedTransition = _transitionKind;
 		_transitionKind = CameraTransitionKind.None;
 		if (completedTransition == CameraTransitionKind.ReturnToSeat)
 		{
-			RestoreSeatedRig();
+			RestoreRig(_returnYawTransform, _returnPitch);
 			FocusedViewReturned?.Invoke();
 		}
 	}
 
-	private Transform3D GetSeatedCameraTransform()
+	private static Transform3D GetRigCameraTransform(Transform3D yawTransform, float pitch)
 	{
-		Transform3D pitchTransform = new Transform3D(Basis.Identity, Vector3.Zero);
-		return _seatedYawTransform * pitchTransform;
+		return yawTransform * new Transform3D(new Basis(Vector3.Right, pitch), Vector3.Zero);
 	}
 
-	private void RestoreSeatedRig()
+	/// <summary>
+	/// Возвращает управление ригу: пока шёл перелёт, поза жила прямо на камере,
+	/// и без раскладки обратно по пивотам мышь дёрнула бы взгляд.
+	/// </summary>
+	private void RestoreRig(Transform3D yawTransform, float pitch)
 	{
-		_yawPivot.GlobalTransform = _seatedYawTransform;
-		_pitchPivot.Transform = Transform3D.Identity;
+		_pitch = pitch;
+		_yawPivot.GlobalTransform = yawTransform;
+		_pitchPivot.Rotation = new Vector3(pitch, 0.0f, 0.0f);
 		Transform = Transform3D.Identity;
 	}
 }
