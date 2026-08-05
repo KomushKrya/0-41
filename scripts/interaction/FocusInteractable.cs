@@ -30,7 +30,7 @@ public partial class FocusInteractable : Area3D, IInteractable
 			return;
 		}
 
-		player.FocusViewAt(_focusCameraPose.GlobalTransform);
+		player.FocusViewAt(_focusCameraPose);
 	}
 
 	public void SetHovered(bool isHovered)

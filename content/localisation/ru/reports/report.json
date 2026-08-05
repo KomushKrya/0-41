@@ -1,0 +1,277 @@
+{
+	"report_black_mold_carpets_failure": {
+		"id": "report_black_mold_carpets_failure",
+		"type": "report",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Она даже и слушать нас не стала, когда мы заговорили про ковры. Прогнала вон, грозясь вызвать своего мужа и милицию. Нам нужно вернуться туда в ближайшее возможное время. Это здание необходимо взять под контроль.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"outcome": "failure"
+	},
+	"report_black_mold_carpets_success": {
+		"id": "report_black_mold_carpets_success",
+		"type": "report",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Хоть она и смотрела на бригаду, как на дураков, гражданку всё-таки удалось убедить прикупить побольше ковров, а также начать втирать в стены уксус. Это поможет сдержать развитие заражения. Но теперь нам необходимо взять этот дом под особый контроль.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"outcome": "success"
+	},
+	"report_black_mold_reagent_failure": {
+		"id": "report_black_mold_reagent_failure",
+		"type": "report",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "На ум группе пришла идея просто протереть хлоркой стенку посильнее, а затем зашпаклевать грибок толстеньким слоем и уже поверх вновь наклеить новые обои. Гражданка, вздохнув, приняла совет, бросив на группу недовольный взгляд напоследок.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"outcome": "failure"
+	},
+	"report_black_mold_reagent_success": {
+		"id": "report_black_mold_reagent_success",
+		"type": "report",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Кто-то в бригаде вспомнил про йод-резорцинол. Решение оказалось действительно элегантным. Правда, пришлось попотеть, чтобы штаб выдал нам его.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "После получения заветного химиката заражение удалось быстро убрать, сведя его к минимуму. Правда, завхоз вряд ли одобрит трату такого ценного химиката в том месте, где можно было обойтись просто уксусом.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"outcome": "success"
+	},
+	"report_black_mold_resettle_failure": {
+		"id": "report_black_mold_resettle_failure",
+		"type": "report",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Как только мы заговорили о том, что необходимо срочно покинуть это помещение, она усмехнулась и назвала нас «помощниками хреновыми». Добавив при этом, что в этой квартире жили и померли её бабушка и дедушка, мать и отец, и в этой же помрёт и она, не дав отобрать у неё её дом.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Нам пришлось покинуть её квартиру, ведь она уже собиралась вызвать на нас милицию.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"outcome": "failure"
+	},
+	"report_black_mold_resettle_success": {
+		"id": "report_black_mold_resettle_success",
+		"type": "report",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Бригада помогла гражданке собрать вещи первой необходимости, а также помогла ей с ребёнком. Её мужа, находящегося на работе, уже оповестили о проблеме. Сейчас семья размещена во временном жилище, и она уже поставлена на очередь получения новой квартиры.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"outcome": "success"
+	},
+	"report_pensioner_door_capture_failure": {
+		"id": "report_pensioner_door_capture_failure",
+		"type": "report",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "В результате принятого решения о ликвидации существа произошла серьёзная эскалация ситуации.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "В качестве ответной реакции существо атаковало наших оперативников, вследствие чего мы понесли потери рабочего состава, а также не смогли спасти гражданина.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Начальство впредь будет следить внимательнее за нашими решениями.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"outcome": "failure"
+	},
+	"report_pensioner_door_capture_success": {
+		"id": "report_pensioner_door_capture_success",
+		"type": "report",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Бригада решила ликвидировать существо, чтобы предотвратить возможное вмешательство с его стороны в процессе эвакуации.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Существо пыталось сопротивляться, но опытные бойцы быстро расправились с ним, после чего смогли найти звонившего, который выбежал на громкие звуки стрельбы.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "По возвращении на станцию начальство наградило ребят благодарственной грамотой за проявленную смелость.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"outcome": "success"
+	},
+	"report_pensioner_door_left_turn_failure": {
+		"id": "report_pensioner_door_left_turn_failure",
+		"type": "report",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Было доложено, что бригада, отправленная на задание, решила разделиться и пойти разными путями, надеясь, что таким образом вероятность найти деда будет выше.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "В итоге ни деда не нашли, да и не досчитались парочки сотрудников.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"outcome": "failure"
+	},
+	"report_pensioner_door_left_turn_success": {
+		"id": "report_pensioner_door_left_turn_success",
+		"type": "report",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Оказывается, кто-то из бригады ранее сталкивался с похожими изменениями пространства и знал, как среди них можно ориентироваться.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Благодаря его опыту и наблюдательности были определены закономерности данного помещения, что помогло в поисках пенсионера.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"outcome": "success"
+	},
+	"report_pensioner_door_pass_by_failure": {
+		"id": "report_pensioner_door_pass_by_failure",
+		"type": "report",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Бригада нарушила симуляцию, тем самым потревожив существо. Оно бросило склянку и попыталось догнать их.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Бригада смогла эвакуироваться, но, вероятно, имеют место физические травмы. Старика, к сожалению, спасти не удалось.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"outcome": "failure"
+	},
+	"report_pensioner_door_pass_by_success": {
+		"id": "report_pensioner_door_pass_by_success",
+		"type": "report",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Один из членов бригады написал в своём отчёте: «Чертовщина какая-то, урод худощавый беломордый. Мы старались на него вообще не смотреть, чтобы чуть что не случилось. Но он так и не шелохнулся.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Не знаю, возможно, с тварью этой себя так и нужно вести. Очень уж на человека он был похож, но только силуэтом. И то весь косой, кривой.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "А деда? Деда мы нашли напуганным до усрачки, но живым. Эвакуировали его — и дело с концом».",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"outcome": "success"
+	},
+	"report_pensioner_door_plain_failure": {
+		"id": "report_pensioner_door_plain_failure",
+		"type": "report",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Чёрт возьми. Мало того, что бригада не вытащила деда, так они и сами чуть не тронулись умом там от того.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Мы не знаем, что происходит в этом доме, но если мы не направим туда все наши силы, то добром это не кончится.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"outcome": "failure"
+	},
+	"report_pensioner_door_plain_success": {
+		"id": "report_pensioner_door_plain_success",
+		"type": "report",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Бригада эвакуировала пожилого гражданина из его квартиры. Такое серьёзное заражение свидетельствует об одном: дальше этому дому будет только хуже и нужно будет всех расселять.",
+				"kind": "text",
+				"reveal": null
+			},
+			{
+				"text": "Пенсионера повезли к нашим ребятам в инфекционку, чтобы они проверили его на всякий случай.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"outcome": "success"
+	}
+}

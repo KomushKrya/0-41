@@ -1,6 +1,18 @@
 [gd_scene format=3 uid="uid://cftc4bvomwo1q"]
 
 [ext_resource type="Script" uid="uid://bixwhhh1vyeax" path="res://scripts/dossier/DossierDispatchUI.cs" id="1_dossier_ui"]
+[ext_resource type="FontFile" uid="uid://spy5f8ic2eqy" path="res://assets/fonts/Old-Soviet.otf" id="2_dossier_font"]
+[ext_resource type="Texture2D" uid="uid://ct0ygsdpkr1cd" path="res://assets/textures/ui для досье левая.png" id="3_niqyp"]
+[ext_resource type="Texture2D" uid="uid://ba4318igp8oti" path="res://assets/textures/левый угол.png" id="4_left_corner"]
+[ext_resource type="Texture2D" uid="uid://s6br631supje" path="res://assets/textures/правый угол.png" id="5_right_corner"]
+
+[sub_resource type="Theme" id="Theme_dossier"]
+default_font = ExtResource("2_dossier_font")
+Button/colors/font_color = Color(0, 0, 0, 1)
+Button/colors/font_disabled_color = Color(0, 0, 0, 1)
+Button/colors/font_hover_color = Color(0, 0, 0, 1)
+Label/colors/font_color = Color(0, 0, 0, 1)
+RichTextLabel/colors/default_color = Color(0, 0, 0, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_paper"]
 bg_color = Color(0.72, 0.65, 0.48, 1)
@@ -14,10 +26,6 @@ corner_radius_top_right = 18
 corner_radius_bottom_right = 18
 corner_radius_bottom_left = 18
 
-[sub_resource type="SystemFont" id="SystemFont_dossier"]
-font_names = PackedStringArray("Georgia", "Times New Roman", "Cambria")
-subpixel_positioning = 0
-
 [sub_resource type="StyleBoxFlat" id="StyleBox_photo"]
 bg_color = Color(0.19, 0.19, 0.16, 1)
 border_width_left = 4
@@ -26,253 +34,378 @@ border_width_right = 4
 border_width_bottom = 4
 border_color = Color(0.27, 0.2, 0.12, 1)
 
-[sub_resource type="StyleBoxFlat" id="StyleBox_spine"]
-bg_color = Color(0.25, 0.17, 0.1, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBox_corner"]
-bg_color = Color(0.55, 0.48, 0.34, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-
 [node name="DossierUI" type="Control" unique_id=1605303907]
 layout_mode = 3
+anchors_preset = 0
+offset_right = 651.0
+offset_bottom = 837.0
+theme = SubResource("Theme_dossier")
+script = ExtResource("1_dossier_ui")
+
+[node name="Page" type="Panel" parent="." unique_id=1435914254]
+layout_mode = 0
+offset_right = 651.0
+offset_bottom = 837.0
+scale = Vector2(1.0752687, 1.0752687)
+theme_override_styles/panel = SubResource("StyleBox_paper")
+
+[node name="задний фон" type="TextureRect" parent="Page" unique_id=1818770380]
+layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_right = -2.3116455
+offset_bottom = -3.5249634
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_dossier_ui")
+texture = ExtResource("3_niqyp")
+expand_mode = 1
 
-[node name="LeftPage" type="Panel" parent="." unique_id=1435914254]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.025
-anchor_top = 0.035
-anchor_right = 0.49
-anchor_bottom = 0.965
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBox_paper")
-
-[node name="EmployeeName" type="Label" parent="LeftPage" unique_id=403302420]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.08
-anchor_top = 0.07
-anchor_right = 0.92
-anchor_bottom = 0.16
-theme_override_colors/font_color = Color(0.11, 0.08, 0.04, 1)
-theme_override_fonts/font = SubResource("SystemFont_dossier")
-theme_override_font_sizes/font_size = 29
+[node name="EmployeeName" type="Label" parent="Page" unique_id=403302420]
+custom_minimum_size = Vector2(1, 1)
+layout_mode = 0
+offset_left = 148.0
+offset_top = 57.5
+offset_right = 516.0
+offset_bottom = 81.5
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("2_dossier_font")
+theme_override_font_sizes/font_size = 20
+text = "УШАКОВ К. Р."
 horizontal_alignment = 1
 autowrap_mode = 2
 
-[node name="Level" type="Label" parent="LeftPage" unique_id=1470061432]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.1
-anchor_top = 0.19
-anchor_right = 0.9
-anchor_bottom = 0.29
-theme_override_colors/font_color = Color(0.16, 0.11, 0.05, 1)
-theme_override_fonts/font = SubResource("SystemFont_dossier")
-theme_override_font_sizes/font_size = 18
-horizontal_alignment = 1
-
-[node name="PortraitButton" type="Button" parent="LeftPage" unique_id=1014347683]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.1
-anchor_top = 0.34
-anchor_right = 0.43
-anchor_bottom = 0.68
-theme_override_colors/font_color = Color(0.78, 0.72, 0.55, 1)
-theme_override_fonts/font = SubResource("SystemFont_dossier")
+[node name="LevelText" type="Label" parent="Page" unique_id=1470061432]
+layout_mode = 0
+offset_left = 149.0
+offset_top = 86.5
+offset_right = 502.20004
+offset_bottom = 108.5
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("2_dossier_font")
 theme_override_font_sizes/font_size = 16
-theme_override_styles/normal = SubResource("StyleBox_photo")
-
-[node name="Stats" type="Label" parent="LeftPage" unique_id=321300735]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.48
-anchor_top = 0.34
-anchor_right = 0.9
-anchor_bottom = 0.68
-theme_override_colors/font_color = Color(0.14, 0.1, 0.05, 1)
-theme_override_fonts/font = SubResource("SystemFont_dossier")
-theme_override_font_sizes/font_size = 14
-autowrap_mode = 2
-
-[node name="Traits" type="Label" parent="LeftPage" unique_id=580281967]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.1
-anchor_top = 0.73
-anchor_right = 0.9
-anchor_bottom = 0.81
-theme_override_colors/font_color = Color(0.15, 0.1, 0.05, 1)
-theme_override_fonts/font = SubResource("SystemFont_dossier")
-theme_override_font_sizes/font_size = 14
-autowrap_mode = 2
-
-[node name="Status" type="Label" parent="LeftPage" unique_id=2029038531]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.1
-anchor_top = 0.85
-anchor_right = 0.9
-anchor_bottom = 0.92
-theme_override_colors/font_color = Color(0.21, 0.15, 0.08, 1)
-theme_override_fonts/font = SubResource("SystemFont_dossier")
-theme_override_font_sizes/font_size = 14
-horizontal_alignment = 1
-autowrap_mode = 2
-
-[node name="Spine" type="Panel" parent="." unique_id=1836244114]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.485
-anchor_top = 0.03
-anchor_right = 0.515
-anchor_bottom = 0.97
-theme_override_styles/panel = SubResource("StyleBox_spine")
-
-[node name="RightPage" type="Panel" parent="." unique_id=37876306]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.51
-anchor_top = 0.035
-anchor_right = 0.975
-anchor_bottom = 0.965
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBox_paper")
-
-[node name="EmployeeName" type="Label" parent="RightPage" unique_id=1986302181]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.08
-anchor_top = 0.07
-anchor_right = 0.92
-anchor_bottom = 0.16
-theme_override_colors/font_color = Color(0.11, 0.08, 0.04, 1)
-theme_override_fonts/font = SubResource("SystemFont_dossier")
-theme_override_font_sizes/font_size = 29
-horizontal_alignment = 1
-autowrap_mode = 2
-
-[node name="Level" type="Label" parent="RightPage" unique_id=627827689]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.1
-anchor_top = 0.19
-anchor_right = 0.9
-anchor_bottom = 0.29
-theme_override_colors/font_color = Color(0.16, 0.11, 0.05, 1)
-theme_override_fonts/font = SubResource("SystemFont_dossier")
-theme_override_font_sizes/font_size = 18
+text = "УРОВЕНЬ:"
 horizontal_alignment = 1
 
-[node name="PortraitButton" type="Button" parent="RightPage" unique_id=1780914598]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.1
-anchor_top = 0.34
-anchor_right = 0.43
-anchor_bottom = 0.68
-theme_override_colors/font_color = Color(0.78, 0.72, 0.55, 1)
-theme_override_fonts/font = SubResource("SystemFont_dossier")
+[node name="LabelID" type="Label" parent="Page/LevelText" unique_id=1880650132]
+layout_mode = 0
+offset_left = 224.56004
+offset_top = -0.13999176
+offset_right = 244.56004
+offset_bottom = 22.860008
+text = "N"
+
+[node name="Portrait" type="TextureRect" parent="Page" unique_id=1164757576]
+layout_mode = 0
+offset_left = 94.0352
+offset_top = 133.41661
+offset_right = 240.87001
+offset_bottom = 319.92001
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="PortraitButton" type="Button" parent="Page" unique_id=1014347683]
+layout_mode = 0
+offset_left = 94.0352
+offset_top = 133.41661
+offset_right = 240.64595
+offset_bottom = 320.85004
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("2_dossier_font")
 theme_override_font_sizes/font_size = 16
-theme_override_styles/normal = SubResource("StyleBox_photo")
+disabled = true
 
-[node name="Stats" type="Label" parent="RightPage" unique_id=1615223320]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.48
-anchor_top = 0.34
-anchor_right = 0.9
-anchor_bottom = 0.68
-theme_override_colors/font_color = Color(0.14, 0.1, 0.05, 1)
-theme_override_fonts/font = SubResource("SystemFont_dossier")
+[node name="Stats" type="Label" parent="Page" unique_id=321300735]
+custom_minimum_size = Vector2(1, 1)
+layout_mode = 0
+offset_left = 335.0
+offset_top = 132.06
+offset_right = 493.0
+offset_bottom = 150.06
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("2_dossier_font")
 theme_override_font_sizes/font_size = 14
-autowrap_mode = 2
-
-[node name="Traits" type="Label" parent="RightPage" unique_id=1283068041]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.1
-anchor_top = 0.73
-anchor_right = 0.9
-anchor_bottom = 0.81
-theme_override_colors/font_color = Color(0.15, 0.1, 0.05, 1)
-theme_override_fonts/font = SubResource("SystemFont_dossier")
-theme_override_font_sizes/font_size = 14
-autowrap_mode = 2
-
-[node name="Status" type="Label" parent="RightPage" unique_id=2055836809]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.1
-anchor_top = 0.85
-anchor_right = 0.9
-anchor_bottom = 0.92
-theme_override_colors/font_color = Color(0.21, 0.15, 0.08, 1)
-theme_override_fonts/font = SubResource("SystemFont_dossier")
-theme_override_font_sizes/font_size = 14
+text = "ХАРАКТЕРИСТИКИ"
 horizontal_alignment = 1
 autowrap_mode = 2
 
-[node name="PreviousPage" type="Button" parent="." unique_id=24224818]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.037
-anchor_top = 0.062000003
-anchor_right = 0.098000005
-anchor_bottom = 0.147
-offset_left = -0.3600006
-offset_top = 0.3599968
-offset_right = -0.44000244
-offset_bottom = 0.16000366
-theme_override_fonts/font = SubResource("SystemFont_dossier")
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBox_corner")
-text = "<"
+[node name="strength" type="Label" parent="Page" unique_id=1198064985]
+layout_mode = 0
+offset_left = 335.0
+offset_top = 157.5
+offset_right = 374.0
+offset_bottom = 177.5
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 14
+text = "Сила:"
 
-[node name="NextPage" type="Button" parent="." unique_id=876022777]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.88000005
-anchor_top = 0.068
-anchor_right = 0.961
-anchor_bottom = 0.171
-offset_left = 0.5999756
-offset_top = 0.0399971
-offset_right = -0.48010254
-offset_bottom = -0.12000275
-theme_override_fonts/font = SubResource("SystemFont_dossier")
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBox_corner")
-text = ">"
+[node name="strengthID" type="Label" parent="Page/strength" unique_id=1981169160]
+layout_mode = 0
+offset_left = 47.650024
+offset_top = -0.13999939
+offset_right = 87.650024
+offset_bottom = 22.86
+text = "N"
+
+[node name="StrengthUpgradeButton" type="Button" parent="Page/strength" unique_id=474756260]
+layout_mode = 0
+offset_left = 158.95004
+offset_top = -12.080002
+offset_right = 190.95004
+offset_bottom = 20.919998
+theme_override_fonts/font = ExtResource("2_dossier_font")
+theme_override_font_sizes/font_size = 18
+text = "[+]"
+flat = true
+
+[node name="combat" type="Label" parent="Page" unique_id=1806826486]
+layout_mode = 0
+offset_left = 334.0
+offset_top = 187.5
+offset_right = 423.0
+offset_bottom = 207.5
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 14
+text = "Навыки боя:"
+
+[node name="combatID" type="Label" parent="Page/combat" unique_id=1904375801]
+layout_mode = 0
+offset_left = 100.30005
+offset_top = -0.13999939
+offset_right = 140.30005
+offset_bottom = 22.86
+text = "N"
+
+[node name="CombatUpgradeButton" type="Button" parent="Page/combat" unique_id=1582746495]
+layout_mode = 0
+offset_left = 159.95004
+offset_top = -12.080002
+offset_right = 191.95004
+offset_bottom = 20.919998
+theme_override_fonts/font = ExtResource("2_dossier_font")
+theme_override_font_sizes/font_size = 18
+text = "[+]"
+flat = true
+
+[node name="agility" type="Label" parent="Page" unique_id=82715999]
+layout_mode = 0
+offset_left = 334.0
+offset_top = 216.50002
+offset_right = 404.0
+offset_bottom = 236.50002
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 14
+text = "Ловкость:"
+
+[node name="agilityID" type="Label" parent="Page/agility" unique_id=687046733]
+layout_mode = 0
+offset_left = 79.50998
+offset_top = -0.13999939
+offset_right = 119.50998
+offset_bottom = 22.86
+text = "N"
+
+[node name="AgilityUpgradeButton" type="Button" parent="Page/agility" unique_id=273180065]
+layout_mode = 0
+offset_left = 159.95004
+offset_top = -12.080017
+offset_right = 191.95004
+offset_bottom = 20.919983
+theme_override_fonts/font = ExtResource("2_dossier_font")
+theme_override_font_sizes/font_size = 18
+text = "[+]"
+flat = true
+
+[node name="charisma" type="Label" parent="Page" unique_id=129551941]
+layout_mode = 0
+offset_left = 333.0
+offset_top = 246.50002
+offset_right = 399.0
+offset_bottom = 266.5
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 14
+text = "Харизма:"
+
+[node name="charismaID" type="Label" parent="Page/charisma" unique_id=632321456]
+layout_mode = 0
+offset_left = 75.51001
+offset_top = -0.13999939
+offset_right = 115.51001
+offset_bottom = 22.86
+text = "N"
+
+[node name="CharismaUpgradeButton" type="Button" parent="Page/charisma" unique_id=1807350221]
+layout_mode = 0
+offset_left = 160.95004
+offset_top = -12.080032
+offset_right = 192.95004
+offset_bottom = 20.919968
+theme_override_fonts/font = ExtResource("2_dossier_font")
+theme_override_font_sizes/font_size = 18
+text = "[+]"
+flat = true
+
+[node name="intellect" type="Label" parent="Page" unique_id=1959628474]
+layout_mode = 0
+offset_left = 332.0
+offset_top = 275.5
+offset_right = 412.0
+offset_bottom = 295.5
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 14
+text = "Интеллект:"
+
+[node name="strengthID" type="Label" parent="Page/intellect" unique_id=1305741991]
+layout_mode = 0
+offset_left = 94.16
+offset_top = -0.14001465
+offset_right = 134.16
+offset_bottom = 22.859985
+text = "N"
+
+[node name="IntellectUpgradeButton" type="Button" parent="Page/intellect" unique_id=141876968]
+layout_mode = 0
+offset_left = 161.95004
+offset_top = -12.080002
+offset_right = 193.95004
+offset_bottom = 20.919998
+theme_override_fonts/font = ExtResource("2_dossier_font")
+theme_override_font_sizes/font_size = 18
+text = "[+]"
+flat = true
+
+[node name="Traits" type="Label" parent="Page" unique_id=580281967]
+custom_minimum_size = Vector2(1, 1)
+layout_mode = 0
+offset_left = 84.58
+offset_top = 352.352
+offset_right = 277.22
+offset_bottom = 382.744
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("2_dossier_font")
+theme_override_font_sizes/font_size = 18
+text = "ОСОБЫЕ НАВЫКИ"
+autowrap_mode = 2
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Page/Traits" unique_id=366831584]
+layout_mode = 0
+offset_left = -0.58000183
+offset_top = 30.86795
+offset_right = 483.41998
+offset_bottom = 117.86795
+theme_override_colors/default_color = Color(0, 0, 0, 1)
+theme_override_constants/line_separation = 11
+theme_override_constants/strikethrough_alpha = 50
+theme_override_fonts/normal_font = ExtResource("2_dossier_font")
+theme_override_font_sizes/normal_font_size = 14
+text = "ТЕСТОВЫЙ ТЕКСТ ТЕСТОВЫЙ ТЕКСТТЕСТОВЫЙ ТЕКСТТЕСТОВЫЙ ТЕКСТТЕСТОВЫЙ ТЕКСТТЕСТОВЫЙ ТЕКСТТЕСТОВЫЙ ТЕКСТТЕСТОВЫЙ ТЕКСТТЕСТОВЫЙ"
+fit_content = true
+scroll_active = false
+
+[node name="Bio" type="Label" parent="Page" unique_id=793202968]
+custom_minimum_size = Vector2(1, 1)
+layout_mode = 0
+offset_left = 84.58
+offset_top = 504.212
+offset_right = 277.22
+offset_bottom = 534.604
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("2_dossier_font")
+theme_override_font_sizes/font_size = 18
+text = "ДРУГИЕ ДАННЫЕ"
+autowrap_mode = 2
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Page/Bio" unique_id=525274224]
+layout_mode = 0
+offset_left = 0.41999817
+offset_top = 31.007935
+offset_right = 484.41998
+offset_bottom = 147.00793
+theme_override_colors/default_color = Color(0, 0, 0, 1)
+theme_override_constants/line_separation = 11
+theme_override_constants/strikethrough_alpha = 50
+theme_override_fonts/normal_font = ExtResource("2_dossier_font")
+theme_override_font_sizes/normal_font_size = 14
+text = "ТЕСТОВЫЙ ТЕКСТ ТЕСТОВЫЙ ТЕКСТТЕСТОВЫЙ ТЕКСТТЕСТОВЫЙ ТЕКСТТЕСТОВЫЙ ТЕКСТТЕСТОВЫЙ ТЕКСТТЕСТОВЫЙ ТЕКСТТЕСТОВЫЙ ТЕКСТТЕСТОВЫЙ ТЕСТОВЫЙ ТЕКСТТЕСТОВЫЙ ТЕКСТТЕСТОВЫЙ ТЕКaaa"
+fit_content = true
+scroll_active = false
+
+[node name="LabelXP" type="Label" parent="Page" unique_id=533469371]
+layout_mode = 0
+offset_left = 304.0
+offset_top = 673.42993
+offset_right = 480.0
+offset_bottom = 696.42993
+text = "ОПЫТ СОТРУДНИКА:"
+
+[node name="CountXP" type="Label" parent="Page/LabelXP" unique_id=1585551552]
+layout_mode = 0
+offset_left = 166.0
+offset_top = -2.789978
+offset_right = 262.0
+offset_bottom = 20.210022
+text = "0/100"
+horizontal_alignment = 1
+
+[node name="LabelXP2" type="Label" parent="Page" unique_id=932288960]
+layout_mode = 0
+offset_left = 159.03009
+offset_top = 716.10004
+offset_right = 482.0301
+offset_bottom = 739.10004
+text = "ДОСТУПНЫЕ ОЧКИ ХАРАКТЕРИСТИК:"
+
+[node name="CountXP" type="Label" parent="Page/LabelXP2" unique_id=943428814]
+layout_mode = 0
+offset_left = 328.29016
+offset_right = 341.29016
+offset_bottom = 19.000008
+text = "N"
+horizontal_alignment = 1
+
+[node name="PreviousPage" type="TextureButton" parent="." unique_id=24224818]
+layout_mode = 0
+offset_left = 31.0
+offset_top = 27.5
+offset_right = 134.76
+offset_bottom = 119.34
+disabled = true
+texture_normal = ExtResource("4_left_corner")
+texture_disabled = ExtResource("4_left_corner")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="NextPage" type="TextureButton" parent="." unique_id=876022777]
+layout_mode = 0
+offset_left = 561.0
+offset_top = 17.0
+offset_right = 674.3199
+offset_bottom = 113.53999
+disabled = true
+texture_normal = ExtResource("5_right_corner")
+texture_disabled = ExtResource("5_right_corner")
+ignore_texture_size = true
+stretch_mode = 5
 
 [node name="PageNumber" type="Label" parent="." unique_id=1564224464]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.43
-anchor_top = 0.93
-anchor_right = 0.57
-anchor_bottom = 0.98
-theme_override_colors/font_color = Color(0.86, 0.77, 0.58, 1)
-theme_override_fonts/font = SubResource("SystemFont_dossier")
+layout_mode = 0
+offset_left = 114.0
+offset_top = 826.0
+offset_right = 599.0
+offset_bottom = 852.6
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("2_dossier_font")
 theme_override_font_sizes/font_size = 16
+text = "1 / 1"
 horizontal_alignment = 1
 
 [node name="DossierCursor" type="ColorRect" parent="." unique_id=1396324948]
-visible = false
 z_index = 10
 layout_mode = 0
-offset_right = 14.0
-offset_bottom = 24.0
+offset_left = 285.0
+offset_top = 235.5
+offset_right = 293.0
+offset_bottom = 244.0
 mouse_filter = 2
 color = Color(0.16, 0.08, 0.025, 0.95)

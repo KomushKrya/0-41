@@ -25,7 +25,18 @@ public partial class ScreenSpaceOutlineManager : Node
 
 	public override void _Ready()
 	{
-		_sourceCamera = GetNode<Camera3D>(SourceCameraPath);
+		Camera3D? sourceCamera = GetNodeOrNull<Camera3D>(SourceCameraPath);
+		if (sourceCamera == null)
+		{
+			Node player = GetTree().GetFirstNodeInGroup("player");
+			sourceCamera = player?.GetNodeOrNull<Camera3D>("Head/Camera3D");
+		}
+		if (sourceCamera == null)
+		{
+			GD.PushError("ScreenSpaceOutlineManager: source camera is not available.");
+			return;
+		}
+		_sourceCamera = sourceCamera;
 		CreateMaskViewport();
 		CreateOverlay();
 		ResizeMaskViewport();

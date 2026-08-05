@@ -382,6 +382,9 @@
 | `ui_hint_no_flow` | ui_label | content/raw/ru/UI/labels/menu.md |
 | `ui_hint_no_flow_autoload` | ui_label | content/raw/ru/UI/labels/menu.md |
 | `ui_hint_no_saves` | ui_label | content/raw/ru/UI/labels/menu.md |
+| `ui_hint_save_complete` | ui_label | content/raw/ru/UI/labels/menu.md |
+| `ui_hint_save_failed` | ui_label | content/raw/ru/UI/labels/menu.md |
+| `ui_hint_save_unavailable` | ui_label | content/raw/ru/UI/labels/menu.md |
 | `ui_hiring_abilities` | ui_label | content/raw/ru/UI/labels/dossier.md |
 | `ui_hiring_abilities_none` | ui_label | content/raw/ru/UI/labels/dossier.md |
 | `ui_hiring_candidate_rank` | ui_label | content/raw/ru/UI/labels/dossier.md |
@@ -404,6 +407,7 @@
 | `ui_pause_load` | ui_label | content/raw/ru/UI/labels/menu.md |
 | `ui_pause_main_menu` | ui_label | content/raw/ru/UI/labels/menu.md |
 | `ui_pause_resume` | ui_label | content/raw/ru/UI/labels/menu.md |
+| `ui_pause_save` | ui_label | content/raw/ru/UI/labels/menu.md |
 | `ui_pause_settings` | ui_label | content/raw/ru/UI/labels/menu.md |
 | `ui_pause_title` | ui_label | content/raw/ru/UI/labels/menu.md |
 | `ui_phone_call_confirm` | ui_label | content/raw/ru/UI/labels/shift.md |

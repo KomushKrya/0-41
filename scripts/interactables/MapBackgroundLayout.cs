@@ -52,11 +52,12 @@ public partial class MapBackgroundLayout : Node
 
 		Vector2 mapCenter = geometryBounds.GetCenter() + BackgroundOffsetPixels;
 		Vector2 viewportCenter = viewportSize * 0.5f;
-		Vector3 localOffset = new(
+		Vector3 surfaceOffset = new(
 			(mapCenter.X - viewportCenter.X) * surfaceSize.X / viewportSize.X,
 			-(mapCenter.Y - viewportCenter.Y) * surfaceSize.Y / viewportSize.Y,
 			-OverlayDepthOffset);
-		backgroundSurface.Position = viewportSurface.Position + localOffset;
+		backgroundSurface.Basis = viewportSurface.Basis;
+		backgroundSurface.Position = viewportSurface.Position + viewportSurface.Basis * surfaceOffset;
 	}
 
 	private static bool TryGetGeometryBounds(

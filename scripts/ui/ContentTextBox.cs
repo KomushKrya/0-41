@@ -255,7 +255,12 @@ public abstract partial class ContentTextBox : Control
 		List<ContentSpan> spans = new(chunk.Spans.Count);
 		foreach (ContentSpan span in chunk.Spans)
 		{
-			spans.Add(new ContentSpan { Text = Content.Fill(span.Text, Resolve), Highlight = span.Highlight });
+			spans.Add(new ContentSpan
+			{
+				Text = Content.Fill(span.Text, Resolve),
+				Highlight = span.Highlight,
+				Bold = span.Bold
+			});
 		}
 
 		return new ContentChunk

@@ -1,0 +1,77 @@
+{
+	"charisma": {
+		"id": "charisma",
+		"type": "characteristic",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Умение говорить с людьми на объекте так, чтобы они открыли дверь, вышли из квартиры и назавтра пересказывали соседям безопасную версию. Половина работы отдела — не выехать и устранить, а объяснить.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"name": "Харизма"
+	},
+	"composure": {
+		"id": "composure",
+		"type": "characteristic",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Способность работать по протоколу рядом с тем, что протоколу не подчиняется.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"name": "Хладнокровие"
+	},
+	"endurance": {
+		"id": "endurance",
+		"type": "characteristic",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Сколько оперативник выдержит там, где среда работает против него: споры, испарения, вода по пояс, часы в фильтрах.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"name": "Выносливость"
+	},
+	"perception": {
+		"id": "perception",
+		"type": "characteristic",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Умение заметить, что обстановка не сходится: коридор длиннее, чем был, дверь стоит не там, у соседа не та походка. На заражённом объекте от этого зависит, кого группа найдёт первым — она аномалию или аномалия её.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"name": "Наблюдательность"
+	},
+	"strength": {
+		"id": "strength",
+		"type": "characteristic",
+		"requirements": [],
+		"properties": [],
+		"chunks": [
+			{
+				"text": "Что оперативник может продавить руками: вскрыть заклиненную дверь, разобрать завал, вынести человека с этажа. Там, где обстановка держит физически, решает она.",
+				"kind": "text",
+				"reveal": null
+			}
+		],
+		"variables": [],
+		"name": "Сила"
+	}
+}

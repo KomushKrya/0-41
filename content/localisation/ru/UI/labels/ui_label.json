@@ -365,6 +365,15 @@
 		"variables": [],
 		"chunks": []
 	},
+	"ui_pause_save": {
+		"id": "ui_pause_save",
+		"type": "ui_label",
+		"name": "Сохранить",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
 	"ui_pause_load": {
 		"id": "ui_pause_load",
 		"type": "ui_label",
@@ -423,6 +432,33 @@
 		"id": "ui_hint_load_failed",
 		"type": "ui_label",
 		"name": "Не удалось загрузить сохранение, подробности в Output.",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"ui_hint_save_unavailable": {
+		"id": "ui_hint_save_unavailable",
+		"type": "ui_label",
+		"name": "Сохранение сейчас недоступно.",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"ui_hint_save_complete": {
+		"id": "ui_hint_save_complete",
+		"type": "ui_label",
+		"name": "Игра сохранена.",
+		"requirements": [],
+		"properties": [],
+		"variables": [],
+		"chunks": []
+	},
+	"ui_hint_save_failed": {
+		"id": "ui_hint_save_failed",
+		"type": "ui_label",
+		"name": "Не удалось сохранить игру, подробности в Output.",
 		"requirements": [],
 		"properties": [],
 		"variables": [],

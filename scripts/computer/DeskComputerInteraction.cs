@@ -3,13 +3,12 @@ using Godot;
 public partial class DeskComputerInteraction : Node3D
 {
 	[Export] public NodePath FocusCameraPosePath { get; set; } = new("FocusCameraPose");
-	[Export] public NodePath DossierFocusCameraPosePath { get; set; } = new("FocusCameraPose/DossierFocusCameraPose");
+	[Export] public DossierPresentationLayout PresentationLayout { get; set; } = null!;
 	[Export] public NodePath ViewportInputPath { get; set; } = new("ViewportInput");
 	[Export] public NodePath DossierViewportInputPath { get; set; } = new("DossierViewportInput");
 	[Export] public NodePath ComputerUiPath { get; set; } = new("ComputerViewport/ComputerUI");
 
-	private Node3D _focusCameraPose = null!;
-	private Node3D _dossierFocusCameraPose = null!;
+	private Camera3D _focusCameraPose = null!;
 	private SubViewportInputController _viewportInput = null!;
 	private SubViewportInputController _dossierViewportInput = null!;
 	private ComputerUI _computerUi = null!;
@@ -22,8 +21,11 @@ public partial class DeskComputerInteraction : Node3D
 
 	public override void _Ready()
 	{
-		_focusCameraPose = GetNode<Node3D>(FocusCameraPosePath);
-		_dossierFocusCameraPose = GetNode<Node3D>(DossierFocusCameraPosePath);
+		_focusCameraPose = GetNode<Camera3D>(FocusCameraPosePath);
+		if (PresentationLayout == null)
+		{
+			GD.PushError("DeskComputerInteraction: dossier presentation layout is not assigned.");
+		}
 		_viewportInput = GetNode<SubViewportInputController>(ViewportInputPath);
 		_dossierViewportInput = GetNode<SubViewportInputController>(DossierViewportInputPath);
 		_computerUi = GetNode<ComputerUI>(ComputerUiPath);
@@ -35,6 +37,9 @@ public partial class DeskComputerInteraction : Node3D
 		else
 		{
 			_dossier.SelectionConfirmed += ExitDossierMode;
+			SubViewport dossierViewport = _dossier.GetNodeOrNull<SubViewport>("DossierViewport");
+			Control dossierCursor = _dossier.GetNodeOrNull<Control>("DossierViewport/DossierUI/DossierCursor");
+			_dossierViewportInput.Configure(dossierViewport, dossierCursor);
 		}
 
 		_computerUi.DispatchSlotRequested += EnterDossierMode;
@@ -92,8 +97,7 @@ public partial class DeskComputerInteraction : Node3D
 			PauseSimulationForComputer();
 		}
 
-		_activePlayer.FocusViewAt(_focusCameraPose.GlobalTransform);
-		_activePlayer.SetMovementEnabled(false);
+		_activePlayer.FocusViewAt(_focusCameraPose);
 		_viewportInput.BeginInteraction();
 	}
 
@@ -125,7 +129,6 @@ public partial class DeskComputerInteraction : Node3D
 
 		if (_activePlayer != null)
 		{
-			_activePlayer.SetMovementEnabled(true);
 			if (_onModeExit != null && _activePlayer.IsViewFocused)
 			{
 				_activePlayer.FocusedViewReturned += FinishModeExit;
@@ -188,7 +191,7 @@ public partial class DeskComputerInteraction : Node3D
 		_isDossierMode = true;
 		_dossier.OpenForDispatch(_computerUi, slotIndex);
 		_dossierViewportInput.BeginInteraction();
-		_activePlayer.FocusViewAt(GetDossierFocusTransform());
+		_activePlayer.FocusViewAt(GetDossierFocusTransform(), PresentationLayout.CameraFov);
 	}
 
 	private void ExitDossierMode()
@@ -203,12 +206,12 @@ public partial class DeskComputerInteraction : Node3D
 		_dossier?.CloseDispatch();
 		if (_isComputerModeActive && _activePlayer != null)
 		{
-			_activePlayer.FocusViewAt(_focusCameraPose.GlobalTransform);
+			_activePlayer.FocusViewAt(_focusCameraPose);
 		}
 	}
 
 	private Transform3D GetDossierFocusTransform()
 	{
-		return _dossierFocusCameraPose.GlobalTransform;
+		return GlobalTransform * PresentationLayout.CameraTransform;
 	}
 }

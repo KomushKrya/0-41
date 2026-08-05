@@ -1,9 +1,8 @@
-[gd_scene format=3 uid="uid://bm77c8pw658tt"]
+[gd_scene load_steps=6 format=3 uid="uid://bm77c8pw658tt"]
 
 [ext_resource type="Script" uid="uid://dd3xobbl8y0uc" path="res://scripts/computer/ComputerUI.cs" id="1_ui"]
-[ext_resource type="PackedScene" path="res://scenes/ui/computer/screens/ComputerHome.tscn" id="2_home"]
-[ext_resource type="PackedScene" path="res://scenes/ui/computer/screens/EmployeeSelection.tscn" id="3_employees"]
-[ext_resource type="PackedScene" path="res://scenes/ui/computer/screens/MissionDispatch.tscn" id="6_mission_dispatch"]
+[ext_resource type="PackedScene" path="res://scenes/ui/computer/screens/ComputerRoster.tscn" id="2_roster"]
+[ext_resource type="PackedScene" path="res://scenes/ui/computer/screens/MissionDispatch.tscn" id="3_mission_dispatch"]
 [ext_resource type="PackedScene" path="res://scenes/ui/computer/screens/EquipmentSelection.tscn" id="4_equipment"]
 [ext_resource type="PackedScene" path="res://scenes/ui/computer/screens/Encyclopedia.tscn" id="5_encyclopedia"]
 
@@ -16,86 +15,17 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_ui")
-HomeScreenScene = ExtResource("2_home")
-EmployeesScreenScene = ExtResource("3_employees")
-MissionDispatchScreenScene = ExtResource("6_mission_dispatch")
+EmployeesScreenScene = ExtResource("2_roster")
+MissionDispatchScreenScene = ExtResource("3_mission_dispatch")
 EquipmentScreenScene = ExtResource("4_equipment")
 EncyclopediaScreenScene = ExtResource("5_encyclopedia")
 
-[node name="Background" type="ColorRect" parent="." unique_id=1414671496]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-color = Color(0.025, 0.04, 0.033, 1)
-
-[node name="SafeArea" type="Control" parent="." unique_id=2125086147]
-layout_mode = 1
-anchor_left = 0.05
-anchor_top = 0.1
-anchor_right = 0.95
-anchor_bottom = 0.9
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="Header" type="ColorRect" parent="SafeArea" unique_id=282386155]
-layout_mode = 1
-anchors_preset = -1
-anchor_right = 1.0
-anchor_bottom = 0.13
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-color = Color(0.055, 0.11, 0.075, 1)
-
-[node name="Title" type="Label" parent="SafeArea/Header" unique_id=668466777]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.04
-anchor_top = 0.17
-anchor_right = 0.6
-anchor_bottom = 0.83
-offset_bottom = 23.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.72, 0.9, 0.7, 1)
-theme_override_font_sizes/font_size = 25
-text = "КОНТУР-Д // РАБОЧАЯ СТАНЦИЯ"
-
-[node name="BackButton" type="Button" parent="SafeArea/Header" unique_id=1654787784]
-visible = false
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.81
-anchor_top = 0.18
-anchor_right = 0.96
-anchor_bottom = 0.82
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_font_sizes/font_size = 18
-text = "НАЗАД"
-
-[node name="ScreenContainer" type="Control" parent="SafeArea" unique_id=1000081879]
-layout_mode = 1
-anchor_top = 0.15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
 [node name="ComputerCursor" type="ColorRect" parent="." unique_id=565099665]
 visible = false
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.513333
-anchor_bottom = 0.536667
-grow_horizontal = 2
-grow_vertical = 2
+layout_mode = 0
+offset_left = 445.0
+offset_top = 295.0
+offset_right = 455.0
+offset_bottom = 305.0
 mouse_filter = 2
 color = Color(0.84, 1, 0.72, 1)

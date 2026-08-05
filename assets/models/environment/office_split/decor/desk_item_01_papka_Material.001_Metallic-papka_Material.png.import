@@ -1,0 +1,44 @@
+[remap]
+
+importer="texture"
+type="CompressedTexture2D"
+uid="uid://bxvdny7cyjmmu"
+path.s3tc="res://.godot/imported/desk_item_01_papka_Material.001_Metallic-papka_Material.png-089a459fce41e5d3040f4740e64a7d78.s3tc.ctex"
+metadata={
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
+}
+generator_parameters={
+"md5": "9ae43e5bc5811fd334db381ff4764132"
+}
+
+[deps]
+
+source_file="res://assets/models/environment/office_split/decor/desk_item_01_papka_Material.001_Metallic-papka_Material.png"
+dest_files=["res://.godot/imported/desk_item_01_papka_Material.001_Metallic-papka_Material.png-089a459fce41e5d3040f4740e64a7d78.s3tc.ctex"]
+
+[params]
+
+compress/mode=2
+compress/high_quality=false
+compress/lossy_quality=0.7
+compress/uastc_level=0
+compress/rdo_quality_loss=0.0
+compress/hdr_compression=1
+compress/normal_map=0
+compress/channel_pack=0
+mipmaps/generate=true
+mipmaps/limit=-1
+roughness/mode=0
+roughness/src_normal=""
+process/channel_remap/red=0
+process/channel_remap/green=1
+process/channel_remap/blue=2
+process/channel_remap/alpha=3
+process/fix_alpha_border=true
+process/premult_alpha=false
+process/normal_map_invert_y=false
+process/hdr_as_srgb=false
+process/hdr_clamp_exposure=false
+process/size_limit=0
+detect_3d/compress_to=0

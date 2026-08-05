@@ -53,7 +53,7 @@
 	  "standardPerShift": 1,
 	  "shiftNoteId": "shift_note_day_1",
 	  "outroCutsceneId": "cutscene_before_shift_2",
-	  "disableTimers": true,
+	  "disableTimers": false,
 	  "sequentialCallCount": 2,
 	  "missionOrder": [
 		"m_black_mold",

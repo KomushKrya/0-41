@@ -1,0 +1,55 @@
+[gd_scene format=3 uid="uid://ws47cq1fama6"]
+
+[ext_resource type="PackedScene" uid="uid://84krsaigl1fp" path="res://scenes/interactables/new_office/NewDeskComputer.tscn" id="1_computer"]
+[ext_resource type="PackedScene" uid="uid://cwp8v2448gsct" path="res://scenes/interactables/EmployeeDossier.tscn" id="2_dossier"]
+[ext_resource type="Script" uid="uid://cqdnlijtuq5yf" path="res://scripts/dossier/DossierPresentationTarget.cs" id="3_target"]
+[ext_resource type="Resource" path="res://assets/ui_preview/DossierPresentationLayout.tres" id="4_layout"]
+[ext_resource type="Script" uid="uid://7vvihkuiselu" path="res://scripts/dossier/DossierPresentationCamera.cs" id="5_camera"]
+
+[sub_resource type="Environment" id="Environment_workbench"]
+background_mode = 1
+background_color = Color(0.07, 0.06, 0.05, 1)
+ambient_light_source = 3
+ambient_light_color = Color(0.78, 0.66, 0.5, 1)
+ambient_light_energy = 0.9
+
+[sub_resource type="StandardMaterial3D" id="Material_floor"]
+albedo_color = Color(0.2, 0.14, 0.09, 1)
+roughness = 0.9
+
+[sub_resource type="PlaneMesh" id="Mesh_floor"]
+material = SubResource("Material_floor")
+size = Vector2(3.5, 3.5)
+
+[node name="DossierWorkbench" type="Node3D" unique_id=2019420185]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=962284359]
+environment = SubResource("Environment_workbench")
+
+[node name="KeyLight" type="DirectionalLight3D" parent="." unique_id=1731786576]
+transform = Transform3D(0.7880108, 0.4575257, -0.41195792, 0, 0.66913056, 0.74314487, 0.6156615, -0.58560616, 0.5272821, 0, 0, 0)
+light_energy = 1.35
+shadow_enabled = true
+
+[node name="Floor" type="MeshInstance3D" parent="." unique_id=1780486253]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.3416735, 0)
+mesh = SubResource("Mesh_floor")
+
+[node name="DeskComputer" parent="." unique_id=1038632961 instance=ExtResource("1_computer")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00093737245, 0.0012692213, -0.00059205294)
+
+[node name="DossierPresentationTarget" type="Node3D" parent="." unique_id=15730489]
+transform = Transform3D(0.097178265, 0.12646674, 0.47388035, 3.1664968e-08, 0.48309246, -0.12892522, -0.49046555, 0.025057502, 0.09389214, 0.12482874, -0.12575653, 0.057358295)
+script = ExtResource("3_target")
+
+[node name="DossierPreview" parent="DossierPresentationTarget" unique_id=1397199586 instance=ExtResource("2_dossier")]
+transform = Transform3D(1, 0, 0, 0, 0.9889716, -0.14810528, 0, 0.14810528, 0.9889716, 0, 0, 0)
+DispatchComputerPath = NodePath("../../DeskComputer")
+PresentationLayout = ExtResource("4_layout")
+ClosedCoverLift = 0.026
+
+[node name="PreviewCamera" type="Camera3D" parent="DossierPresentationTarget" unique_id=654404558]
+transform = Transform3D(1.5614533, -1.2471359, -0.0807159, 1.2463795, 1.5445235, 0.24695118, -0.09165694, -0.2431028, 1.9830528, 0.42200184, 0.30742085, -0.24768569)
+current = true
+fov = 52.707977
+script = ExtResource("5_camera")

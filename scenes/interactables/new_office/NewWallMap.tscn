@@ -1,0 +1,163 @@
+[gd_scene format=4 uid="uid://b7sidp0hp84ot"]
+
+[ext_resource type="Texture2D" uid="uid://bbit5tx4pgkq4" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Doska_Ramka_BaseColor.png" id="1_gru50"]
+[ext_resource type="Texture2D" uid="uid://bbk4p74sj0vat" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Doska_Ramka_Metallic-Doska_Ramka_Roughness.png" id="2_35pau"]
+[ext_resource type="Texture2D" uid="uid://dlfwru5qkku42" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Doska_Ramka_Normal.png" id="3_mf3mp"]
+[ext_resource type="Texture2D" uid="uid://diu3iby12il73" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Doska_Centr_BaseColor.png" id="4_ryy6o"]
+[ext_resource type="Texture2D" uid="uid://b7gav6jutx4cs" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Doska_Centr_Metallic-Doska_Centr_Roughness.png" id="5_yqgjf"]
+[ext_resource type="Texture2D" uid="uid://b3olagosnp3d7" path="res://assets/models/environment/office_split/interactive/textures/кабинет_Doska_Centr_Normal.png" id="6_q1n6x"]
+[ext_resource type="Texture2D" uid="uid://ccjivqsnoseua" path="res://assets/textures/test man.png" id="7_8hgl3"]
+[ext_resource type="Script" uid="uid://d0fbn8kr5taka" path="res://scripts/interaction/InteractionOutline.cs" id="8_blm47"]
+[ext_resource type="Script" uid="uid://bg1h1jf7kjf0c" path="res://scripts/interaction/OutlineOnlyInteractable.cs" id="9_av6od"]
+[ext_resource type="PackedScene" path="res://scenes/ui/map/MapUI.tscn" id="10_owj42"]
+[ext_resource type="Script" uid="uid://dvqxuod1kiwne" path="res://scripts/interaction/SubViewportSurfaceRenderer.cs" id="13_gdq3u"]
+[ext_resource type="Script" uid="uid://53qnsdfl8qu3" path="res://scripts/interactables/map_marker/MapMarkerController.cs" id="14_hr888"]
+[ext_resource type="PackedScene" path="res://scenes/interactables/map_marker/MapMissionMarker.tscn" id="15_nhioq"]
+[ext_resource type="Script" uid="uid://l60j6pgw0w0b" path="res://scripts/interactables/MapBackgroundLayout.cs" id="16_dxt4x"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kmm7f"]
+resource_name = "Ramka.001"
+cull_mode = 2
+albedo_texture = ExtResource("1_gru50")
+metallic = 1.0
+metallic_texture = ExtResource("2_35pau")
+metallic_texture_channel = 2
+roughness_texture = ExtResource("2_35pau")
+roughness_texture_channel = 1
+normal_enabled = true
+normal_texture = ExtResource("3_mf3mp")
+metadata/_gltf_primary_texture_coord = 0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_f47yj"]
+resource_name = "Centr"
+cull_mode = 2
+albedo_texture = ExtResource("4_ryy6o")
+metallic = 1.0
+metallic_texture = ExtResource("5_yqgjf")
+metallic_texture_channel = 2
+roughness_texture = ExtResource("5_yqgjf")
+roughness_texture_channel = 1
+normal_enabled = true
+normal_texture = ExtResource("6_q1n6x")
+metadata/_gltf_primary_texture_coord = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_o4pjm"]
+_surfaces = [{
+"aabb": AABB(-0.034623098, -0.5, -0.68584776, 0.069246195, 1, 1.3716955),
+"format": 34896613377,
+"index_count": 150,
+"index_data": PackedByteArray("AAABAAIAAAADAAEABAACAAEAAwAAAAUAAwAFAAYABAABAAcABQAHAAYABQAEAAcAAgAQAAAABQAAABAAEQACAAQAAgARABAABAAFABIABQAQABIABAASABMAEQAEABMAEAAKABIAEwASAAoAEQAIABAAEAAIAAoACwARABMAEwAKAAsAEQAJAAgACwAJABEACAAUAAoACwAKABQACQAVAAgACAAVABQAFgAJAAsACwAUABYACQAXABUAFgAXAAkAFQAYABQAFgAUABgAFwAZABUAFQAZABgAGgAXABYAFgAYABoAFwAbABkAGgAbABcADwAYABkADwAaABgADAAZABsADwAZAAwAGgANABsADAAbAA0ADwAOABoADAAOAA8AGgAOAA0ADAANAA4A"),
+"lods": [0.21179365, PackedByteArray("AAABAAIAAAADAAEABAACAAEAAwAAAAUAAwAFAAYABAABAAcABQAHAAYABQAEAAcAAgAIAAAABQAAAAgACQACAAQAAgAJAAgABAAFAAoABQAIAAoACQAEAAsABAAKAAsACQAMAAgACAAMAAoACQANAAwADgAJAAsADgANAAkACwAKAA4ADAANAA4ADwAOAAoADAAOAA8ADwAKAAwA")],
+"name": "Ramka.001",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 28,
+"vertex_data": PackedByteArray("///tCIIGAAA4sBH3ggYAAP//EfeCBgAAOLDtCIIGAAD//xH3fPkAAP//7Qh8+QAAOLDtCHz5AAA4sBH3fPkAAKz07QIiAgAArPQR/SICAACs9O0C3P0AAKz0Ef3c/QAAAAAAAAAAAAAAAP//AAAAAAAA/////wAAAAAAAP//AAD//9oFRAQAAP//JPpEBAAA///aBbr7AAD//yT6uvsAANKxlACS/wAA0rGUAGwAAADSsWr/kv8AANKxav9sAAAAq0sAAP//AACrSwAAAAAAAKtL/////wAAq0v//wAAAAA=")
+}, {
+"aabb": AABB(0.013044003, -0.4651189, -0.6509667, 1e-05, 0.9302378, 1.3019334),
+"format": 34896613377,
+"index_count": 6,
+"index_data": PackedByteArray("AAABAAIAAAADAAEA"),
+"name": "Centr",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 4,
+"vertex_data": PackedByteArray("AAAAAP//AAAAAP//AAAAAAAAAAAAAAAAAAD/////AAA=")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_cp7k7"]
+resource_name = "кабинет_Cube"
+_surfaces = [{
+"aabb": AABB(-0.034623098, -0.5, -0.68584776, 0.069246195, 1, 1.3716955),
+"attribute_data": PackedByteArray("Y9JtKHPUQ4Jj0kOCc9RtKGPS5P7ny2ufY9KGoOfL///wvqF8bMWGe/C+5P5sxf//1mL/f/C+u32tvP9/rby7/ZNgu33wvv7/1mK7/ZNg//9sxf//58uhfOfL5P5sxYZ7Y9JDgnPU//9j0v//c9RDgnPU//+E1kOChNb//3PUQ4KTYP//AACGe5NghnsAAP//hNZtKHPUQ4Jz1G0ohNZDgufLUZ7ny/M/Y9Jrn2PS2D6tYdZ+1r3Wfq1h5P7WveT+idCkn4nQxv/dzWuf3c3//8rAvnt3w///ysDG/3fDhnthx///YceGew7KvnsOysb/wc0RP8HNM59t0Ng+bdBrnw=="),
+"format": 34896613399,
+"index_count": 150,
+"index_data": PackedByteArray("AAABAAIAAAADAAEALAANAC0ALAAQAA0ALQANABEAEwAQACwALgARABMAEwAsAC4ALgAvABEALQARAC8ALAASAC4AEgAvAC4ALAAMABIADAAsAC0AEgAPAC8ADwAtAC8ADAAtAA4ADwAOAC0ABAAwAAYABAAxADAAMQAyADAAMQAzADIABQAyADMABQAzAAcANAA1ADYACAA0ADYACAA2AAoANAA3ADUACwA1ADcACwA3AAkAOAAXADkAOAAUABcAOAA5ADoAOAA6ADsAOwA6ABUAOwAVABYAGAAZABoAGAAbABkAHAAdAB4AHAAfAB0AIAAhACIAIAAjACEAJAAlACYAJAAnACUAKAA8AD0AKAApADwAPQA8AD4APQA+AD8AKwA/AD4AKwAqAD8A"),
+"lods": [0.21179365, PackedByteArray("AAABAAIAAAADAAEABAAFAAYABAAHAAUACAAJAAoACwAKAAkADAANAA4ADwAOAA0ADAAQAA0ADwANABEAEAAMABIAEgAPABEAEAASABMAEgARABMAFAAVABYAFAAXABUAGAAZABoAGAAbABkAHAAdAB4AHAAfAB0AIAAhACIAIAAjACEAJAAlACYAJAAnACUAKAApACoAKwAqACkA")],
+"material": SubResource("StandardMaterial3D_kmm7f"),
+"name": "Ramka.001",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 64,
+"vertex_data": PackedByteArray("///tCIIGLu84sBH3ggaH9v//EfeCBi7vOLDtCIIGh/as9BH9IgLa6QAAAAAAAJThrPTtAiIC2ukAAP//AACT4az07QIiAnjlAAAAAAAA4+is9O0C3P315QAAAAD//4f2//8R94IG99Ss9O0CIgJ67v//7QiCBnXI///tCHz5sdWs9BH9IgJ816z07QLc/RDW//8R93z5W+Ws9BH93P07wQAA/////z6orPQR/SICSt2s9BH93P1rtQAA//8AAJLhOLDtCIIGQKj//+0IfPks5Tiw7Qh8+ZPh///tCIIGELf//xH3fPnT1TiwEfeCBof2OLAR93z54ej//xH3ggYs7wAAAAAAAG7ZAAD/////dNEAAAAA//9KwAAA//8AABn7///tCHz5L+U4sBH3fPmT4Tiw7Qh8+ZTh//8R93z5L+Ws9BH93P2r/6z07QLc/av/AAD/////h/YAAAAA//+H9v//JPpEBIvV///aBUQE5tn//yT6uvuc0P//2gW6+5HV0rGUAGwAr+HSsWr/bACv4atLAAAAAAvgq0v//wAAC+DSsZQAbAAU9qtLAAD//xH+0rGUAJL/qPSrSwAAAABP/qtL/////x+gq0v//wAA+9/SsWr/bAB239Kxav+S/z2k0rGUAJL///7SsWr/kv///qtLAAD//9P/q0v/////0//hGaAnfJdkYZ+nHmacHnwXotOaf7Enn4tkAKNTX/Svp3OaPj0xrRj105pWXWLhgehmnB5U06V7ShCw4mBrt6xTk78OU7GT+VOQp4ZOn7PnaOXQm8Ifx9BjgLLnWF70sadiveVQesNFbk7YX3RyqBhCDJSsM3uXY2HmijMtnqcbZuY6A7Wzec2vx0hFh1BXBLV7w0ZunwtPWE3YX3S4EXxD5BWPJI+kG2qCaJqeYuGC6POueVU5qXlSD6wZWIOmdlVpAaGWXOlpgUcAeISF+0eAaYw1L/6BEVv+isdcRoIgJ7byzHkh+t58XeO6cK/MDWjZH+DvHZDZn5Uk/vz/gpSk")
+}, {
+"aabb": AABB(0.013044003, -0.4651189, -0.6509667, 1e-05, 0.9302378, 1.3019334),
+"attribute_data": PackedByteArray("abq7fZNgAABpugAAk2C7fQ=="),
+"format": 34896613399,
+"index_count": 6,
+"index_data": PackedByteArray("AAABAAIAAAADAAEA"),
+"material": SubResource("StandardMaterial3D_f47yj"),
+"name": "Centr",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 4,
+"vertex_data": PackedByteArray("AAAAAP//btkAAP//AAB00QAAAAAAAErAAAD/////GfsYxftKS4YxUDe3uXiuqPpK")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_o4pjm")
+
+[sub_resource type="QuadMesh" id="QuadMesh_4ywe5"]
+size = Vector2(1.3, 0.93)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_u85xb"]
+albedo_texture = ExtResource("7_8hgl3")
+roughness = 0.9
+
+[sub_resource type="QuadMesh" id="QuadMesh_rfcb4"]
+material = SubResource("StandardMaterial3D_u85xb")
+size = Vector2(1.3, 0.93)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_4auss"]
+size = Vector3(0.1, 0.9809216, 1.377146)
+
+[node name="WallMap" type="Node3D" unique_id=156684173 groups=["interactive"]]
+
+[node name="VisualRoot" type="Node3D" parent="." unique_id=2078756152]
+
+[node name="WallMapBoard" type="MeshInstance3D" parent="VisualRoot" unique_id=1709017019]
+mesh = SubResource("ArrayMesh_cp7k7")
+
+[node name="ViewportSurface" type="MeshInstance3D" parent="VisualRoot" unique_id=1999818179]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.036, 0, 0)
+mesh = SubResource("QuadMesh_4ywe5")
+
+[node name="MapBackgroundSurface" type="MeshInstance3D" parent="VisualRoot" unique_id=2004671346]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.036, 0, 0)
+mesh = SubResource("QuadMesh_rfcb4")
+
+[node name="MapMarkers" type="Node3D" parent="VisualRoot" unique_id=420518622]
+
+[node name="InteractionOutline" type="Node" parent="." unique_id=1690847536]
+script = ExtResource("8_blm47")
+VisualRootPath = NodePath("../VisualRoot")
+
+[node name="InteractionArea" type="Area3D" parent="." unique_id=1273547612]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("9_av6od")
+Label = "Map"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionArea" unique_id=889285502]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.01876527, -0.013890386)
+shape = SubResource("BoxShape3D_4auss")
+
+[node name="MapViewport" type="SubViewport" parent="." unique_id=1064180370]
+disable_3d = true
+transparent_bg = true
+size = Vector2i(1024, 768)
+render_target_update_mode = 4
+
+[node name="MapUI" parent="MapViewport" unique_id=578861665 instance=ExtResource("10_owj42")]
+
+[node name="MapSurfaceRenderer" type="Node" parent="." unique_id=2034064114]
+script = ExtResource("13_gdq3u")
+SurfacePath = NodePath("../VisualRoot/ViewportSurface")
+ViewportPath = NodePath("../MapViewport")
+
+[node name="MapMarkerController" type="Node" parent="." unique_id=981054429 groups=["map_marker_controller"]]
+script = ExtResource("14_hr888")
+MapMissionMarkerScene = ExtResource("15_nhioq")
+
+[node name="MapBackgroundLayout" type="Node" parent="." unique_id=1434187360]
+script = ExtResource("16_dxt4x")

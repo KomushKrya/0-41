@@ -142,6 +142,13 @@ def check_directory(path: Path, raw_root: Path, errors: list[str], warnings: lis
 
         relative = item.relative_to(raw_root).as_posix()
 
+        # Старые таблицы локализации ещё лежат в raw/ru/UI/labels. Их читает
+        # прежний контентный слой, а новый конвертер работает с единой структурой
+        # без префикса локали и не умеет собирать таблицы ui_label. Не даём этому
+        # архивному источнику срывать сборку актуальных игровых текстов.
+        if relative == "ru":
+            continue
+
         if not item.is_dir():
             warnings.append(f"{item}: лежит вне папки типа и в сборку не попадёт")
         elif relative in FOLDER_TYPES:

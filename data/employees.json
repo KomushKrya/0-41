@@ -7,7 +7,9 @@
 	  "level": 2,
 	  "portraitId": "port_gorin",
 	  "stats": { "strength": 5, "intellect": 3, "combat": 4, "agility": 3, "charisma": 3 },
-	  "abilities": ["ab_skin_breaker"]
+	  "abilities": ["ab_skin_breaker"],
+	  "age": 38,
+	  "bio": ["bio_build_athletic", "bio_temper_dry", "bio_family_married", "bio_note_army"]
 	},
 	{
 	  "id": "emp_vasnetsova",
@@ -16,7 +18,9 @@
 	  "level": 1,
 	  "portraitId": "port_vasnetsova",
 	  "stats": { "strength": 3, "intellect": 5, "combat": 3, "agility": 4, "charisma": 3 },
-	  "abilities": ["ab_mimic_hunter"]
+	  "abilities": ["ab_mimic_hunter"],
+	  "age": 29,
+	  "bio": ["bio_build_lean", "bio_temper_silent", "bio_family_single", "bio_note_studies"]
 	},
 	{
 	  "id": "emp_lyadov",
@@ -25,7 +29,9 @@
 	  "level": 1,
 	  "portraitId": "port_lyadov",
 	  "stats": { "strength": 4, "intellect": 3, "combat": 4, "agility": 3, "charisma": 4 },
-	  "abilities": ["ab_calm"]
+	  "abilities": ["ab_calm"],
+	  "age": 33,
+	  "bio": ["bio_build_average", "bio_temper_calm", "bio_family_kid", "bio_note_team"]
 	}
   ],
   "hirePool": [
@@ -37,7 +43,9 @@
 	  "portraitId": "port_shubin",
 	  "availableFromDay": 2,
 	  "stats": { "strength": 4, "intellect": 4, "combat": 4, "agility": 3, "charisma": 3 },
-	  "abilities": ["ab_filter_master"]
+	  "abilities": ["ab_filter_master"],
+	  "age": 31,
+	  "bio": ["bio_build_tall", "bio_temper_hot", "bio_family_married", "bio_note_night"]
 	},
 	{
 	  "id": "emp_teplova",
@@ -47,7 +55,9 @@
 	  "portraitId": "port_teplova",
 	  "availableFromDay": 2,
 	  "stats": { "strength": 3, "intellect": 5, "combat": 3, "agility": 5, "charisma": 3 },
-	  "abilities": ["ab_signal"]
+	  "abilities": ["ab_signal"],
+	  "age": 27,
+	  "bio": ["bio_build_short", "bio_temper_anxious", "bio_family_communal", "bio_note_loner"]
 	},
 	{
 	  "id": "emp_karnaukh",
@@ -57,7 +67,9 @@
 	  "portraitId": "port_karnaukh",
 	  "availableFromDay": 3,
 	  "stats": { "strength": 6, "intellect": 4, "combat": 5, "agility": 3, "charisma": 4 },
-	  "abilities": ["ab_skin_breaker", "ab_calm"]
+	  "abilities": ["ab_skin_breaker", "ab_calm"],
+	  "age": 44,
+	  "bio": ["bio_build_heavy", "bio_temper_stubborn", "bio_family_divorced", "bio_note_reprimand"]
 	},
 	{
 	  "id": "emp_prus",
@@ -67,7 +79,9 @@
 	  "portraitId": "port_prus",
 	  "availableFromDay": 3,
 	  "stats": { "strength": 4, "intellect": 6, "combat": 4, "agility": 5, "charisma": 4 },
-	  "abilities": ["ab_mimic_hunter"]
+	  "abilities": ["ab_mimic_hunter"],
+	  "age": 30,
+	  "bio": ["bio_build_average", "bio_temper_dry", "bio_family_communal", "bio_note_smoker"]
 	},
 	{
 	  "id": "emp_zhilin",
@@ -77,7 +91,9 @@
 	  "portraitId": "port_zhilin",
 	  "availableFromDay": 4,
 	  "stats": { "strength": 6, "intellect": 5, "combat": 6, "agility": 4, "charisma": 6 },
-	  "abilities": ["ab_calm", "ab_signal"]
+	  "abilities": ["ab_calm", "ab_signal"],
+	  "age": 49,
+	  "bio": ["bio_build_tall", "bio_temper_calm", "bio_family_married", "bio_note_medals"]
 	}
   ],
 

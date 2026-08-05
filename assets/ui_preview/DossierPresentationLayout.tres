@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="DossierPresentationLayout" format=3 uid="uid://c0boxvp26aglx"]
+
+[ext_resource type="Script" uid="uid://daw3tjivx3lmm" path="res://scripts/dossier/DossierPresentationLayout.cs" id="1_layout"]
+
+[resource]
+script = ExtResource("1_layout")
+DossierTransform = Transform3D(0.097178265, 0.12646674, 0.47388035, 3.1664968e-08, 0.48309246, -0.12892522, -0.49046555, 0.025057502, 0.09389214, 0.12482874, -0.12575653, 0.057358295)
+CameraTransform = Transform3D(0.19132766, -0.40703255, 0.89315075, 0, 0.90996116, 0.4146935, -0.9815262, -0.079342335, 0.17410074, 0.28731945, 0.069918975, 0.19444664)
+CameraFov = 52.707977

@@ -1,4 +1,6 @@
-[gd_scene format=3]
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/computer/EquipmentScreenUI.cs" id="1_equipment_ui"]
 
 [node name="EquipmentSelection" type="Control"]
 layout_mode = 3
@@ -7,52 +9,4 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-
-[node name="Title" type="Label" parent="."]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.06
-anchor_top = 0.08
-anchor_right = 0.92
-anchor_bottom = 0.18
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.75, 0.94, 0.73, 1)
-theme_override_font_sizes/font_size = 30
-text = "ВЫБОР СНАРЯЖЕНИЯ"
-
-[node name="Description" type="Label" parent="."]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.06
-anchor_top = 0.22
-anchor_right = 0.92
-anchor_bottom = 0.31
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.55, 0.71, 0.58, 1)
-theme_override_font_sizes/font_size = 18
-text = "Здесь появятся доступные предметы и ограничения выбранной группы."
-
-[node name="Placeholder" type="Panel" parent="."]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.06
-anchor_top = 0.37
-anchor_right = 0.94
-anchor_bottom = 0.82
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Label" type="Label" parent="Placeholder"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.55, 0.71, 0.58, 1)
-theme_override_font_sizes/font_size = 20
-text = "СКЛАД\n\nПодсцена готова для карточек снаряжения."
-horizontal_alignment = 1
-vertical_alignment = 1
+script = ExtResource("1_equipment_ui")

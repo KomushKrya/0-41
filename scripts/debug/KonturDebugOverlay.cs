@@ -690,6 +690,8 @@ public partial class KonturDebugOverlay : CanvasLayer
 
 		row.AddChild(CreateButton("Сброс партии", ResetGame));
 		row.AddChild(CreateButton("START ROSTER", ConfirmDebugStartingRoster));
+		row.AddChild(CreateButton("+ СОТРУДНИК", AddGeneratedEmployee));
+		row.AddChild(CreateButton("- СЛУЧАЙНЫЙ", RemoveRandomEmployee));
 		row.AddChild(CreateButton("Закрыть смену", ForceEndShift));
 
 		return row;
@@ -820,6 +822,20 @@ public partial class KonturDebugOverlay : CanvasLayer
 		Report("Confirm starting roster", _runtime.Session.ConfirmStartingRoster(ids));
 	}
 
+	private void AddGeneratedEmployee()
+	{
+		if (!HasCore()) return;
+		CommandResult result = _runtime.Session.DebugAddGeneratedEmployee(out string employeeName);
+		Report(result.IsSuccess ? $"Добавлен сотрудник: {employeeName}" : "Добавить сотрудника", result);
+	}
+
+	private void RemoveRandomEmployee()
+	{
+		if (!HasCore()) return;
+		CommandResult result = _runtime.Session.DebugRemoveRandomAvailableEmployee(out string employeeName);
+		Report(result.IsSuccess ? $"Удалён сотрудник: {employeeName}" : "Удалить случайного сотрудника", result);
+	}
+
 	private void ForceEndShift()
 	{
 		if (!HasCore())
@@ -882,7 +898,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 		IReadOnlyList<string> employeeIds,
 		IReadOnlyList<string> equipmentIds)
 	{
-		MapMarkerController mapController = GetNodeOrNull<MapMarkerController>("../WallMap/MapMarkerController");
+		MapMarkerController mapController = GetTree().GetFirstNodeInGroup("map_marker_controller") as MapMarkerController;
 		return mapController == null
 			? CommandResult.Fail("Контроллер маршрута карты не найден.")
 			: mapController.TryDispatchSquad(incidentId, employeeIds, equipmentIds);
@@ -1019,7 +1035,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 			}
 			else if (IsWaitingForPlayer(incident.Phase))
 			{
-				// Обучающая смена: таймеры игрока отключены, вызов ждёт действия сколько угодно.
+				// В конфигурации этой смены таймеры игрока отключены: вызов ждёт действия сколько угодно.
 				builder.Append(" [color=#6f7a6f]ждёт действия[/color]");
 			}
 

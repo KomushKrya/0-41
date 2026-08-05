@@ -16,7 +16,10 @@ public partial class SubViewportInputController : Node
 
 	public override void _Ready()
 	{
-		_viewport = GetNode<SubViewport>(ViewportPath);
+		if (!string.IsNullOrWhiteSpace(ViewportPath.ToString()))
+		{
+			_viewport = GetNodeOrNull<SubViewport>(ViewportPath);
+		}
 
 		if (!string.IsNullOrWhiteSpace(CursorPath.ToString()))
 		{
@@ -30,8 +33,25 @@ public partial class SubViewportInputController : Node
 		}
 	}
 
+	public void Configure(SubViewport viewport, Control cursor = null, Control cursorBounds = null)
+	{
+		_viewport = viewport;
+		_cursor = cursor;
+		_cursorBounds = cursorBounds;
+		if (_cursor != null)
+		{
+			_cursor.Visible = false;
+		}
+	}
+
 	public void BeginInteraction()
 	{
+		if (_viewport == null)
+		{
+			GD.PushWarning("SubViewportInputController: target viewport is not configured.");
+			return;
+		}
+
 		IsActive = true;
 		_cursorPosition = GetCursorBounds().GetCenter();
 		Input.MouseMode = Input.MouseModeEnum.Captured;
@@ -52,7 +72,7 @@ public partial class SubViewportInputController : Node
 
 	public bool HandleInput(InputEvent @event)
 	{
-		if (!IsActive)
+		if (!IsActive || _viewport == null)
 		{
 			return false;
 		}

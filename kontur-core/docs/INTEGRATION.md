@@ -133,7 +133,7 @@ if (runtime != null && runtime.IsReady)
 | `DispatchScreenRequested` | Компьютер | открывает экран отправки |
 | `SquadDispatched` / `SquadArrived` | Карта | пунктирная линия маршрута (`DashedRouteRenderer` уже есть) |
 | `RadioTriggered` / `RadioMissed` | Радиостанция | треск, экран вариантов, индикатор 20 с |
-| `ScalesChanged` | Блокнот | анимация шкал (`NotebookDebugBars` уже умеет) |
+| `ScalesChanged` | Блокнот | анимация шкал (`NotebookScalesUI`, подключено) |
 | `MissionReportReady` / `CreatureRevealed` | Компьютер | отчёт и новый абзац энциклопедии |
 | `EmployeeInjured` / `EmployeeKilled` | Досье | состояние портрета |
 | `ShiftStarted` | Записка сменщика | текст записки |

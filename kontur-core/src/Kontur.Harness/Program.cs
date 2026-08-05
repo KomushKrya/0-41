@@ -179,18 +179,22 @@ namespace Kontur.Harness
 		/// </summary>
 		private static string? FindContentDirectory()
 		{
-			string[] candidates = { "data", "content" };
-			var directory = new DirectoryInfo(AppContext.BaseDirectory);
+			// Не проверяем content/ рядом с каждой папкой сразу: иначе автономная
+			// копия в kontur-core/content перехватит поиск раньше, чем мы дойдём до
+			// data/ в корне Godot-проекта.
+			string? dataDirectory = FindContentDirectoryNamed("data");
+			return dataDirectory ?? FindContentDirectoryNamed("content");
+		}
 
+		private static string? FindContentDirectoryNamed(string name)
+		{
+			var directory = new DirectoryInfo(AppContext.BaseDirectory);
 			for (int depth = 0; depth < 8 && directory != null; depth++)
 			{
-				for (int i = 0; i < candidates.Length; i++)
+				string candidate = Path.Combine(directory.FullName, name);
+				if (File.Exists(Path.Combine(candidate, ContentLoader.ConfigFile)))
 				{
-					string candidate = Path.Combine(directory.FullName, candidates[i]);
-					if (File.Exists(Path.Combine(candidate, ContentLoader.ConfigFile)))
-					{
-						return candidate;
-					}
+					return candidate;
 				}
 
 				directory = directory.Parent;

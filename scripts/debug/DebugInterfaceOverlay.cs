@@ -296,7 +296,7 @@ public partial class DebugInterfaceOverlay : CanvasLayer
 		_interactionRay.ForceRaycastUpdate();
 		string state =
 			$"INTERACTION RAY\n" +
-			$"SEATED: {_player.IsSeated} | FOCUSED: {_player.IsViewFocused} | TRANSITION: {_player.IsCameraTransitioning} | NOCLIP: {_player.IsNoclipEnabled}\n" +
+			$"SEATED: {_player.IsSeated} | FOCUSED: {_player.IsViewFocused} | TRANSITION: {_player.IsCameraTransitioning}\n" +
 			$"ORIGIN: {FormatVector(_interactionRay.GlobalPosition)}\n" +
 			$"TARGET: {FormatVector(_interactionRay.ToGlobal(_interactionRay.TargetPosition))}\n" +
 			$"MASK: {_interactionRay.CollisionMask}";

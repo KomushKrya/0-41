@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="UiPreviewData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/preview/UiPreviewData.cs" id="1_preview"]
+
+[resource]
+script = ExtResource("1_preview")
+title = "ОПЕРАТИВНАЯ КАРТА"
+subtitle = "РАЙОН 041 // СМЕНА 01"
+description = "Тестовая разметка дорог и зданий для редактора."
+parameters = "ШТАБ: ЦЕНТРАЛЬНОЕ ЗДАНИЕ\nОБЪЕКТ: КВАРТАЛ 17"
+status = "МАРШРУТ: ОЖИДАЕТ НАЗНАЧЕНИЯ"
