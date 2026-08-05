@@ -1,14 +1,26 @@
 using Godot;
 
 /// <summary>
-/// Главное меню. Собирает себя кодом, а не из сцены: пунктов мало, а верстать
-/// их в редакторе означало бы держать раскладку в двух местах разом.
+/// Главное меню. Вёрстка лежит в MainMenu.tscn и правится в редакторе: скрипт
+/// не создаёт узлов, а находит готовые по путям и подписывается на кнопки.
 ///
-/// Художественного оформления здесь нет намеренно — это рабочий каркас, поверх
-/// которого рисуется настоящее меню. Всё, что ему нужно от игры, идёт через GameFlow.
+/// Тексты всё же ставятся отсюда — они приходят из текстового движка, а не
+/// из сцены. В сцене написаны те же подписи заглушкой, чтобы экран читался
+/// в редакторе, но в игре их перекрывает Content.
+///
+/// Всё, что меню нужно от игры, идёт через GameFlow.
 /// </summary>
 public partial class MainMenu : Control
 {
+	[Export] public NodePath TitlePath { get; set; } = new("Column/Title");
+	[Export] public NodePath SubtitlePath { get; set; } = new("Column/Subtitle");
+	[Export] public NodePath ContinueButtonPath { get; set; } = new("Column/ContinueButton");
+	[Export] public NodePath NewGameButtonPath { get; set; } = new("Column/NewGameButton");
+	[Export] public NodePath SettingsButtonPath { get; set; } = new("Column/SettingsButton");
+	[Export] public NodePath QuitButtonPath { get; set; } = new("Column/QuitButton");
+	[Export] public NodePath HintPath { get; set; } = new("Column/Hint");
+	[Export] public NodePath SettingsScreenPath { get; set; } = new("Settings");
+
 	private Button _continueButton;
 	private SettingsScreen _settings;
 	private Label _hint;
@@ -19,82 +31,34 @@ public partial class MainMenu : Control
 		// Сам экран отвечает за свой режим ввода, а не рассчитывает на путь перехода.
 		Input.MouseMode = Input.MouseModeEnum.Visible;
 
-		AnchorRight = 1.0f;
-		AnchorBottom = 1.0f;
-
-		BuildUi();
+		BindUi();
 		RefreshContinueButton();
 	}
 
-	private void BuildUi()
+	private void BindUi()
 	{
-		var background = new ColorRect
-		{
-			Color = new Color(0.05f, 0.06f, 0.07f),
-			AnchorRight = 1.0f,
-			AnchorBottom = 1.0f
-		};
-		AddChild(background);
+		GetNode<Label>(TitlePath).Text = Content.Label("ui_menu_title");
+		GetNode<Label>(SubtitlePath).Text = Content.Label("ui_menu_subtitle");
 
-		var column = new VBoxContainer
-		{
-			AnchorLeft = 0.5f,
-			AnchorTop = 0.5f,
-			AnchorRight = 0.5f,
-			AnchorBottom = 0.5f,
-			GrowHorizontal = GrowDirection.Both,
-			GrowVertical = GrowDirection.Both,
-			CustomMinimumSize = new Vector2(320.0f, 0.0f)
-		};
-		column.AddThemeConstantOverride("separation", 12);
-		AddChild(column);
+		_hint = GetNode<Label>(HintPath);
+		_hint.Text = string.Empty;
 
-		var title = new Label
-		{
-			Text = Content.Label("ui_menu_title"),
-			HorizontalAlignment = HorizontalAlignment.Center
-		};
-		title.AddThemeFontSizeOverride("font_size", 42);
-		column.AddChild(title);
-
-		var subtitle = new Label
-		{
-			Text = Content.Label("ui_menu_subtitle"),
-			HorizontalAlignment = HorizontalAlignment.Center,
-			Modulate = new Color(1.0f, 1.0f, 1.0f, 0.55f)
-		};
-		column.AddChild(subtitle);
-
-		column.AddChild(new Control { CustomMinimumSize = new Vector2(0.0f, 24.0f) });
-
-		_continueButton = AddButton(column, Content.Label("ui_menu_continue"), OnContinue);
-		AddButton(column, Content.Label("ui_menu_new_game"), OnNewGame);
-		AddButton(column, Content.Label("ui_menu_settings"), OnToggleSettings);
-		AddButton(column, Content.Label("ui_menu_quit"), OnQuit);
-
-		_hint = new Label
-		{
-			HorizontalAlignment = HorizontalAlignment.Center,
-			Modulate = new Color(1.0f, 0.7f, 0.4f)
-		};
-		column.AddChild(_hint);
+		_continueButton = BindButton(ContinueButtonPath, "ui_menu_continue", OnContinue);
+		BindButton(NewGameButtonPath, "ui_menu_new_game", OnNewGame);
+		BindButton(SettingsButtonPath, "ui_menu_settings", OnToggleSettings);
+		BindButton(QuitButtonPath, "ui_menu_quit", OnQuit);
 
 		// Экран настроек один на всю игру: тот же самый открывается из паузы.
 		// Держать в меню свою урезанную копию значило бы разойтись с ней на первой правке.
-		_settings = new SettingsScreen { Visible = false };
-		AddChild(_settings);
+		_settings = GetNode<SettingsScreen>(SettingsScreenPath);
+		_settings.Visible = false;
 	}
 
-	private Button AddButton(Container parent, string text, System.Action onPressed)
+	private Button BindButton(NodePath path, string labelId, System.Action onPressed)
 	{
-		var button = new Button
-		{
-			Text = text,
-			CustomMinimumSize = new Vector2(0.0f, 40.0f)
-		};
-
+		var button = GetNode<Button>(path);
+		button.Text = Content.Label(labelId);
 		button.Pressed += () => onPressed();
-		parent.AddChild(button);
 		return button;
 	}
 

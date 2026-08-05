@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/HiringScreen.cs" id="1_hiring"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hiring/HireCandidateCard.tscn" id="2_card"]
 
 [node name="HiringScreen" type="Control"]
 layout_mode = 3
@@ -10,3 +11,57 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_hiring")
+CandidateCardScene = ExtResource("2_card")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.06, 0.07, 0.09, 1)
+
+[node name="Column" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 32.0
+offset_top = 24.0
+offset_right = -32.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="Column"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Набор"
+
+[node name="Scroll" type="ScrollContainer" parent="Column"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 2
+vertical_scroll_mode = 0
+
+[node name="Row" type="HBoxContainer" parent="Column/Scroll"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="Footer" type="HBoxContainer" parent="Column"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Counter" type="Label" parent="Column/Footer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "выбрано 0 из 0"
+
+[node name="ConfirmButton" type="Button" parent="Column/Footer"]
+custom_minimum_size = Vector2(160, 40)
+layout_mode = 2
+text = "Подтвердить"

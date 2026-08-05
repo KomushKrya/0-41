@@ -1,0 +1,88 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/HireCandidateCard.cs" id="1_card"]
+
+[node name="HireCandidateCard" type="Panel"]
+custom_minimum_size = Vector2(240, 0)
+anchors_preset = 0
+offset_right = 240.0
+offset_bottom = 420.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_card")
+
+[node name="Column" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+
+[node name="Name" type="Label" parent="Column"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Фамилия И. О."
+
+[node name="Rank" type="Label" parent="Column"]
+modulate = Color(1, 1, 1, 0.6)
+layout_mode = 2
+text = "звание · уровень"
+
+[node name="RankSeparator" type="HSeparator" parent="Column"]
+layout_mode = 2
+
+[node name="Stats" type="VBoxContainer" parent="Column"]
+layout_mode = 2
+
+[node name="StatRow" type="HBoxContainer" parent="Column/Stats"]
+visible = false
+layout_mode = 2
+
+[node name="StatName" type="Label" parent="Column/Stats/StatRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Характеристика"
+
+[node name="StatValue" type="Label" parent="Column/Stats/StatRow"]
+layout_mode = 2
+text = "0"
+
+[node name="AbilitiesSeparator" type="HSeparator" parent="Column"]
+layout_mode = 2
+
+[node name="AbilitiesTitle" type="Label" parent="Column"]
+modulate = Color(1, 1, 1, 0.6)
+layout_mode = 2
+text = "Способности"
+
+[node name="Abilities" type="VBoxContainer" parent="Column"]
+layout_mode = 2
+
+[node name="NoAbilities" type="Label" parent="Column/Abilities"]
+modulate = Color(1, 1, 1, 0.4)
+layout_mode = 2
+text = "нет"
+
+[node name="PerkLabel" type="Label" parent="Column/Abilities"]
+visible = false
+modulate = Color(0.62, 0.85, 0.62, 1)
+layout_mode = 2
+mouse_filter = 0
+text = "· способность"
+
+[node name="Spacer" type="Control" parent="Column"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="PickButton" type="Button" parent="Column"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+toggle_mode = true
+text = "Взять"

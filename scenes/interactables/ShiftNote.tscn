@@ -17,7 +17,7 @@ size = Vector2(0.1181, 0.167)
 [node name="ShiftNote" type="Node3D" groups=["interactive"]]
 script = ExtResource("5_item_controller")
 ViewportInputPath = NodePath("ShiftNoteViewportInput")
-ViewDistance = 0.3
+ViewDistance = 0.11495
 
 [node name="VisualRoot" type="Node3D" parent="."]
 

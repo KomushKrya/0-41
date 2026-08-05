@@ -9,24 +9,14 @@ using Kontur.Core.Model;
 /// Собственного состояния у виджета нет. Истина живёт в ядре: стартовые значения
 /// берутся снимком <c>GetStatus()</c>, дальше приходят сигналом <see cref="ScalesChanged"/>.
 /// Виджет только анимирует переход к последнему известному значению.
-///
-/// Ручные +/- остались для отладочных сцен и по умолчанию скрыты
-/// (<see cref="ShowDebugControls"/>). Команды «поставить шкалу» у ядра нет,
-/// поэтому кнопки двигают только картинку — при включённой отладке блокнот
-/// разъедется с ядром до ближайшего ScalesChanged.
 /// </summary>
 public partial class NotebookScalesUI : Control
 {
-	/// <summary>Показать ручные +/- и поле ввода дельты. Только для отладочных сцен.</summary>
-	[Export] public bool ShowDebugControls { get; set; }
-
 	/// <summary>Что рисовать, пока ядро не поднялось: заражение / гласность / лояльность.</summary>
 	[Export] public Vector3 FallbackScales { get; set; } = new(20.0f, 15.0f, 70.0f);
 
-	[Export] public double HoldChangePerSecond { get; set; } = 25.0;
 	[Export] public double BaseAnimationSpeed { get; set; } = 12.0;
 	[Export] public double DeltaAnimationSpeedMultiplier { get; set; } = 1.15;
-	[Export] public int DisplayDecimals { get; set; } = 2;
 
 	private const double MinValue = 0.0;
 	private const double MaxValue = 100.0;
@@ -36,8 +26,6 @@ public partial class NotebookScalesUI : Control
 	private Meter _infection = null!;
 	private Meter _publicity = null!;
 	private Meter _loyalty = null!;
-	private Meter _heldMeter = null!;
-	private double _heldDirection;
 
 	private IDisposable _scalesSubscription;
 	private IDisposable _shiftStartedSubscription;
@@ -48,9 +36,9 @@ public partial class NotebookScalesUI : Control
 		_publicity = CreateMeter("Parameters/PublicityRow/MarginContainer/RowContent", FallbackScales.Y);
 		_loyalty = CreateMeter("Parameters/LoyaltyRow/MarginContainer/RowContent", FallbackScales.Z);
 
-		SetupMeter(_infection);
-		SetupMeter(_publicity);
-		SetupMeter(_loyalty);
+		DrawMeter(_infection);
+		DrawMeter(_publicity);
+		DrawMeter(_loyalty);
 
 		GameRuntime runtime = GameRuntime.Get(this);
 		if (runtime == null || !runtime.IsReady)
@@ -76,11 +64,6 @@ public partial class NotebookScalesUI : Control
 
 	public override void _Process(double delta)
 	{
-		if (_heldMeter != null && !Mathf.IsZeroApprox(_heldDirection))
-		{
-			ApplyDelta(_heldMeter, _heldDirection * HoldChangePerSecond * delta);
-		}
-
 		UpdateMeterAnimation(_infection, delta);
 		UpdateMeterAnimation(_publicity, delta);
 		UpdateMeterAnimation(_loyalty, delta);
@@ -112,81 +95,10 @@ public partial class NotebookScalesUI : Control
 			Bar = GetNode<Control>($"{rowPath}/BarColumn/AnimatedBar"),
 			MainFill = GetNode<ColorRect>($"{rowPath}/BarColumn/AnimatedBar/MainFill"),
 			FlashFill = GetNode<ColorRect>($"{rowPath}/BarColumn/AnimatedBar/FlashFill"),
-			ValueLabel = GetNode<Label>($"{rowPath}/ValueLabel"),
-			Controls = GetNode<Control>($"{rowPath}/Controls"),
-			MinusButton = GetNode<Button>($"{rowPath}/Controls/MinusButton"),
-			PlusButton = GetNode<Button>($"{rowPath}/Controls/PlusButton"),
-			DeltaInput = GetNode<LineEdit>($"{rowPath}/Controls/DeltaInput"),
-			ApplyButton = GetNode<Button>($"{rowPath}/Controls/ApplyButton"),
 			CurrentValue = initialValue,
 			TargetValue = initialValue,
 			FlashValue = initialValue
 		};
-	}
-
-	private void SetupMeter(Meter meter)
-	{
-		meter.Controls.Visible = ShowDebugControls;
-
-		meter.MinusButton.ButtonDown += () => StartHolding(meter, -1.0);
-		meter.MinusButton.ButtonUp += () => StopHolding(meter);
-		meter.PlusButton.ButtonDown += () => StartHolding(meter, 1.0);
-		meter.PlusButton.ButtonUp += () => StopHolding(meter);
-		meter.ApplyButton.Pressed += () => ApplyInputDelta(meter);
-		meter.DeltaInput.TextSubmitted += _ => ApplyInputDelta(meter);
-
-		DrawMeter(meter);
-		UpdateValueLabel(meter);
-	}
-
-	private void StartHolding(Meter meter, double direction)
-	{
-		_heldMeter = meter;
-		_heldDirection = direction;
-	}
-
-	private void StopHolding(Meter meter)
-	{
-		if (_heldMeter != meter)
-		{
-			return;
-		}
-
-		_heldMeter = null;
-		_heldDirection = 0.0;
-	}
-
-	private void ApplyInputDelta(Meter meter)
-	{
-		if (!TryParseDelta(meter.DeltaInput.Text, out double delta))
-		{
-			meter.DeltaInput.Text = "0";
-			return;
-		}
-
-		double clampedDelta = SnapValue(Mathf.Clamp(delta, -100.0, 100.0));
-		meter.DeltaInput.Text = clampedDelta.ToString($"F{DisplayDecimals}", System.Globalization.CultureInfo.InvariantCulture);
-		ApplyDelta(meter, clampedDelta);
-	}
-
-	private bool TryParseDelta(string text, out double delta)
-	{
-		string normalizedText = text.Trim().Replace(',', '.');
-		return double.TryParse(
-			normalizedText,
-			System.Globalization.NumberStyles.Float,
-			System.Globalization.CultureInfo.InvariantCulture,
-			out delta);
-	}
-
-	private void ApplyDelta(Meter meter, double delta)
-	{
-		if (Mathf.IsZeroApprox(delta))
-		{
-			return;
-		}
-
-		SetTarget(meter, meter.TargetValue + delta, true);
 	}
 
 	private void SetTarget(Meter meter, double value, bool animate)
@@ -200,7 +112,6 @@ public partial class NotebookScalesUI : Control
 			meter.FlashValue = nextTarget;
 			meter.Direction = 0.0;
 			DrawMeter(meter);
-			UpdateValueLabel(meter);
 			return;
 		}
 
@@ -229,7 +140,6 @@ public partial class NotebookScalesUI : Control
 		}
 
 		DrawMeter(meter);
-		UpdateValueLabel(meter);
 	}
 
 	private double GetAnimationSpeed(double fromValue, double toValue)
@@ -311,11 +221,6 @@ public partial class NotebookScalesUI : Control
 		fill.Visible = fill.Size.X > 0.5f;
 	}
 
-	private void UpdateValueLabel(Meter meter)
-	{
-		meter.ValueLabel.Text = $"{meter.TargetValue.ToString($"F{DisplayDecimals}")}%";
-	}
-
 	private static double MoveToward(double from, double to, double delta)
 	{
 		if (from < to)
@@ -336,12 +241,6 @@ public partial class NotebookScalesUI : Control
 		public Control Bar = null!;
 		public ColorRect MainFill = null!;
 		public ColorRect FlashFill = null!;
-		public Label ValueLabel = null!;
-		public Control Controls = null!;
-		public Button MinusButton = null!;
-		public Button PlusButton = null!;
-		public LineEdit DeltaInput = null!;
-		public Button ApplyButton = null!;
 		public double CurrentValue;
 		public double TargetValue;
 		public double FlashValue;
