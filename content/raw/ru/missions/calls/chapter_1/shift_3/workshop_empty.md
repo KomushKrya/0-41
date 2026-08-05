@@ -4,7 +4,8 @@ type: call
 mission_id: m_workshop_empty
 status: draft
 mission_type: radio
-
+requirements:
+  - flag_truck_seized
 ---
 
 %% dev %%

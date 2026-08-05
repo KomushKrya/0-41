@@ -13,6 +13,9 @@ namespace Kontur.Core.Model
 		public double InjuryChanceMultiplier { get; set; } = 1.0;
 		public ScaleDelta ExtraScales { get; set; } = ScaleDelta.Zero;
 		public string? RevealsPropertyId { get; set; }
+
+		/// <summary>Флаг, который выбор ставит партии: по нему открываются вызовы дальше.</summary>
+		public string? SetsFlagId { get; set; }
 		public ConsequenceCap? ConsequenceCapOverride { get; set; }
 		public string? RequiresEquipmentId { get; set; }
 

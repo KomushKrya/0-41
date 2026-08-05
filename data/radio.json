@@ -308,7 +308,8 @@
           "infection": 3.0,
           "loyalty": -2.0
         },
-        "consequenceCap": "Injury"
+        "consequenceCap": "Injury",
+        "setsFlagId": "flag_truck_written_off"
       },
       "seize": {
         "extraScales": {
@@ -316,7 +317,8 @@
           "loyalty": 2.0
         },
         "injuryChanceMultiplier": 1.4,
-        "consequenceCap": "Injury"
+        "consequenceCap": "Injury",
+        "setsFlagId": "flag_truck_seized"
       }
     }
   },

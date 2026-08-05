@@ -12,6 +12,7 @@ namespace Kontur.Core.Content
 		private readonly Dictionary<string, HashSet<string>> _properties = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 		private readonly Dictionary<string, List<TextOption>> _options = new Dictionary<string, List<TextOption>>(StringComparer.OrdinalIgnoreCase);
 		private readonly Dictionary<string, List<string>> _bioLines = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+		private readonly Dictionary<string, List<string>> _requirements = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 		private static readonly IReadOnlyList<TextOption> NoOptions = Array.Empty<TextOption>();
 		private static readonly IReadOnlyList<string> NoBioLines = Array.Empty<string>();
 
@@ -25,6 +26,7 @@ namespace Kontur.Core.Content
 		public bool HasProperty(string entryId, string propertyId) => _properties.TryGetValue(entryId, out HashSet<string>? properties) && properties.Contains(propertyId);
 		public IReadOnlyList<TextOption> GetOptions(string entryId) => _options.TryGetValue(entryId, out List<TextOption>? options) ? options : NoOptions;
 		public IReadOnlyList<string> GetBioLines(string slot) => _bioLines.TryGetValue(slot ?? string.Empty, out List<string>? lines) ? lines : NoBioLines;
+		public IReadOnlyList<string> GetRequirements(string entryId) => entryId != null && _requirements.TryGetValue(entryId, out List<string>? flags) ? flags : NoBioLines;
 
 		private void ReadFile(string fileName, string json)
 		{
@@ -42,6 +44,12 @@ namespace Kontur.Core.Content
 			if (entry.TryGetProperty("properties", out JsonElement list) && list.ValueKind == JsonValueKind.Array)
 				foreach (JsonElement property in list.EnumerateArray()) if (property.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(property.GetString())) properties.Add(property.GetString()!);
 			_properties[id] = properties;
+			if (entry.TryGetProperty("requirements", out JsonElement flags) && flags.ValueKind == JsonValueKind.Array)
+			{
+				var required = new List<string>();
+				foreach (JsonElement flag in flags.EnumerateArray()) if (flag.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(flag.GetString())) required.Add(flag.GetString()!);
+				if (required.Count > 0) _requirements[id] = required;
+			}
 			if (entry.TryGetProperty("slot", out JsonElement slotValue) && slotValue.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(slotValue.GetString()))
 			{
 				string slot = slotValue.GetString()!; if (!_bioLines.TryGetValue(slot, out List<string>? lines)) { lines = new List<string>(); _bioLines[slot] = lines; } lines.Add(id);

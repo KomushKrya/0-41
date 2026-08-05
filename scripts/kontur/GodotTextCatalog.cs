@@ -25,6 +25,14 @@ public sealed class GodotTextCatalog : ITextCatalog
 		return result;
 	}
 
+	public IReadOnlyList<string> GetRequirements(string entryId)
+	{
+		Content content = Content.Instance;
+		return content != null && content.TryGetEntry(entryId, out ContentEntry entry)
+			? entry.Requirements
+			: new List<string>();
+	}
+
 	public bool HasEntry(string entryId)
 	{
 		Content content = Content.Instance;

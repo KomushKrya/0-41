@@ -197,6 +197,7 @@ public partial class Content : Node
 			Name = ReadString(source, "name"),
 			Slot = ReadString(source, "slot"),
 			Properties = ReadStringList(source, "properties"),
+			Requirements = ReadStringList(source, "requirements"),
 			Chunks = ReadChunks(source, "chunks")
 		};
 

@@ -184,6 +184,7 @@ namespace Kontur.Core.Content
 		public double? InjuryChanceMultiplier { get; set; }
 		public ScaleDeltaDto? ExtraScales { get; set; }
 		public string? RevealsPropertyId { get; set; }
+		public string? SetsFlagId { get; set; }
 		public string? RequiresEquipmentId { get; set; }
 		public string? ConsequenceCap { get; set; }
 	}

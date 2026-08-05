@@ -56,7 +56,7 @@ namespace Kontur.Core.Content
 			LoadRoster(source, database);
 			LoadMissionEvents(source, database, textCatalog);
 			LoadGeneratorBioLines(database, textCatalog);
-			LoadMissions(source, database);
+			LoadMissions(source, database, textCatalog);
 			LoadShiftNotes(source, database);
 
 			Validate(database, textCatalog);
@@ -231,7 +231,7 @@ namespace Kontur.Core.Content
 			}
 		}
 
-		private static void LoadMissions(IContentSource source, ContentDatabase database)
+		private static void LoadMissions(IContentSource source, ContentDatabase database, ITextCatalog? textCatalog)
 		{
 			List<MissionDto> missions = ReadList<MissionDto>(source, MissionsFile);
 			foreach (MissionDto dto in missions)
@@ -278,6 +278,12 @@ namespace Kontur.Core.Content
 					mission.ManifestedPropertyIds.AddRange(dto.ManifestedPropertyIds);
 				}
 
+				// Условие появления миссии живёт во фронтматтере её звонка: там его пишет автор.
+				if (textCatalog != null)
+				{
+					mission.RequiredFlags = textCatalog.GetRequirements(mission.CallId);
+				}
+
 				database.Missions[mission.Id] = mission;
 			}
 		}
@@ -322,6 +328,7 @@ namespace Kontur.Core.Content
 				InjuryChanceMultiplier = dto?.InjuryChanceMultiplier ?? defaults.RiskMultiplier,
 				ExtraScales = dto?.ExtraScales == null ? ScaleDelta.Zero : ToDelta(dto.ExtraScales),
 				RevealsPropertyId = dto?.RevealsPropertyId,
+				SetsFlagId = dto?.SetsFlagId,
 				ConsequenceCapOverride = dto == null ? null : ParseOptionalCap(dto.ConsequenceCap, MissionEventsFile, textOption.Id),
 				RequiresEquipmentId = dto?.RequiresEquipmentId
 			};

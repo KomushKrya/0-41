@@ -29,7 +29,7 @@ namespace Kontur.Core.Systems
 			DayConfig dayConfig = _content.Config.GetDay(day);
 			TimingConfig timings = _content.Config.Timings;
 
-			IReadOnlyList<MissionDefinition> pool = _content.GetMissionsForDay(day);
+			IReadOnlyList<MissionDefinition> pool = FilterByFlags(_content.GetMissionsForDay(day));
 			var schedule = new List<IncidentRuntime>();
 
 			if (pool.Count == 0)
@@ -80,6 +80,31 @@ namespace Kontur.Core.Systems
 		/// но для первых SequentialCallCount вызовов они не важны: директор выпустит их
 		/// по мере закрытия предыдущего.
 		/// </summary>
+		/// <summary>
+		/// Выкидывает из пула миссии, чей звонок требует невыставленного флага: так
+		/// взаимоисключающие ветки не приходят обе в одну смену.
+		/// </summary>
+		private List<MissionDefinition> FilterByFlags(IReadOnlyList<MissionDefinition> pool)
+		{
+			var allowed = new List<MissionDefinition>(pool.Count);
+			for (int i = 0; i < pool.Count; i++)
+			{
+				bool ok = true;
+				IReadOnlyList<string> required = pool[i].RequiredFlags;
+				for (int f = 0; ok && f < required.Count; f++)
+				{
+					ok = _state.Flags.IsSet(required[f]);
+				}
+
+				if (ok)
+				{
+					allowed.Add(pool[i]);
+				}
+			}
+
+			return allowed;
+		}
+
 		private List<IncidentRuntime> BuildScriptedSchedule(DayConfig dayConfig, TimingConfig timings, int day)
 		{
 			var schedule = new List<IncidentRuntime>();

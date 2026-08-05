@@ -1,15 +1,6 @@
 #!/usr/bin/env python3
-"""Собирает .md из content/raw в JSON по локали, который читает рантайм Godot.
-
-Запуск из корня репозитория:
-    python content/engine/converter/build.py
-    python content/engine/converter/build.py --include-drafts
-
-Зависимостей нет — фронтматтер разбирается вручную, потому что схема
-намеренно узкая (см. content/raw/_system/текстовый-движок.md): скаляры и
-простые списки. Всё, что в неё не укладывается, считается ошибкой сборки,
-а не молча пропускается: молчаливая потеря текста хуже упавшего билда.
-"""
+"""Собирает .md из content/raw в JSON по локали; запускать из корня репозитория.
+Схема узкая намеренно: что в неё не уложилось — ошибка сборки, а не тихий пропуск."""
 
 from __future__ import annotations
 
@@ -38,14 +29,8 @@ FOLDER_TYPES = {
     "personnel/bio": "bio_line",
 }
 
-# Поля, которые есть только у своего типа: имя -> значение по умолчанию.
-# Тип значения задаёт и проверку: int по умолчанию требует целого во фронтматтере.
-#
-# Разбираются и проверяются все, а вот в JSON едут только те, что перечислены в
-# PUBLIC_TYPE_FIELDS: остальные — авторская привязка и материал для проверок сборки,
-# игре они не нужны. mission_id связывает звонок, вмешательство и отчёты одной миссии;
-# outcome и day дублируют то, что уже разложено по ключам в data/missions.json и
-# data/config.json; mission_type дублирует tier миссии.
+# Поля своего типа: имя -> значение по умолчанию, тип значения задаёт и проверку.
+# Проверяются все, в JSON едут только PUBLIC_TYPE_FIELDS — остальное уже есть в data/.
 TYPE_FIELDS = {
     "call": {"mission_type": "", "mission_id": ""},
     "creature": {"name": ""},
@@ -68,10 +53,11 @@ PUBLIC_TYPE_FIELDS = ("name", "slot")
 # radio — вызов с вмешательством игрока, filler — одна проверка характеристик.
 CALL_MISSION_TYPES = ("radio", "filler")
 
-# Флагов появления записи в движке нет: ни один экран их не спрашивает, а показывать
-# или нет — решает геймплейная сторона по своим данным. Поле осталось бы обещанием,
-# которого никто не выполняет, поэтому объявление requirements — ошибка сборки.
+# Флаги появления есть только у звонка: планировщик ядра выкидывает из пула миссию,
+# у чьего звонка не выставлен хотя бы один флаг из списка.
 REQUIREMENTS_FIELD = "requirements"
+REQUIREMENTS_TYPES = ("call",)
+FLAG_RE = re.compile(r"^flag_[a-z0-9_]+$")
 
 # properties — id условных блоков внутри записи. Работает только у существ: у остальных
 # типов %% reveal %% не бывает, и список там всегда пустой.
@@ -108,13 +94,8 @@ ID_RE = re.compile(r"^[a-z][a-z0-9_]*$")
 # обычная запись, поэтому тип вынесен в константу.
 REGISTRY_TYPE = "mission_id"
 
-# Типы, которые пишутся таблицей «id | текст», а не файлом на запись. Общее у них
-# то, что запись — короткая строка без тела: держать её отдельным файлом дороже,
-# чем строкой в таблице, и списком такие строки видно целиком.
-#
-# ui_label — подписи интерфейса: заголовки экранов, кнопки, статусы. Один файл на
-# экран. Текст едет в поле name, тело пустое: подписи нечего пояснять, а игре нужна
-# ровно одна строка. Числа подставляются через {{имя}} на стороне игры (Content.Fill).
+# Типы-таблицы «id | текст»: запись — короткая строка без тела, файлом держать дороже.
+# У ui_label текст едет в name, тело пустое; числа подставляет игра через {{имя}}.
 REGISTRY_TYPES = (REGISTRY_TYPE, "ui_label")
 # Как назвать вторую колонку в сообщении об ошибке — таблицы одинаковые, смысл разный.
 REGISTRY_COLUMN = {REGISTRY_TYPE: "название", "ui_label": "текст"}
@@ -215,11 +196,8 @@ def parse_frontmatter(text: str, source: Path) -> tuple[dict, list[str]]:
 
 
 def strip_dev_notes(text: str, source: Path) -> str:
-    """Выкидывает dev-заметки до разбора кусков.
-
-    Парность проверяется отдельно и заранее: DEV_BLOCK_RE работает по DOTALL и при
-    пропущенном %% /dev %% молча съел бы реплики до следующего закрывающего тега.
-    """
+    """Выкидывает dev-заметки. Парность проверяется заранее: DEV_BLOCK_RE идёт по DOTALL
+    и при пропущенном %% /dev %% съел бы реплики до следующего закрывающего тега."""
     depth = 0
     for match in DEV_TAG_RE.finditer(text):
         depth += -1 if match.group(1) else 1
@@ -245,10 +223,8 @@ def strip_dev_notes(text: str, source: Path) -> str:
 
 
 def make_chunk(text: str, kind: str, reveal: str | None, source: Path) -> dict:
-    """Кусок с разобранной разметкой: текст чистый, разметка — отдельным списком отрезков.
-
-    Отрезки, а не смещения: рантайм подставляет {{имя}} прямо в текст, и позиции уехали бы.
-    """
+    """Кусок с разобранной разметкой: текст чистый, разметка — списком отрезков.
+    Отрезки, а не смещения: рантайм подставляет {{имя}} в текст, и позиции уехали бы."""
     spans, clean = parse_spans(text, source)
     chunk = {"text": clean, "kind": kind, "reveal": reveal}
     if spans:
@@ -371,13 +347,32 @@ def parse_option(name: str, lines: list[str], source: Path) -> dict:
     }
 
 
-def parse_requires(text: str, owner: str, source: Path) -> list[str]:
-    """«боевая подготовка, сила» — какие характеристики проверяются.
+def parse_flags(value, source: Path) -> list[str]:
+    """Флаги появления вызова: `flag_что_то`, выставляет их геймплей по ходу партии.
+    Имя проверяется по форме, а не по списку: перечень флагов ведёт геймплейная сторона."""
+    if isinstance(value, str):
+        value = [value] if value.strip() else []
 
-    Только названия: сам порог — это требование миссии по этой характеристике,
-    и живёт оно в геймплейных данных. Текст отвечает на вопрос «что проверяем»,
-    а не «насколько трудно» — иначе число пришлось бы держать синхронным в двух местах.
-    """
+    flags: list[str] = []
+    for item in value:
+        flag = item.strip()
+        if not flag:
+            continue
+        if not FLAG_RE.match(flag):
+            raise BuildFailed(
+                f"{source}: {flag!r} не похоже на флаг — нужно flag_ и дальше "
+                f"латиница, цифры и подчёркивания"
+            )
+        if flag in flags:
+            raise BuildFailed(f"{source}: флаг {flag!r} указан дважды")
+        flags.append(flag)
+
+    return flags
+
+
+def parse_requires(text: str, owner: str, source: Path) -> list[str]:
+    """«боевая подготовка, сила» — какие характеристики проверяются, без порогов.
+    Порог живёт в данных миссии: текст отвечает «что проверяем», а не «насколько трудно»."""
     requires: list[str] = []
     text = text.strip()
     if not text:
@@ -439,11 +434,8 @@ def check_option_ids(options: list[dict], source: Path) -> None:
 
 
 def collect_variables(entry: dict, source: Path) -> list[str]:
-    """Имена подстановок из всех кусков — чтобы игра знала, что заполнять.
-
-    Проверяется только форма имени: иначе опечатка вроде {{ bonus.strength}} доехала
-    бы до игрока как есть.
-    """
+    """Проверяет форму имён подстановок: иначе опечатка вроде {{ bonus.strength}}
+    доехала бы до игрока как есть."""
     names: set[str] = set()
 
     for chunk in all_chunks(entry):
@@ -497,17 +489,21 @@ def parse_file(path: Path, expected_type: str, repo_root: Path) -> dict:
     body_text = COMMENT_RE.sub("", "\n".join(body_lines))
     body_lines = strip_dev_notes(body_text, path).split("\n")
 
-    if REQUIREMENTS_FIELD in frontmatter:
-        raise BuildFailed(
-            f"{path}: поля {REQUIREMENTS_FIELD} больше нет — движок его никуда не отдавал, "
-            f"а появление записи решает геймплейная сторона (data/missions.json, "
-            f"data/config.json). Убери его из фронтматтера"
-        )
-
     entry: dict = {
         "id": frontmatter["id"],
         "type": frontmatter["type"],
     }
+
+    if expected_type in REQUIREMENTS_TYPES:
+        entry[REQUIREMENTS_FIELD] = parse_flags(
+            frontmatter.get(REQUIREMENTS_FIELD, []), path
+        )
+    elif frontmatter.get(REQUIREMENTS_FIELD):
+        raise BuildFailed(
+            f"{path}: флаги появления есть только у {', '.join(REQUIREMENTS_TYPES)} — "
+            f"запись типа {expected_type!r} показывают по её миссии или по дню, "
+            f"а не по своему флагу"
+        )
 
     if expected_type in PROPERTIES_TYPES:
         entry["properties"] = frontmatter.get("properties", [])
@@ -556,8 +552,7 @@ def parse_file(path: Path, expected_type: str, repo_root: Path) -> dict:
                 )
 
     if expected_type == "call":
-        # Какие характеристики вызов проверяет, автор пишет для себя и для сверки с
-        # data/missions.json: числа всё равно оттуда, и в JSON этот список не едет.
+        # requires автор пишет для себя и для сверки с data/missions.json, в JSON он не едет.
         # У филлера проверка одна на всю миссию, поэтому она обязана быть составной.
         requires = parse_requires(frontmatter.get("requires", ""), entry["id"], path)
         if fields["mission_type"] == "filler" and len(requires) < 2:
@@ -583,11 +578,8 @@ def parse_file(path: Path, expected_type: str, repo_root: Path) -> dict:
 
 
 def parse_registry(path: Path, repo_root: Path, content_type: str = REGISTRY_TYPE) -> list[dict]:
-    """Таблица «id | текст»: один файл на смену (миссии) или на экран (подписи).
-
-    Записи держатся вместе намеренно: так их видно списком и не нужно открывать
-    пятнадцать файлов, чтобы понять, из чего состоит смена или экран.
-    """
+    """Таблица «id | текст»: файл на смену (миссии) или на экран (подписи).
+    Вместе намеренно: состав смены видно списком, а не пятнадцатью файлами."""
     column = REGISTRY_COLUMN.get(content_type, "название")
     try:
         raw_text = path.read_text(encoding="utf-8")

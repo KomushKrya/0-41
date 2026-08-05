@@ -1238,6 +1238,13 @@ namespace Kontur.Core.Systems
 			}
 
 			incident.ChosenOption = option;
+
+			// Выбор запоминается партией: по флагу открываются вызовы следующих смен.
+			if (!string.IsNullOrEmpty(option.SetsFlagId))
+			{
+				_state.Flags.Set(option.SetsFlagId!);
+			}
+
 			_bus.Publish(new RadioOptionChosen(incident.Id, incident.MissionEvent.Id, option.Id));
 
 			BeginMissionExecution(incident);

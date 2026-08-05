@@ -16,6 +16,12 @@ public sealed class ContentEntry
 	/// <summary>Только у creature: id условных блоков %% reveal %% в теле статьи.</summary>
 	public IReadOnlyList<string> Properties = new List<string>();
 
+	/// <summary>
+	/// Только у call: флаги, без которых вызов не попадает в расписание смены.
+	/// Выставляет их геймплей по ходу партии — например, выбором на прошлом выезде.
+	/// </summary>
+	public IReadOnlyList<string> Requirements = new List<string>();
+
 	public IReadOnlyList<ContentChunk> Chunks = new List<ContentChunk>();
 	public IReadOnlyList<ContentOption> Options = new List<ContentOption>();
 }

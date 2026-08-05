@@ -10,6 +10,9 @@ namespace Kontur.Core.Content
 		bool HasProperty(string entryId, string propertyId);
 		IReadOnlyList<TextOption> GetOptions(string entryId);
 		IReadOnlyList<string> GetBioLines(string slot);
+
+		/// <summary>Флаги, без которых вызов не должен попасть в расписание смены.</summary>
+		IReadOnlyList<string> GetRequirements(string entryId);
 	}
 
 	/// <summary>
