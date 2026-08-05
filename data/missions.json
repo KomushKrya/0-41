@@ -611,7 +611,8 @@
     "callId": "call_workshop_gravel",
     "missionEventId": "radio_workshop_gravel",
     "requirements": {
-      "strength": 3
+      "strength": 3,
+      "charisma": 3
     },
     "primaryStat": "strength",
     "squadLimit": 1,
@@ -755,7 +756,7 @@
         "failure": "report_dense_flock_disperse_failure"
       },
       "cordon": {
-        "success": "report_dense_flock_cordon_failure",
+        "success": "report_dense_flock_cordon_success",
         "failure": "report_dense_flock_cordon_failure"
       }
     }
@@ -1373,8 +1374,8 @@
     },
     "reports": {
       "dosimeter": {
-        "success": "report_wall_infection_dosimeter",
-        "failure": "report_wall_infection_dosimeter"
+        "success": "report_wall_infection_dosimeter_success",
+        "failure": "report_wall_infection_dosimeter_failure"
       },
       "listen": {
         "success": "report_wall_infection_listen_success",
