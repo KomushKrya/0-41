@@ -340,7 +340,7 @@
     "id": "radio_flooded_basement",
     "options": {
       "shut_valve": {
-        "revealsPropertyId": "property_kanalotvar_water",
+        "revealsPropertyId": "property_kanalotvar_lair",
         "extraScales": {
           "infection": -1.0
         },
@@ -372,7 +372,7 @@
     "id": "radio_silent_collector",
     "options": {
       "call_out": {
-        "revealsPropertyId": "property_kanalotvar_sound",
+        "revealsPropertyId": "property_kanalotvar_stillness",
         "injuryChanceMultiplier": 1.4
       },
       "signal": {
