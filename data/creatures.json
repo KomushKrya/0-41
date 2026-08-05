@@ -30,9 +30,9 @@
 	],
 	"illustrationId": "",
 	"properties": [
-	  "property_kanalotvar_water",
+	  "property_kanalotvar_lair",
 	  "property_kanalotvar_lure",
-      "property_kanalotvar_sound"
+      "property_kanalotvar_stillness"
 	]
   },
   {
