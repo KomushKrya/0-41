@@ -4,8 +4,7 @@ type: report
 mission_id: m_pensioner_door
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: эффект — гласность уменьшается, лояльность увеличивается, открывается статья [[creature:creature_mimic]]. %%

@@ -4,10 +4,7 @@ type: call
 mission_id: m_bench_man
 status: draft
 mission_type: radio
-requirements:
-  -
-properties:
-  -
+
 ---
 
 %% dev %%

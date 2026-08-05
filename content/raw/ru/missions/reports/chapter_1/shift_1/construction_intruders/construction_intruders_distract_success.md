@@ -4,8 +4,7 @@ type: report
 mission_id: m_construction_intruders
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: эффект — гласность уменьшается, открывается статья [[creature:creature_mimic]]. %%

@@ -4,8 +4,7 @@ type: report
 mission_id: m_workshop_truck
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: flag_truck_written_off. Заражение вверх, лояльность вниз. Выдать [[equipment:eq_dosimeter]]. %%

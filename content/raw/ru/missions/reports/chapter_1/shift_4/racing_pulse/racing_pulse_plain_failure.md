@@ -4,8 +4,7 @@ type: report
 mission_id: m_racing_pulse
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: исход вызова без вмешательства. Эффект — заражение растёт. %%

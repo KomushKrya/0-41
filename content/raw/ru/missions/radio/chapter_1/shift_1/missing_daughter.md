@@ -3,8 +3,7 @@ id: radio_missing_daughter
 type: radio
 mission_id: m_missing_daughter
 status: draft
-properties:
-  -
+
 ---
 
 %% dev %%

@@ -4,10 +4,7 @@ type: call
 mission_id: m_tram_last_run
 status: draft
 mission_type: radio
-requirements:
-  -
-properties:
-  -
+
 ---
 
 %% dev %%

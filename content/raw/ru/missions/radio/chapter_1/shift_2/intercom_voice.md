@@ -3,8 +3,7 @@ id: radio_intercom_voice
 type: radio
 mission_id: m_intercom_voice
 status: draft
-properties:
-  -
+
 ---
 
 %% dev %%

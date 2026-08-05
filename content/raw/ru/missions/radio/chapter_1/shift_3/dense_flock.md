@@ -3,8 +3,7 @@ id: radio_dense_flock
 type: radio
 mission_id: m_dense_flock
 status: ready
-properties:
-  -
+
 ---
 
 %% dev %%

@@ -3,8 +3,7 @@ id: radio_bench_man
 type: radio
 mission_id: m_bench_man
 status: draft
-properties:
-  -
+
 ---
 
 %% dev %%

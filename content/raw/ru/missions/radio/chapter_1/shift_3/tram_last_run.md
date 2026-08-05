@@ -3,8 +3,7 @@ id: radio_tram_last_run
 type: radio
 mission_id: m_tram_last_run
 status: ready
-properties:
-  -
+
 ---
 
 %% dev %%

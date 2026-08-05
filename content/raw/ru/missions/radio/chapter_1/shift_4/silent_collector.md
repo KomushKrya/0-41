@@ -3,8 +3,7 @@ id: radio_silent_collector
 type: radio
 mission_id: m_silent_collector
 status: draft
-properties:
-  -
+
 ---
 
 %% dev %%

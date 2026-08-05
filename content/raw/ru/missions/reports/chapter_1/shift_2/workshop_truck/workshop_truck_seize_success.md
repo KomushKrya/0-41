@@ -4,8 +4,7 @@ type: report
 mission_id: m_workshop_truck
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: flag_truck_seized. Заражение вниз, лояльность вверх. %%

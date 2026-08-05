@@ -4,8 +4,7 @@ type: report
 mission_id: m_workshop_truck
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: flag_truck_written_off всё равно ставится — борт уехал. Гласность вверх, дозиметра нет. %%

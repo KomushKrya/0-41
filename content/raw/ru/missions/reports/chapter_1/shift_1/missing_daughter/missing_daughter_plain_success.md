@@ -4,8 +4,7 @@ type: report
 mission_id: m_missing_daughter
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: исход вызова без вмешательства. Эффект — заражение уменьшается, гласность чуть увеличивается. %%

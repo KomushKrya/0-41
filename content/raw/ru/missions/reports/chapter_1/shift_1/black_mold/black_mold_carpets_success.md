@@ -4,8 +4,7 @@ type: report
 mission_id: m_black_mold
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: этот же отчёт идёт и при прохождении вызова без вмешательства. Эффект: заражение уменьшается. %%

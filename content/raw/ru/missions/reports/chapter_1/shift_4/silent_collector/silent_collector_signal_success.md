@@ -4,8 +4,7 @@ type: report
 mission_id: m_silent_collector
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: эффект — заражение сильно уменьшается, лояльность растёт. %%

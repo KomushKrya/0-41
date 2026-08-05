@@ -3,8 +3,7 @@ id: radio_flooded_basement
 type: radio
 mission_id: m_flooded_basement
 status: draft
-properties:
-  -
+
 ---
 
 %% dev %%

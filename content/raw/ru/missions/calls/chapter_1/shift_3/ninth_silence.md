@@ -5,10 +5,7 @@ mission_id: m_ninth_silence
 status: draft
 mission_type: filler
 requires: интеллект, сила, боевая подготовка
-requirements:
-  -
-properties:
-  -
+
 ---
 
 %% dev %%

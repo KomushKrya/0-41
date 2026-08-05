@@ -4,8 +4,7 @@ type: report
 mission_id: m_night_watchman
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: эффект на шкалы небольшой — путаница не разобрана, но и опасности не нашли. %%

@@ -3,8 +3,7 @@ id: radio_
 type: radio
 mission_id: m_
 status: draft
-properties:
-  -
+
 ---
 
 <!-- Нарративная вводная — что видят/с чем столкнулись сотрудники на выезде.

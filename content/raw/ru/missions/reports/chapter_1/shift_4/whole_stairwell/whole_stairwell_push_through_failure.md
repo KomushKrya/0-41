@@ -4,8 +4,7 @@ type: report
 mission_id: m_whole_stairwell
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: эффект — заражение растёт очень сильно, лояльность сильно падает, потери среди бригады и жильцов. %%

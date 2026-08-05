@@ -4,8 +4,7 @@ type: report
 mission_id: m_workshop_site
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: заражение вверх, возможны потери в группе. Тяжёлый исход ветки. %%

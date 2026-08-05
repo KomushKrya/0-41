@@ -5,10 +5,7 @@ mission_id: m_shelter_basement
 status: draft
 mission_type: filler
 requires: сила, харизма
-requirements:
-  -
-properties:
-  -
+
 ---
 
 %% dev %%

@@ -4,8 +4,7 @@ type: report
 mission_id: m_workshop_site
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: заражение вниз, лояльность вверх. Бригада выходит из круга сама. %%

@@ -5,10 +5,7 @@ mission_id: m_night_watchman
 status: draft
 mission_type: filler
 requires: интеллект, боевая подготовка
-requirements:
-  -
-properties:
-  -
+
 ---
 
 %% dev %%

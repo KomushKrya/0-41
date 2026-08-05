@@ -40,6 +40,12 @@ FOLDER_TYPES = {
 
 # Поля, которые есть только у своего типа: имя -> значение по умолчанию.
 # Тип значения задаёт и проверку: int по умолчанию требует целого во фронтматтере.
+#
+# Разбираются и проверяются все, а вот в JSON едут только те, что перечислены в
+# PUBLIC_TYPE_FIELDS: остальные — авторская привязка и материал для проверок сборки,
+# игре они не нужны. mission_id связывает звонок, вмешательство и отчёты одной миссии;
+# outcome и day дублируют то, что уже разложено по ключам в data/missions.json и
+# data/config.json; mission_type дублирует tier миссии.
 TYPE_FIELDS = {
     "call": {"mission_type": "", "mission_id": ""},
     "creature": {"name": ""},
@@ -55,13 +61,21 @@ TYPE_FIELDS = {
     "bio_line": {"slot": ""},
 }
 
+# Что из TYPE_FIELDS игра действительно читает: name — подпись в интерфейсе,
+# slot — по нему фабрика сотрудников набирает фразы досье.
+PUBLIC_TYPE_FIELDS = ("name", "slot")
+
 # radio — вызов с вмешательством игрока, filler — одна проверка характеристик.
 CALL_MISSION_TYPES = ("radio", "filler")
 
-# Типы, у которых нет флагов появления. Вмешательство не всплывает само: его показывают
-# ровно тогда, когда сработало радио на своей миссии, — гейт на записи не гейтит ничего.
-# Условие «показывать ли это вмешательство» живёт на миссии, в data/missions.json.
-NO_REQUIREMENTS_TYPES = ("radio",)
+# Флагов появления записи в движке нет: ни один экран их не спрашивает, а показывать
+# или нет — решает геймплейная сторона по своим данным. Поле осталось бы обещанием,
+# которого никто не выполняет, поэтому объявление requirements — ошибка сборки.
+REQUIREMENTS_FIELD = "requirements"
+
+# properties — id условных блоков внутри записи. Работает только у существ: у остальных
+# типов %% reveal %% не бывает, и список там всегда пустой.
+PROPERTIES_TYPES = ("creature",)
 
 # Виджет нижнего текста: кусок должен влезать примерно в две строки. Всё остальное —
 # энциклопедия, отчёты, звонки — рендерится на своих экранах, где абзац уместен.
@@ -146,13 +160,6 @@ def check_directory(path: Path, raw_root: Path, errors: list[str], warnings: lis
             continue
 
         relative = item.relative_to(raw_root).as_posix()
-
-        # Старые таблицы локализации ещё лежат в raw/ru/UI/labels. Их читает
-        # прежний контентный слой, а новый конвертер работает с единой структурой
-        # без префикса локали и не умеет собирать таблицы ui_label. Не даём этому
-        # архивному источнику срывать сборку актуальных игровых текстов.
-        if relative == "ru":
-            continue
 
         if not item.is_dir():
             warnings.append(f"{item}: лежит вне папки типа и в сборку не попадёт")
@@ -490,21 +497,25 @@ def parse_file(path: Path, expected_type: str, repo_root: Path) -> dict:
     body_text = COMMENT_RE.sub("", "\n".join(body_lines))
     body_lines = strip_dev_notes(body_text, path).split("\n")
 
+    if REQUIREMENTS_FIELD in frontmatter:
+        raise BuildFailed(
+            f"{path}: поля {REQUIREMENTS_FIELD} больше нет — движок его никуда не отдавал, "
+            f"а появление записи решает геймплейная сторона (data/missions.json, "
+            f"data/config.json). Убери его из фронтматтера"
+        )
+
     entry: dict = {
         "id": frontmatter["id"],
         "type": frontmatter["type"],
-        "properties": frontmatter.get("properties", []),
     }
 
-    if expected_type in NO_REQUIREMENTS_TYPES:
-        if "requirements" in frontmatter:
-            raise BuildFailed(
-                f"{path}: у типа {expected_type!r} нет поля requirements — "
-                f"вмешательство показывается по своей миссии, а не по флагу записи; "
-                f"условие появления живёт в data/missions.json"
-            )
-    else:
-        entry["requirements"] = frontmatter.get("requirements", [])
+    if expected_type in PROPERTIES_TYPES:
+        entry["properties"] = frontmatter.get("properties", [])
+    elif frontmatter.get("properties"):
+        raise BuildFailed(
+            f"{path}: properties есть только у {', '.join(PROPERTIES_TYPES)} — "
+            f"это id блоков %% reveal %%, а у типа {expected_type!r} их не бывает"
+        )
 
     if expected_type == "radio":
         intro_lines, entry["options"] = parse_options(body_lines, path)
@@ -514,8 +525,11 @@ def parse_file(path: Path, expected_type: str, repo_root: Path) -> dict:
     else:
         entry["chunks"] = parse_chunks(body_lines, path)
 
-    entry["variables"] = collect_variables(entry, path)
+    # Имена подстановок не сохраняем: их видно в самом тексте, а игра подставляет
+    # значения по имени. Проверка формы {{имя}} при этом остаётся.
+    collect_variables(entry, path)
 
+    fields: dict = {}
     for field, default in TYPE_FIELDS.get(expected_type, {}).items():
         value = frontmatter.get(field, default)
         if isinstance(default, int):
@@ -523,11 +537,13 @@ def parse_file(path: Path, expected_type: str, repo_root: Path) -> dict:
                 value = int(value)
             except (TypeError, ValueError):
                 raise BuildFailed(f"{path}: {field} должно быть целым, а не {value!r}") from None
-        entry[field] = value
+        fields[field] = value
+        if field in PUBLIC_TYPE_FIELDS:
+            entry[field] = value
 
-    if expected_type == "call" and entry["mission_type"] not in CALL_MISSION_TYPES:
+    if expected_type == "call" and fields["mission_type"] not in CALL_MISSION_TYPES:
         raise BuildFailed(
-            f"{path}: mission_type={entry['mission_type']!r}, допустимы только "
+            f"{path}: mission_type={fields['mission_type']!r}, допустимы только "
             f"{' и '.join(CALL_MISSION_TYPES)} (radio — вызов с вмешательством по рации, "
             "filler — вызов, который решается одной проверкой характеристик)"
         )
@@ -540,12 +556,11 @@ def parse_file(path: Path, expected_type: str, repo_root: Path) -> dict:
                 )
 
     if expected_type == "call":
-        # Пороги вызова: у филлера это единственная проверка смены, у сюжетного —
-        # порог на состав группы, поверх которого идут пороги вариантов из radio.
-        entry["requires"] = parse_requires(
-            frontmatter.get("requires", ""), entry["id"], path
-        )
-        if entry["mission_type"] == "filler" and len(entry["requires"]) < 2:
+        # Какие характеристики вызов проверяет, автор пишет для себя и для сверки с
+        # data/missions.json: числа всё равно оттуда, и в JSON этот список не едет.
+        # У филлера проверка одна на всю миссию, поэтому она обязана быть составной.
+        requires = parse_requires(frontmatter.get("requires", ""), entry["id"], path)
+        if fields["mission_type"] == "filler" and len(requires) < 2:
             raise BuildFailed(
                 f"{path}: у филлера в requires меньше двух характеристик — "
                 f"вся миссия держится на одной проверке, она должна быть составной"
@@ -562,6 +577,8 @@ def parse_file(path: Path, expected_type: str, repo_root: Path) -> dict:
 
     entry["_status"] = frontmatter["status"]
     entry["_source"] = path.relative_to(repo_root).as_posix()
+    # Служебные поля (с «_») в JSON не едут: они нужны проверкам сборки, а не игре.
+    entry["_fields"] = fields
     return entry
 
 
@@ -627,9 +644,6 @@ def parse_registry(path: Path, repo_root: Path, content_type: str = REGISTRY_TYP
                 "id": entry_id,
                 "type": content_type,
                 "name": name,
-                "requirements": [],
-                "properties": [],
-                "variables": sorted(set(VARIABLE_RE.findall(name))),
                 "chunks": [],
                 "_status": frontmatter["status"],
                 "_source": source,
@@ -690,17 +704,18 @@ def validate(entries: list[dict]) -> None:
     # иначе название миссии живёт в трёх местах и расходится при первой же правке.
     missions = {entry["id"] for entry in entries if entry["type"] == "mission_id"}
     for entry in entries:
-        if "mission_id" not in entry:
+        mission_id = entry.get("_fields", {}).get("mission_id")
+        if mission_id is None:
             continue
 
-        if not entry["mission_id"]:
+        if not mission_id:
             errors.append(
                 f"{entry['_source']}: не заполнен mission_id — по нему {entry['type']} "
                 f"связан с миссией из mission_ids/"
             )
-        elif entry["mission_id"] not in missions:
+        elif mission_id not in missions:
             errors.append(
-                f"{entry['_source']}: mission_id={entry['mission_id']!r} — такой миссии "
+                f"{entry['_source']}: mission_id={mission_id!r} — такой миссии "
                 f"нет в mission_ids/"
             )
 

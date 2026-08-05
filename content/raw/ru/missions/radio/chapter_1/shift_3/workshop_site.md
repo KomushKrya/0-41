@@ -3,8 +3,7 @@ id: radio_workshop_site
 type: radio
 mission_id: m_workshop_site
 status: ready
-properties:
-  -
+
 ---
 
 %% dev %%

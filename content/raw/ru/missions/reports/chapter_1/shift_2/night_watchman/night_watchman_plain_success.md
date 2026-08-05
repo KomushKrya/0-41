@@ -4,8 +4,7 @@ type: report
 mission_id: m_night_watchman
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: эффект на шкалы минимальный — существа нет, вызов чисто административный. %%

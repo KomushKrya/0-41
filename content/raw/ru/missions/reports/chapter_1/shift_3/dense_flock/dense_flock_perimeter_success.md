@@ -4,8 +4,7 @@ type: report
 mission_id: m_dense_flock
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: заражение вниз. Открывает [[creature:creature_simulacre]]. %%

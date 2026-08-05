@@ -2,10 +2,7 @@
 id: cutscene_
 type: cutscene
 status: draft
-requirements:
-  -
-properties:
-  -
+
 ---
 
 <!-- requirements — список условий/флагов (например, предыдущий сюжетный выбор),

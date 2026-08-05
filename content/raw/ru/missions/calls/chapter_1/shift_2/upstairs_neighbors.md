@@ -5,10 +5,7 @@ mission_id: m_upstairs_neighbors
 status: draft
 mission_type: filler
 requires: интеллект, харизма
-requirements:
-  -
-properties:
-  -
+
 ---
 
 %% dev %%

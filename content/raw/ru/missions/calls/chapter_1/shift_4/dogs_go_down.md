@@ -4,10 +4,7 @@ type: call
 mission_id: m_dogs_go_down
 status: draft
 mission_type: radio
-requirements:
-  -
-properties:
-  -
+
 ---
 
 %% dev %%

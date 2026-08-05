@@ -5,10 +5,7 @@ mission_id: m_
 status: draft
 mission_type: filler
 requires: интеллект, харизма
-requirements:
-  -
-properties:
-  -
+
 ---
 
 <!-- mission_type: radio — вызов требует вмешательства игрока, под него должна быть

@@ -4,10 +4,7 @@ type: call
 mission_id: m_workshop_site
 status: draft
 mission_type: radio
-requirements:
-  - flag_truck_written_off
-properties:
-  -
+
 ---
 
 %% dev %%

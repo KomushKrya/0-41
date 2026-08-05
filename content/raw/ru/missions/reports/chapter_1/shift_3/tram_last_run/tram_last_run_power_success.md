@@ -4,8 +4,7 @@ type: report
 mission_id: m_tram_last_run
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: заражение вниз, лояльность вниз — нарушен протокол. Открывает [[creature:creature_mimic]]. %%

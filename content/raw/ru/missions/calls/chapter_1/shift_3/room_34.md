@@ -4,10 +4,7 @@ type: call
 mission_id: m_room_34
 status: draft
 mission_type: radio
-requirements:
-  -
-properties:
-  -
+
 ---
 
 %% dev %%

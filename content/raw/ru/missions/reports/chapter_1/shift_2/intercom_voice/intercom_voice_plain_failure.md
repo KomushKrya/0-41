@@ -4,8 +4,7 @@ type: report
 mission_id: m_intercom_voice
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: исход без вмешательства. Эффект — заражение растёт. %%

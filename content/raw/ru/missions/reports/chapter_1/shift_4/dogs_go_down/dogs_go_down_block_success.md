@@ -4,8 +4,7 @@ type: report
 mission_id: m_dogs_go_down
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: эффект — заражение уменьшается, лояльность растёт (собак спасли). %%

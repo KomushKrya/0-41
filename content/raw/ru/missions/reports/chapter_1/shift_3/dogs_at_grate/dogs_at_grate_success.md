@@ -4,8 +4,7 @@ type: report
 mission_id: m_dogs_at_grate
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: шкалы не двигаются. Примета каналотвари, статья открывается в четвёртую смену. %%

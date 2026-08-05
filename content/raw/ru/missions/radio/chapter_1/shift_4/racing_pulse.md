@@ -3,8 +3,7 @@ id: radio_racing_pulse
 type: radio
 mission_id: m_racing_pulse
 status: draft
-properties:
-  -
+
 ---
 
 %% dev %%

@@ -2,10 +2,7 @@
 id: cutscene_ending_loyalty
 type: cutscene
 status: draft
-requirements:
-  -
-properties:
-  -
+
 ---
 
 %% dev %%

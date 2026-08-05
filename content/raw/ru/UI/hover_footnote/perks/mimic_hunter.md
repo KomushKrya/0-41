@@ -3,10 +3,7 @@ id: ab_mimic_hunter
 type: perk
 status: ready
 name: Насмотренность
-requirements:
-  -
-properties:
-  -
+
 ---
 
 %% dev %%

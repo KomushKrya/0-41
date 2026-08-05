@@ -4,8 +4,7 @@ type: report
 mission_id: m_shelter_basement
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: заражение вниз. Штатная обработка, Контур-0. %%

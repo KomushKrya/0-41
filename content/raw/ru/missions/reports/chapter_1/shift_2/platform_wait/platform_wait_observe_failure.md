@@ -4,7 +4,6 @@ type: report
 mission_id: m_platform_wait
 status: draft
 outcome: failure
-properties:
   - property_perekozhnik_eye_contact
 ---
 

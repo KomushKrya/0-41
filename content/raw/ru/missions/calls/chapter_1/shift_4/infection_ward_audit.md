@@ -5,10 +5,7 @@ mission_id: m_infection_ward_audit
 status: draft
 mission_type: filler
 requires: сила, боевая подготовка
-requirements:
-  -
-properties:
-  -
+
 ---
 
 %% dev %%

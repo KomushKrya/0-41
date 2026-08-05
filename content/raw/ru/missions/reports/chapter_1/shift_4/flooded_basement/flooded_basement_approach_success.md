@@ -4,8 +4,7 @@ type: report
 mission_id: m_flooded_basement
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: эффект — заражение чуть уменьшается, открывается статья [[creature:creature_kanalotvar]]. %%

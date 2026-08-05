@@ -4,10 +4,7 @@ type: call
 mission_id: m_workshop_intro
 status: draft
 mission_type: radio
-requirements:
-  -
-properties:
-  -
+
 ---
 
 %% dev %%

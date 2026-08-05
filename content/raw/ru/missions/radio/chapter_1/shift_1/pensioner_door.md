@@ -3,8 +3,7 @@ id: radio_pensioner_door
 type: radio
 mission_id: m_pensioner_door
 status: draft
-properties:
-  -
+
 ---
 
 %% dev %%

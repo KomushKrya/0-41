@@ -4,8 +4,7 @@ type: report
 mission_id: m_workshop_empty
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: группа освобождается рано и успевает на второй вызов. %%

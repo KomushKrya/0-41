@@ -3,8 +3,7 @@ id: radio_urgent_evacuation
 type: radio
 mission_id: m_urgent_evacuation
 status: draft
-properties:
-  -
+
 ---
 
 %% dev %%

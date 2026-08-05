@@ -4,10 +4,7 @@ type: call
 mission_id: m_night_pharmacy
 status: draft
 mission_type: radio
-requirements:
-  -
-properties:
-  -
+
 ---
 
 %% dev %%

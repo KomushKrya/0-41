@@ -4,8 +4,7 @@ type: report
 mission_id: m_bench_man
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: эффект — гласность снижается, заражение почти не меняется. %%

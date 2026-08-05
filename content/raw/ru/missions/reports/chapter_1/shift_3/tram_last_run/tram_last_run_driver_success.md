@@ -4,8 +4,7 @@ type: report
 mission_id: m_tram_last_run
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: лояльность вверх, заражение вверх — вагон остался. Открывает [[creature:creature_mimic]]. %%

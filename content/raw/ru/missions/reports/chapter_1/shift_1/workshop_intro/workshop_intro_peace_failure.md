@@ -4,8 +4,7 @@ type: report
 mission_id: m_workshop_intro
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: эффект — гласность вверх. Ставит flag_workshop_met. %%

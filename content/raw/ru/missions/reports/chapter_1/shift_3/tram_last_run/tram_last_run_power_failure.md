@@ -4,8 +4,7 @@ type: report
 mission_id: m_tram_last_run
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: заражение вверх, гласность вверх. Открывает [[creature:creature_mimic]]. %%

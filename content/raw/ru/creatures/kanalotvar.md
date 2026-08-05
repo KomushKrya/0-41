@@ -3,8 +3,6 @@ id: creature_kanalotvar
 type: creature
 status: ready
 name: Каналотварь
-requirements:
-  -
 properties:
   - property_kanalotvar_lair
   - property_kanalotvar_lure

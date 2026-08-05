@@ -4,8 +4,7 @@ type: report
 mission_id: m_bench_man
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: эффект — гласность растёт, заражение растёт. %%

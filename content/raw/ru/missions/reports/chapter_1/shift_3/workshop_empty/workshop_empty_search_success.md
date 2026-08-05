@@ -4,8 +4,7 @@ type: report
 mission_id: m_workshop_empty
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: аномалии нет. Время смены потрачено, шкалы не двигаются. %%

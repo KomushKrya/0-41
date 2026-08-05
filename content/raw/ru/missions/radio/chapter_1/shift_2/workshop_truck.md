@@ -3,8 +3,7 @@ id: radio_workshop_truck
 type: radio
 mission_id: m_workshop_truck
 status: ready
-properties:
-  -
+
 ---
 
 %% dev %%

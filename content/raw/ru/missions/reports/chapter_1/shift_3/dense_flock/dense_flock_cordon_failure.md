@@ -4,8 +4,7 @@ type: report
 mission_id: m_dense_flock
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: проверки нет, исход один. Заражение вверх, к утру здесь Объект. %%

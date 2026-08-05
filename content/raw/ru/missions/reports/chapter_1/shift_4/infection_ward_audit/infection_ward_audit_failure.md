@@ -4,8 +4,7 @@ type: report
 mission_id: m_infection_ward_audit
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: эффект — заражение растёт, сотрудник ранен. %%

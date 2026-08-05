@@ -4,8 +4,7 @@ type: report
 mission_id: m_comms_outage
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: эффект — гласность растёт, лояльность падает. %%

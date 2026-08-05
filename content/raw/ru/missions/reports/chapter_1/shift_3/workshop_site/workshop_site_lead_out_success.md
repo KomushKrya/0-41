@@ -4,8 +4,7 @@ type: report
 mission_id: m_workshop_site
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: лояльность вверх, гласность вверх (шестеро свидетелей). Заражение без изменений. %%

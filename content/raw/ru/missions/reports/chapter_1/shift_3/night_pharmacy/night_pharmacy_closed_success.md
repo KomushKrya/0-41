@@ -4,8 +4,7 @@ type: report
 mission_id: m_night_pharmacy
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: гласность вниз. Открывает [[creature:creature_mimic]]. %%

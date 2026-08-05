@@ -4,8 +4,7 @@ type: report
 mission_id: m_infection_ward_audit
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: эффект — заражение чуть уменьшается, лояльность растёт. %%

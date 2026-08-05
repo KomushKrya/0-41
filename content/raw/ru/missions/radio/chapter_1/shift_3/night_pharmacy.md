@@ -3,8 +3,7 @@ id: radio_night_pharmacy
 type: radio
 mission_id: m_night_pharmacy
 status: ready
-properties:
-  -
+
 ---
 
 %% dev %%

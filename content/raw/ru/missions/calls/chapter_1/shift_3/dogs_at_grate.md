@@ -5,10 +5,7 @@ mission_id: m_dogs_at_grate
 status: draft
 mission_type: filler
 requires: интеллект, сила, боевая подготовка
-requirements:
-  -
-properties:
-  -
+
 ---
 
 %% dev %%

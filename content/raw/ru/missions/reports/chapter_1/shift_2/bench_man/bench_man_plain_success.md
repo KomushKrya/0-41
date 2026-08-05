@@ -4,8 +4,7 @@ type: report
 mission_id: m_bench_man
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: исход вызова без вмешательства. Эффект — заражение слегка уменьшилось. %%

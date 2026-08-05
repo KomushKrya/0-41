@@ -2,10 +2,7 @@
 id: cutscene_ending_infection
 type: cutscene
 status: draft
-requirements:
-  -
-properties:
-  -
+
 ---
 
 %% dev %%

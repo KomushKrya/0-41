@@ -4,8 +4,7 @@ type: report
 mission_id: m_upstairs_neighbors
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: заражение снижается, мимик оставлен в покое — статья и свойства не открываются, филлер их не трогает. %%

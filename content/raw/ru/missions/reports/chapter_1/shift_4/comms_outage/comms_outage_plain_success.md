@@ -4,8 +4,7 @@ type: report
 mission_id: m_comms_outage
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: исход вызова без вмешательства. Эффект — гласность слегка уменьшилась. %%

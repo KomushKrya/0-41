@@ -4,8 +4,7 @@ type: report
 mission_id: m_platform_wait
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: исход без вмешательства. Эффект — заражение растёт. %%

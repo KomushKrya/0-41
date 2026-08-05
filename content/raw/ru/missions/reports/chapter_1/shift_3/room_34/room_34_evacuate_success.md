@@ -4,8 +4,7 @@ type: report
 mission_id: m_room_34
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: гласность вниз, заражение без изменений. Открывает [[creature:creature_mimic]]. %%

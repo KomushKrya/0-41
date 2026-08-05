@@ -4,8 +4,7 @@ type: report
 mission_id: m_pensioner_door
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: исход вызова без вмешательства. Эффект — лояльность падает, часть бригады страдает. %%

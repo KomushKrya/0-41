@@ -4,8 +4,7 @@ type: report
 mission_id: m_comms_outage
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: эффект — гласность уменьшается сильно, заражение чуть уменьшается. %%

@@ -3,8 +3,7 @@ id: radio_talking_dog
 type: radio
 mission_id: m_talking_dog
 status: draft
-properties:
-  -
+
 ---
 
 %% dev %%

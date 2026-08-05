@@ -4,8 +4,7 @@ type: report
 mission_id: m_workshop_empty
 status: draft
 outcome: failure
-properties:
-  -
+
 ---
 
 %% dev: главный смысл ветки — потерянное время на втором, настоящем вызове. %%

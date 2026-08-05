@@ -4,8 +4,7 @@ type: report
 mission_id: m_intercom_voice
 status: draft
 outcome: success
-properties:
-  -
+
 ---
 
 %% dev: эффект — заражение уменьшается, лояльность подъезда растёт. %%
