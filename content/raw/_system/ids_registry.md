@@ -176,8 +176,10 @@
 | `report_dont_blink_relieve_success` | report | content/raw/ru/missions/reports/chapter_1/shift_4/dont_blink/dont_blink_relieve_success.md |
 | `report_dosimeter_yard_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_3/dosimeter_yard/dosimeter_yard_failure.md |
 | `report_dosimeter_yard_success` | report | content/raw/ru/missions/reports/chapter_1/shift_3/dosimeter_yard/dosimeter_yard_success.md |
+| `report_false_gas_alarm_check_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_1/false_gas_alarm/false_gas_alarm_check_failure.md |
 | `report_false_gas_alarm_check_success` | report | content/raw/ru/missions/reports/chapter_1/shift_1/false_gas_alarm/false_gas_alarm_check_success.md |
-| `report_false_gas_alarm_seal` | report | content/raw/ru/missions/reports/chapter_1/shift_1/false_gas_alarm/false_gas_alarm_seal.md |
+| `report_false_gas_alarm_seal_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_1/false_gas_alarm/false_gas_alarm_seal_failure.md |
+| `report_false_gas_alarm_seal_success` | report | content/raw/ru/missions/reports/chapter_1/shift_1/false_gas_alarm/false_gas_alarm_seal_success.md |
 | `report_missing_daughter_amputate_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_1/missing_daughter/missing_daughter_amputate_failure.md |
 | `report_missing_daughter_amputate_success` | report | content/raw/ru/missions/reports/chapter_1/shift_1/missing_daughter/missing_daughter_amputate_success.md |
 | `report_missing_daughter_pull_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_1/missing_daughter/missing_daughter_pull_failure.md |

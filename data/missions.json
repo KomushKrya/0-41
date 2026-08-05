@@ -162,7 +162,8 @@
     "callId": "call_false_gas_alarm",
     "missionEventId": "radio_false_gas_alarm",
     "requirements": {
-      "intellect": 4
+      "intellect": 5,
+      "charisma": 5
     },
     "primaryStat": "intellect",
     "squadLimit": 2,
@@ -196,11 +197,11 @@
     "reports": {
       "check": {
         "success": "report_false_gas_alarm_check_success",
-        "failure": "report_false_gas_alarm_seal"
+        "failure": "report_false_gas_alarm_check_failure"
       },
       "seal": {
-        "success": "report_false_gas_alarm_seal",
-        "failure": "report_false_gas_alarm_seal"
+        "success": "report_false_gas_alarm_seal_success",
+        "failure": "report_false_gas_alarm_seal_failure"
       }
     }
   },
