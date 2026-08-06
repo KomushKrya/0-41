@@ -7,6 +7,15 @@ using Kontur.Core.Events;
 /// <summary>
 /// Полноэкранный экран радио-решения. Чёрно-белое переходное видео управляет
 /// прозрачностью всей сцены: чёрное оставляет прошлый экран, белое открывает UI.
+///
+/// Размер ScreenContent приходится выставлять руками. Якоря Control считаются
+/// от прямоугольника родителя, а родитель здесь — CanvasGroup, то есть Node2D:
+/// прямоугольника у него нет, и «растянуть на весь экран» якорями не выйдет —
+/// получится 0x0, и всё содержимое схлопнется в начало координат.
+///
+/// Поэтому размер живёт в двух местах. В сцене он записан как 1280x720, чтобы
+/// экран было видно и можно было править в редакторе; в игре его переписывает
+/// FitScreenContentToWindow под фактический вьюпорт.
 /// </summary>
 public partial class RadioDecisionUI : Control
 {
@@ -39,7 +48,6 @@ public partial class RadioDecisionUI : Control
 	private ShaderMaterial _transitionMaterial = null!;
 	private ShaderMaterial _previousScreenBlurMaterial = null!;
 	private bool _isTransitionPlaying;
-	private bool _layoutInitialized;
 	private string _incidentId = string.Empty;
 	private string _contentId = string.Empty;
 	private IReadOnlyList<RadioOptionOffer> _options = Array.Empty<RadioOptionOffer>();
@@ -76,19 +84,13 @@ public partial class RadioDecisionUI : Control
 			int capturedIndex = index;
 			_optionButtons[index].Pressed += () => ChooseOption(capturedIndex);
 		}
+
 		Resized += FitScreenContentToWindow;
 		FitScreenContentToWindow();
 	}
 
 	public override void _Process(double delta)
 	{
-
-		if (!_layoutInitialized)
-		{
-			FitScreenContentToWindow();
-			_layoutInitialized = _screenContent.Size.X > 0f && _screenContent.Size.Y > 0f;
-		}
-
 		if (_isTransitionPlaying)
 		{
 			SetMaskTexture();
@@ -110,6 +112,9 @@ public partial class RadioDecisionUI : Control
 
 	public void ShowWithTransition()
 	{
+		// Экран мог пролежать скрытым всю смену, пока игрок менял размер окна:
+		// сигнал Resized до скрытого узла не доходит, и размер остаётся старым.
+		FitScreenContentToWindow();
 		Show();
 		_transitionGroup.Show();
 		_transitionGroup.Modulate = Colors.White;

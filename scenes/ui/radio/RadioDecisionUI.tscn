@@ -1,10 +1,14 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene format=3 uid="uid://br0apetcng844"]
 
-[ext_resource type="Script" path="res://scripts/ui/radio/RadioDecisionUI.cs" id="1_radio_ui"]
-[ext_resource type="VideoStream" path="res://assets/video/transition_masks/Экран-выбора-маска.ogv" id="2_transition_video"]
-[ext_resource type="Shader" path="res://assets/shaders/RadioLumaMask.gdshader" id="3_luma_mask"]
-[ext_resource type="Shader" path="res://assets/shaders/VideoMaskSource.gdshader" id="4_video_source"]
-[ext_resource type="Shader" path="res://assets/shaders/RadioPreviousScreenBlur.gdshader" id="5_previous_blur"]
+[ext_resource type="Script" uid="uid://c6rmd8tfd0yv" path="res://scripts/ui/radio/RadioDecisionUI.cs" id="1_radio_ui"]
+[ext_resource type="VideoStream" uid="uid://bdno2lfo8avfu" path="res://assets/video/transition_masks/Экран-выбора-маска.ogv" id="2_transition_video"]
+[ext_resource type="Shader" uid="uid://6yr3dxiihk7u" path="res://assets/shaders/RadioLumaMask.gdshader" id="3_luma_mask"]
+[ext_resource type="Shader" uid="uid://clggwdpfoh2qp" path="res://assets/shaders/VideoMaskSource.gdshader" id="4_video_source"]
+[ext_resource type="Shader" uid="uid://b31vwmkhmqv5j" path="res://assets/shaders/RadioPreviousScreenBlur.gdshader" id="5_previous_blur"]
+[ext_resource type="Theme" uid="uid://dj2wmfbkcqyuc" path="res://assets/themes/KonturUi.tres" id="6_kontur_ui"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_luma_mask"]
+shader = ExtResource("3_luma_mask")
 
 [sub_resource type="SystemFont" id="SystemFont_terminal"]
 font_names = PackedStringArray("Cascadia Mono", "Consolas", "Courier New")
@@ -34,53 +38,38 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
-[sub_resource type="StyleBoxFlat" id="StyleBox_option"]
-bg_color = Color(0.05, 0.16, 0.09, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.33, 0.74, 0.42, 0.85)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-content_margin_left = 18.0
-content_margin_top = 8.0
-content_margin_right = 18.0
-content_margin_bottom = 8.0
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_luma_mask"]
-shader = ExtResource("3_luma_mask")
-
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_video_source"]
 shader = ExtResource("4_video_source")
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_previous_blur"]
 shader = ExtResource("5_previous_blur")
+shader_parameter/blur_radius_pixels = 7.0
 
-[node name="RadioDecisionUI" type="Control"]
-custom_minimum_size = Vector2(960, 540)
+[node name="RadioDecisionUI" type="Control" unique_id=666724732]
+custom_minimum_size = Vector2(1280, 720)
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 0
+theme = ExtResource("6_kontur_ui")
 script = ExtResource("1_radio_ui")
 
-[node name="TransitionGroup" type="CanvasGroup" parent="."]
+[node name="TransitionGroup" type="CanvasGroup" parent="." unique_id=1214366724]
 material = SubResource("ShaderMaterial_luma_mask")
 fit_margin = 0.0
 clear_margin = 0.0
 
-[node name="ScreenContent" type="Control" parent="TransitionGroup"]
-layout_mode = 0
+[node name="ScreenContent" type="Control" parent="TransitionGroup" unique_id=1348029251]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1280.0
+offset_bottom = 720.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Background" type="ColorRect" parent="TransitionGroup/ScreenContent"]
+[node name="Background" type="ColorRect" parent="TransitionGroup/ScreenContent" unique_id=1612687939]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -89,23 +78,9 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.004, 0.012, 0.008, 1)
 
-[node name="TransitionPlayer" type="VideoStreamPlayer" parent="."]
+[node name="Header" type="Label" parent="TransitionGroup/ScreenContent" unique_id=971556553]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-z_index = -1
-material = SubResource("ShaderMaterial_video_source")
-stream = ExtResource("2_transition_video")
-expand = true
-loop = false
-
-[node name="Header" type="Label" parent="TransitionGroup/ScreenContent"]
-layout_mode = 1
-anchors_preset = 0
+anchors_preset = -1
 anchor_left = 0.07
 anchor_top = 0.055
 anchor_right = 0.93
@@ -117,9 +92,9 @@ theme_override_fonts/font = SubResource("SystemFont_terminal")
 theme_override_font_sizes/font_size = 27
 text = "К.О.Н.Т.У.Р.-Д  /  ВХОДЯЩАЯ РАДИОСВЯЗЬ"
 
-[node name="SignalStatus" type="Label" parent="TransitionGroup/ScreenContent"]
+[node name="SignalStatus" type="Label" parent="TransitionGroup/ScreenContent" unique_id=487659999]
 layout_mode = 1
-anchors_preset = 0
+anchors_preset = -1
 anchor_left = 0.07
 anchor_top = 0.11
 anchor_right = 0.93
@@ -131,9 +106,9 @@ theme_override_fonts/font = SubResource("SystemFont_terminal")
 theme_override_font_sizes/font_size = 15
 text = "КАНАЛ ГРУППЫ: АКТИВЕН  //  РЕШЕНИЕ ТРЕБУЕТСЯ"
 
-[node name="ContentFrame" type="Panel" parent="TransitionGroup/ScreenContent"]
+[node name="ContentFrame" type="Panel" parent="TransitionGroup/ScreenContent" unique_id=570879256]
 layout_mode = 1
-anchors_preset = 0
+anchors_preset = -1
 anchor_left = 0.07
 anchor_top = 0.175
 anchor_right = 0.93
@@ -142,9 +117,9 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBox_frame")
 
-[node name="IllustrationPanel" type="Panel" parent="TransitionGroup/ScreenContent/ContentFrame"]
+[node name="IllustrationPanel" type="Panel" parent="TransitionGroup/ScreenContent/ContentFrame" unique_id=507762875]
 layout_mode = 1
-anchors_preset = 0
+anchors_preset = -1
 anchor_left = 0.035
 anchor_top = 0.065
 anchor_right = 0.37
@@ -153,7 +128,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBox_illustration")
 
-[node name="Illustration" type="TextureRect" parent="TransitionGroup/ScreenContent/ContentFrame/IllustrationPanel"]
+[node name="Illustration" type="TextureRect" parent="TransitionGroup/ScreenContent/ContentFrame/IllustrationPanel" unique_id=809808485]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -164,11 +139,11 @@ offset_right = -14.0
 offset_bottom = -42.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
-mouse_filter = 2
 
-[node name="Placeholder" type="Label" parent="TransitionGroup/ScreenContent/ContentFrame/IllustrationPanel"]
+[node name="Placeholder" type="Label" parent="TransitionGroup/ScreenContent/ContentFrame/IllustrationPanel" unique_id=581121537]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -182,13 +157,14 @@ grow_vertical = 2
 theme_override_colors/font_color = Color(0.25, 0.52, 0.33, 0.8)
 theme_override_fonts/font = SubResource("SystemFont_terminal")
 theme_override_font_sizes/font_size = 20
-text = "[ ИЛЛЮСТРАЦИЯ\n  ОБЪЕКТА ]"
+text = "[ ИЛЛЮСТРАЦИЯ
+  ОБЪЕКТА ]"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="IllustrationCaption" type="Label" parent="TransitionGroup/ScreenContent/ContentFrame/IllustrationPanel"]
+[node name="IllustrationCaption" type="Label" parent="TransitionGroup/ScreenContent/ContentFrame/IllustrationPanel" unique_id=701076916]
 layout_mode = 1
-anchors_preset = 0
+anchors_preset = -1
 anchor_left = 0.06
 anchor_top = 0.89
 anchor_right = 0.94
@@ -201,9 +177,9 @@ theme_override_font_sizes/font_size = 14
 text = "ИЗОБРАЖЕНИЕ С КАМЕРЫ ГРУППЫ"
 horizontal_alignment = 1
 
-[node name="SituationLabel" type="RichTextLabel" parent="TransitionGroup/ScreenContent/ContentFrame"]
+[node name="SituationLabel" type="RichTextLabel" parent="TransitionGroup/ScreenContent/ContentFrame" unique_id=509859976]
 layout_mode = 1
-anchors_preset = 0
+anchors_preset = -1
 anchor_left = 0.415
 anchor_top = 0.07
 anchor_right = 0.955
@@ -217,9 +193,9 @@ bbcode_enabled = true
 text = "Группа на месте. Докладывают: в кабинете на втором этаже стоит вторая такая же парта, за ней — фигура в форме ученика. Не двигается. Часы на стене стоят."
 scroll_active = false
 
-[node name="Prompt" type="Label" parent="TransitionGroup/ScreenContent/ContentFrame"]
+[node name="Prompt" type="Label" parent="TransitionGroup/ScreenContent/ContentFrame" unique_id=1773803519]
 layout_mode = 1
-anchors_preset = 0
+anchors_preset = -1
 anchor_left = 0.415
 anchor_top = 0.405
 anchor_right = 0.955
@@ -231,63 +207,51 @@ theme_override_fonts/font = SubResource("SystemFont_terminal")
 theme_override_font_sizes/font_size = 16
 text = "ПЕРЕДАЙТЕ УКАЗАНИЕ ГРУППЕ:"
 
-[node name="OptionOneButton" type="Button" parent="TransitionGroup/ScreenContent/ContentFrame"]
+[node name="OptionOneButton" type="Button" parent="TransitionGroup/ScreenContent/ContentFrame" unique_id=1165624741]
 custom_minimum_size = Vector2(0, 58)
 layout_mode = 1
-anchors_preset = 0
+anchors_preset = -1
 anchor_left = 0.415
 anchor_top = 0.49
 anchor_right = 0.955
 anchor_bottom = 0.625
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(0.78, 1, 0.8, 1)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 16
-theme_override_styles/normal = SubResource("StyleBox_option")
 text = "[ 1 ] РАБОТАТЬ ПО ОБЪЕКТУ НЕМЕДЛЕННО"
 alignment = 0
 autowrap_mode = 2
 
-[node name="OptionTwoButton" type="Button" parent="TransitionGroup/ScreenContent/ContentFrame"]
+[node name="OptionTwoButton" type="Button" parent="TransitionGroup/ScreenContent/ContentFrame" unique_id=2130985274]
 custom_minimum_size = Vector2(0, 58)
 layout_mode = 1
-anchors_preset = 0
+anchors_preset = -1
 anchor_left = 0.415
 anchor_top = 0.645
 anchor_right = 0.955
 anchor_bottom = 0.78
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(0.78, 1, 0.8, 1)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 16
-theme_override_styles/normal = SubResource("StyleBox_option")
 text = "[ 2 ] ПРОЙТИ МИМО И ВЫВЕСТИ ЛЮДЕЙ"
 alignment = 0
 autowrap_mode = 2
 
-[node name="OptionThreeButton" type="Button" parent="TransitionGroup/ScreenContent/ContentFrame"]
+[node name="OptionThreeButton" type="Button" parent="TransitionGroup/ScreenContent/ContentFrame" unique_id=862495691]
 custom_minimum_size = Vector2(0, 58)
 layout_mode = 1
-anchors_preset = 0
+anchors_preset = -1
 anchor_left = 0.415
 anchor_top = 0.8
 anchor_right = 0.955
 anchor_bottom = 0.935
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(0.78, 1, 0.8, 1)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 16
-theme_override_styles/normal = SubResource("StyleBox_option")
 text = "[ 3 ] ЗАМЕРЕТЬ И НЕ ПРИВЛЕКАТЬ ВНИМАНИЯ"
 alignment = 0
 autowrap_mode = 2
 
-[node name="Footer" type="Label" parent="TransitionGroup/ScreenContent"]
+[node name="Footer" type="Label" parent="TransitionGroup/ScreenContent" unique_id=562635982]
 layout_mode = 1
-anchors_preset = 0
+anchors_preset = -1
 anchor_left = 0.07
 anchor_top = 0.915
 anchor_right = 0.93
@@ -300,19 +264,9 @@ theme_override_font_sizes/font_size = 14
 text = "СИМУЛЯЦИЯ ПРИОСТАНОВЛЕНА  •  ВЫБЕРИТЕ ОДНО УКАЗАНИЕ"
 horizontal_alignment = 1
 
-[node name="InputBlocker" type="ColorRect" parent="."]
-visible = false
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 0
-color = Color(0, 0, 0, 0)
-
-[node name="PreviousScreenBlur" type="ColorRect" parent="."]
-visible = false
+[node name="TransitionPlayer" type="VideoStreamPlayer" parent="." unique_id=1025353548]
+z_index = -1
+material = SubResource("ShaderMaterial_video_source")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -320,6 +274,27 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+stream = ExtResource("2_transition_video")
+expand = true
+
+[node name="InputBlocker" type="ColorRect" parent="." unique_id=1896704151]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0)
+
+[node name="PreviousScreenBlur" type="ColorRect" parent="." unique_id=1179098772]
+visible = false
 z_index = -2
 material = SubResource("ShaderMaterial_previous_blur")
-color = Color(1, 1, 1, 1)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
