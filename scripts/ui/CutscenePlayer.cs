@@ -10,8 +10,12 @@ using Godot;
 /// </summary>
 public partial class CutscenePlayer : Control
 {
-	/// <summary>Где искать видео: имя файла совпадает с id записи катсцены.</summary>
-	private const string VideoFolder = "res://assets/cutscenes/";
+	/// <summary>
+	/// Где искать видео: имя файла совпадает с id записи катсцены.
+	/// Все ролики лежат в одной папке с интро; прежний путь assets/cutscenes/
+	/// в проекте не существовал, так что видео не нашлось бы при всём желании.
+	/// </summary>
+	private const string VideoFolder = "res://assets/video/cutscenes/";
 
 	private static readonly string[] VideoExtensions = { ".ogv" };
 
