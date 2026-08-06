@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/ShiftNoteUI.cs" id="1_shift_note_ui"]
-[ext_resource type="Texture2D" path="res://assets/textures/Текстура записки.jpg" id="2_page_texture"]
+[ext_resource type="Texture2D" uid="uid://emny3rh5gdub" path="res://assets/textures/Note_texture 3.jpg" id="2_page_texture"]
 [ext_resource type="FontFile" uid="uid://vmatnh8klcum" path="res://assets/fonts/BadScript-Regular.ttf" id="3_hand_font"]
 
 [node name="ShiftNoteUI" type="Control"]

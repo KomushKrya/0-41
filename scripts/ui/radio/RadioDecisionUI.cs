@@ -428,11 +428,11 @@ public partial class RadioDecisionUI : Control
 
 	// ------------------------------------------------------------------ подгонка текста
 
-	/// <summary>Крупнее этого текст не станет: размер из сцены.</summary>
-	private const int SituationFontMax = 22;
+	/// <summary>Крупнее этого текст не станет: 22 pt макета в координатах 1280x720.</summary>
+	private const int SituationFontMax = 15;
 
 	/// <summary>Мельче этого читать уже нельзя, дальше включается прокрутка.</summary>
-	private const int SituationFontMin = 14;
+	private const int SituationFontMin = 11;
 
 	/// <summary>Сколько кадров ждать, пока рамке назначат размер.</summary>
 	private const int SituationFitAttempts = 8;
