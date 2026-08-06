@@ -25,13 +25,12 @@ public partial class RadioDecisionUI : Control
 	[Export] public NodePath PreviousScreenBlurPath { get; set; } = new("PreviousScreenBlur");
 	[Export] public NodePath InputBlockerPath { get; set; } = new("InputBlocker");
 	[Export] public NodePath HeaderPath { get; set; } = new("TransitionGroup/ScreenContent/Header");
-	[Export] public NodePath SituationLabelPath { get; set; } = new("TransitionGroup/ScreenContent/ContentFrame/SituationLabel");
-	[Export] public NodePath IllustrationPlaceholderPath { get; set; } = new("TransitionGroup/ScreenContent/ContentFrame/IllustrationPanel/Placeholder");
-	[Export] public NodePath IllustrationCaptionPath { get; set; } = new("TransitionGroup/ScreenContent/ContentFrame/IllustrationPanel/IllustrationCaption");
-	[Export] public NodePath PromptPath { get; set; } = new("TransitionGroup/ScreenContent/ContentFrame/Prompt");
-	[Export] public NodePath OptionOneButtonPath { get; set; } = new("TransitionGroup/ScreenContent/ContentFrame/OptionOneButton");
-	[Export] public NodePath OptionTwoButtonPath { get; set; } = new("TransitionGroup/ScreenContent/ContentFrame/OptionTwoButton");
-	[Export] public NodePath OptionThreeButtonPath { get; set; } = new("TransitionGroup/ScreenContent/ContentFrame/OptionThreeButton");
+	[Export] public NodePath SituationLabelPath { get; set; } = new("TransitionGroup/ScreenContent/SituationLabel");
+	[Export] public NodePath IllustrationPath { get; set; } = new("TransitionGroup/ScreenContent/Illustration");
+	[Export] public NodePath StatusLinePath { get; set; } = new("TransitionGroup/ScreenContent/StatusLine");
+	[Export] public NodePath OptionOneButtonPath { get; set; } = new("TransitionGroup/ScreenContent/OptionOneButton");
+	[Export] public NodePath OptionTwoButtonPath { get; set; } = new("TransitionGroup/ScreenContent/OptionTwoButton");
+	[Export] public NodePath OptionThreeButtonPath { get; set; } = new("TransitionGroup/ScreenContent/OptionThreeButton");
 
 	private VideoStreamPlayer _transitionPlayer = null!;
 	private CanvasGroup _transitionGroup = null!;
@@ -41,9 +40,12 @@ public partial class RadioDecisionUI : Control
 	private Label _header = null!;
 	/// <summary>Доклад группы приходит с разметкой движка, поэтому не Label.</summary>
 	private RichTextLabel _situationLabel = null!;
-	private Label _illustrationPlaceholder = null!;
-	private Label _illustrationCaption = null!;
-	private Label _prompt = null!;
+
+	/// <summary>Кадр с места во весь экран: он же фон всего интерфейса.</summary>
+	private TextureRect _illustration = null!;
+
+	/// <summary>Строка состояния под докладом: «указание передано», «связь завершена».</summary>
+	private Label _statusLine = null!;
 	private readonly List<Button> _optionButtons = new();
 	private ShaderMaterial _transitionMaterial = null!;
 	private ShaderMaterial _previousScreenBlurMaterial = null!;
@@ -68,9 +70,8 @@ public partial class RadioDecisionUI : Control
 		_inputBlocker = GetNode<ColorRect>(InputBlockerPath);
 		_header = GetNode<Label>(HeaderPath);
 		_situationLabel = GetNode<RichTextLabel>(SituationLabelPath);
-		_illustrationPlaceholder = GetNode<Label>(IllustrationPlaceholderPath);
-		_illustrationCaption = GetNode<Label>(IllustrationCaptionPath);
-		_prompt = GetNode<Label>(PromptPath);
+		_illustration = GetNode<TextureRect>(IllustrationPath);
+		_statusLine = GetNode<Label>(StatusLinePath);
 		_optionButtons.Add(GetNode<Button>(OptionOneButtonPath));
 		_optionButtons.Add(GetNode<Button>(OptionTwoButtonPath));
 		_optionButtons.Add(GetNode<Button>(OptionThreeButtonPath));
@@ -140,12 +141,12 @@ public partial class RadioDecisionUI : Control
 		_options = options ?? Array.Empty<RadioOptionOffer>();
 		_awaitingOutcome = false;
 		_showingOutcome = false;
-		_header.Text = $"К.О.Н.Т.У.Р.-Д  /  РАДИО: {missionTitle}";
-		_situationLabel.Text = ContentSpanFormatter.ResolveEntryBbcode(
+		_header.Text = missionTitle?.ToUpperInvariant() ?? string.Empty;
+		_statusLine.Text = string.Empty;
+		SetSituationText(ContentSpanFormatter.ResolveEntryBbcode(
 			_contentId,
 			string.Empty,
-			ContentSpanFormatter.DefaultHighlight);
-		RequestSituationFit();
+			ContentSpanFormatter.DefaultHighlight));
 
 		for (int index = 0; index < _optionButtons.Count; index++)
 		{
@@ -154,8 +155,12 @@ public partial class RadioDecisionUI : Control
 			_optionButtons[index].Disabled = !hasOption || !_options[index].IsAvailable;
 			if (hasOption)
 			{
-				string optionText = ContentTextResolver.ResolveOptionName(_contentId, _options[index].Id, string.Empty);
-				_optionButtons[index].Text = $"[ {index + 1} ] {optionText}";
+				// Без «[ 1 ]» перед текстом: в макете нумерации нет, а цифровые
+				// клавиши экран всё равно не слушает — подпись обещала бы несуществующее.
+				_optionButtons[index].Text = ContentTextResolver.ResolveOptionName(
+					_contentId,
+					_options[index].Id,
+					string.Empty);
 			}
 		}
 
@@ -224,21 +229,12 @@ public partial class RadioDecisionUI : Control
 		StopTransition();
 
 		_contentId = outcome.SummaryContentId ?? string.Empty;
-		_header.Text = outcome.IsSuccess
-			? "\u041a.\u041e.\u041d.\u0422.\u0423.\u0420.-\u0414  /  \u0418\u0422\u041e\u0413 \u041e\u041f\u0415\u0420\u0410\u0426\u0418\u0418: \u0423\u0421\u041f\u0415\u0425"
-			: "\u041a.\u041e.\u041d.\u0422.\u0423.\u0420.-\u0414  /  \u0418\u0422\u041e\u0413 \u041e\u041f\u0415\u0420\u0410\u0426\u0418\u0418: \u0421\u0411\u041e\u0419";
-		_situationLabel.Text = ContentSpanFormatter.ResolveEntryBbcode(
+		_header.Text = outcome.IsSuccess ? "\u041e\u041f\u0415\u0420\u0410\u0426\u0418\u042f \u0417\u0410\u0412\u0415\u0420\u0428\u0415\u041d\u0410" : "\u041e\u041f\u0415\u0420\u0410\u0426\u0418\u042f \u041f\u0420\u041e\u0412\u0410\u041b\u0415\u041d\u0410";
+		SetSituationText(ContentSpanFormatter.ResolveEntryBbcode(
 			_contentId,
 			string.Empty,
-			ContentSpanFormatter.DefaultHighlight);
-		RequestSituationFit();
-		_prompt.Text = "\u0421\u0412\u042f\u0417\u042c \u0417\u0410\u0412\u0415\u0420\u0428\u0415\u041d\u0410. \u0417\u0410\u0424\u0418\u041a\u0421\u0418\u0420\u0423\u0419\u0422\u0415 \u0418\u0422\u041e\u0413:";
-		_illustrationPlaceholder.Text = string.IsNullOrWhiteSpace(outcome.CreatureId)
-			? "[ \u0418\u041b\u041b\u042e\u0421\u0422\u0420\u0410\u0426\u0418\u042f\\n  \u041d\u0415\u0414\u041e\u0421\u0422\u0423\u041f\u041d\u0410 ]"
-			: $"[ \u0418\u041b\u041b\u042e\u0421\u0422\u0420\u0410\u0426\u0418\u042f\\n  {outcome.CreatureId} ]";
-		_illustrationCaption.Text = outcome.IsSuccess
-			? "\u041f\u041e\u0421\u041b\u0415\u0414\u0421\u0422\u0412\u0418\u0415 \u041e\u041f\u0415\u0420\u0410\u0426\u0418\u0418"
-			: "\u041f\u041e\u0421\u041b\u0415\u0414\u0421\u0422\u0412\u0418\u0415 \u0421\u0411\u041e\u042f";
+			ContentSpanFormatter.DefaultHighlight));
+		_statusLine.Text = "\u0421\u0412\u042f\u0417\u042c \u0417\u0410\u0412\u0415\u0420\u0428\u0415\u041d\u0410";
 
 		for (int index = 0; index < _optionButtons.Count; index++)
 		{
@@ -345,7 +341,7 @@ public partial class RadioDecisionUI : Control
 		}
 
 		_awaitingOutcome = true;
-		_prompt.Text = "\u0423\u041a\u0410\u0417\u0410\u041d\u0418\u0415 \u041f\u0415\u0420\u0415\u0414\u0410\u041d\u041e. \u041e\u0416\u0418\u0414\u0410\u0415\u041c \u0414\u041e\u041a\u041b\u0410\u0414 \u0413\u0420\u0423\u041f\u041f\u042b...";
+		_statusLine.Text = "\u0423\u041a\u0410\u0417\u0410\u041d\u0418\u0415 \u041f\u0415\u0420\u0415\u0414\u0410\u041d\u041e. \u041e\u0416\u0418\u0414\u0410\u0415\u041c \u0414\u041e\u041a\u041b\u0410\u0414 \u0413\u0420\u0423\u041f\u041f\u042b\u2026";
 		for (int index = 0; index < _optionButtons.Count; index++)
 		{
 			_optionButtons[index].Disabled = true;
@@ -442,6 +438,20 @@ public partial class RadioDecisionUI : Control
 	private const int SituationFitAttempts = 8;
 
 	private int _situationFitAttempts;
+
+	/// <summary>
+	/// Ставит доклад в рамку с выключкой по ширине.
+	///
+	/// В макете текст выровнен по обоим краям, с переносами по слогам — так же,
+	/// как печатали на машинке. RichTextLabel умеет это только через разметку,
+	/// свойства выравнивания у него нет, поэтому оборачиваем здесь, а не в сцене:
+	/// текст приходит из движка уже с bbcode, и в редакторе его никто не увидит.
+	/// </summary>
+	private void SetSituationText(string bbcode)
+	{
+		_situationLabel.Text = $"[p align=fill]{bbcode}[/p]";
+		RequestSituationFit();
+	}
 
 	private void RequestSituationFit()
 	{

@@ -71,6 +71,21 @@ public static class ContentTextResolver
 		return fallback ?? string.Empty;
 	}
 
+	/// <summary>
+	/// Человеческое название записи — то, что автор написал в поле name.
+	///
+	/// Нужно заголовку экрана рации: там стоит имя задания («Жалоба пенсионера»),
+	/// а не шапка звонка («ЗВОНОК В ГАЗОВУЮ СЛУЖБУ…»), которую даёт ResolveCallMeta.
+	/// Имена заданий лежат записями типа mission_id под id самой миссии.
+	/// </summary>
+	public static string ResolveEntryName(string contentId, string fallback)
+	{
+		ContentEntry entry = FindEntry(contentId);
+		return entry != null && !string.IsNullOrWhiteSpace(entry.Name)
+			? entry.Name
+			: (fallback ?? string.Empty);
+	}
+
 	private static ContentEntry FindEntry(string contentId)
 	{
 		return string.IsNullOrWhiteSpace(contentId) || Content.Instance == null
