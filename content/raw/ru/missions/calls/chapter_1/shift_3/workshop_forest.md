@@ -2,7 +2,7 @@
 id: call_workshop_forest
 type: call
 mission_id: m_workshop_forest
-status: draft
+status: ready
 mission_type: radio
 requires: интеллект, ловкость
 requirements:

@@ -2,7 +2,7 @@
 id: call_workshop_gravel
 type: call
 mission_id: m_workshop_gravel
-status: draft
+status: ready
 mission_type: filler
 requires: сила
 ---

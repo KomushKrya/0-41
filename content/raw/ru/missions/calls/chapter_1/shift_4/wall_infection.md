@@ -2,7 +2,7 @@
 id: call_wall_infection
 type: call
 mission_id: m_wall_infection
-status: draft
+status: ready
 mission_type: radio
 
 ---

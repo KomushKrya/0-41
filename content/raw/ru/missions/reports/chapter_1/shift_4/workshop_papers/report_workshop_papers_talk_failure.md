@@ -2,7 +2,7 @@
 id: report_workshop_papers_talk_failure
 type: report
 mission_id: m_workshop_papers
-status: draft
+status: ready
 outcome: failure
 ---
 

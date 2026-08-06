@@ -2,7 +2,7 @@
 id: radio_workshop_depot
 type: radio
 mission_id: m_workshop_depot
-status: draft
+status: ready
 ---
 
 %% dev %%

@@ -2,7 +2,7 @@
 id: report_construction_intruders_distract_success
 type: report
 mission_id: m_construction_intruders
-status: draft
+status: ready
 outcome: success
 
 ---

@@ -2,7 +2,7 @@
 id: report_brother_smile_failure
 type: report
 mission_id: m_brother_smile
-status: draft
+status: ready
 outcome: failure
 ---
 

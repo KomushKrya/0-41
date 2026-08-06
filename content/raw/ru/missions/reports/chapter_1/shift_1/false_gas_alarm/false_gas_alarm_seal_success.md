@@ -2,7 +2,7 @@
 id: report_false_gas_alarm_seal_success
 type: report
 mission_id: m_false_gas_alarm
-status: draft
+status: ready
 outcome: success
 ---
 

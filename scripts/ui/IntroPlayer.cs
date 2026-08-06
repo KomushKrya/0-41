@@ -10,7 +10,7 @@ using Godot;
 public partial class IntroPlayer : Control
 {
 	/// <summary>Ролики лежат здесь же, где и остальные катсцены.</summary>
-	[Export] public string VideoPath { get; set; } = "res://assets/video/cutscenes/сцена1.ogv";
+	[Export] public string VideoPath { get; set; } = "res://assets/video/cutscenes/intro.ogv";
 
 	/// <summary>Куда уходить, если игру начать не удалось: ядро не поднялось.</summary>
 	[Export] public string FallbackScene { get; set; } = "res://scenes/ui/menu/MainMenu.tscn";

@@ -2,7 +2,7 @@
 id: report_dense_flock_perimeter_success
 type: report
 mission_id: m_dense_flock
-status: draft
+status: ready
 outcome: success
 
 ---

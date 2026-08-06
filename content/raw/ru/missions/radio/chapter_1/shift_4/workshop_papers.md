@@ -2,7 +2,7 @@
 id: radio_workshop_papers
 type: radio
 mission_id: m_workshop_papers
-status: draft
+status: ready
 ---
 
 %% dev %%

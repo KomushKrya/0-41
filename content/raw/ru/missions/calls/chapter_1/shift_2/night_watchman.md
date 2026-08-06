@@ -2,7 +2,7 @@
 id: call_night_watchman
 type: call
 mission_id: m_night_watchman
-status: draft
+status: ready
 mission_type: filler
 requires: интеллект, боевая подготовка
 

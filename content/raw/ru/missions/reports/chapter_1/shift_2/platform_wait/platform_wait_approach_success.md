@@ -2,7 +2,7 @@
 id: report_platform_wait_approach_success
 type: report
 mission_id: m_platform_wait
-status: draft
+status: ready
 outcome: success
 ---
 

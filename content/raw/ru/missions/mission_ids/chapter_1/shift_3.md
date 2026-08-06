@@ -1,6 +1,6 @@
 ---
 type: mission_id
-status: draft
+status: ready
 day: 3
 ---
 

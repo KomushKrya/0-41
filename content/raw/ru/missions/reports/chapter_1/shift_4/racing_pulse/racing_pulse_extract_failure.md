@@ -2,7 +2,7 @@
 id: report_racing_pulse_extract_failure
 type: report
 mission_id: m_racing_pulse
-status: draft
+status: ready
 outcome: failure
 
 ---

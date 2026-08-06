@@ -2,7 +2,7 @@
 id: report_black_mold_carpets_success
 type: report
 mission_id: m_black_mold
-status: draft
+status: ready
 outcome: success
 
 ---

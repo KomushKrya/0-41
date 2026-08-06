@@ -2,7 +2,7 @@
 id: report_upstairs_neighbors_failure
 type: report
 mission_id: m_upstairs_neighbors
-status: draft
+status: ready
 outcome: failure
 ---
 

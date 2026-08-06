@@ -2,7 +2,7 @@
 id: radio_workshop_forest
 type: radio
 mission_id: m_workshop_forest
-status: draft
+status: ready
 ---
 
 %% dev %%

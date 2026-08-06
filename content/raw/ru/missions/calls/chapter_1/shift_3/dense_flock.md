@@ -2,7 +2,7 @@
 id: call_dense_flock
 type: call
 mission_id: m_dense_flock
-status: draft
+status: ready
 mission_type: radio
 
 ---

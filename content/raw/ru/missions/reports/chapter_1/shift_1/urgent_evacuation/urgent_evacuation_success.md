@@ -2,7 +2,7 @@
 id: report_urgent_evacuation_success
 type: report
 mission_id: m_urgent_evacuation
-status: draft
+status: ready
 outcome: success
 ---
 

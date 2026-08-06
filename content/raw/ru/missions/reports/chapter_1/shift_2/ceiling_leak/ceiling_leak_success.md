@@ -2,7 +2,7 @@
 id: report_ceiling_leak_success
 type: report
 mission_id: m_ceiling_leak
-status: draft
+status: ready
 outcome: success
 
 ---

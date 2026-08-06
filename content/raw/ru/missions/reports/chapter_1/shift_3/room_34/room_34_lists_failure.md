@@ -2,7 +2,7 @@
 id: report_room_34_lists_failure
 type: report
 mission_id: m_room_34
-status: draft
+status: ready
 outcome: failure
 
 ---

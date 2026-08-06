@@ -1,7 +1,7 @@
 ---
 id: eq_vest
 type: equipment
-status: draft
+status: ready
 name: Разгрузочный жилет
 
 ---

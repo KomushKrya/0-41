@@ -2,7 +2,7 @@
 id: call_missing_daughter
 type: call
 mission_id: m_missing_daughter
-status: draft
+status: ready
 mission_type: radio
 
 ---

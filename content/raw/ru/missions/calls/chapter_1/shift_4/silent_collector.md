@@ -2,7 +2,7 @@
 id: call_silent_collector
 type: call
 mission_id: m_silent_collector
-status: draft
+status: ready
 mission_type: radio
 
 ---

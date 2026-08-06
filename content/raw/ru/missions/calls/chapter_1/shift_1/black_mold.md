@@ -2,7 +2,7 @@
 id: call_black_mold
 type: call
 mission_id: m_black_mold
-status: draft
+status: ready
 mission_type: radio
 
 ---

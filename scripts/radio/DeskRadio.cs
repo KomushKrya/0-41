@@ -6,14 +6,39 @@ using Kontur.Core.Events;
 using Kontur.Core.Model;
 
 /// <summary>
-/// Привязывает физическую рацию к ожидающим решениям по радио из core.
-/// Среди нескольких запросов открывает тот, у которого осталось меньше всего времени.
+/// Привязывает физическую рацию к ожидающим обращениям по радио из core.
+///
+/// Обращения бывают двух видов: запрос решения (у него есть варианты и таймер)
+/// и готовый отчёт по миссии, которая обошлась без выбора — такой ждёт сколько
+/// угодно. Снаружи они неразличимы: рация шумит одинаково, а очередь идёт по
+/// времени сигнала, поэтому клик отвечает тому, кто позвал первым.
 /// </summary>
 public partial class DeskRadio : Node3D
 {
 	[Export] public NodePath RadioDecisionUiPath { get; set; } = new("../../RadioDecisionLayer/RadioDecisionUI");
 
-	private readonly Dictionary<string, RadioTriggered> _pendingRequests = new(StringComparer.OrdinalIgnoreCase);
+	/// <summary>
+	/// Одно обращение в очереди. Заполнено ровно одно из двух полей: <see cref="Decision"/>
+	/// у запроса решения, <see cref="Outcome"/> у отчёта без выбора.
+	/// </summary>
+	private sealed class RadioRequest
+	{
+		public string IncidentId = string.Empty;
+		public RadioTriggered Decision;
+		public MissionOutcomeReady Outcome;
+
+		public bool IsOutcome => Decision == null;
+	}
+
+	/// <summary>Очередь по времени сигнала: список, а не словарь, ради порядка.</summary>
+	private readonly List<RadioRequest> _pendingRequests = new();
+
+	/// <summary>
+	/// Вызовы, по которым рация уже спрашивала решение. Их итог в очередь не попадает:
+	/// его показывает открытый экран, а если игрок пропустил связь — это и есть цена
+	/// пропуска. Очередь ждёт только те миссии, где выбора не было вовсе.
+	/// </summary>
+	private readonly HashSet<string> _askedIncidents = new(StringComparer.OrdinalIgnoreCase);
 	private RadioDecisionUI _decisionUi = null!;
 	private GameRuntime _runtime = null!;
 	private IDisposable _radioTriggeredSubscription = null!;
@@ -22,7 +47,7 @@ public partial class DeskRadio : Node3D
 	private IDisposable _missionOutcomeSubscription = null!;
 	private IDisposable _shiftEndedSubscription = null!;
 
-	public bool IsActive => FindMostUrgentRequest(out _, out _);
+	public bool IsActive => FindNextRequest(out _, out _);
 
 	public override void _Ready()
 	{
@@ -44,12 +69,7 @@ public partial class DeskRadio : Node3D
 		_radioTriggeredSubscription = _runtime.Session.Events.Subscribe<RadioTriggered>(OnRadioTriggered);
 		_radioMissedSubscription = _runtime.Session.Events.Subscribe<RadioMissed>(radio => RemoveRequest(radio.IncidentId));
 		_radioChosenSubscription = _runtime.Session.Events.Subscribe<RadioOptionChosen>(radio => RemoveRequest(radio.IncidentId));
-		_missionOutcomeSubscription = _runtime.Session.Events.Subscribe<MissionOutcomeReady>(outcome =>
-		{
-			if (!_decisionUi.Visible) return;
-			_runtime.Session.OpenMissionOutcome(outcome.IncidentId);
-			_decisionUi.ShowOutcome(outcome);
-		});
+		_missionOutcomeSubscription = _runtime.Session.Events.Subscribe<MissionOutcomeReady>(OnMissionOutcome);
 		_shiftEndedSubscription = _runtime.Session.Events.Subscribe<ShiftEnded>(_ => ClearRequests());
 	}
 
@@ -76,10 +96,15 @@ public partial class DeskRadio : Node3D
 			return true;
 		}
 
-		if (!FindMostUrgentRequest(out IncidentView incident, out RadioTriggered request))
+		if (!FindNextRequest(out RadioRequest next, out IncidentView incident))
 		{
 			error = "Нет ожидающих ответов по рации.";
 			return false;
+		}
+
+		if (next.IsOutcome)
+		{
+			return TryOpenOutcome(next, out error);
 		}
 
 		CommandResult answered = _runtime.Session.AnswerRadio(incident.Id);
@@ -93,52 +118,118 @@ public partial class DeskRadio : Node3D
 			incident.Id,
 			incident.MissionId,
 			ContentTextResolver.ResolveEntryName(incident.MissionId, incident.MissionId),
-			request.Options,
-			request.MissionEventId);
+			next.Decision.Options,
+			next.Decision.MissionEventId);
+		return true;
+	}
+
+	/// <summary>
+	/// Показывает отчёт по миссии, прошедшей без выбора. Из очереди он уходит
+	/// сразу: переспрашивать нечего, а остальные обращения обязаны шуметь дальше.
+	/// </summary>
+	private bool TryOpenOutcome(RadioRequest request, out string error)
+	{
+		error = string.Empty;
+
+		CommandResult opened = _runtime.Session.OpenMissionOutcome(request.IncidentId);
+		if (!opened.IsSuccess)
+		{
+			error = opened.Error;
+			return false;
+		}
+
+		_pendingRequests.Remove(request);
+
+		_decisionUi.ShowOutcomeReport(request.Outcome);
 		return true;
 	}
 
 	private void OnRadioTriggered(RadioTriggered request)
 	{
-		_pendingRequests[request.IncidentId] = request;
+		_askedIncidents.Add(request.IncidentId);
+		Enqueue(new RadioRequest { IncidentId = request.IncidentId, Decision = request });
+	}
+
+	/// <summary>
+	/// Итог миссии. Экран открыт на этом же вызове — показываем прямо в нём,
+	/// иначе рация зовёт игрока сама, но только если решения по ней не спрашивали.
+	/// </summary>
+	private void OnMissionOutcome(MissionOutcomeReady outcome)
+	{
+		if (_decisionUi.Visible
+			&& string.Equals(_decisionUi.CurrentIncidentId, outcome.IncidentId, StringComparison.OrdinalIgnoreCase))
+		{
+			_runtime.Session.OpenMissionOutcome(outcome.IncidentId);
+			_decisionUi.ShowOutcome(outcome);
+			return;
+		}
+
+		if (_askedIncidents.Contains(outcome.IncidentId))
+		{
+			return;
+		}
+
+		Enqueue(new RadioRequest { IncidentId = outcome.IncidentId, Outcome = outcome });
+	}
+
+	private void Enqueue(RadioRequest request)
+	{
+		RemoveRequest(request.IncidentId);
+		_pendingRequests.Add(request);
 	}
 
 	private void RemoveRequest(string incidentId)
 	{
-		_pendingRequests.Remove(incidentId);
+		for (int index = _pendingRequests.Count - 1; index >= 0; index--)
+		{
+			if (string.Equals(_pendingRequests[index].IncidentId, incidentId, StringComparison.OrdinalIgnoreCase))
+			{
+				_pendingRequests.RemoveAt(index);
+			}
+		}
 	}
 
 	private void ClearRequests()
 	{
 		_pendingRequests.Clear();
+		_askedIncidents.Clear();
 	}
 
-	private bool FindMostUrgentRequest(out IncidentView incident, out RadioTriggered request)
+	/// <summary>
+	/// Первое живое обращение в очереди. Отчёт годен всегда, запрос решения — пока
+	/// вызов действительно ждёт ответа: таймер мог истечь между сигналом и кликом.
+	/// </summary>
+	private bool FindNextRequest(out RadioRequest request, out IncidentView incident)
 	{
-		incident = null!;
 		request = null!;
+		incident = null!;
 		if (_runtime == null || !_runtime.IsReady)
 		{
 			return false;
 		}
 
-		double bestRemainingSeconds = double.MaxValue;
-		foreach (IncidentView candidate in _runtime.Session.GetActiveIncidents())
+		foreach (RadioRequest candidate in _pendingRequests)
 		{
-			if (candidate.Phase != IncidentPhase.RadioPending
-				|| !_pendingRequests.TryGetValue(candidate.Id, out RadioTriggered pending))
+			if (candidate.IsOutcome)
 			{
-				continue;
+				request = candidate;
+				return true;
 			}
 
-			if (candidate.RemainingSeconds < bestRemainingSeconds)
+			foreach (IncidentView active in _runtime.Session.GetActiveIncidents())
 			{
-				bestRemainingSeconds = candidate.RemainingSeconds;
-				incident = candidate;
-				request = pending;
+				if (active.Phase != IncidentPhase.RadioPending
+					|| !string.Equals(active.Id, candidate.IncidentId, StringComparison.OrdinalIgnoreCase))
+				{
+					continue;
+				}
+
+				request = candidate;
+				incident = active;
+				return true;
 			}
 		}
 
-		return incident != null;
+		return false;
 	}
 }

@@ -2,7 +2,7 @@
 id: report_pensioner_door_capture_failure
 type: report
 mission_id: m_pensioner_door
-status: draft
+status: ready
 outcome: failure
 
 ---

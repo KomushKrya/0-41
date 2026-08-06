@@ -1,0 +1,176 @@
+{
+	"m_black_mold": {
+		"id": "m_black_mold",
+		"type": "mission_id",
+		"name": "Чёрная плесень",
+		"chunks": []
+	},
+	"m_pensioner_door": {
+		"id": "m_pensioner_door",
+		"type": "mission_id",
+		"name": "Жалоба пенсионера",
+		"chunks": []
+	},
+	"m_missing_daughter": {
+		"id": "m_missing_daughter",
+		"type": "mission_id",
+		"name": "Пропавшая дочь",
+		"chunks": []
+	},
+	"m_brother_smile": {
+		"id": "m_brother_smile",
+		"type": "mission_id",
+		"name": "Странная улыбка брата",
+		"chunks": []
+	},
+	"m_construction_intruders": {
+		"id": "m_construction_intruders",
+		"type": "mission_id",
+		"name": "Шпана пробралась на заброшенную стройку",
+		"chunks": []
+	},
+	"m_urgent_evacuation": {
+		"id": "m_urgent_evacuation",
+		"type": "mission_id",
+		"name": "Срочная эвакуация граждан",
+		"chunks": []
+	},
+	"m_false_gas_alarm": {
+		"id": "m_false_gas_alarm",
+		"type": "mission_id",
+		"name": "Пожилая отравилась газом",
+		"chunks": []
+	},
+	"m_workshop_intro": {
+		"id": "m_workshop_intro",
+		"type": "mission_id",
+		"name": "Незнакомый доброжелатель",
+		"chunks": []
+	},
+	"m_upstairs_neighbors": {
+		"id": "m_upstairs_neighbors",
+		"type": "mission_id",
+		"name": "Соседи сверху",
+		"chunks": []
+	},
+	"m_platform_wait": {
+		"id": "m_platform_wait",
+		"type": "mission_id",
+		"name": "Тот, кто ждёт на путях",
+		"chunks": []
+	},
+	"m_night_watchman": {
+		"id": "m_night_watchman",
+		"type": "mission_id",
+		"name": "Ночная смена вахтёра",
+		"chunks": []
+	},
+	"m_ceiling_leak": {
+		"id": "m_ceiling_leak",
+		"type": "mission_id",
+		"name": "Течь потолка",
+		"chunks": []
+	},
+	"m_workshop_gravel": {
+		"id": "m_workshop_gravel",
+		"type": "mission_id",
+		"name": "Просьба цеховика",
+		"chunks": []
+	},
+	"m_cement_night_shift": {
+		"id": "m_cement_night_shift",
+		"type": "mission_id",
+		"name": "Ночная смена на цементном",
+		"chunks": []
+	},
+	"m_dense_flock": {
+		"id": "m_dense_flock",
+		"type": "mission_id",
+		"name": "Плотная стая",
+		"chunks": []
+	},
+	"m_dogs_at_grate": {
+		"id": "m_dogs_at_grate",
+		"type": "mission_id",
+		"name": "Собаки у решётки",
+		"chunks": []
+	},
+	"m_dosimeter_yard": {
+		"id": "m_dosimeter_yard",
+		"type": "mission_id",
+		"name": "Дозиметр во дворе",
+		"chunks": []
+	},
+	"m_night_pharmacy": {
+		"id": "m_night_pharmacy",
+		"type": "mission_id",
+		"name": "Ночная аптека",
+		"chunks": []
+	},
+	"m_room_34": {
+		"id": "m_room_34",
+		"type": "mission_id",
+		"name": "Комната 34",
+		"chunks": []
+	},
+	"m_shelter_basement": {
+		"id": "m_shelter_basement",
+		"type": "mission_id",
+		"name": "Подвал под бомбоубежище",
+		"chunks": []
+	},
+	"m_workshop_forest": {
+		"id": "m_workshop_forest",
+		"type": "mission_id",
+		"name": "Поляна за городом",
+		"chunks": []
+	},
+	"m_workshop_depot": {
+		"id": "m_workshop_depot",
+		"type": "mission_id",
+		"name": "Склад образцов",
+		"chunks": []
+	},
+	"m_wall_infection": {
+		"id": "m_wall_infection",
+		"type": "mission_id",
+		"name": "Тёплая стена",
+		"chunks": []
+	},
+	"m_silent_collector": {
+		"id": "m_silent_collector",
+		"type": "mission_id",
+		"name": "Тишина в коллекторе",
+		"chunks": []
+	},
+	"m_dont_blink": {
+		"id": "m_dont_blink",
+		"type": "mission_id",
+		"name": "Отец не шевелится",
+		"chunks": []
+	},
+	"m_racing_pulse": {
+		"id": "m_racing_pulse",
+		"type": "mission_id",
+		"name": "Кто-то стоит в торговом зале",
+		"chunks": []
+	},
+	"m_talking_dog": {
+		"id": "m_talking_dog",
+		"type": "mission_id",
+		"name": "Пёс, который заговорил",
+		"chunks": []
+	},
+	"m_whole_stairwell": {
+		"id": "m_whole_stairwell",
+		"type": "mission_id",
+		"name": "Целый подъезд",
+		"chunks": []
+	},
+	"m_workshop_papers": {
+		"id": "m_workshop_papers",
+		"type": "mission_id",
+		"name": "Цеховику нужны бумаги",
+		"chunks": []
+	}
+}

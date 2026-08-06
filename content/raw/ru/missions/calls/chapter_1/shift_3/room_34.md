@@ -2,7 +2,7 @@
 id: call_room_34
 type: call
 mission_id: m_room_34
-status: draft
+status: ready
 mission_type: radio
 
 ---

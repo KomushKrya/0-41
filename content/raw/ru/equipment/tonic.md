@@ -1,7 +1,7 @@
 ---
 id: eq_tonic
 type: equipment
-status: draft
+status: ready
 name: Термос с крепким чаем
 
 ---

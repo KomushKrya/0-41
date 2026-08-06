@@ -2,7 +2,7 @@
 id: call_ceiling_leak
 type: call
 mission_id: m_ceiling_leak
-status: draft
+status: ready
 mission_type: filler
 requires: сила, интеллект
 

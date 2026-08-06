@@ -2,7 +2,7 @@
 id: report_wall_infection_brute_failure
 type: report
 mission_id: m_wall_infection
-status: draft
+status: ready
 outcome: failure
 
 ---

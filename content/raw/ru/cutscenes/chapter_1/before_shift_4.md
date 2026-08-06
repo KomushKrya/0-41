@@ -1,7 +1,7 @@
 ---
 id: cutscene_before_shift_4
 type: cutscene
-status: draft
+status: ready
 
 ---
 
