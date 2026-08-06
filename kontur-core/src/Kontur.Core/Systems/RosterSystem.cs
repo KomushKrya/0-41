@@ -45,7 +45,16 @@ namespace Kontur.Core.Systems
 		public int CountWantedCandidates(int day)
 		{
 			EmployeeGeneratorSettings settings = _content.Generator;
-			return System.Math.Max(settings.CandidatesPerShift, CountFreeSlots(day) + settings.CandidatesChoiceMargin);
+			int freeSlots = CountFreeSlots(day);
+
+			// На каждое свободное место — своя тройка: игрок берёт одного, двое
+			// уходят безвозвратно. Старая формула «места + запас» давала четверых
+			// на два места, и на вторую тройку кандидатов уже не хватало.
+			int wantedForDraws = freeSlots * System.Math.Max(1, settings.CandidatesPerDraw);
+
+			return System.Math.Max(
+				settings.CandidatesPerShift,
+				System.Math.Max(wantedForDraws, freeSlots + settings.CandidatesChoiceMargin));
 		}
 
 		public IReadOnlyList<HireCandidate> GetStartingChoice()

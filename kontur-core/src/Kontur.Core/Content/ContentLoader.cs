@@ -185,6 +185,7 @@ namespace Kontur.Core.Content
 		{
 			settings.CandidatesPerShift = dto.CandidatesPerShift;
 			settings.CandidatesChoiceMargin = dto.CandidatesChoiceMargin;
+			settings.CandidatesPerDraw = dto.CandidatesPerDraw;
 			settings.LevelLagBehindDay = dto.LevelLagBehindDay;
 			settings.LevelSpread = dto.LevelSpread;
 			settings.MinAge = dto.MinAge; settings.MaxAge = dto.MaxAge;
