@@ -34,6 +34,14 @@ public static class Sfx
 	/// <summary>Длинная версия: играет по кругу, пока игрок сидит на экране найма.</summary>
 	public const string BetweenShiftsFull = "res://sound/ambient/between_shifts_full.mp3";
 
+	/// <summary>
+	/// Фон главного меню. Пока это тот же длинный трек, что и между сменами: он
+	/// единственный написан как петля и не привязан к конкретной смене, а фон
+	/// смены в меню звучал бы так, будто игра уже началась. Появится своя тема —
+	/// правится эта строка, и больше ничего.
+	/// </summary>
+	public const string MainMenu = BetweenShiftsFull;
+
 	public const string PhoneRing = "res://sound/events/phone_ring.mp3";
 	public const string PhoneTake = "res://sound/events/phone_take.mp3";
 	public const string PhonePut = "res://sound/events/phone_put.mp3";
