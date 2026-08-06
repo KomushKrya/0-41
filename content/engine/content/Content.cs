@@ -235,12 +235,10 @@ public partial class Content : Node
 		{
 			Godot.Collections.Dictionary chunkData = item.AsGodotDictionary();
 			chunkData.TryGetValue("reveal", out Variant reveal);
-			string kind = ReadString(chunkData, "kind");
 
 			chunks.Add(new ContentChunk
 			{
 				Text = ReadString(chunkData, "text"),
-				Kind = kind.Length > 0 ? kind : ContentChunk.KindText,
 				Reveal = reveal.VariantType == Variant.Type.String ? reveal.AsString() : string.Empty,
 				Spans = ReadSpans(chunkData)
 			});

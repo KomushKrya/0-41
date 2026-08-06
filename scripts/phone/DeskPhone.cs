@@ -106,7 +106,7 @@ public partial class DeskPhone : Node3D
 					return false;
 				}
 
-				string title = ContentTextResolver.ResolveCallMeta(incident.CallId, incident.CallId);
+				string title = ContentTextResolver.ResolveEntryName(incident.MissionId, incident.MissionId);
 				string description = ContentSpanFormatter.ResolveEntryBbcode(
 					incident.CallId,
 					incident.CallId,

@@ -8,51 +8,6 @@ using System.Text;
 /// </summary>
 public static class ContentTextResolver
 {
-	public static string ResolveEntryText(string contentId, string fallback)
-	{
-		ContentEntry entry = FindEntry(contentId);
-		if (entry == null || entry.Chunks.Count == 0)
-		{
-			return fallback ?? string.Empty;
-		}
-
-		var text = new StringBuilder();
-		foreach (ContentChunk chunk in entry.Chunks)
-		{
-			if (chunk.Kind.Equals("call_meta", StringComparison.OrdinalIgnoreCase))
-			{
-				continue;
-			}
-
-			if (text.Length > 0)
-			{
-				text.AppendLine().AppendLine();
-			}
-
-			text.Append(chunk.Text);
-		}
-
-		return text.Length > 0 ? text.ToString() : (fallback ?? string.Empty);
-	}
-
-	public static string ResolveCallMeta(string contentId, string fallback)
-	{
-		ContentEntry entry = FindEntry(contentId);
-		if (entry != null)
-		{
-			foreach (ContentChunk chunk in entry.Chunks)
-			{
-				if (chunk.Kind.Equals("call_meta", StringComparison.OrdinalIgnoreCase)
-					&& !string.IsNullOrWhiteSpace(chunk.Text))
-				{
-					return chunk.Text;
-				}
-			}
-		}
-
-		return fallback ?? string.Empty;
-	}
-
 	public static string ResolveOptionName(string contentId, string optionId, string fallback)
 	{
 		ContentEntry entry = FindEntry(contentId);
@@ -74,8 +29,7 @@ public static class ContentTextResolver
 	/// <summary>
 	/// Человеческое название записи — то, что автор написал в поле name.
 	///
-	/// Нужно заголовку экрана рации: там стоит имя задания («Жалоба пенсионера»),
-	/// а не шапка звонка («ЗВОНОК В ГАЗОВУЮ СЛУЖБУ…»), которую даёт ResolveCallMeta.
+	/// Заголовок экрана звонка и рации: имя задания («Жалоба пенсионера»).
 	/// Имена заданий лежат записями типа mission_id под id самой миссии.
 	/// </summary>
 	public static string ResolveEntryName(string contentId, string fallback)

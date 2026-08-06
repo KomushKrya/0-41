@@ -612,7 +612,7 @@ public partial class ComputerUI : Control
 			{
 				if (incident.Id == incidentId)
 				{
-					return $"ВХОДЯЩИЙ ВЫЗОВ: {ContentTextResolver.ResolveCallMeta(incident.CallId, incident.CallId)}";
+					return $"ВХОДЯЩИЙ ВЫЗОВ: {ContentTextResolver.ResolveEntryName(incident.MissionId, incident.MissionId)}";
 				}
 			}
 		}
