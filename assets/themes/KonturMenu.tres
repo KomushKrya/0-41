@@ -1,0 +1,37 @@
+[gd_resource type="Theme" load_steps=4 format=3]
+
+[ext_resource type="FontFile" uid="uid://klsb3josflx6" path="res://assets/fonts/kontur_soviet_typewriter.otf" id="1_typewriter"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_row"]
+content_margin_left = 34.0
+content_margin_top = 7.0
+content_margin_right = 16.0
+content_margin_bottom = 7.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_row_hover"]
+content_margin_left = 34.0
+content_margin_top = 7.0
+content_margin_right = 16.0
+content_margin_bottom = 7.0
+bg_color = Color(0.85, 0.82, 0.78, 0.05)
+border_width_left = 2
+border_color = Color(0.79, 0.36, 0.24, 0.85)
+
+[resource]
+default_font = ExtResource("1_typewriter")
+default_font_size = 19
+Button/colors/font_color = Color(0.678, 0.655, 0.631, 1)
+Button/colors/font_disabled_color = Color(0.678, 0.655, 0.631, 0.28)
+Button/colors/font_focus_color = Color(0.965, 0.945, 0.914, 1)
+Button/colors/font_hover_color = Color(0.965, 0.945, 0.914, 1)
+Button/colors/font_pressed_color = Color(0.851, 0.412, 0.278, 1)
+Button/font_sizes/font_size = 21
+Button/fonts/font = ExtResource("1_typewriter")
+Button/styles/disabled = SubResource("StyleBoxEmpty_row")
+Button/styles/focus = SubResource("StyleBoxFlat_row_hover")
+Button/styles/hover = SubResource("StyleBoxFlat_row_hover")
+Button/styles/normal = SubResource("StyleBoxEmpty_row")
+Button/styles/pressed = SubResource("StyleBoxFlat_row_hover")
+Label/colors/font_color = Color(0.678, 0.655, 0.631, 1)
+Label/font_sizes/font_size = 19
+Label/fonts/font = ExtResource("1_typewriter")
