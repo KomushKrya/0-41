@@ -20,12 +20,6 @@ public partial class CutscenePlayer : Control
 	private static readonly string[] VideoExtensions = { ".ogv" };
 
 	private VideoStreamPlayer _video;
-	private RichTextLabel _text;
-	private Label _prompt;
-	private Content _content;
-
-	private ContentEntry _entry;
-	private int _chunkIndex;
 	private bool _finished;
 
 	public override void _Ready()
@@ -52,7 +46,10 @@ public partial class CutscenePlayer : Control
 			return;
 		}
 
-		ShowText(cutsceneId);
+		// Ролики отрисованы, текстовой заглушки больше нет: если видео не нашлось,
+		// это ошибка контента — сообщаем и идём дальше, а не показываем текст.
+		GD.PushWarning($"[КАТСЦЕНА] Видео для '{cutsceneId}' не найдено в {VideoFolder}");
+		Finish();
 	}
 
 	private void BuildUi()
@@ -75,33 +72,6 @@ public partial class CutscenePlayer : Control
 		_video.Finished += OnVideoFinished;
 		AddChild(_video);
 
-		_text = new RichTextLabel
-		{
-			BbcodeEnabled = true,
-			FitContent = true,
-			AnchorLeft = 0.5f,
-			AnchorTop = 0.5f,
-			AnchorRight = 0.5f,
-			AnchorBottom = 0.5f,
-			GrowHorizontal = GrowDirection.Both,
-			GrowVertical = GrowDirection.Both,
-			CustomMinimumSize = new Vector2(760.0f, 0.0f),
-			Visible = false
-		};
-		AddChild(_text);
-
-		_prompt = new Label
-		{
-			Text = Content.Label("ui_cutscene_hint_next"),
-			HorizontalAlignment = HorizontalAlignment.Center,
-			AnchorLeft = 0.0f,
-			AnchorTop = 1.0f,
-			AnchorRight = 1.0f,
-			AnchorBottom = 1.0f,
-			OffsetTop = -48.0f,
-			Modulate = new Color(1.0f, 1.0f, 1.0f, 0.45f)
-		};
-		AddChild(_prompt);
 	}
 
 	// ------------------------------------------------------------------ видео
@@ -136,58 +106,6 @@ public partial class CutscenePlayer : Control
 		Finish();
 	}
 
-	// ------------------------------------------------------------------ текст
-
-	private void ShowText(string cutsceneId)
-	{
-		_content = Content.Instance;
-		if (_content == null)
-		{
-			GD.PushWarning("[CUTSCENE] Автозагрузка Content не готова — ролик пропущен.");
-			Finish();
-			return;
-		}
-
-		_entry = _content.GetEntry(cutsceneId);
-		if (_entry == null || _entry.Chunks.Count == 0)
-		{
-			GD.PushWarning($"[CUTSCENE] Ни видео, ни текста под '{cutsceneId}'.");
-			Finish();
-			return;
-		}
-
-		_text.Visible = true;
-		_chunkIndex = 0;
-		RenderChunk();
-	}
-
-	/// <summary>
-	/// Куски показываются по одному, накопительно — как реплики в диалоге.
-	/// Разметка ключевых слов идёт через ToBbcode: она же используется в звонках,
-	/// и катсцена не должна выглядеть иначе.
-	/// </summary>
-	private void RenderChunk()
-	{
-		var builder = new System.Text.StringBuilder();
-
-		for (int i = 0; i <= _chunkIndex && i < _entry.Chunks.Count; i++)
-		{
-			if (i > 0)
-			{
-				builder.Append("\n\n");
-			}
-
-			builder.Append(_entry.Chunks[i].ToBbcode());
-		}
-
-		_text.Text = builder.ToString();
-
-		bool last = _chunkIndex >= _entry.Chunks.Count - 1;
-		_prompt.Text = last
-			? Content.Label("ui_cutscene_hint_last")
-			: Content.Label("ui_cutscene_hint_next");
-	}
-
 	// ------------------------------------------------------------------ ввод
 
 	public override void _UnhandledInput(InputEvent @event)
@@ -208,21 +126,8 @@ public partial class CutscenePlayer : Control
 			return;
 		}
 
-		// Видео листать нечего: пробел на нём означает «хватит».
-		if (_video.Visible)
-		{
-			Finish();
-			return;
-		}
-
-		if (_entry == null || _chunkIndex >= _entry.Chunks.Count - 1)
-		{
-			Finish();
-			return;
-		}
-
-		_chunkIndex++;
-		RenderChunk();
+		// Листать нечего: ролик либо смотрят, либо пропускают.
+		Finish();
 	}
 
 	/// <summary>

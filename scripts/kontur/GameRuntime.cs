@@ -18,7 +18,17 @@ public partial class GameRuntime : Node
 {
 	[Export] public string ContentRoot { get; set; } = "res://data/";
 
+	/// <summary>
+	/// Зерно ГПСЧ. Значение используется, только если снят RandomizeSeed:
+	/// тогда прогон воспроизводится один в один — этим живут отладка и самопроверки.
+	/// </summary>
 	[Export] public int Seed { get; set; } = 41;
+
+	/// <summary>
+	/// Брать случайное зерно при каждом запуске. Иначе порядок миссий, выбранные
+	/// здания и паузы между звонками были бы одинаковыми в каждой партии.
+	/// </summary>
+	[Export] public bool RandomizeSeed { get; set; } = true;
 
 	/// <summary>Пауза симуляции — для меню, роликов и отладки.</summary>
 	private bool _isPaused;
@@ -81,7 +91,7 @@ public partial class GameRuntime : Node
 			}
 
 			ContentDatabase content = ContentLoader.Load(new GodotContentSource(ContentRoot), textCatalog);
-			Session = new KonturSimulation(content, Seed);
+			Session = new KonturSimulation(content, ResolveSeed());
 			Session.SetTimeFreeze("godot.runtime", _isPaused);
 		}
 		catch (ContentException exception)
@@ -98,7 +108,24 @@ public partial class GameRuntime : Node
 			_logSubscription = Session.Events.SubscribeAll(e => GD.Print("[KONTUR] ", e.ToString()));
 		}
 
-		GD.Print($"[KONTUR] Ядро готово. Миссий: {Session.Content.Missions.Count}, seed {Seed}.");
+		GD.Print($"[KONTUR] Ядро готово. Миссий: {Session.Content.Missions.Count}, seed {Session.Seed}.");
+	}
+
+	/// <summary>
+	/// Зерно партии. Случайное — чтобы порядок миссий, здания вызова и паузы между
+	/// звонками не повторялись от запуска к запуску. Зерно печатается в лог: по нему
+	/// прогон воспроизводится, если снять RandomizeSeed и вписать число в Seed.
+	/// </summary>
+	private int ResolveSeed()
+	{
+		if (!RandomizeSeed)
+		{
+			return Seed;
+		}
+
+		// Ноль ядро принимает, но XorShift от нуля вырождается — берём соседнее число.
+		int seed = (int)(GD.Randi() & 0x7FFFFFFF);
+		return seed != 0 ? seed : 41;
 	}
 
 	public override void _Process(double delta)
