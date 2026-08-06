@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3]
-
-[ext_resource type="Script" path="res://scripts/debug/ShiftStartShots.cs" id="1_shift_start_shots"]
-
-[node name="ShiftStartShots" type="Node"]
-script = ExtResource("1_shift_start_shots")

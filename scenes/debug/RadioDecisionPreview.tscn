@@ -1,9 +1,0 @@
-[gd_scene load_steps=3 format=3]
-
-[ext_resource type="Script" path="res://scripts/debug/RadioDecisionPreview.cs" id="1_preview"]
-[ext_resource type="PackedScene" path="res://scenes/ui/radio/RadioDecisionUI.tscn" id="2_radio_ui"]
-
-[node name="RadioDecisionPreview" type="Node"]
-script = ExtResource("1_preview")
-
-[node name="RadioDecisionUI" parent="." instance=ExtResource("2_radio_ui")]

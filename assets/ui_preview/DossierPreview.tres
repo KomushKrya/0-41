@@ -1,6 +1,0 @@
-[gd_resource type="Resource" script_class="UiPreviewData" format=3 uid="uid://bpoaur3vw477f"]
-
-[ext_resource type="Script" uid="uid://dsfgpmovy11vi" path="res://scripts/ui/preview/UiPreviewData.cs" id="1_preview"]
-
-[resource]
-script = ExtResource("1_preview")

@@ -87,7 +87,7 @@ public partial class AudioManager : Node
 	/// <summary>Ждала ли рация ответа на прошлом опросе: шум запускается по фронту.</summary>
 	private bool _wasRadioWaiting;
 
-	private HiringScreen _hiringScreen;
+	private PageHiringScreen _hiringScreen;
 	private bool _wasHiringOpen;
 	private MainMenu _mainMenu;
 	private InspectableItemController _shiftNote;
@@ -303,7 +303,7 @@ public partial class AudioManager : Node
 			_radioDecisionUi = decisionUi;
 			LogFound("меню рации", decisionUi);
 		}
-		else if (node is HiringScreen hiring && _hiringScreen == null)
+		else if (node is PageHiringScreen hiring && _hiringScreen == null)
 		{
 			_hiringScreen = hiring;
 			LogFound("экран найма", hiring);
