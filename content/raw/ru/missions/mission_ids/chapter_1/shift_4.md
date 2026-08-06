@@ -9,10 +9,10 @@ day: 4
 
 | id | название |
 |---|---|
-| m_wall_infection | Дозиметр в стене |
+| m_wall_infection | Тёплая стена |
 | m_silent_collector | Тишина в коллекторе |
-| m_dont_blink | Не моргать |
-| m_racing_pulse | Учащённый пульс |
+| m_dont_blink | Отец не шевелится |
+| m_racing_pulse | Кто-то стоит в торговом зале |
 | m_talking_dog | Пёс, который заговорил |
 | m_whole_stairwell | Целый подъезд |
-| m_workshop_papers | Торговля документами |
+| m_workshop_papers | Цеховику нужны бумаги |

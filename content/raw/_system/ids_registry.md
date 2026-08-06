@@ -160,6 +160,7 @@
 | `report_construction_intruders_strike_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_1/construction_intruders/construction_intruders_strike_failure.md |
 | `report_construction_intruders_strike_success` | report | content/raw/ru/missions/reports/chapter_1/shift_1/construction_intruders/construction_intruders_strike_success.md |
 | `report_dense_flock_cordon_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_3/dense_flock/dense_flock_cordon_failure.md |
+| `report_dense_flock_cordon_success` | report | content/raw/ru/missions/reports/chapter_1/shift_3/dense_flock/dense_flock_cordon_success.md |
 | `report_dense_flock_disperse_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_3/dense_flock/dense_flock_disperse_failure.md |
 | `report_dense_flock_disperse_success` | report | content/raw/ru/missions/reports/chapter_1/shift_3/dense_flock/dense_flock_disperse_success.md |
 | `report_dense_flock_perimeter_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_3/dense_flock/dense_flock_perimeter_failure.md |
@@ -226,7 +227,8 @@
 | `report_urgent_evacuation_success` | report | content/raw/ru/missions/reports/chapter_1/shift_1/urgent_evacuation/urgent_evacuation_success.md |
 | `report_wall_infection_brute_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_4/wall_infection/wall_infection_brute_failure.md |
 | `report_wall_infection_brute_success` | report | content/raw/ru/missions/reports/chapter_1/shift_4/wall_infection/wall_infection_brute_success.md |
-| `report_wall_infection_dosimeter` | report | content/raw/ru/missions/reports/chapter_1/shift_4/wall_infection/wall_infection_dosimeter.md |
+| `report_wall_infection_dosimeter_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_4/wall_infection/wall_infection_dosimeter_failure.md |
+| `report_wall_infection_dosimeter_success` | report | content/raw/ru/missions/reports/chapter_1/shift_4/wall_infection/wall_infection_dosimeter_success.md |
 | `report_wall_infection_listen_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_4/wall_infection/wall_infection_listen_failure.md |
 | `report_wall_infection_listen_success` | report | content/raw/ru/missions/reports/chapter_1/shift_4/wall_infection/wall_infection_listen_success.md |
 | `report_whole_stairwell_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_4/whole_stairwell/whole_stairwell_failure.md |

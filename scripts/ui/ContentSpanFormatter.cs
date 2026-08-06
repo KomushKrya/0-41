@@ -61,7 +61,7 @@ public static class ContentSpanFormatter
 	}
 
 	/// <summary>
-	/// Вся запись целиком, абзац за абзацем. Куски-подписи (call_meta) пропускаются:
+	/// Вся запись целиком, абзац за абзацем:
 	/// они идут в заголовок, а не в тело — так же, как в ContentTextResolver.
 	/// </summary>
 	public static string ResolveEntryBbcode(string contentId, string fallback, Color highlight)
@@ -77,7 +77,7 @@ public static class ContentSpanFormatter
 		var text = new StringBuilder();
 		foreach (ContentChunk chunk in entry.Chunks)
 		{
-			if (chunk.IsCallMeta || string.IsNullOrWhiteSpace(chunk.Text))
+			if (string.IsNullOrWhiteSpace(chunk.Text))
 			{
 				continue;
 			}

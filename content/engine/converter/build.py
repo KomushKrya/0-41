@@ -68,23 +68,16 @@ PROPERTIES_TYPES = ("creature",)
 BOTTOM_TEXT_TYPES = ("cutscene",)
 DEFAULT_MAX_CHUNK_CHARS = 150
 
-# Шапка «откуда звонок» бывает только у звонка: это отдельный блок, а не реплика.
-CALL_META_TYPES = ("call",)
-
 KNOWN_STATUSES = ("draft", "ready")
 
-CHUNK_KIND_TEXT = "text"
-CHUNK_KIND_CALL_META = "call_meta"
-
 COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
+# Шапки звонка больше нет: её место занял заголовок с названием миссии.
+CALL_META_LEFTOVER_RE = re.compile(r"%%\s*call_meta\s*:")
 # Заметки для разработчиков: блок %% dev %% ... %% /dev %% и инлайн %% dev: ... %%.
 DEV_BLOCK_RE = re.compile(r"%%\s*dev\s*%%.*?%%\s*/\s*dev\s*%%", re.DOTALL)
 DEV_INLINE_RE = re.compile(r"[ \t]*%%\s*dev:[^\n]*?%%")
 DEV_TAG_RE = re.compile(r"%%\s*(/?)\s*dev\s*%%")
 DEV_LEFTOVER_RE = re.compile(r"%%\s*/?\s*dev\b")
-# Шапка звонка: откуда звонят и кто на линии. Едет отдельным kind, чтобы интерфейс
-# отделил её от реплик — это не то, что говорит человек в трубке.
-CALL_META_RE = re.compile(r"^%%\s*call_meta:\s*(.+?)\s*%%$")
 REVEAL_OPEN_RE = re.compile(r"^%%\s*reveal:\s*([^\s%]+)\s*%%$")
 REVEAL_CLOSE_RE = re.compile(r"^%%\s*/\s*reveal\s*%%$")
 OPTION_RE = re.compile(r"^##\s*Вариант:\s*(.+?)\s*$")
@@ -222,11 +215,11 @@ def strip_dev_notes(text: str, source: Path) -> str:
     return text
 
 
-def make_chunk(text: str, kind: str, reveal: str | None, source: Path) -> dict:
+def make_chunk(text: str, reveal: str | None, source: Path) -> dict:
     """Кусок с разобранной разметкой: текст чистый, разметка — списком отрезков.
     Отрезки, а не смещения: рантайм подставляет {{имя}} в текст, и позиции уехали бы."""
     spans, clean = parse_spans(text, source)
-    chunk = {"text": clean, "kind": kind, "reveal": reveal}
+    chunk = {"text": clean, "reveal": reveal}
     if spans:
         chunk["spans"] = spans
     return chunk
@@ -278,17 +271,11 @@ def parse_chunks(lines: list[str], source: Path) -> list[dict]:
         nonlocal buffer
         text = " ".join(part.strip() for part in buffer).strip()
         if text:
-            chunks.append(make_chunk(text, CHUNK_KIND_TEXT, reveal, source))
+            chunks.append(make_chunk(text, reveal, source))
         buffer = []
 
     for raw_line in lines:
         line = raw_line.strip()
-
-        meta = CALL_META_RE.match(line)
-        if meta:
-            flush()
-            chunks.append(make_chunk(meta.group(1), CHUNK_KIND_CALL_META, reveal, source))
-            continue
 
         open_match = REVEAL_OPEN_RE.match(line)
         if open_match:
@@ -487,6 +474,11 @@ def parse_file(path: Path, expected_type: str, repo_root: Path) -> dict:
         )
 
     body_text = COMMENT_RE.sub("", "\n".join(body_lines))
+    if CALL_META_LEFTOVER_RE.search(body_text):
+        raise BuildFailed(
+            f"{path}: тега %% call_meta %% больше нет — заголовок звонка берётся "
+            f"из названия миссии в mission_ids/"
+        )
     body_lines = strip_dev_notes(body_text, path).split("\n")
 
     entry: dict = {
@@ -543,13 +535,6 @@ def parse_file(path: Path, expected_type: str, repo_root: Path) -> dict:
             f"{' и '.join(CALL_MISSION_TYPES)} (radio — вызов с вмешательством по рации, "
             "filler — вызов, который решается одной проверкой характеристик)"
         )
-
-    if expected_type not in CALL_META_TYPES:
-        for chunk in all_chunks(entry):
-            if chunk["kind"] == CHUNK_KIND_CALL_META:
-                raise BuildFailed(
-                    f"{path}: %% call_meta %% — шапка звонка, у типа {expected_type!r} её быть не может"
-                )
 
     if expected_type == "call":
         # requires автор пишет для себя и для сверки с data/missions.json, в JSON он не едет.
@@ -723,8 +708,7 @@ def collect_long_chunks(entries: list[dict], limit: int) -> list[str]:
             continue
 
         for index, chunk in enumerate(entry["chunks"], start=1):
-            # Шапка живёт в своём узле и под ограничение реплики не попадает.
-            if chunk["kind"] == CHUNK_KIND_CALL_META or len(chunk["text"]) <= limit:
+            if len(chunk["text"]) <= limit:
                 continue
 
             warnings.append(

@@ -28,25 +28,13 @@ public sealed class ContentEntry
 
 public sealed class ContentChunk
 {
-	/// <summary>Обычная реплика или абзац.</summary>
-	public const string KindText = "text";
-
-	/// <summary>
-	/// Шапка звонка — [ЗВОНОК ПЕРЕНАПРАВЛЕН ...]: откуда звонят и кто на линии.
-	/// Свой kind, чтобы интерфейс отделил её от реплик: это не слова собеседника.
-	/// </summary>
-	public const string KindCallMeta = "call_meta";
-
 	public const string HighlightColor = "#d27253";
 
 	public string Text = string.Empty;
-	public string Kind = KindText;
 	public string Reveal = string.Empty;
 
 	/// <summary>Текст по отрезкам. Пустой список — размечать нечего.</summary>
 	public IReadOnlyList<ContentSpan> Spans = new List<ContentSpan>();
-
-	public bool IsCallMeta => Kind == KindCallMeta;
 
 	public bool HasHighlights => Spans.Count > 0;
 
