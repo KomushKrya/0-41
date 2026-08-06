@@ -139,6 +139,7 @@ namespace Kontur.Core.Content
 	{
 		public int CandidatesPerShift { get; set; }
 		public int CandidatesChoiceMargin { get; set; } = 2;
+		public int CandidatesPerDraw { get; set; } = 3;
 		public int LevelLagBehindDay { get; set; } = 1;
 		public int LevelSpread { get; set; } = 1;
 		public int MinAge { get; set; } = 24;
