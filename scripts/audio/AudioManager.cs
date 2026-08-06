@@ -42,6 +42,15 @@ public partial class AudioManager : Node
 	/// <summary>За сколько секунд фон выходит на полную громкость.</summary>
 	[Export] public float MusicFadeInSeconds { get; set; } = 2.0f;
 
+	/// <summary>
+	/// На сколько дБ фон главного меню тише игрового. Меню слушают вполуха, пока
+	/// решают, продолжать ли партию, и полная громкость там навязчива.
+	/// </summary>
+	[Export] public float MenuMusicQuieterDb { get; set; } = 6.0f;
+
+	/// <summary>Пауза перед вводом фона в меню: экран открывается из черноты.</summary>
+	[Export] public float MenuMusicDelaySeconds { get; set; } = 0.6f;
+
 	public static AudioManager Instance { get; private set; }
 
 	private AudioStreamPlayer _music;
@@ -60,6 +69,8 @@ public partial class AudioManager : Node
 	private readonly List<string> _ambientQueue = new();
 	private readonly Random _random = new();
 	private bool _isShiftMusicActive;
+	private bool _isMenuMusicActive;
+	private double _menuSettleTimer;
 
 	/// <summary>Играет короткая мелодия перехода; после неё включится длинная версия.</summary>
 	private bool _isBetweenShiftsIntro;
@@ -78,6 +89,7 @@ public partial class AudioManager : Node
 
 	private HiringScreen _hiringScreen;
 	private bool _wasHiringOpen;
+	private MainMenu _mainMenu;
 	private InspectableItemController _shiftNote;
 	private InspectableItemController _notebook;
 	private readonly HashSet<ulong> _wiredButtons = new();
@@ -192,6 +204,7 @@ public partial class AudioManager : Node
 
 		PollPhone();
 		PollModalAudioPause();
+		PollMainMenuMusic(delta);
 		PollOfficeMusic(delta);
 		PollHiringScreen();
 		PollComputer();
@@ -235,12 +248,14 @@ public partial class AudioManager : Node
 		bool needRay = !IsValid(_interactionRay);
 		bool needRadioUi = !IsValid(_radioDecisionUi);
 		bool needHiring = !IsValid(_hiringScreen);
+		bool needMenu = !IsValid(_mainMenu);
 
 		if (needComputer || needDossier || needNote || needNotebook || needRadio || needRay
-			|| needRadioUi || needHiring)
+			|| needRadioUi || needHiring || needMenu)
 		{
 			_radioDecisionUi = needRadioUi ? null : _radioDecisionUi;
 			_hiringScreen = needHiring ? null : _hiringScreen;
+			_mainMenu = needMenu ? null : _mainMenu;
 			_computerInput = needComputer ? null : _computerInput;
 			_dossierInput = needDossier ? null : _dossierInput;
 			_shiftNote = needNote ? null : _shiftNote;
@@ -292,6 +307,11 @@ public partial class AudioManager : Node
 		{
 			_hiringScreen = hiring;
 			LogFound("экран найма", hiring);
+		}
+		else if (node is MainMenu menu && _mainMenu == null)
+		{
+			_mainMenu = menu;
+			LogFound("главное меню", menu);
 		}
 		else if (node is RayCast3D ray && _interactionRay == null && ray.Name.ToString() == "InteractionRay")
 		{
@@ -407,6 +427,41 @@ public partial class AudioManager : Node
 	}
 
 	/// <summary>
+	/// Фон главного меню. Меню ищется в дереве опросом, как и остальные экраны:
+	/// сам MainMenu про звук не знает и ничего сюда не зовёт — весь слой остаётся
+	/// односторонним и снимается одной строкой автозагрузки.
+	/// </summary>
+	private void PollMainMenuMusic(double delta)
+	{
+		if (!IsValid(_mainMenu))
+		{
+			_menuSettleTimer = 0.0;
+			if (_isMenuMusicActive)
+			{
+				// Ушли в игру или на вступительный ролик: под ролик музыка не нужна.
+				StopMusic();
+			}
+
+			return;
+		}
+
+		if (_isMenuMusicActive)
+		{
+			FadeInMusic(delta, MusicVolumeDb - MenuMusicQuieterDb);
+			return;
+		}
+
+		// Экран открывается из черноты — трогать звук раньше, чем появилась картинка, рано.
+		_menuSettleTimer += delta;
+		if (_menuSettleTimer < MenuMusicDelaySeconds)
+		{
+			return;
+		}
+
+		StartMenuMusic();
+	}
+
+	/// <summary>
 	/// Фон кабинета включается ещё до кнопки «Начать смену», но не в момент подмены
 	/// сцены: там кадр занят сборкой кабинета, и музыка успела бы зазвучать раньше
 	/// картинки. Поэтому ждём, пока кабинет соберётся и игра снимет паузу, выдерживаем
@@ -434,7 +489,7 @@ public partial class AudioManager : Node
 
 		if (_isShiftMusicActive)
 		{
-			FadeInMusic(delta);
+			FadeInMusic(delta, MusicVolumeDb);
 			return;
 		}
 
@@ -453,16 +508,19 @@ public partial class AudioManager : Node
 		StartShiftMusic();
 	}
 
-	/// <summary>Плавный ввод: резкий старт трека читается как сбой.</summary>
-	private void FadeInMusic(double delta)
+	/// <summary>
+	/// Плавный ввод: резкий старт трека читается как сбой. Потолок передаётся
+	/// снаружи — у меню он ниже игрового на <see cref="MenuMusicQuieterDb"/>.
+	/// </summary>
+	private void FadeInMusic(double delta, float targetDb)
 	{
-		if (_music.VolumeDb >= MusicVolumeDb)
+		if (_music.VolumeDb >= targetDb)
 		{
 			return;
 		}
 
 		float step = (float)(delta * (MusicFadeInSeconds > 0.0f ? 60.0f / MusicFadeInSeconds : 60.0f));
-		_music.VolumeDb = Mathf.Min(MusicVolumeDb, _music.VolumeDb + step);
+		_music.VolumeDb = Mathf.Min(targetDb, _music.VolumeDb + step);
 	}
 
 	/// <summary>
@@ -692,6 +750,7 @@ public partial class AudioManager : Node
 	private void StartShiftMusic()
 	{
 		_isShiftMusicActive = true;
+		_isMenuMusicActive = false;
 		_ambientQueue.Clear();
 
 		// Стартуем с тишины — громкость доводит FadeInMusic.
@@ -699,10 +758,26 @@ public partial class AudioManager : Node
 		PlayNextAmbient();
 	}
 
+	/// <summary>
+	/// Тихий фон главного меню. Отдельный флаг, а не игровой: у него свой потолок
+	/// громкости, и по концу трека он должен закольцеваться, а не тянуть очередь смены.
+	/// </summary>
+	private void StartMenuMusic()
+	{
+		_isMenuMusicActive = true;
+		_isShiftMusicActive = false;
+		_ambientQueue.Clear();
+
+		// Стартуем с тишины — громкость доводит FadeInMusic.
+		_music.VolumeDb = MusicVolumeDb - MenuMusicQuieterDb - MusicFadeInDropDb;
+		PlayMusic(Sfx.MainMenu);
+	}
+
 	private void StopMusic()
 	{
 		_isShiftMusicActive = false;
 		_isBetweenShiftsIntro = false;
+		_isMenuMusicActive = false;
 		_music.Stop();
 	}
 
@@ -713,6 +788,7 @@ public partial class AudioManager : Node
 	private void StartBetweenShiftsMusic(int nextDay)
 	{
 		_isShiftMusicActive = false;
+		_isMenuMusicActive = false;
 		string intro = Sfx.BetweenShiftsFor(nextDay);
 		_isBetweenShiftsIntro = intro != Sfx.BetweenShiftsFull;
 		PlayMusic(intro);

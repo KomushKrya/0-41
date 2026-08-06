@@ -288,7 +288,7 @@
 | `ui_encyclopedia_redacted` | ui_label | content/raw/ru/UI/labels/shift.md |
 | `ui_hint_load_failed` | ui_label | content/raw/ru/UI/labels/menu.md |
 | `ui_hint_no_flow` | ui_label | content/raw/ru/UI/labels/menu.md |
-| `ui_hint_no_flow_autoload` | ui_label | content/raw/ru/UI/labels/menu.md |
+| `ui_hint_no_flow_autoload` | ui_label | content/raw/ru/UI/labels/main_menu.md |
 | `ui_hint_no_saves` | ui_label | content/raw/ru/UI/labels/menu.md |
 | `ui_hint_save_complete` | ui_label | content/raw/ru/UI/labels/menu.md |
 | `ui_hint_save_failed` | ui_label | content/raw/ru/UI/labels/menu.md |
@@ -306,12 +306,12 @@
 | `ui_hiring_title_day` | ui_label | content/raw/ru/UI/labels/dossier.md |
 | `ui_hiring_title_starting` | ui_label | content/raw/ru/UI/labels/dossier.md |
 | `ui_map_no_route` | ui_label | content/raw/ru/UI/labels/shift.md |
-| `ui_menu_continue` | ui_label | content/raw/ru/UI/labels/menu.md |
-| `ui_menu_new_game` | ui_label | content/raw/ru/UI/labels/menu.md |
-| `ui_menu_quit` | ui_label | content/raw/ru/UI/labels/menu.md |
-| `ui_menu_settings` | ui_label | content/raw/ru/UI/labels/menu.md |
-| `ui_menu_subtitle` | ui_label | content/raw/ru/UI/labels/menu.md |
-| `ui_menu_title` | ui_label | content/raw/ru/UI/labels/menu.md |
+| `ui_menu_continue` | ui_label | content/raw/ru/UI/labels/main_menu.md |
+| `ui_menu_new_game` | ui_label | content/raw/ru/UI/labels/main_menu.md |
+| `ui_menu_quit` | ui_label | content/raw/ru/UI/labels/main_menu.md |
+| `ui_menu_settings` | ui_label | content/raw/ru/UI/labels/main_menu.md |
+| `ui_menu_subtitle` | ui_label | content/raw/ru/UI/labels/main_menu.md |
+| `ui_menu_title` | ui_label | content/raw/ru/UI/labels/main_menu.md |
 | `ui_pause_load` | ui_label | content/raw/ru/UI/labels/menu.md |
 | `ui_pause_main_menu` | ui_label | content/raw/ru/UI/labels/menu.md |
 | `ui_pause_resume` | ui_label | content/raw/ru/UI/labels/menu.md |

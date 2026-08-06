@@ -1,7 +1,35 @@
-[gd_scene format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/MainMenu.cs" id="1_main_menu"]
+
 [ext_resource type="Script" path="res://scripts/ui/SettingsScreen.cs" id="2_settings"]
+
+[ext_resource type="Script" path="res://scripts/ui/MenuBackdrop.cs" id="3_backdrop"]
+
+[ext_resource type="Theme" path="res://assets/themes/KonturMenu.tres" id="4_theme"]
+
+[ext_resource type="Shader" path="res://assets/shaders/MenuVignette.gdshader" id="5_vignette"]
+
+[ext_resource type="FontFile" uid="uid://spy5f8ic2eqy" path="res://assets/fonts/Old-Soviet.otf" id="6_title_font"]
+
+[ext_resource type="Texture2D" uid="uid://ov05ujyf6h4y" path="res://assets/textures/ui/frames/title_frame_top.png" id="7_frame_top"]
+
+[ext_resource type="Texture2D" uid="uid://d17w53fggmmo3" path="res://assets/textures/ui/frames/title_frame_bottom.png" id="8_frame_bottom"]
+
+[ext_resource type="PackedScene" path="res://scenes/ui/menu/MenuOffice.tscn" id="9_menu_office"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vignette"]
+shader = ExtResource("5_vignette")
+shader_parameter/vignette_strength = 0.85
+shader_parameter/vignette_radius = 0.42
+shader_parameter/vignette_softness = 0.62
+shader_parameter/column_shade = 0.5
+shader_parameter/column_width = 0.52
+shader_parameter/base_shade = 0.08
+shader_parameter/shade_color = Color(0.016, 0.018, 0.027, 1)
+shader_parameter/grain_strength = 0.03
+shader_parameter/grain_fps = 12.0
+shader_parameter/aspect = 1.6
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -10,6 +38,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("4_theme")
 script = ExtResource("1_main_menu")
 
 [node name="Background" type="ColorRect" parent="."]
@@ -20,61 +49,184 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0.05, 0.06, 0.07, 1)
+color = Color(0.012, 0.013, 0.016, 1)
 
-[node name="Column" type="VBoxContainer" parent="."]
-custom_minimum_size = Vector2(320, 0)
+[node name="Backdrop" type="SubViewportContainer" parent="."]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 12
+mouse_filter = 2
+stretch = true
+
+[node name="Viewport" type="SubViewport" parent="Backdrop"]
+own_world_3d = true
+handle_input_locally = false
+gui_disable_input = true
+msaa_3d = 0
+size = Vector2i(1280, 720)
+render_target_update_mode = 4
+
+[node name="Office" type="Node3D" parent="Backdrop/Viewport"]
+script = ExtResource("3_backdrop")
+
+[node name="MenuOffice" parent="Backdrop/Viewport/Office" instance=ExtResource("9_menu_office")]
+
+[node name="Vignette" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_vignette")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+
+[node name="Column" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_left = 96.0
+offset_top = 128.0
+offset_right = 656.0
+offset_bottom = -96.0
+grow_vertical = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 4
+
+[node name="FrameTop" type="TextureRect" parent="Column"]
+modulate = Color(1, 1, 1, 0.7)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("7_frame_top")
+expand_mode = 3
+stretch_mode = 0
 
 [node name="Title" type="Label" parent="Column"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 42
-text = "К.О.Н.Т.У.Р."
-horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.902, 0.878, 0.839, 1)
+theme_override_fonts/font = ExtResource("6_title_font")
+theme_override_font_sizes/font_size = 68
+text = "Звоните 0-41"
+
+[node name="FrameBottom" type="TextureRect" parent="Column"]
+modulate = Color(1, 1, 1, 0.7)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("8_frame_bottom")
+expand_mode = 3
+stretch_mode = 0
 
 [node name="Subtitle" type="Label" parent="Column"]
-modulate = Color(1, 1, 1, 0.55)
+modulate = Color(1, 1, 1, 0.7)
 layout_mode = 2
-text = "прототип"
-horizontal_alignment = 1
+theme_override_font_sizes/font_size = 22
+text = "К.О.Н.Т.У.Р."
 
 [node name="Spacer" type="Control" parent="Column"]
-custom_minimum_size = Vector2(0, 24)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 mouse_filter = 2
 
 [node name="ContinueButton" type="Button" parent="Column"]
-custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 text = "Продолжить"
+alignment = 0
+
+[node name="Marker" type="Label" parent="Column/ContinueButton"]
+modulate = Color(0.851, 0.412, 0.278, 0)
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 12.0
+offset_top = -14.0
+offset_right = 34.0
+offset_bottom = 14.0
+grow_vertical = 2
+mouse_filter = 2
+text = "›"
+vertical_alignment = 1
 
 [node name="NewGameButton" type="Button" parent="Column"]
-custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 text = "Новая игра"
+alignment = 0
+
+[node name="Marker" type="Label" parent="Column/NewGameButton"]
+modulate = Color(0.851, 0.412, 0.278, 0)
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 12.0
+offset_top = -14.0
+offset_right = 34.0
+offset_bottom = 14.0
+grow_vertical = 2
+mouse_filter = 2
+text = "›"
+vertical_alignment = 1
 
 [node name="SettingsButton" type="Button" parent="Column"]
-custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 text = "Настройки"
+alignment = 0
+
+[node name="Marker" type="Label" parent="Column/SettingsButton"]
+modulate = Color(0.851, 0.412, 0.278, 0)
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 12.0
+offset_top = -14.0
+offset_right = 34.0
+offset_bottom = 14.0
+grow_vertical = 2
+mouse_filter = 2
+text = "›"
+vertical_alignment = 1
 
 [node name="QuitButton" type="Button" parent="Column"]
-custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 text = "Выход"
+alignment = 0
+
+[node name="Marker" type="Label" parent="Column/QuitButton"]
+modulate = Color(0.851, 0.412, 0.278, 0)
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 12.0
+offset_top = -14.0
+offset_right = 34.0
+offset_bottom = 14.0
+grow_vertical = 2
+mouse_filter = 2
+text = "›"
+vertical_alignment = 1
 
 [node name="Hint" type="Label" parent="Column"]
 modulate = Color(1, 0.7, 0.4, 1)
+custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
-horizontal_alignment = 1
+theme_override_font_sizes/font_size = 16
+autowrap_mode = 3
+
+[node name="Fade" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
 
 [node name="Settings" type="Control" parent="."]
 visible = false
