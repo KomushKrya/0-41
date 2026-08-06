@@ -21,6 +21,9 @@ public partial class MainMenu : Control
 	[Export] public NodePath HintPath { get; set; } = new("Column/Hint");
 	[Export] public NodePath SettingsScreenPath { get; set; } = new("Settings");
 
+	/// <summary>Вступительный ролик: показывается только при старте новой игры.</summary>
+	[Export] public string IntroScene { get; set; } = "res://scenes/ui/intro/IntroPlayer.tscn";
+
 	private Button _continueButton;
 	private SettingsScreen _settings;
 	private Label _hint;
@@ -86,7 +89,9 @@ public partial class MainMenu : Control
 			return;
 		}
 
-		GameFlow.Instance.StartNewGame();
+		// Новая игра начинается со вступительного ролика: по его окончании
+		// IntroPlayer сам зовёт StartNewGame. «Продолжить» ролик не показывает.
+		GetTree().ChangeSceneToFile(IntroScene);
 	}
 
 	private void OnContinue()
