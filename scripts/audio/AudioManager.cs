@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Godot;
+using Kontur.Core.Api;
 using Kontur.Core.Events;
+using Kontur.Core.Model;
 
 /// <summary>
 /// Звук игры. Регистрируется автозагрузкой под именем "AudioManager" — после GameRuntime,
@@ -73,7 +75,7 @@ public partial class AudioManager : Node
 	private bool _wasNotebookOpen;
 	private bool _hasUnreadScaleChanges;
 
-	private int _ringingCalls;
+	private bool _wasPhoneRinging;
 	private double _rescanTimer;
 
 	private readonly List<IDisposable> _subscriptions = new();
@@ -109,11 +111,10 @@ public partial class AudioManager : Node
 		// Ждём появления самого экрана найма — см. PollHiringScreen.
 		Listen(events.Subscribe<GameOverTriggered>(_ => StopMusic()));
 
-		// Телефон. Вызовы накладываются, поэтому звонок гасится по счётчику,
-		// а не по первому снятию трубки.
-		Listen(events.Subscribe<IncidentCreated>(_ => OnCallStarted()));
-		Listen(events.Subscribe<CallAnswered>(_ => OnHandsetPickedUp()));
-		Listen(events.Subscribe<CallMissed>(_ => OnCallStopped()));
+		// Телефон. Сам звонок держится фазой вызова (см. PollPhone), а не счётчиком:
+		// счётчик застревал, если вызов закрывался не ответом и не пропуском —
+		// например, в конце смены или при новой партии, и аппарат звонил без остановки.
+		Listen(events.Subscribe<CallAnswered>(_ => Play(_sfx, Sfx.PhoneTake)));
 		Listen(events.Subscribe<BriefingConfirmed>(_ => Play(_sfx, Sfx.PhonePut)));
 
 		// Рация
@@ -152,6 +153,7 @@ public partial class AudioManager : Node
 			RescanOfficeNodes();
 		}
 
+		PollPhone();
 		PollHiringScreen();
 		PollComputer();
 		PollDossier();
@@ -482,25 +484,39 @@ public partial class AudioManager : Node
 
 	// --- Телефон ---
 
-	private void OnCallStarted()
+	/// <summary>
+	/// Аппарат звонит ровно пока у ядра есть вызов в фазе Ringing. Состояние спрашиваем,
+	/// а не копим: вызовы накладываются, и любой нештатный конец вызова оставлял бы
+	/// счётчик ненулевым — тогда звонок не смолкал.
+	/// </summary>
+	private void PollPhone()
 	{
-		_ringingCalls++;
-		if (!_ring.Playing)
+		bool anyRinging = false;
+		GameRuntime runtime = GameRuntime.Get(this);
+		if (runtime != null && runtime.IsReady)
+		{
+			IReadOnlyList<IncidentView> incidents = runtime.Session.GetActiveIncidents();
+			for (int i = 0; i < incidents.Count; i++)
+			{
+				if (incidents[i].Phase == IncidentPhase.Ringing)
+				{
+					anyRinging = true;
+					break;
+				}
+			}
+		}
+
+		if (anyRinging == _wasPhoneRinging)
+		{
+			return;
+		}
+
+		_wasPhoneRinging = anyRinging;
+		if (anyRinging)
 		{
 			Play(_ring, Sfx.PhoneRing);
 		}
-	}
-
-	private void OnHandsetPickedUp()
-	{
-		OnCallStopped();
-		Play(_sfx, Sfx.PhoneTake);
-	}
-
-	private void OnCallStopped()
-	{
-		_ringingCalls = Math.Max(0, _ringingCalls - 1);
-		if (_ringingCalls == 0)
+		else
 		{
 			_ring.Stop();
 		}
@@ -509,7 +525,7 @@ public partial class AudioManager : Node
 	/// <summary>Зацикливание вручную: не зависим от галочки Loop в .import.</summary>
 	private void RepeatRingWhileCallsWait()
 	{
-		if (_ringingCalls > 0)
+		if (_wasPhoneRinging)
 		{
 			_ring.Play();
 		}
