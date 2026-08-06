@@ -315,6 +315,15 @@ namespace Kontur.Core.Api
 			return CommandResult.Ok();
 		}
 
+		/// <summary>
+		/// Шанс успеха выбранного по рации варианта, 0..1. Null — вызова или
+		/// варианта нет. Считается тем же кодом, что и настоящий бросок.
+		/// </summary>
+		public double? EstimateRadioOptionChance(string incidentId, string optionId)
+		{
+			return _director.EstimateRadioOptionChance(incidentId, optionId);
+		}
+
 		public CommandResult ChooseRadioOption(string incidentId, string optionId)
 		{
 			CommandResult result = _director.ChooseRadioOption(incidentId, optionId);

@@ -37,6 +37,11 @@ public partial class CutscenePlayer : Control
 
 		BuildUi();
 
+		// Кабинет тяжёлый и грузится секундами. Пока игрок читает или смотрит
+		// ролик, движок успевает поднять сцену в фоне — и переход после катсцены
+		// перестаёт выглядеть зависанием.
+		GameFlow.Instance?.PreloadOffice();
+
 		string cutsceneId = GameFlow.Instance != null
 			? GameFlow.Instance.PendingCutsceneId
 			: string.Empty;
@@ -190,26 +195,29 @@ public partial class CutscenePlayer : Control
 
 	// ------------------------------------------------------------------ ввод
 
-	public override void _UnhandledInput(InputEvent @event)
+	/// <summary>
+	/// Пока идёт ролик, Escape — это «пропустить», а не «меню паузы».
+	/// Обрабатываем в _Input и помечаем событие обработанным: PauseMenu слушает
+	/// _UnhandledInput, который идёт после всех _Input. Иначе одно нажатие делало
+	/// две вещи сразу — заканчивало ролик и открывало паузу, а
+	/// <c>GetTree().Paused</c> переживает смену сцены и замораживал уже кабинет.
+	/// </summary>
+	public override void _Input(InputEvent @event)
 	{
 		if (_finished || @event is not InputEventKey key || !key.Pressed || key.Echo)
 		{
 			return;
 		}
 
-		if (key.Keycode == Key.Escape)
-		{
-			Finish();
-			return;
-		}
-
-		if (key.Keycode != Key.Space && key.Keycode != Key.Enter)
+		if (key.Keycode != Key.Escape && key.Keycode != Key.Space && key.Keycode != Key.Enter)
 		{
 			return;
 		}
 
-		// Видео листать нечего: пробел на нём означает «хватит».
-		if (_video.Visible)
+		GetViewport().SetInputAsHandled();
+
+		// Видео листать нечего: любая из этих клавиш на нём означает «хватит».
+		if (key.Keycode == Key.Escape || _video.Visible)
 		{
 			Finish();
 			return;

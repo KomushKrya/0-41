@@ -175,16 +175,6 @@ func _upgrade_phone() -> bool:
 
 	root.set_script(load("res://scripts/phone/DeskPhone.cs"))
 	root.add_to_group("interactive", true)
-	var visual_root := root.get_node("VisualRoot")
-	var ring_light := OmniLight3D.new()
-	ring_light.name = "RingLight"
-	ring_light.position = Vector3(0.0, 0.24, 0.0)
-	ring_light.light_color = Color(1.0, 0.12, 0.04)
-	ring_light.light_energy = 2.2
-	ring_light.omni_range = 0.85
-	ring_light.visible = false
-	_owned_child(visual_root, ring_light, root)
-
 	var interaction_area := Area3D.new()
 	interaction_area.name = "InteractionArea"
 	interaction_area.position = Vector3(0.0, 0.13, 0.0)

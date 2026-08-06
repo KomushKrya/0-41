@@ -11,11 +11,9 @@ using Kontur.Core.Model;
 /// </summary>
 public partial class DeskRadio : Node3D
 {
-	[Export] public NodePath SignalLightPath { get; set; } = new("VisualRoot/SignalLight");
 	[Export] public NodePath RadioDecisionUiPath { get; set; } = new("../../RadioDecisionLayer/RadioDecisionUI");
 
 	private readonly Dictionary<string, RadioTriggered> _pendingRequests = new(StringComparer.OrdinalIgnoreCase);
-	private OmniLight3D _signalLight = null!;
 	private RadioDecisionUI _decisionUi = null!;
 	private GameRuntime _runtime = null!;
 	private IDisposable _radioTriggeredSubscription = null!;
@@ -28,10 +26,8 @@ public partial class DeskRadio : Node3D
 
 	public override void _Ready()
 	{
-		_signalLight = GetNode<OmniLight3D>(SignalLightPath);
 		_decisionUi = GetNodeOrNull<RadioDecisionUI>(RadioDecisionUiPath)
 			?? GetTree().GetFirstNodeInGroup("radio_decision_ui") as RadioDecisionUI;
-		SetActiveVisual(false);
 		if (_decisionUi == null)
 		{
 			GD.PushError("DeskRadio: radio decision UI is not available.");
@@ -55,7 +51,6 @@ public partial class DeskRadio : Node3D
 			_decisionUi.ShowOutcome(outcome);
 		});
 		_shiftEndedSubscription = _runtime.Session.Events.Subscribe<ShiftEnded>(_ => ClearRequests());
-		RefreshActiveVisual();
 	}
 
 	public override void _ExitTree()
@@ -84,7 +79,6 @@ public partial class DeskRadio : Node3D
 		if (!FindMostUrgentRequest(out IncidentView incident, out RadioTriggered request))
 		{
 			error = "Нет ожидающих ответов по рации.";
-			RefreshActiveVisual();
 			return false;
 		}
 
@@ -92,7 +86,6 @@ public partial class DeskRadio : Node3D
 		if (!answered.IsSuccess)
 		{
 			error = answered.Error;
-			RefreshActiveVisual();
 			return false;
 		}
 
@@ -108,19 +101,16 @@ public partial class DeskRadio : Node3D
 	private void OnRadioTriggered(RadioTriggered request)
 	{
 		_pendingRequests[request.IncidentId] = request;
-		RefreshActiveVisual();
 	}
 
 	private void RemoveRequest(string incidentId)
 	{
 		_pendingRequests.Remove(incidentId);
-		RefreshActiveVisual();
 	}
 
 	private void ClearRequests()
 	{
 		_pendingRequests.Clear();
-		SetActiveVisual(false);
 	}
 
 	private bool FindMostUrgentRequest(out IncidentView incident, out RadioTriggered request)
@@ -150,15 +140,5 @@ public partial class DeskRadio : Node3D
 		}
 
 		return incident != null;
-	}
-
-	private void RefreshActiveVisual()
-	{
-		SetActiveVisual(IsActive);
-	}
-
-	private void SetActiveVisual(bool isActive)
-	{
-		_signalLight.Visible = isActive;
 	}
 }
