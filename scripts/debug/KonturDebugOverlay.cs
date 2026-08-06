@@ -279,7 +279,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 
 		_dispatchList.AddChild(new Label
 		{
-			Text = ContentTextResolver.ResolveCallMeta(selected.CallId, selected.CallId),
+			Text = ContentTextResolver.ResolveEntryName(selected.MissionId, selected.MissionId),
 			AutowrapMode = TextServer.AutowrapMode.WordSmart
 		});
 
@@ -1057,7 +1057,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 				builder.Append(" [color=#6f7a6f]ждёт действия[/color]");
 			}
 
-			builder.Append("\n    ").Append(ContentTextResolver.ResolveCallMeta(incident.CallId, incident.CallId))
+			builder.Append("\n    ").Append(ContentTextResolver.ResolveEntryName(incident.MissionId, incident.MissionId))
 				.Append("  требуется [").Append(incident.Requirements).Append("]\n");
 
 			if (incident.SquadEmployeeIds.Count > 0)

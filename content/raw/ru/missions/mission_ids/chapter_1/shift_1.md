@@ -15,5 +15,5 @@ day: 1
 | m_brother_smile   | Странная улыбка брата |
 | m_construction_intruders | Шпана пробралась на заброшенную стройку |
 | m_urgent_evacuation | Срочная эвакуация граждан |
-| m_false_gas_alarm | Пожилая отравилась газом (ложный вызов) |
-| m_workshop_intro | Знакомство с цеховиком |
+| m_false_gas_alarm | Пожилая отравилась газом |
+| m_workshop_intro | Незнакомый доброжелатель |

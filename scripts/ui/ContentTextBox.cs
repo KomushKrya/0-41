@@ -73,9 +73,6 @@ public abstract partial class ContentTextBox : Control
 	/// <summary>Куски в порядке файла, уже без скрытых. Пустой список, если записи нет.</summary>
 	protected IReadOnlyList<ContentChunk> Chunks => _chunks;
 
-	/// <summary>Шапка звонка (kind: call_meta) без квадратных скобок. Пустая строка, если её нет.</summary>
-	protected string CallMeta { get; private set; } = string.Empty;
-
 	public bool IsLoaded => Entry != null;
 
 	public override void _Ready()
@@ -266,7 +263,6 @@ public abstract partial class ContentTextBox : Control
 		return new ContentChunk
 		{
 			Text = Content.Fill(chunk.Text, Resolve),
-			Kind = chunk.Kind,
 			Reveal = chunk.Reveal,
 			Spans = spans
 		};
@@ -281,7 +277,6 @@ public abstract partial class ContentTextBox : Control
 	private void Rebuild()
 	{
 		_chunks.Clear();
-		CallMeta = string.Empty;
 
 		if (Entry != null)
 		{
@@ -292,14 +287,7 @@ public abstract partial class ContentTextBox : Control
 					continue;
 				}
 
-				ContentChunk ready = Substitute(chunk);
-
-				if (ready.IsCallMeta && CallMeta.Length == 0)
-				{
-					CallMeta = ready.Text;
-				}
-
-				_chunks.Add(ready);
+				_chunks.Add(Substitute(chunk));
 			}
 		}
 
