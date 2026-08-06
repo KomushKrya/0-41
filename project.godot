@@ -22,6 +22,7 @@ Content="*res://content/engine/content/Content.cs"
 GameRuntime="*res://scripts/kontur/GameRuntime.cs"
 GameFlow="*res://scripts/flow/GameFlow.cs"
 Pause="*res://scripts/ui/PauseMenu.cs"
+AudioManager="*res://scripts/audio/AudioManager.cs"
 
 [display]
 
