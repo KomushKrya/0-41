@@ -2,7 +2,9 @@ shader_type canvas_item;
 render_mode unshaded;
 
 uniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_linear;
-uniform sampler2D mask_texture : repeat_disable, filter_linear;
+// hint_default_white: без маски размытие прошлого экрана обнуляется —
+// подложка не должна проступать, пока переход не идёт.
+uniform sampler2D mask_texture : hint_default_white, repeat_disable, filter_linear;
 uniform float blur_radius_pixels = 7.0;
 
 void fragment() {

@@ -5,11 +5,18 @@ public partial class DashedRouteRenderer : Control
 {
 	[Export] public float DashLength { get; set; } = 12.0f;
 	[Export] public float GapLength { get; set; } = 7.0f;
-	[Export] public int VisibleDashCount { get; set; } = 5;
+	[Export] public int VisibleDashCount { get; set; } = 10;
 	[Export] public float LineWidth { get; set; } = 4.0f;
 	[Export] public float ShadowWidth { get; set; } = 7.0f;
-	[Export] public Color RouteColor { get; set; } = new(0.1f, 0.12f, 0.14f, 0.92f);
-	[Export] public Color ShadowColor { get; set; } = new(0.12f, 0.08f, 0.04f, 0.18f);
+	[Export] public Color RouteColor { get; set; } = new(0.1f, 0.12f, 0.14f, 1.0f);
+	[Export] public Color ShadowColor { get; set; } = new(0.12f, 0.08f, 0.04f, 0.3f);
+
+	/// <summary>
+	/// Непрозрачность самого старого пунктира в хвосте. Затухание линейное от неё
+	/// до единицы у головы: без нижнего порога хвост пропадал уже на втором
+	/// пунктире и след читался как одна точка.
+	/// </summary>
+	[Export(PropertyHint.Range, "0,1,0.01")] public float TailMinAlpha { get; set; } = 0.3f;
 
 	private readonly List<Vector2> _points = new();
 	private readonly List<float> _segmentLengths = new();
@@ -96,7 +103,7 @@ public partial class DashedRouteRenderer : Control
 
 			float sectionMid = (sectionStart + sectionEnd) * 0.5f;
 			float fade = Mathf.Clamp((sectionMid - tailStart) / tailLength, 0.0f, 1.0f);
-			DrawRouteSection(sectionStart, sectionEnd, fade * fade);
+			DrawRouteSection(sectionStart, sectionEnd, Mathf.Lerp(TailMinAlpha, 1.0f, fade));
 		}
 	}
 

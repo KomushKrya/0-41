@@ -43,6 +43,12 @@ public partial class DeskComputerInteraction : Node3D
 		}
 
 		_computerUi.DispatchSlotRequested += EnterDossierMode;
+		_computerUi.ShiftStartRequested += StartShift;
+
+		// Заставка ставится сразу, как собрался кабинет, а не при подходе к столу:
+		// монитор рисуется во вьюпорт постоянно, и игрок должен видеть, что смены
+		// ждут именно от него, ещё до того, как сядет за компьютер.
+		ShowShiftStartIfPending();
 	}
 
 	public override void _Input(InputEvent @event)
@@ -99,6 +105,37 @@ public partial class DeskComputerInteraction : Node3D
 
 		_activePlayer.FocusViewAt(_focusCameraPose);
 		_viewportInput.BeginInteraction();
+
+		ShowShiftStartIfPending();
+	}
+
+	/// <summary>
+	/// Смена не начата — терминал показывает заставку с одной кнопкой, а не
+	/// разделы, которым до начала смены нечего показывать.
+	/// </summary>
+	private void ShowShiftStartIfPending()
+	{
+		if (GameFlow.Instance != null && GameFlow.Instance.HasPendingShift)
+		{
+			_computerUi.BeginShiftStartMode();
+		}
+	}
+
+	/// <summary>
+	/// Кнопка «Приступить к смене»: смена идёт, игрок откидывается от монитора.
+	///
+	/// Выход из режима сам снимает паузу, поставленную при входе, — поэтому
+	/// симуляция трогается с места ровно тогда, когда камера пошла назад.
+	/// </summary>
+	private void StartShift()
+	{
+		if (GameFlow.Instance == null || !GameFlow.Instance.StartPendingShift())
+		{
+			return;
+		}
+
+		_computerUi.EndShiftStartMode();
+		ExitComputerMode();
 	}
 
 	public void EnterDispatchMode(

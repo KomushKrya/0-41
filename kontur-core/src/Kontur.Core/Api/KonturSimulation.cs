@@ -137,6 +137,12 @@ namespace Kontur.Core.Api
 			_state.Day = 0;
 
 			_scalesSystem.Reset();
+
+			// Автонабор идёт последним и вытесняет состав, расписанный в контенте.
+			// Обратный порядок был бы логичнее, но тогда отключить генерацию можно
+			// было бы только удалив людей из employees.json — а они там нужны как
+			// готовый именной состав для отладки и как образец разметки.
+			_rosterSystem.FillStartingRoster();
 		}
 
 		public CommandResult StartShift(int day)
@@ -324,6 +330,18 @@ namespace Kontur.Core.Api
 				if (string.Equals(incident.Id, incidentId, StringComparison.OrdinalIgnoreCase)) return _director.BuildOffers(incident);
 			}
 			return Array.Empty<RadioOptionOffer>();
+		}
+
+		/// <summary>Отладка: случайный запланированный вызов начинает звонить сейчас.</summary>
+		public CommandResult DebugRingRandomCall()
+		{
+			return _director.DebugRingRandomCall();
+		}
+
+		/// <summary>Отладка: рация поднимается по случайной миссии с событием.</summary>
+		public CommandResult DebugTriggerRandomRadio()
+		{
+			return _director.DebugTriggerRandomRadio();
 		}
 
 		public CommandResult OpenMissionOutcome(string incidentId)

@@ -94,6 +94,19 @@ namespace Kontur.Core.Model
 
 		/// <summary>Id отдельного брифинга в текстовом движке.</summary>
 
+		/// <summary>
+		/// Флаг, который ставится, когда миссия отыграна успешно.
+		///
+		/// Второй способ развести сюжет по веткам. Первый — выбор по рации
+		/// (MissionEventOption.SetsFlagId): развилку выбирает игрок. Здесь её
+		/// выбирает бросок: у миссии нет решения по рации, но её исход всё равно
+		/// открывает разные вызовы дальше.
+		/// </summary>
+		public string? SetsFlagOnSuccess { get; set; }
+
+		/// <summary>Флаг на провал миссии. Пара к <see cref="SetsFlagOnSuccess"/>.</summary>
+		public string? SetsFlagOnFailure { get; set; }
+
 		/// <summary>Требуемые показатели, сравниваются с суммой характеристик группы (ДД, раздел 7).</summary>
 		public StatBlock Requirements { get; set; } = StatBlock.Zero;
 

@@ -86,7 +86,11 @@ namespace Kontur.Core.Systems
 		{
 			_state.Day = day;
 			_shiftTime = 0.0;
-			_callQueueCooldown = 0.0;
+
+			// Первый звонок не мгновенный: игроку нужно осмотреться и прочитать записку.
+			TimingConfig startTimings = _content.Config.Timings;
+			_callQueueCooldown = RandomSeconds(startTimings.FirstCallMinSeconds, startTimings.FirstCallMaxSeconds);
+
 			_callWindowClosed = false;
 			_spawnedCount = 0;
 			_counters = new ShiftCounters();
@@ -135,7 +139,15 @@ namespace Kontur.Core.Systems
 				}
 			}
 
-			if (!_callWindowClosed && _shiftTime >= _content.Config.Timings.ShiftCallWindowSeconds)
+			// Окно приёма закрывается, как только расписание исчерпано.
+			//
+			// Пятиминутный таймер остался от случайного подбора: тогда нельзя было
+			// знать, придёт ли ещё вызов, и приходилось ждать до упора. Сейчас
+			// расписание конечно и известно заранее — ждать нечего. Со старым
+			// правилом смена из трёх звонков, отработанная за полторы минуты,
+			// держала игрока в пустом кабинете ещё три с половиной. А расписание
+			// длиннее пяти минут, наоборот, обрывалось вместе со сменой.
+			if (!_callWindowClosed && _pending.Count == 0)
 			{
 				_callWindowClosed = true;
 				_bus.Publish(new CallWindowClosed(_state.Day, CountOpenIncidents()));
@@ -148,7 +160,8 @@ namespace Kontur.Core.Systems
 		{
 			DayConfig dayConfig = _content.Config.GetDay(_state.Day);
 
-			// _pending отсортирован по времени, поэтому всегда берём с головы.
+			// Вызовы идут строго по одному: следующий звонит, когда истечёт пауза,
+			// заведённая после закрытия предыдущего разговора. Расписания по времени нет.
 			while (_pending.Count > 0)
 			{
 				bool isSequential = _spawnedCount < dayConfig.SequentialCallCount;
@@ -161,7 +174,14 @@ namespace Kontur.Core.Systems
 						break;
 					}
 				}
-				else if (_pending[0].ScheduledAtSeconds > _shiftTime)
+				else if (_callQueueCooldown > 0.0)
+				{
+					break;
+				}
+
+				// Линия занята — вызов ждёт в расписании, а не переезжает в очередь:
+				// иначе один тик выгреб бы весь список и смена «закрыла приём» сразу.
+				if (IsPhoneLineBusy())
 				{
 					break;
 				}
@@ -170,30 +190,11 @@ namespace Kontur.Core.Systems
 				_pending.RemoveAt(0);
 				_incidents.Add(incident);
 				_spawnedCount++;
-				if (isSequential && _spawnedCount == dayConfig.SequentialCallCount)
-				{
-					RebaseRemainingSchedule();
-				}
-
-				if (IsPhoneLineBusy() || _callQueueCooldown > 0.0)
-				{
-					incident.SetPhase(IncidentPhase.Queued, null);
-					_bus.Publish(new IncidentQueued(
-						incident.Id,
-						incident.Mission.Id,
-						incident.BuildingId,
-						CountQueuedIncidents()));
-					continue;
-				}
 
 				StartRinging(incident, dayConfig);
 
-				// Сценарная часть закончилась — остаток расписания сдвигаем от текущего момента,
-				// иначе давно просроченные времена выпустили бы все вызовы разом.
-				if (isSequential && _spawnedCount == dayConfig.SequentialCallCount)
-				{
-					RebaseRemainingSchedule();
-				}
+				// За тик выпускаем ровно один звонок: остальные ждут своей паузы.
+				break;
 			}
 		}
 
@@ -226,6 +227,80 @@ namespace Kontur.Core.Systems
 				incident.BuildingId,
 				incident.Mission.CallId,
 				ringSeconds));
+		}
+
+		/// <summary>
+		/// Отладка: заставляет случайный запланированный вызов зазвонить сейчас.
+		///
+		/// Берём из уже собранного расписания смены, а не сочиняем инцидент с нуля:
+		/// так вызов приходит со своим зданием, миссией и текстом, и дальше идёт
+		/// обычным путём — брифинг, метка, отправка.
+		/// </summary>
+		public CommandResult DebugRingRandomCall()
+		{
+			var candidates = new List<IncidentRuntime>();
+			for (int i = 0; i < _incidents.Count; i++)
+			{
+				IncidentPhase phase = _incidents[i].Phase;
+				if (phase == IncidentPhase.Scheduled || phase == IncidentPhase.Queued)
+				{
+					candidates.Add(_incidents[i]);
+				}
+			}
+
+			if (candidates.Count == 0)
+			{
+				return CommandResult.Fail("Нет запланированных вызовов: начните смену.");
+			}
+
+			IncidentRuntime picked = candidates[_random.NextInt(0, candidates.Count)];
+			StartRinging(picked, _content.Config.GetDay(_state.Day));
+			return CommandResult.Ok();
+		}
+
+		/// <summary>
+		/// Отладка: поднимает рацию по случайной миссии, у которой есть событие.
+		///
+		/// Группу никуда не отправляем — экран рации её и не требует: ему нужен
+		/// инцидент в фазе RadioPending и список вариантов. Зато проверяется весь
+		/// путь от сигнала до выбора и итога.
+		/// </summary>
+		public CommandResult DebugTriggerRandomRadio()
+		{
+			var candidates = new List<IncidentRuntime>();
+			for (int i = 0; i < _incidents.Count; i++)
+			{
+				IncidentRuntime incident = _incidents[i];
+				if (incident.Phase == IncidentPhase.Closed
+					|| incident.Phase == IncidentPhase.RadioPending
+					|| string.IsNullOrWhiteSpace(incident.Mission.MissionEventId))
+				{
+					continue;
+				}
+
+				if (_content.FindMissionEvent(incident.Mission.MissionEventId!) != null)
+				{
+					candidates.Add(incident);
+				}
+			}
+
+			if (candidates.Count == 0)
+			{
+				return CommandResult.Fail("Нет миссий с рацией: начните смену.");
+			}
+
+			IncidentRuntime picked = candidates[_random.NextInt(0, candidates.Count)];
+			MissionEventDefinition missionEvent = _content.FindMissionEvent(picked.Mission.MissionEventId!)!;
+
+			double radioSeconds = GetTimer(
+				_content.Config.GetDay(_state.Day),
+				_content.Config.Timings.RadioSeconds);
+
+			picked.MissionEvent = missionEvent;
+			picked.RadioWasTriggered = true;
+			picked.SetPhase(IncidentPhase.RadioPending, radioSeconds > 0.0 ? radioSeconds : (double?)null);
+			_bus.Publish(new RadioTriggered(picked.Id, missionEvent.Id, BuildOffers(picked), radioSeconds));
+			return CommandResult.Ok();
 		}
 
 		private bool IsPhoneLineBusy()
@@ -261,13 +336,27 @@ namespace Kontur.Core.Systems
 			_callQueueCooldown = Math.Max(_callQueueCooldown, _content.Config.Timings.CallQueueGapSeconds);
 		}
 
-		private void RebaseRemainingSchedule()
+		/// <summary>
+		/// Заводит паузу до следующего звонка. Зовётся, когда разговор закрыт: игрок
+		/// подтвердил бриф либо упустил вызов. Длительность случайная, поэтому ритм
+		/// смены каждый раз свой, но при одном seed прогон воспроизводится.
+		/// </summary>
+		private void StartNextCallDelay()
 		{
-			double gap = _content.Config.Timings.MinSecondsBetweenCalls;
-			for (int i = 0; i < _pending.Count; i++)
+			TimingConfig timings = _content.Config.Timings;
+			_callQueueCooldown = Math.Max(
+				_callQueueCooldown,
+				RandomSeconds(timings.NextCallMinSeconds, timings.NextCallMaxSeconds));
+		}
+
+		private double RandomSeconds(double min, double max)
+		{
+			if (max <= min)
 			{
-				_pending[i].ScheduledAtSeconds = _shiftTime + (gap * (i + 1));
+				return min > 0.0 ? min : 0.0;
 			}
+
+			return min + (_random.NextDouble() * (max - min));
 		}
 
 		/// <summary>
@@ -562,7 +651,8 @@ namespace Kontur.Core.Systems
 		private void HandleCallMissed(IncidentRuntime incident)
 		{
 			_counters.MissedCalls++;
-			StartCallQueueCooldown();
+			// Вызов упущен — это тоже конец разговора, значит заводим паузу до следующего.
+			StartNextCallDelay();
 			_bus.Publish(new CallMissed(incident.Id, incident.Mission.Id));
 			ResolveAutoFailure(incident, MissionResolutionReason.CallMissed, incident.Mission.ScalesOnMissedCall, "пропущен звонок");
 		}
@@ -616,6 +706,15 @@ namespace Kontur.Core.Systems
 			// ДД, раздел 4: не автопровал — бросок с повышенным шансом провала.
 			incident.RadioWasMissed = true;
 			_bus.Publish(new RadioMissed(incident.Id));
+
+			// И сразу штраф по шкалам. Резать один только бросок мало: результат
+			// придёт через минуту вместе с исходом миссии, и игрок не свяжет его
+			// с тем, что промолчал в эфир. Шкалы дёргаются в тот же момент —
+			// как при пропущенном звонке, только мягче: группа на месте и действует.
+			_scales.Apply(
+				_content.Config.MissionEvents.ScalesOnMissedRadio.ToDelta(),
+				"не ответили по рации");
+
 			BeginMissionExecution(incident);
 		}
 
@@ -724,6 +823,16 @@ namespace Kontur.Core.Systems
 			else
 			{
 				_counters.Failures++;
+			}
+
+			// Развилка без решения по рации: ветку выбирает исход броска.
+			// У миссии с решением флаг ставит выбранный вариант — здесь его нет,
+			// и партии надо запомнить, чем кончилось, иначе следующие смены
+			// не получат ни одной из взаимоисключающих миссий-последствий.
+			string? outcomeFlag = outcome.IsSuccess ? mission.SetsFlagOnSuccess : mission.SetsFlagOnFailure;
+			if (!string.IsNullOrEmpty(outcomeFlag))
+			{
+				_state.Flags.Set(outcomeFlag!);
 			}
 
 			_bus.Publish(new MissionResolved(outcome));
@@ -1079,6 +1188,10 @@ namespace Kontur.Core.Systems
 				_content.Config.GetDay(_state.Day),
 				_content.Config.Timings.MapMarkerSeconds);
 			incident.SetPhase(IncidentPhase.MarkerActive, markerSeconds > 0.0 ? markerSeconds : (double?)null);
+
+			// Трубка положена — отсюда и отсчитывается пауза до следующего звонка.
+			StartNextCallDelay();
+
 			_bus.Publish(new BriefingConfirmed(incident.Id, incident.Mission.Id, incident.BuildingId, markerSeconds));
 			_bus.Publish(new MapMarkerSpawned(incident.Id, incident.BuildingId, markerSeconds));
 

@@ -72,9 +72,19 @@ public partial class EncyclopediaScreenUI : DosSplitScreen
 			text.AppendLine(ContentSpanFormatter.Escape(ResolveName(creatureId).ToUpperInvariant()));
 			text.AppendLine();
 
-			// Вскрытые свойства идут первыми: это то, что группа добыла на выездах
-			// и с чем ей работать. Общее описание из статьи — ниже, оно известно
-			// с самого начала и на решения не влияет.
+			// Общее описание идёт первым: оно известно с самого начала, и статья
+			// читается как статья — сперва о ком речь, потом что о нём выяснили.
+			// Вскрытые свойства — под чертой: они копятся по ходу игры, и статья
+			// растёт вниз, не сдвигая уже прочитанное начало.
+			string description = ResolveDescription(creatureId);
+			if (!string.IsNullOrWhiteSpace(description))
+			{
+				text.AppendLine(description);
+				text.AppendLine();
+				text.AppendLine(new string('─', 40));
+				text.AppendLine();
+			}
+
 			for (int i = 0; i < entry.RevealedPropertyIds.Count; i++)
 			{
 				text.AppendLine("· " + ResolveProperty(creatureId, entry.RevealedPropertyIds[i]));
@@ -85,20 +95,10 @@ public partial class EncyclopediaScreenUI : DosSplitScreen
 			if (entry.RevealedPropertyIds.Count == 0)
 			{
 				text.AppendLine(ContentSpanFormatter.Escape("Сведений нет. Свойства вскрываются по итогам выездов."));
-				text.AppendLine();
 			}
 			else if (hidden > 0)
 			{
 				text.AppendLine(ContentSpanFormatter.Escape($"Не выяснено: {hidden}."));
-				text.AppendLine();
-			}
-
-			string description = ResolveDescription(creatureId);
-			if (!string.IsNullOrWhiteSpace(description))
-			{
-				text.AppendLine(new string('─', 40));
-				text.AppendLine();
-				text.AppendLine(description);
 			}
 
 			return text.ToString();

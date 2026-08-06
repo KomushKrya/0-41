@@ -192,6 +192,7 @@ namespace Kontur.Core.Content
 			settings.StatPointsBase = dto.StatPointsBase; settings.StatPointsPerLevel = dto.StatPointsPerLevel;
 			settings.PrimaryWeight = dto.PrimaryWeight; settings.SecondaryWeight = dto.SecondaryWeight;
 			settings.StartingChoicePoolSize = dto.StartingChoicePoolSize;
+			settings.StartingRosterSize = dto.StartingRosterSize;
 			settings.AbilitiesBase = dto.AbilitiesBase; settings.SecondAbilityFromLevel = dto.SecondAbilityFromLevel;
 			if (dto.BioSlots != null) settings.BioSlots.AddRange(dto.BioSlots);
 			if (dto.Surnames != null) settings.Surnames.AddRange(dto.Surnames);
@@ -251,6 +252,8 @@ namespace Kontur.Core.Content
 					OnSiteSeconds = dto.OnSiteSeconds,
 					ReturnSeconds = dto.ReturnSeconds,
 					MissionEventId = string.IsNullOrWhiteSpace(dto.MissionEventId) ? null : dto.MissionEventId,
+					SetsFlagOnSuccess = string.IsNullOrWhiteSpace(dto.SetsFlagOnSuccess) ? null : dto.SetsFlagOnSuccess,
+					SetsFlagOnFailure = string.IsNullOrWhiteSpace(dto.SetsFlagOnFailure) ? null : dto.SetsFlagOnFailure,
 					ScalesOnSuccess = ToDelta(dto.ScalesOnSuccess),
 					ScalesOnFailure = ToDelta(dto.ScalesOnFailure),
 					ScalesOnMissedCall = ToDelta(dto.ScalesOnMissedCall),

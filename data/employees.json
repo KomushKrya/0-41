@@ -111,7 +111,8 @@
 	"abilitiesBase": 1,
 	"secondAbilityFromLevel": 3,
 
-	"startingChoicePoolSize": 6,
+	"startingChoicePoolSize": 0,
+	"startingRosterSize": 2,
 
 	"levelLagBehindDay": 1,
 	"levelSpread": 1,

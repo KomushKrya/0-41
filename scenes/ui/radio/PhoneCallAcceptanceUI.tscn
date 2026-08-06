@@ -1,67 +1,67 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene format=3 uid="uid://babfa6s4xmf6"]
 
-[ext_resource type="Script" path="res://scripts/ui/phone/PhoneCallAcceptanceUI.cs" id="1_phone_ui"]
-[ext_resource type="Shader" path="res://assets/shaders/PhoneCallBackgroundBlur.gdshader" id="2_background_blur"]
+[ext_resource type="Script" uid="uid://bmd12onid24fq" path="res://scripts/ui/phone/PhoneCallAcceptanceUI.cs" id="1_phone_ui"]
+[ext_resource type="Shader" uid="uid://6yr3dxiihk7u" path="res://assets/shaders/RadioLumaMask.gdshader" id="2_luma_mask"]
+[ext_resource type="Shader" uid="uid://clggwdpfoh2qp" path="res://assets/shaders/VideoMaskSource.gdshader" id="3_video_source"]
+[ext_resource type="Shader" uid="uid://b31vwmkhmqv5j" path="res://assets/shaders/RadioPreviousScreenBlur.gdshader" id="4_previous_blur"]
+[ext_resource type="Shader" uid="uid://htpiatoga1dp" path="res://assets/shaders/IllustrationMask.gdshader" id="5_illo_mask"]
+[ext_resource type="Texture2D" uid="uid://bdsshnyt7su8b" path="res://assets/textures/ui/illustration_masks/Маска картинки экрана выбора.png" id="6_illo_mask_tex"]
+[ext_resource type="Theme" uid="uid://e3caa1e43c8l" path="res://assets/themes/KonturUi.tres" id="7_kontur_ui"]
+[ext_resource type="Texture2D" uid="uid://ov05ujyf6h4y" path="res://assets/textures/ui/frames/title_frame_top.png" id="8_frame_top"]
+[ext_resource type="Texture2D" uid="uid://d17w53fggmmo3" path="res://assets/textures/ui/frames/title_frame_bottom.png" id="9_frame_bottom"]
+[ext_resource type="FontFile" uid="uid://klsb3josflx6" path="res://assets/fonts/kontur_soviet_typewriter.otf" id="10_typewriter"]
+[ext_resource type="VideoStream" uid="uid://8lelwnp8nkqb" path="res://assets/video/transition_masks/call/call_mask1.ogv" id="11_call_mask1"]
+[ext_resource type="VideoStream" uid="uid://bxdxx215en4d5" path="res://assets/video/transition_masks/call/call_mask2.ogv" id="12_call_mask2"]
+[ext_resource type="VideoStream" uid="uid://c1eeuuy1yt4au" path="res://assets/video/transition_masks/call/call_mask3.ogv" id="13_call_mask3"]
 
-[sub_resource type="SystemFont" id="SystemFont_terminal"]
-font_names = PackedStringArray("Cascadia Mono", "Consolas", "Courier New")
-subpixel_positioning = 0
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_luma_mask"]
+shader = ExtResource("2_luma_mask")
+shader_parameter/closing = 0.0
 
-[sub_resource type="StyleBoxFlat" id="StyleBox_frame"]
-bg_color = Color(0.012, 0.025, 0.018, 0.97)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.24, 0.64, 0.38, 0.82)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
-shadow_color = Color(0, 0, 0, 0.72)
-shadow_size = 16
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_illo_mask"]
+shader = ExtResource("5_illo_mask")
+shader_parameter/mask_texture = ExtResource("6_illo_mask_tex")
+shader_parameter/node_rect = Vector4(0, 0, 1, 1)
+shader_parameter/mask_strength = 1.0
 
-[sub_resource type="StyleBoxFlat" id="StyleBox_illustration"]
-bg_color = Color(0.006, 0.018, 0.012, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.15, 0.38, 0.23, 0.78)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
+[sub_resource type="FontVariation" id="FontVariation_header"]
+base_font = ExtResource("10_typewriter")
+spacing_glyph = 2
 
-[sub_resource type="StyleBoxFlat" id="StyleBox_confirm"]
-bg_color = Color(0.04, 0.13, 0.07, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.33, 0.74, 0.42, 0.85)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_video_source"]
+shader = ExtResource("3_video_source")
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_background_blur"]
-shader = ExtResource("2_background_blur")
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_previous_blur"]
+shader = ExtResource("4_previous_blur")
 shader_parameter/blur_radius_pixels = 7.0
 
-[node name="PhoneCallAcceptanceUI" type="Control"]
-custom_minimum_size = Vector2(960, 540)
+[node name="PhoneCallAcceptanceUI" type="Control" unique_id=1947818757]
+custom_minimum_size = Vector2(1280, 720)
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 0
+theme = ExtResource("7_kontur_ui")
 script = ExtResource("1_phone_ui")
+TransitionMasks = Array[VideoStream]([ExtResource("11_call_mask1"), ExtResource("12_call_mask2"), ExtResource("13_call_mask3")])
 
-[node name="PreviousScreenBlur" type="ColorRect" parent="."]
-visible = false
+[node name="TransitionGroup" type="CanvasGroup" parent="." unique_id=253127510]
+material = SubResource("ShaderMaterial_luma_mask")
+fit_margin = 0.0
+clear_margin = 0.0
+
+[node name="ScreenContent" type="Control" parent="TransitionGroup" unique_id=2009419263]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1280.0
+offset_bottom = 720.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("7_kontur_ui")
+
+[node name="Background" type="ColorRect" parent="TransitionGroup/ScreenContent" unique_id=1249506296]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -69,158 +69,140 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-z_index = -1
-material = SubResource("ShaderMaterial_background_blur")
-color = Color(1, 1, 1, 1)
+color = Color(0.008, 0.008, 0.01, 1)
 
-[node name="BackdropShade" type="ColorRect" parent="."]
+[node name="Illustration" type="TextureRect" parent="TransitionGroup/ScreenContent" unique_id=556514187]
+material = SubResource("ShaderMaterial_illo_mask")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 475.0
+offset_top = 191.0
+offset_right = -211.22217
+offset_bottom = -195.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0, 0, 0, 0.16)
-
-[node name="ContentFrame" type="Panel" parent="."]
-layout_mode = 1
-anchors_preset = 0
-anchor_left = 0.23
-anchor_top = 0.22
-anchor_right = 0.77
-anchor_bottom = 0.75
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBox_frame")
-
-[node name="Header" type="Label" parent="ContentFrame"]
-layout_mode = 1
-anchors_preset = 0
-anchor_left = 0.06
-anchor_top = 0.07
-anchor_right = 0.94
-anchor_bottom = 0.16
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.65, 1, 0.72, 1)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 18
-text = "К.О.Н.Т.У.Р.-Д  /  ТЕЛЕФОННАЯ ЛИНИЯ"
-horizontal_alignment = 1
-
-[node name="Divider" type="ColorRect" parent="ContentFrame"]
-layout_mode = 1
-anchors_preset = 0
-anchor_left = 0.06
-anchor_top = 0.2
-anchor_right = 0.94
-anchor_bottom = 0.205
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.22, 0.58, 0.35, 0.55)
-
-[node name="IllustrationPanel" type="Panel" parent="ContentFrame"]
-layout_mode = 1
-anchors_preset = 0
-anchor_left = 0.065
-anchor_top = 0.27
-anchor_right = 0.39
-anchor_bottom = 0.88
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBox_illustration")
-
-[node name="Illustration" type="TextureRect" parent="ContentFrame/IllustrationPanel"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 12.0
-offset_top = 12.0
-offset_right = -12.0
-offset_bottom = -12.0
-grow_horizontal = 2
-grow_vertical = 2
 expand_mode = 1
-stretch_mode = 5
-mouse_filter = 2
+stretch_mode = 6
 
-[node name="Placeholder" type="Label" parent="ContentFrame/IllustrationPanel"]
+[node name="ScreenOverlay" type="Control" parent="." unique_id=1457173299]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
+anchor_left = 0.075
+anchor_right = 0.925
 anchor_bottom = 1.0
-offset_left = 12.0
-offset_top = 12.0
-offset_right = -12.0
-offset_bottom = -12.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(0.25, 0.52, 0.33, 0.8)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 16
-text = "[ ИЛЛЮСТРАЦИЯ\n  ВЫЗОВА ]"
+mouse_filter = 2
+
+[node name="TitleFrameTop" type="TextureRect" parent="ScreenOverlay" unique_id=548058177]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.273
+anchor_top = 0.299
+anchor_right = 0.625
+anchor_bottom = 0.329
+offset_left = -90.0
+offset_right = -90.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("8_frame_top")
+expand_mode = 1
+
+[node name="CallTitle" type="Label" parent="ScreenOverlay" unique_id=211363827]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.273
+anchor_top = 0.329
+anchor_right = 0.625
+anchor_bottom = 0.382
+offset_left = -90.0
+offset_right = -90.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_fonts/font = SubResource("FontVariation_header")
+theme_override_font_sizes/font_size = 24
+text = "ВХОДЯЩИЙ ВЫЗОВ"
 horizontal_alignment = 1
 vertical_alignment = 1
-
-[node name="CallTitle" type="Label" parent="ContentFrame"]
-layout_mode = 1
-anchors_preset = 0
-anchor_left = 0.45
-anchor_top = 0.29
-anchor_right = 0.93
-anchor_bottom = 0.42
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.78, 1, 0.8, 1)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 23
-text = "ВХОДЯЩИЙ ВЫЗОВ"
 autowrap_mode = 2
 
-[node name="Description" type="RichTextLabel" parent="ContentFrame"]
+[node name="TitleFrameBottom" type="TextureRect" parent="ScreenOverlay" unique_id=1943279314]
 layout_mode = 1
-anchors_preset = 0
-anchor_left = 0.45
-anchor_top = 0.48
-anchor_right = 0.93
-anchor_bottom = 0.66
+anchors_preset = -1
+anchor_left = 0.281
+anchor_top = 0.389
+anchor_right = 0.617
+anchor_bottom = 0.401
+offset_left = -90.0
+offset_right = -90.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/default_color = Color(0.75, 0.9, 0.77, 1)
-theme_override_fonts/normal_font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/normal_font_size = 15
+mouse_filter = 2
+texture = ExtResource("9_frame_bottom")
+expand_mode = 1
+
+[node name="Description" type="RichTextLabel" parent="ScreenOverlay" unique_id=1915707611]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.281
+anchor_top = 0.424
+anchor_right = 0.617
+anchor_bottom = 0.597
+offset_left = -90.0
+offset_right = -90.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 bbcode_enabled = true
-text = "Тестовое описание вызова."
+text = "Алло? Алло. Да, здравствуйте, меня зовут Наталья. У меня неделю назад отклеились обои от стен, а под ними какая-то непонятная плесень."
 scroll_active = false
 
-[node name="ConfirmButton" type="Button" parent="ContentFrame"]
+[node name="ConfirmButton" type="Button" parent="ScreenOverlay" unique_id=1956765006]
 layout_mode = 1
-anchors_preset = 0
-anchor_left = 0.45
-anchor_top = 0.74
-anchor_right = 0.93
-anchor_bottom = 0.88
+anchors_preset = -1
+anchor_left = 0.281
+anchor_top = 0.632
+anchor_right = 0.62
+anchor_bottom = 0.69
+offset_left = -90.0
+offset_right = -90.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(0.78, 1, 0.8, 1)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 16
-theme_override_styles/normal = SubResource("StyleBox_confirm")
-text = "ПОДТВЕРДИТЬ ПРИНЯТИЕ ВЫЗОВА"
+text = "ПРИНЯТЬ ВЫЗОВ"
+autowrap_mode = 2
 
-[node name="PausedHint" type="Label" parent="."]
+[node name="TransitionPlayer" type="VideoStreamPlayer" parent="." unique_id=199455494]
+z_index = -1
+material = SubResource("ShaderMaterial_video_source")
 layout_mode = 1
-anchors_preset = 0
-anchor_left = 0.23
-anchor_top = 0.78
-anchor_right = 0.77
-anchor_bottom = 0.82
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(0.56, 0.8, 0.61, 0.86)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 13
-text = "СИМУЛЯЦИЯ ПРИОСТАНОВЛЕНА  •  ОЖИДАЕТСЯ ПОДТВЕРЖДЕНИЕ"
-horizontal_alignment = 1
+mouse_filter = 2
+stream = ExtResource("11_call_mask1")
+expand = true
+
+[node name="InputBlocker" type="ColorRect" parent="." unique_id=1002576688]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0)
+
+[node name="PreviousScreenBlur" type="ColorRect" parent="." unique_id=71414232]
+z_index = -2
+material = SubResource("ShaderMaterial_previous_blur")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2

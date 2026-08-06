@@ -8,9 +8,9 @@ assets/portraits/port_gorin.png
 ```
 
 Досье ищет портрет по двум путям подряд: сначала `res://assets/portraits/<id>.png`,
-затем `res://assets/textures/<id>.png`. Если не нашлось ни там, ни там, подставляется
-заглушка `res://assets/textures/test man.png` — см. `LoadPortrait` в
-`scripts/dossier/DossierDispatchUI.cs`.
+затем `res://assets/textures/<id>.png`. Если не нашлось ни там, ни там, рамка
+остаётся пустой — заглушки нет намеренно, чтобы недостающий портрет было видно
+сразу. См. `LoadPortrait` в `scripts/dossier/DossierDispatchUI.cs`.
 
 ## Формат
 

@@ -41,6 +41,10 @@ public partial class HiringScreen : Control
 
 	public override void _Ready()
 	{
+		// Сюда приходят прямо из кабинета, где мышь захвачена игроком.
+		// Без этой строки карточки кандидатов не нажать: курсора не видно.
+		CursorMode.Show(this);
+
 		if (GameFlow.Instance != null)
 		{
 			_isStartingChoice = GameFlow.Instance.HiringIsStartingChoice;

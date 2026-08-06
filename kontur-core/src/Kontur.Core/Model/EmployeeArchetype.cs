@@ -44,6 +44,16 @@ namespace Kontur.Core.Model
 		public int AbilitiesBase { get; set; } = 1;
 		public int SecondAbilityFromLevel { get; set; } = 3;
 		public int StartingChoicePoolSize { get; set; }
+
+		/// <summary>
+		/// Сколько оперативников выдать игроку на старте, если стартовый состав
+		/// не расписан руками в контенте.
+		///
+		/// Меньше потолка первой смены намеренно: у игрока сразу есть свободное
+		/// место, и первый же найм он делает по своей воле, а не потому, что
+		/// кого-то потерял.
+		/// </summary>
+		public int StartingRosterSize { get; set; } = 2;
 		public bool IsEnabled => CandidatesPerShift > 0 && Archetypes.Count > 0 && Surnames.Count > 0;
 		public LevelRange GetLevelRange(int day)
 		{

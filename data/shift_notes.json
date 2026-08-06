@@ -1,18 +1,18 @@
 [
   {
     "day": 1,
-    "outroCutsceneId": "cutscene_day1_day2"
+    "outroCutsceneId": "cutscene_before_shift_2"
   },
   {
     "day": 2,
-    "outroCutsceneId": "cutscene_day2_day3"
+    "outroCutsceneId": "cutscene_before_shift_3"
   },
   {
     "day": 3,
-    "outroCutsceneId": "cutscene_day3_day4"
+    "outroCutsceneId": "cutscene_before_shift_4"
   },
   {
     "day": 4,
-    "outroCutsceneId": "cutscene_finale"
+    "outroCutsceneId": "cutscene_part_1_end"
   }
 ]

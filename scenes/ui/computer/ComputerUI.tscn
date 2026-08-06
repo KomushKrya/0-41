@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=3 uid="uid://bm77c8pw658tt"]
+[gd_scene load_steps=7 format=3 uid="uid://bm77c8pw658tt"]
 
 [ext_resource type="Script" uid="uid://dd3xobbl8y0uc" path="res://scripts/computer/ComputerUI.cs" id="1_ui"]
 [ext_resource type="PackedScene" path="res://scenes/ui/computer/screens/ComputerRoster.tscn" id="2_roster"]
 [ext_resource type="PackedScene" path="res://scenes/ui/computer/screens/MissionDispatch.tscn" id="3_mission_dispatch"]
 [ext_resource type="PackedScene" path="res://scenes/ui/computer/screens/EquipmentSelection.tscn" id="4_equipment"]
 [ext_resource type="PackedScene" path="res://scenes/ui/computer/screens/Encyclopedia.tscn" id="5_encyclopedia"]
+[ext_resource type="PackedScene" path="res://scenes/ui/computer/screens/ShiftStart.tscn" id="6_shift_start"]
 
 [node name="ComputerUI" type="Control" unique_id=509066466]
 custom_minimum_size = Vector2(900, 600)
@@ -19,6 +20,7 @@ EmployeesScreenScene = ExtResource("2_roster")
 MissionDispatchScreenScene = ExtResource("3_mission_dispatch")
 EquipmentScreenScene = ExtResource("4_equipment")
 EncyclopediaScreenScene = ExtResource("5_encyclopedia")
+ShiftStartScreenScene = ExtResource("6_shift_start")
 
 [node name="ComputerCursor" type="ColorRect" parent="." unique_id=565099665]
 visible = false

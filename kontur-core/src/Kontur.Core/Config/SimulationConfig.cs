@@ -59,17 +59,31 @@ namespace Kontur.Core.Config
 		/// <summary>ДД, раздел 4: 15 секунд на ответ.</summary>
 		public double PhoneRingSeconds { get; set; } = 15.0;
 
-		/// <summary>ДД, раздел 4: метка держится 30 секунд.</summary>
+		/// <summary>Метка на карте держится 20 секунд.</summary>
 		public double MapMarkerSeconds { get; set; } = 20.0;
 
-		/// <summary>ДД, раздел 4: 20 секунд на реакцию по радио.</summary>
-		public double RadioSeconds { get; set; } = 20.0;
+		/// <summary>15 секунд на реакцию по радио.</summary>
+		public double RadioSeconds { get; set; } = 15.0;
 
-		/// <summary>ДД, раздел 3, п. 14: 5 минут реального времени на приём новых вызовов.</summary>
-		public double ShiftCallWindowSeconds { get; set; } = 300.0;
+		/// <summary>
+		/// Пауза до первого звонка смены. Разброс, а не фиксированное число:
+		/// начало смены не должно быть одинаковым от прогона к прогону.
+		/// </summary>
+		public double FirstCallMinSeconds { get; set; } = 5.0;
 
-		/// <summary>Минимальный зазор между запланированными звонками.</summary>
-		public double MinSecondsBetweenCalls { get; set; } = 12.0;
+		/// <summary>Верхняя граница паузы до первого звонка.</summary>
+		public double FirstCallMaxSeconds { get; set; } = 10.0;
+
+		/// <summary>
+		/// Пауза до следующего звонка. Отсчитывается от момента, когда игрок закрыл
+		/// предыдущий разговор (нажал ОК на брифе) или упустил вызов. Берётся случайно
+		/// из диапазона, поэтому ритм смены каждый раз свой, а расписание заранее
+		/// не строится: смена длится, пока не отыграны все миссии дня.
+		/// </summary>
+		public double NextCallMinSeconds { get; set; } = 5.0;
+
+		/// <summary>Верхняя граница паузы до следующего звонка.</summary>
+		public double NextCallMaxSeconds { get; set; } = 40.0;
 
 		/// <summary>Короткий зазор после освобождения телефонной линии перед следующим звонком из очереди.</summary>
 		public double CallQueueGapSeconds { get; set; } = 2.0;
@@ -191,6 +205,15 @@ namespace Kontur.Core.Config
 		// Ноль означает «день не описан в контенте»: GetStaffLimit применит
 		// формулу продолжения прогрессии вместо фиктивного стартового лимита.
 		public int StaffLimit { get; set; }
+
+		/// <summary>
+		/// Точные секунды звонков от начала смены.
+		///
+		/// Заполнено — расписание берётся отсюда целиком, а MinCalls/MaxCalls
+		/// не смотрятся: количество вызовов равно длине списка. Так день можно
+		/// поставить как сцену, не полагаясь на удачный бросок.
+		/// </summary>
+		public List<double> CallTimes { get; } = new List<double>();
 
 		/// <summary>ДД, раздел 3, п. 13: от 5 до 10 вызовов за смену.</summary>
 		public int MinCalls { get; set; } = 5;

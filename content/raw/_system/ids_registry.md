@@ -142,7 +142,6 @@
 | `radio_wall_infection` | radio | content/raw/ru/missions/radio/chapter_1/shift_4/wall_infection.md |
 | `radio_workshop_depot` | radio | content/raw/ru/missions/radio/chapter_1/shift_3/workshop_depot.md |
 | `radio_workshop_forest` | radio | content/raw/ru/missions/radio/chapter_1/shift_3/workshop_forest.md |
-| `radio_workshop_gravel` | radio | content/raw/ru/missions/radio/chapter_1/shift_2/workshop_gravel.md |
 | `radio_workshop_papers` | radio | content/raw/ru/missions/radio/chapter_1/shift_4/workshop_papers.md |
 | `report_black_mold_carpets_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_1/black_mold/black_mold_carpets_failure.md |
 | `report_black_mold_carpets_success` | report | content/raw/ru/missions/reports/chapter_1/shift_1/black_mold/black_mold_carpets_success.md |
@@ -244,8 +243,6 @@
 | `report_workshop_forest_samples_success` | report | content/raw/ru/missions/reports/chapter_1/shift_3/workshop_forest/report_workshop_forest_samples_success.md |
 | `report_workshop_gravel_deliver_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_2/workshop_gravel/report_workshop_gravel_deliver_failure.md |
 | `report_workshop_gravel_deliver_success` | report | content/raw/ru/missions/reports/chapter_1/shift_2/workshop_gravel/report_workshop_gravel_deliver_success.md |
-| `report_workshop_gravel_refuse_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_2/workshop_gravel/report_workshop_gravel_refuse_failure.md |
-| `report_workshop_gravel_refuse_success` | report | content/raw/ru/missions/reports/chapter_1/shift_2/workshop_gravel/report_workshop_gravel_refuse_success.md |
 | `report_workshop_intro_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_1/workshop_intro/workshop_intro_failure.md |
 | `report_workshop_intro_success` | report | content/raw/ru/missions/reports/chapter_1/shift_1/workshop_intro/workshop_intro_success.md |
 | `report_workshop_papers_hide_failure` | report | content/raw/ru/missions/reports/chapter_1/shift_4/workshop_papers/report_workshop_papers_hide_failure.md |

@@ -32,7 +32,6 @@ public partial class KonturDebugOverlay : CanvasLayer
 	private IDisposable _radioSubscription;
 	private double _refreshAccumulator;
 	private bool _isOpen;
-	private Input.MouseModeEnum _previousMouseMode;
 	private Control _debugRoot = null!;
 	private Control _radioDecisionPreview = null!;
 
@@ -117,8 +116,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 
 		if (isOpen)
 		{
-			_previousMouseMode = Input.MouseMode;
-			Input.MouseMode = Input.MouseModeEnum.Visible;
+			CursorMode.Show(this);
 			Show();
 			RefreshStatus();
 			RefreshDispatch();
@@ -127,7 +125,7 @@ public partial class KonturDebugOverlay : CanvasLayer
 
 		CloseRadioDecisionPreview();
 		Hide();
-		Input.MouseMode = _previousMouseMode;
+		CursorMode.Hide(this);
 	}
 
 	// ------------------------------------------------------------------ экран отправки
@@ -703,6 +701,8 @@ public partial class KonturDebugOverlay : CanvasLayer
 		row.AddThemeConstantOverride("separation", 6);
 
 		row.AddChild(new Label { Text = "Команды:" });
+		row.AddChild(CreateButton("Случайный звонок", RingRandomCall));
+		row.AddChild(CreateButton("Случайная рация", TriggerRandomRadio));
 		row.AddChild(CreateButton("Ответить", AnswerFirstCall));
 		row.AddChild(CreateButton("Отправить всех", DispatchFirstMarker));
 
@@ -844,6 +844,24 @@ public partial class KonturDebugOverlay : CanvasLayer
 		}
 
 		_runtime.Session.ForceEndShift();
+	}
+
+	/// <summary>
+	/// Телефон звонит прямо сейчас, вызов берётся случайный из расписания смены.
+	///
+	/// Дальше всё идёт обычным путём: трубка, брифинг, метка на карте. Это не
+	/// подделка экрана, а настоящий вызов, поэтому им можно проверять и переход,
+	/// и текст, и то, что происходит после отказа снять трубку.
+	/// </summary>
+	private void RingRandomCall()
+	{
+		Report("Случайный звонок", _runtime.Session.DebugRingRandomCall());
+	}
+
+	/// <summary>Рация поднимается по случайной миссии с событием, без выезда группы.</summary>
+	private void TriggerRandomRadio()
+	{
+		Report("Случайная рация", _runtime.Session.DebugTriggerRandomRadio());
 	}
 
 	private void AnswerFirstCall()

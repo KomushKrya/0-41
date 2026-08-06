@@ -237,26 +237,6 @@
     }
   },
   {
-    "id": "radio_workshop_gravel",
-    "options": {
-      "deliver": {
-        "setsFlagId": "flag_gravel_delivered",
-        "extraScales": {
-          "infection": 2.0,
-          "loyalty": -2.0
-        },
-        "consequenceCap": "Injury"
-      },
-      "refuse": {
-        "setsFlagId": "flag_gravel_refused",
-        "extraScales": {
-          "loyalty": 1.0
-        },
-        "consequenceCap": "None"
-      }
-    }
-  },
-  {
     "id": "radio_workshop_forest",
     "options": {
       "samples": {
