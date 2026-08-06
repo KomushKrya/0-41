@@ -337,6 +337,9 @@ public partial class RadioDecisionUI : Control
 		_previousScreenBlurMaterial.SetShaderParameter("mask_texture", frozen);
 	}
 
+	/// <summary>Вызов, чей экран открыт сейчас. Пусто — экран свободен.</summary>
+	public string CurrentIncidentId => _incidentId;
+
 	/// <summary>Reuses the radio screen as the result confirmation screen.</summary>
 	public void ShowOutcome(MissionOutcomeReady outcome)
 	{
@@ -345,13 +348,36 @@ public partial class RadioDecisionUI : Control
 			return;
 		}
 
-		_awaitingOutcome = false;
-		_showingOutcome = true;
-
 		// Итог пришёл — значит, миссия отыграна и переход давно неактуален.
 		// Если он всё ещё «идёт», это сбой: снимаем принудительно, иначе
 		// блокировщик ввода не даст нажать кнопку подтверждения.
 		StopTransition();
+
+		ApplyOutcome(outcome);
+	}
+
+	/// <summary>
+	/// Открывает экран сразу с итогом: так отвечают миссии, где рация ничего
+	/// не спрашивала. Переход здесь не снимаем, в отличие от <see cref="ShowOutcome"/>:
+	/// окно только что открылось, и клякса должна доиграть, а не оборваться.
+	/// </summary>
+	public void ShowOutcomeReport(MissionOutcomeReady outcome)
+	{
+		_incidentId = outcome.IncidentId;
+		_missionId = outcome.MissionId ?? string.Empty;
+		_options = Array.Empty<RadioOptionOffer>();
+		_chosenOptionIndex = -1;
+
+		CursorMode.Show(this);
+		ShowWithTransition();
+		ApplyOutcome(outcome);
+	}
+
+	/// <summary>Наполняет экран итогом. Показан он к этому моменту или нет — не её забота.</summary>
+	private void ApplyOutcome(MissionOutcomeReady outcome)
+	{
+		_awaitingOutcome = false;
+		_showingOutcome = true;
 
 		_contentId = outcome.SummaryContentId ?? string.Empty;
 		_illustration.Texture = MissionIllustrations.LoadOutcome(

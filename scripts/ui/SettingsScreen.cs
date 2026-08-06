@@ -27,23 +27,38 @@ public partial class SettingsScreen : Control
 		("SFX", "ui_settings_bus_sfx")
 	};
 
+	/// <summary>
+	/// Ходовые разрешения — 16:9, 16:10 и два сверхшироких. Список общий для всех
+	/// мониторов: то, что в конкретный экран не влезет, отсеется при сборке списка.
+	/// </summary>
 	private static readonly Vector2I[] Resolutions =
 	{
 		new Vector2I(1280, 720),
+		new Vector2I(1366, 768),
+		new Vector2I(1440, 900),
 		new Vector2I(1600, 900),
+		new Vector2I(1680, 1050),
 		new Vector2I(1920, 1080),
-		new Vector2I(2560, 1440)
+		new Vector2I(1920, 1200),
+		new Vector2I(2560, 1080),
+		new Vector2I(2560, 1440),
+		new Vector2I(3440, 1440),
+		new Vector2I(3840, 2160)
 	};
 
 	/// <summary>
-	/// Полный экран стоит в том же списке, что и размеры окна.
-	/// Отдельного переключателя режима нет: для игрока это один вопрос — «какого
-	/// размера картинка», — и разносить его по двум спискам значит заставлять
-	/// помнить, что одна настройка отменяет другую.
-	/// Идентификатор заведомо вне диапазона индексов массива.
+	/// Режим экрана. Держим отдельным списком, а не строкой среди разрешений:
+	/// полноэкранный режим отменяет выбранный размер, и в одном списке игроку
+	/// пришлось бы помнить, что две соседние строки означают разное.
 	/// </summary>
-	private const int FullscreenItemId = 1000;
+	private enum ScreenMode
+	{
+		Windowed = 0,
+		Borderless = 1,
+		Fullscreen = 2
+	}
 
+	private OptionButton _screenMode;
 	private OptionButton _resolution;
 
 	public override void _Ready()
@@ -81,15 +96,52 @@ public partial class SettingsScreen : Control
 		}
 
 		var size = (Vector2I)file.GetValue("video", "resolution", DisplayServer.WindowGetSize());
-		bool fullscreen = (bool)file.GetValue("video", "fullscreen", false);
 
-		if (fullscreen)
+		// Старые настройки хранили только флаг «полный экран». Читаем его как запасной
+		// вариант, иначе у тех, кто уже играл, режим сбросился бы на оконный.
+		bool legacyFullscreen = (bool)file.GetValue("video", "fullscreen", false);
+		var mode = (ScreenMode)(int)file.GetValue(
+			"video",
+			"mode",
+			(int)(legacyFullscreen ? ScreenMode.Fullscreen : ScreenMode.Windowed));
+
+		ApplyScreenMode(mode, size);
+	}
+
+	/// <summary>
+	/// Ставит режим экрана. Размер важен только оконному режиму: остальные два
+	/// занимают монитор целиком, и запомненное разрешение им нечего делать.
+	/// </summary>
+	private static void ApplyScreenMode(ScreenMode mode, Vector2I windowedSize)
+	{
+		switch (mode)
 		{
-			DisplayServer.WindowSetMode(DisplayServer.WindowMode.Fullscreen);
-			return;
-		}
+			case ScreenMode.Fullscreen:
+				DisplayServer.WindowSetMode(DisplayServer.WindowMode.ExclusiveFullscreen);
+				return;
 
-		ApplyWindowedSize(size);
+			case ScreenMode.Borderless:
+				DisplayServer.WindowSetMode(DisplayServer.WindowMode.Fullscreen);
+				return;
+
+			default:
+				ApplyWindowedSize(windowedSize);
+				return;
+		}
+	}
+
+	/// <summary>Что на экране прямо сейчас — по состоянию окна, а не по файлу настроек.</summary>
+	private static ScreenMode CurrentScreenMode()
+	{
+		switch (DisplayServer.WindowGetMode())
+		{
+			case DisplayServer.WindowMode.ExclusiveFullscreen:
+				return ScreenMode.Fullscreen;
+			case DisplayServer.WindowMode.Fullscreen:
+				return ScreenMode.Borderless;
+			default:
+				return ScreenMode.Windowed;
+		}
 	}
 
 	/// <summary>
@@ -211,6 +263,15 @@ public partial class SettingsScreen : Control
 
 	private void BuildVideo(Container column)
 	{
+		column.AddChild(new Label { Text = Content.Label("ui_settings_window_mode") });
+
+		_screenMode = new OptionButton();
+		_screenMode.AddItem(Content.Label("ui_settings_window_windowed"), (int)ScreenMode.Windowed);
+		_screenMode.AddItem(Content.Label("ui_settings_window_borderless"), (int)ScreenMode.Borderless);
+		_screenMode.AddItem(Content.Label("ui_settings_window_fullscreen"), (int)ScreenMode.Fullscreen);
+		_screenMode.ItemSelected += OnScreenModeSelected;
+		column.AddChild(_screenMode);
+
 		column.AddChild(new Label { Text = Content.Label("ui_settings_resolution") });
 
 		_resolution = new OptionButton();
@@ -218,8 +279,8 @@ public partial class SettingsScreen : Control
 		Vector2I screen = DisplayServer.ScreenGetSize();
 		for (int i = 0; i < Resolutions.Length; i++)
 		{
-			// Размер, который заведомо не влезет в монитор, в списке не нужен:
-			// система обрежет окно, и игрок решит, что настройка сломана.
+			// Больше монитора — показывать нечем: система всё равно обрежет окно,
+			// и игрок решит, что настройка сломана.
 			if (screen.X > 0 && (Resolutions[i].X > screen.X || Resolutions[i].Y > screen.Y))
 			{
 				continue;
@@ -228,27 +289,32 @@ public partial class SettingsScreen : Control
 			_resolution.AddItem($"{Resolutions[i].X} x {Resolutions[i].Y}", i);
 		}
 
-		_resolution.AddItem(Content.Label("ui_settings_window_fullscreen"), FullscreenItemId);
-
 		SelectCurrentMode();
 		_resolution.ItemSelected += OnResolutionSelected;
 		column.AddChild(_resolution);
 	}
 
-	/// <summary>Отмечает в списке то, что видно на экране прямо сейчас.</summary>
+	/// <summary>
+	/// Влезает ли размер в монитор именно как окно. Запас — на рамку и панель задач:
+	/// без него окно «1920 x 1080» на экране 1920x1080 система молча ужмёт, и
+	/// выбранное разрешение окажется не тем, что показано в списке.
+	/// </summary>
+	private static bool FitsAsWindow(Vector2I size, Vector2I screen)
+	{
+		return screen.X <= 0 || (size.X <= screen.X - 32 && size.Y <= screen.Y - 64);
+	}
+
+	/// <summary>Отмечает в списках то, что видно на экране прямо сейчас.</summary>
 	private void SelectCurrentMode()
 	{
-		if (DisplayServer.WindowGetMode() != DisplayServer.WindowMode.Windowed)
-		{
-			_resolution.Select(_resolution.GetItemIndex(FullscreenItemId));
-			return;
-		}
+		_screenMode.Select(_screenMode.GetItemIndex((int)CurrentScreenMode()));
 
+		// Список размеров живой в любом режиме: выбрать размер — это и значит
+		// выйти из полного экрана, и запирать единственный обратный путь нельзя.
 		Vector2I current = DisplayServer.WindowGetSize();
 		for (int i = 0; i < _resolution.ItemCount; i++)
 		{
-			int id = _resolution.GetItemId(i);
-			if (id != FullscreenItemId && Resolutions[id] == current)
+			if (Resolutions[_resolution.GetItemId(i)] == current)
 			{
 				_resolution.Select(i);
 				return;
@@ -261,6 +327,10 @@ public partial class SettingsScreen : Control
 	public void Open()
 	{
 		Visible = true;
+
+		// Экран живёт между открытиями, а окно за это время могли развернуть мимо
+		// настроек — системной кнопкой или Alt+Enter. Сверяемся с окном заново.
+		SelectCurrentMode();
 	}
 
 	public void Close()
@@ -272,24 +342,53 @@ public partial class SettingsScreen : Control
 	/// <summary>Кого вернуть управление, решает тот, кто открыл: меню или пауза.</summary>
 	public event System.Action Closed;
 
+	private void OnScreenModeSelected(long index)
+	{
+		var mode = (ScreenMode)_screenMode.GetItemId((int)index);
+
+		ApplyScreenMode(mode, SelectedResolution());
+		Save("video", "mode", (int)mode);
+
+		// Старый флаг держим в согласии с новым: иначе игра, откатившаяся на
+		// прежнюю сборку, прочитала бы из файла режим, который игрок уже сменил.
+		Save("video", "fullscreen", mode == ScreenMode.Fullscreen);
+	}
+
 	/// <summary>
-	/// Выбран пункт списка. Приходит индекс строки, а не наш идентификатор:
+	/// Выбран размер окна. Приходит индекс строки, а не наш идентификатор:
 	/// строки, не влезающие в монитор, в список не попали, и нумерация сдвинута.
 	/// </summary>
 	private void OnResolutionSelected(long index)
 	{
-		int id = _resolution.GetItemId((int)index);
+		Vector2I size = Resolutions[_resolution.GetItemId((int)index)];
+		Save("video", "resolution", size);
 
-		if (id == FullscreenItemId)
+		// Размер во весь монитор окном не показать: рамка и панель задач его
+		// ужмут, и вместо «1920 x 1080» игрок получит молча обрезанное окно.
+		// Такой выбор честнее отыграть режимом без рамки — картинка выйдет ровно
+		// той, что написано в списке.
+		ScreenMode mode = FitsAsWindow(size, DisplayServer.ScreenGetSize())
+			? ScreenMode.Windowed
+			: ScreenMode.Borderless;
+
+		ApplyScreenMode(mode, size);
+		Save("video", "mode", (int)mode);
+		Save("video", "fullscreen", false);
+
+		// Режим мог смениться сам — список сверху обязан это показать.
+		_screenMode.Select(_screenMode.GetItemIndex((int)mode));
+	}
+
+	/// <summary>Размер, отмеченный в списке. Пустой список — оставляем что есть.</summary>
+	private Vector2I SelectedResolution()
+	{
+		int selected = _resolution.Selected;
+		if (selected < 0 || selected >= _resolution.ItemCount)
 		{
-			DisplayServer.WindowSetMode(DisplayServer.WindowMode.Fullscreen);
-			Save("video", "fullscreen", true);
-			return;
+			return DisplayServer.WindowGetSize();
 		}
 
-		ApplyWindowedSize(Resolutions[id]);
-		Save("video", "fullscreen", false);
-		Save("video", "resolution", Resolutions[id]);
+		return Resolutions[_resolution.GetItemId(selected)];
 	}
 
 	private static void CenterWindow()

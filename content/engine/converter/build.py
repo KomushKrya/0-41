@@ -758,7 +758,10 @@ def write_registry(entries: list[dict], registry_path: Path) -> None:
             (entry["id"], entry["type"], entry["_source"]) for entry in entries
         )
     )
-    registry_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    # newline="\n" обязателен: реестр лежит в git, а .gitattributes требует LF.
+    # Без него write_text на Windows подставит CRLF, и файл будет числиться
+    # изменённым после каждой сборки, хотя ни одна строка в нём не поменялась.
+    registry_path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
 
 
 def main() -> int:
