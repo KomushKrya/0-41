@@ -93,7 +93,11 @@ public partial class MainMenu : Control
 		button.Text = Content.Label(labelId);
 		button.Pressed += () =>
 		{
-			AudioManager.Instance?.PlayUi(Sfx.ChoicePress);
+			// Не ChoicePress: это бросок кубиков с экрана рации, там он означает
+			// решение с последствиями. В меню тот же звук обещает то, чего нет.
+			// KeyboardEnter — уже принятый в игре щелчок кнопки, им же отвечают
+			// экраны терминала.
+			AudioManager.Instance?.PlayUi(Sfx.KeyboardEnter);
 			onPressed();
 		};
 
