@@ -2,7 +2,7 @@
 id: call_workshop_papers
 type: call
 mission_id: m_workshop_papers
-status: draft
+status: ready
 mission_type: radio
 requires: ловкость, харизма
 ---

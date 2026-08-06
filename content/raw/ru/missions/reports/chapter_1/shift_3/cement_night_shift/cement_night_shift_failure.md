@@ -2,7 +2,7 @@
 id: report_cement_night_shift_failure
 type: report
 mission_id: m_cement_night_shift
-status: draft
+status: ready
 outcome: failure
 
 ---

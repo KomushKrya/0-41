@@ -2,7 +2,7 @@
 id: call_cement_night_shift
 type: call
 mission_id: m_cement_night_shift
-status: draft
+status: ready
 mission_type: filler
 requires: сила, интеллект, харизма
 

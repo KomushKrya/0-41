@@ -2,7 +2,7 @@
 id: report_workshop_depot_blind_success
 type: report
 mission_id: m_workshop_depot
-status: draft
+status: ready
 outcome: success
 ---
 

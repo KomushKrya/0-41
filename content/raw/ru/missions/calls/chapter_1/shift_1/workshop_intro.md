@@ -2,7 +2,7 @@
 id: call_workshop_intro
 type: call
 mission_id: m_workshop_intro
-status: draft
+status: ready
 mission_type: filler
 requires: сила
 ---

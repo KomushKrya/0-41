@@ -2,7 +2,7 @@
 id: call_dosimeter_yard
 type: call
 mission_id: m_dosimeter_yard
-status: draft
+status: ready
 mission_type: filler
 requires: харизма, боевая подготовка, интеллект
 

@@ -2,7 +2,7 @@
 id: call_platform_wait
 type: call
 mission_id: m_platform_wait
-status: draft
+status: ready
 mission_type: radio
 
 ---

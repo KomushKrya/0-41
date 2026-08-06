@@ -2,7 +2,7 @@
 id: call_pensioner_door
 type: call
 mission_id: m_pensioner_door
-status: draft
+status: ready
 mission_type: radio
 
 ---

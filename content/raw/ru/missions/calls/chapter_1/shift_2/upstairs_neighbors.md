@@ -2,7 +2,7 @@
 id: call_upstairs_neighbors
 type: call
 mission_id: m_upstairs_neighbors
-status: draft
+status: ready
 mission_type: filler
 requires: интеллект, харизма
 

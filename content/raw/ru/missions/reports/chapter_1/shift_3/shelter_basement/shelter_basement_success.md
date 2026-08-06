@@ -2,7 +2,7 @@
 id: report_shelter_basement_success
 type: report
 mission_id: m_shelter_basement
-status: draft
+status: ready
 outcome: success
 
 ---

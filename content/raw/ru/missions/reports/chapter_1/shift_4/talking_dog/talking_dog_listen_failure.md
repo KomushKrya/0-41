@@ -2,7 +2,7 @@
 id: report_talking_dog_listen_failure
 type: report
 mission_id: m_talking_dog
-status: draft
+status: ready
 outcome: failure
 
 ---

@@ -2,7 +2,7 @@
 id: report_dont_blink_blind_failure
 type: report
 mission_id: m_dont_blink
-status: draft
+status: ready
 outcome: failure
 
 ---

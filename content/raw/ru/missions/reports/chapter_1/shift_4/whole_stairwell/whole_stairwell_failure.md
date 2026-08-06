@@ -2,7 +2,7 @@
 id: report_whole_stairwell_failure
 type: report
 mission_id: m_whole_stairwell
-status: draft
+status: ready
 outcome: failure
 ---
 

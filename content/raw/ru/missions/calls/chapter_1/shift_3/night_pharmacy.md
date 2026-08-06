@@ -2,7 +2,7 @@
 id: call_night_pharmacy
 type: call
 mission_id: m_night_pharmacy
-status: draft
+status: ready
 mission_type: radio
 
 ---

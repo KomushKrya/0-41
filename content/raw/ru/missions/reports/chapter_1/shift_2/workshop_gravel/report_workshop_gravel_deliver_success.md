@@ -2,7 +2,7 @@
 id: report_workshop_gravel_deliver_success
 type: report
 mission_id: m_workshop_gravel
-status: draft
+status: ready
 outcome: success
 ---
 

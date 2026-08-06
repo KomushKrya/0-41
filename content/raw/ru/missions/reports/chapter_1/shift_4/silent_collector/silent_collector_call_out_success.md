@@ -2,7 +2,7 @@
 id: report_silent_collector_call_out_success
 type: report
 mission_id: m_silent_collector
-status: draft
+status: ready
 outcome: success
 ---
 

@@ -2,7 +2,7 @@
 id: call_whole_stairwell
 type: call
 mission_id: m_whole_stairwell
-status: draft
+status: ready
 mission_type: filler
 requires: боевая подготовка, харизма
 

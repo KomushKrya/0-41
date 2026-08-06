@@ -1,7 +1,7 @@
 ---
 id: cutscene_ending_publicity
 type: cutscene
-status: draft
+status: ready
 
 ---
 

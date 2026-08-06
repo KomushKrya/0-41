@@ -2,7 +2,7 @@
 id: report_dosimeter_yard_failure
 type: report
 mission_id: m_dosimeter_yard
-status: draft
+status: ready
 outcome: failure
 
 ---

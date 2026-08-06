@@ -1,7 +1,7 @@
 ---
 id: eq_rope
 type: equipment
-status: draft
+status: ready
 name: Верёвка страховочная
 
 ---

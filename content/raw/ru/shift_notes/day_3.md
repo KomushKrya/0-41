@@ -1,7 +1,7 @@
 ---
 id: shift_note_day_3
 type: shift_note
-status: draft
+status: ready
 day: 3
 
 ---

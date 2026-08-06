@@ -2,7 +2,7 @@
 id: call_false_gas_alarm
 type: call
 mission_id: m_false_gas_alarm
-status: draft
+status: ready
 mission_type: radio
 
 ---

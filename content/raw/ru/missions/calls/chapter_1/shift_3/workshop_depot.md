@@ -2,7 +2,7 @@
 id: call_workshop_depot
 type: call
 mission_id: m_workshop_depot
-status: draft
+status: ready
 mission_type: radio
 requires: боевая подготовка, интеллект
 requirements:

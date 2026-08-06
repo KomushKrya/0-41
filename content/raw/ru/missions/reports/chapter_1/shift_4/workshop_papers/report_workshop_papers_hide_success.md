@@ -2,7 +2,7 @@
 id: report_workshop_papers_hide_success
 type: report
 mission_id: m_workshop_papers
-status: draft
+status: ready
 outcome: success
 ---
 

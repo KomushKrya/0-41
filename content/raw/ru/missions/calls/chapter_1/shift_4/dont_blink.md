@@ -2,7 +2,7 @@
 id: call_dont_blink
 type: call
 mission_id: m_dont_blink
-status: draft
+status: ready
 mission_type: radio
 
 ---

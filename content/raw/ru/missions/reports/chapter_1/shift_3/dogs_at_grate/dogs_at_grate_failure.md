@@ -2,7 +2,7 @@
 id: report_dogs_at_grate_failure
 type: report
 mission_id: m_dogs_at_grate
-status: draft
+status: ready
 outcome: failure
 
 ---

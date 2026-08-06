@@ -2,7 +2,7 @@
 id: report_racing_pulse_calm_success
 type: report
 mission_id: m_racing_pulse
-status: draft
+status: ready
 outcome: success
 
 ---

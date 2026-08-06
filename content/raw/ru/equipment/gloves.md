@@ -1,7 +1,7 @@
 ---
 id: eq_gloves
 type: equipment
-status: draft
+status: ready
 name: Перчатки с усиленным хватом
 
 ---

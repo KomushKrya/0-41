@@ -1,7 +1,7 @@
 ---
 id: cutscene_ending_infection
 type: cutscene
-status: draft
+status: ready
 
 ---
 

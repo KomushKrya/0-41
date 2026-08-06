@@ -46,10 +46,12 @@ venv/
 
 .obsidian/
 
-# Собранный текст — производная от content/raw, генерируется конвертером
-# content/engine/converter/build.py. В репозитории держим только исходники:
-#     python content/engine/converter/build.py --include-drafts
-/content/localisation/
+# Собранный текст (content/localisation) в репозитории ЕСТЬ и коммитится вместе
+# с исходниками. Да, это производная от content/raw, но игра читает именно её, и
+# пока сборка лежала в игноре, у всех, кроме автора правки, оставался старый текст.
+#
+# Значит, поправил content/raw — пересобери и положи результат в тот же коммит:
+#     python content/engine/converter/build.py
 
 # Claude Code project config / local MCP server registration
 .claude/

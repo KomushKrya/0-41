@@ -17,7 +17,6 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-ContentHotReload="*res://scripts/debug/ContentHotReload.cs"
 Content="*res://content/engine/content/Content.cs"
 GameRuntime="*res://scripts/kontur/GameRuntime.cs"
 GameFlow="*res://scripts/flow/GameFlow.cs"

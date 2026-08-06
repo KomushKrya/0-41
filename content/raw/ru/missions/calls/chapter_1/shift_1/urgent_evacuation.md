@@ -2,7 +2,7 @@
 id: call_urgent_evacuation
 type: call
 mission_id: m_urgent_evacuation
-status: draft
+status: ready
 mission_type: filler
 requires: харизма, интеллект
 

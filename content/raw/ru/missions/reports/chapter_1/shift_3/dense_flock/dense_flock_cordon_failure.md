@@ -2,7 +2,7 @@
 id: report_dense_flock_cordon_failure
 type: report
 mission_id: m_dense_flock
-status: draft
+status: ready
 outcome: failure
 ---
 

@@ -2,7 +2,7 @@
 id: call_shelter_basement
 type: call
 mission_id: m_shelter_basement
-status: draft
+status: ready
 mission_type: filler
 requires: сила, харизма
 

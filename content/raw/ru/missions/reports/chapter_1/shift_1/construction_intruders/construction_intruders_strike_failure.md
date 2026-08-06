@@ -2,7 +2,7 @@
 id: report_construction_intruders_strike_failure
 type: report
 mission_id: m_construction_intruders
-status: draft
+status: ready
 outcome: failure
 
 ---

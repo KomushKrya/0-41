@@ -2,7 +2,7 @@
 id: report_night_pharmacy_placebo_success
 type: report
 mission_id: m_night_pharmacy
-status: draft
+status: ready
 outcome: success
 
 ---

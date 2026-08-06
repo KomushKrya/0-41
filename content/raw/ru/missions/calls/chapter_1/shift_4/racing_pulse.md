@@ -2,7 +2,7 @@
 id: call_racing_pulse
 type: call
 mission_id: m_racing_pulse
-status: draft
+status: ready
 mission_type: radio
 
 ---

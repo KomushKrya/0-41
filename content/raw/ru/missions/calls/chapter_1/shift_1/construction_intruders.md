@@ -2,7 +2,7 @@
 id: call_construction_intruders
 type: call
 mission_id: m_construction_intruders
-status: draft
+status: ready
 mission_type: radio
 
 ---

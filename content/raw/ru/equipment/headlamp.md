@@ -1,7 +1,7 @@
 ---
 id: eq_headlamp
 type: equipment
-status: draft
+status: ready
 name: Налобный фонарь
 
 ---

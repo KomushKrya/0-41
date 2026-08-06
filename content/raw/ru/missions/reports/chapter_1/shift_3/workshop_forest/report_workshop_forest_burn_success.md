@@ -2,7 +2,7 @@
 id: report_workshop_forest_burn_success
 type: report
 mission_id: m_workshop_forest
-status: draft
+status: ready
 outcome: success
 ---
 

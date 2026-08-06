@@ -2,7 +2,7 @@
 id: report_workshop_intro_success
 type: report
 mission_id: m_workshop_intro
-status: draft
+status: ready
 outcome: success
 ---
 

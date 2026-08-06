@@ -2,7 +2,7 @@
 id: report_pensioner_door_left_turn_success
 type: report
 mission_id: m_pensioner_door
-status: draft
+status: ready
 outcome: success
 
 ---

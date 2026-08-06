@@ -2,7 +2,7 @@
 id: call_dogs_at_grate
 type: call
 mission_id: m_dogs_at_grate
-status: draft
+status: ready
 mission_type: filler
 requires: интеллект, сила, боевая подготовка
 

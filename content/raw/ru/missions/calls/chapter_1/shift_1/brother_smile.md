@@ -2,7 +2,7 @@
 id: call_brother_smile
 type: call
 mission_id: m_brother_smile
-status: draft
+status: ready
 mission_type: filler
 requires: интеллект, харизма
 

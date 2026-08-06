@@ -2,7 +2,7 @@
 id: report_missing_daughter_pull_failure
 type: report
 mission_id: m_missing_daughter
-status: draft
+status: ready
 outcome: failure
 
 ---

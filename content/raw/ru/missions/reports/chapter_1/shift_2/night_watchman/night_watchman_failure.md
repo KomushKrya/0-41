@@ -2,7 +2,7 @@
 id: report_night_watchman_failure
 type: report
 mission_id: m_night_watchman
-status: draft
+status: ready
 outcome: failure
 
 ---
