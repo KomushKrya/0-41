@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Godot;
+using Kontur.Core.Api;
 using Kontur.Core.Events;
+using Kontur.Core.Model;
 
 /// <summary>
 /// Звук игры. Регистрируется автозагрузкой под именем "AudioManager" — после GameRuntime,
@@ -22,15 +24,14 @@ public partial class AudioManager : Node
 	/// <summary>Печатать проигранные звуки в Output. Тот же приём, что GameRuntime.LogEvents.</summary>
 	[Export] public bool LogSounds { get; set; } = true;
 
-	[Export] public float MusicVolumeDb { get; set; } = -6.0f;
+	/// <summary>
+	/// Плеер играет в полную силу: стартовая громкость музыки задана шиной Music
+	/// в default_bus_layout.tres (−8 дБ ≈ 40%). Так ползунок в настройках
+	/// показывает то же, что слышно, и не спорит с плеером.
+	/// </summary>
+	[Export] public float MusicVolumeDb { get; set; }
 
 	[Export] public float SfxVolumeDb { get; set; }
-
-	/// <summary>Насколько резким должно быть движение мыши для скрипа стула, пикселей за событие.</summary>
-	[Export] public float ChairMotionThreshold { get; set; } = 90.0f;
-
-	/// <summary>Пауза между скрипами, чтобы стул не трещал очередью.</summary>
-	[Export] public float ChairCooldownSeconds { get; set; } = 0.8f;
 
 	/// <summary>Как часто искать в дереве предметы кабинета. Сцена приходит не сразу — из меню.</summary>
 	[Export] public float RescanSeconds { get; set; } = 0.25f;
@@ -61,6 +62,8 @@ public partial class AudioManager : Node
 	private RayCast3D _interactionRay;
 	private DeskRadio _deskRadio;
 	private RadioDecisionUI _radioDecisionUi;
+	private HiringScreen _hiringScreen;
+	private bool _wasHiringOpen;
 	private InspectableItemController _shiftNote;
 	private InspectableItemController _notebook;
 	private readonly HashSet<ulong> _wiredButtons = new();
@@ -72,9 +75,8 @@ public partial class AudioManager : Node
 	private bool _wasNotebookOpen;
 	private bool _hasUnreadScaleChanges;
 
-	private int _ringingCalls;
+	private bool _wasPhoneRinging;
 	private double _rescanTimer;
-	private ulong _nextChairCreakMsec;
 
 	private readonly List<IDisposable> _subscriptions = new();
 
@@ -104,14 +106,15 @@ public partial class AudioManager : Node
 		// Музыка
 		Listen(events.Subscribe<ShiftStarted>(_ => StartShiftMusic()));
 		Listen(events.Subscribe<ShiftEnded>(_ => StopMusic()));
-		Listen(events.Subscribe<HiringOpened>(e => StartBetweenShiftsMusic(e.NextDay)));
+		// На HiringOpened музыку не заводим: сигнал приходит внутри ShiftEnded, до ролика
+		// (см. GameFlow.OnHiringOpened), и тогда она играла бы под текстовый экран.
+		// Ждём появления самого экрана найма — см. PollHiringScreen.
 		Listen(events.Subscribe<GameOverTriggered>(_ => StopMusic()));
 
-		// Телефон. Вызовы накладываются, поэтому звонок гасится по счётчику,
-		// а не по первому снятию трубки.
-		Listen(events.Subscribe<IncidentCreated>(_ => OnCallStarted()));
-		Listen(events.Subscribe<CallAnswered>(_ => OnHandsetPickedUp()));
-		Listen(events.Subscribe<CallMissed>(_ => OnCallStopped()));
+		// Телефон. Сам звонок держится фазой вызова (см. PollPhone), а не счётчиком:
+		// счётчик застревал, если вызов закрывался не ответом и не пропуском —
+		// например, в конце смены или при новой партии, и аппарат звонил без остановки.
+		Listen(events.Subscribe<CallAnswered>(_ => Play(_sfx, Sfx.PhoneTake)));
 		Listen(events.Subscribe<BriefingConfirmed>(_ => Play(_sfx, Sfx.PhonePut)));
 
 		// Рация
@@ -150,6 +153,8 @@ public partial class AudioManager : Node
 			RescanOfficeNodes();
 		}
 
+		PollPhone();
+		PollHiringScreen();
 		PollComputer();
 		PollDossier();
 		PollInspectableItem(_shiftNote, ref _wasNoteOpen, Sfx.NoteTake, Sfx.NotePut, false);
@@ -167,23 +172,6 @@ public partial class AudioManager : Node
 		{
 			Play(_sfx, PickRandom(Sfx.RadioAnswer));
 		}
-	}
-
-	public override void _UnhandledInput(InputEvent @event)
-	{
-		if (@event is not InputEventMouseMotion motion || motion.Relative.Length() < ChairMotionThreshold)
-		{
-			return;
-		}
-
-		ulong now = Time.GetTicksMsec();
-		if (now < _nextChairCreakMsec)
-		{
-			return;
-		}
-
-		_nextChairCreakMsec = now + (ulong)(ChairCooldownSeconds * 1000.0f);
-		Play(_sfx, PickRandom(Sfx.ChairCreak));
 	}
 
 	/// <summary>Короткий звук без позиции: щелчки, интерфейс. Доступен и другим сценам.</summary>
@@ -207,10 +195,13 @@ public partial class AudioManager : Node
 		bool needRadio = !IsValid(_deskRadio);
 		bool needRay = !IsValid(_interactionRay);
 		bool needRadioUi = !IsValid(_radioDecisionUi);
+		bool needHiring = !IsValid(_hiringScreen);
 
-		if (needComputer || needDossier || needNote || needNotebook || needRadio || needRay || needRadioUi)
+		if (needComputer || needDossier || needNote || needNotebook || needRadio || needRay
+			|| needRadioUi || needHiring)
 		{
 			_radioDecisionUi = needRadioUi ? null : _radioDecisionUi;
+			_hiringScreen = needHiring ? null : _hiringScreen;
 			_computerInput = needComputer ? null : _computerInput;
 			_dossierInput = needDossier ? null : _dossierInput;
 			_shiftNote = needNote ? null : _shiftNote;
@@ -257,6 +248,11 @@ public partial class AudioManager : Node
 		{
 			_radioDecisionUi = decisionUi;
 			LogFound("меню рации", decisionUi);
+		}
+		else if (node is HiringScreen hiring && _hiringScreen == null)
+		{
+			_hiringScreen = hiring;
+			LogFound("экран найма", hiring);
 		}
 		else if (node is RayCast3D ray && _interactionRay == null && ray.Name.ToString() == "InteractionRay")
 		{
@@ -339,6 +335,36 @@ public partial class AudioManager : Node
 		}
 
 		return false;
+	}
+
+	/// <summary>
+	/// Музыка перехода включается, только когда на экране действительно найм.
+	/// Ролик с текстом идёт раньше и должен остаться тихим.
+	/// </summary>
+	private void PollHiringScreen()
+	{
+		bool isOpen = IsValid(_hiringScreen);
+		if (isOpen == _wasHiringOpen)
+		{
+			return;
+		}
+
+		_wasHiringOpen = isOpen;
+		if (isOpen)
+		{
+			StartBetweenShiftsMusic(GetHiringDay());
+		}
+		else
+		{
+			StopMusic();
+		}
+	}
+
+	/// <summary>День берётся у GameFlow: он же решает, на какой день идёт набор.</summary>
+	private int GetHiringDay()
+	{
+		Node flow = GetNodeOrNull("/root/GameFlow");
+		return flow is GameFlow gameFlow ? gameFlow.HiringDay : 0;
 	}
 
 	private void PollDossier()
@@ -458,25 +484,39 @@ public partial class AudioManager : Node
 
 	// --- Телефон ---
 
-	private void OnCallStarted()
+	/// <summary>
+	/// Аппарат звонит ровно пока у ядра есть вызов в фазе Ringing. Состояние спрашиваем,
+	/// а не копим: вызовы накладываются, и любой нештатный конец вызова оставлял бы
+	/// счётчик ненулевым — тогда звонок не смолкал.
+	/// </summary>
+	private void PollPhone()
 	{
-		_ringingCalls++;
-		if (!_ring.Playing)
+		bool anyRinging = false;
+		GameRuntime runtime = GameRuntime.Get(this);
+		if (runtime != null && runtime.IsReady)
+		{
+			IReadOnlyList<IncidentView> incidents = runtime.Session.GetActiveIncidents();
+			for (int i = 0; i < incidents.Count; i++)
+			{
+				if (incidents[i].Phase == IncidentPhase.Ringing)
+				{
+					anyRinging = true;
+					break;
+				}
+			}
+		}
+
+		if (anyRinging == _wasPhoneRinging)
+		{
+			return;
+		}
+
+		_wasPhoneRinging = anyRinging;
+		if (anyRinging)
 		{
 			Play(_ring, Sfx.PhoneRing);
 		}
-	}
-
-	private void OnHandsetPickedUp()
-	{
-		OnCallStopped();
-		Play(_sfx, Sfx.PhoneTake);
-	}
-
-	private void OnCallStopped()
-	{
-		_ringingCalls = Math.Max(0, _ringingCalls - 1);
-		if (_ringingCalls == 0)
+		else
 		{
 			_ring.Stop();
 		}
@@ -485,7 +525,7 @@ public partial class AudioManager : Node
 	/// <summary>Зацикливание вручную: не зависим от галочки Loop в .import.</summary>
 	private void RepeatRingWhileCallsWait()
 	{
-		if (_ringingCalls > 0)
+		if (_wasPhoneRinging)
 		{
 			_ring.Play();
 		}
