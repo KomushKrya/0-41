@@ -816,7 +816,7 @@ mouse_filter = 2
 [node name="ImportedRoad_1" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1238928742]
 position = Vector2(-101.78871, -349.9858)
 rotation = 0.40133995
-points = PackedVector2Array(481.54456, 294.27313, 479.55988, 295.11536, 472.3246, 298.0783, 463.79657, 301.57068, 462.01035, 302.3287, 456.36896, 304.48853, 449.73526, 307.0695, 437.65866, 311.72607, 424.16272, 317.45337, 413.87234, 321.35193, 404.46008, 325.11203, 400.70624, 326.70508, 395.52893, 328.90216, 382.85693, 333.8114, 378.88754, 335.4959)
+points = PackedVector2Array(481.54456, 294.27313, 479.55988, 295.11536, 472.3246, 298.0783, 463.79657, 301.57068, 462.01035, 302.3287, 460.07895, 303.0681, 456.36896, 304.48853, 449.73526, 307.0695, 437.65866, 311.72607, 424.16272, 317.45337, 413.87234, 321.35193, 404.46008, 325.11203, 400.70624, 326.70508, 395.52893, 328.90216, 382.85693, 333.8114, 378.88754, 335.4959)
 width = 0.5
 default_color = Color(0.36, 0.31, 0.22, 0.82)
 antialiased = true
@@ -824,7 +824,7 @@ antialiased = true
 [node name="ImportedRoad_2" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1475952595]
 position = Vector2(-101.78871, -349.9858)
 rotation = 0.40133995
-points = PackedVector2Array(440.578, 250.185, 441.409, 252.336, 443.963, 258.913, 445.068, 261.743, 448.344, 270.361, 454.43008, 284.46646, 461.42078, 300.93942)
+points = PackedVector2Array(440.578, 250.185, 441.409, 252.336, 443.963, 258.913, 445.068, 261.743, 448.344, 270.361, 454.43008, 284.46646, 462.034, 302.32654)
 width = 0.5
 default_color = Color(0.36, 0.31, 0.22, 0.82)
 antialiased = true
@@ -1336,7 +1336,7 @@ antialiased = true
 [node name="ImportedRoad_66" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1159046846]
 position = Vector2(-101.78871, -349.9858)
 rotation = 0.40133995
-points = PackedVector2Array(458.45538, 298.91888, 459.5503, 301.499)
+points = PackedVector2Array(458.45538, 298.91888, 460.24774, 303.08456)
 width = 0.5
 default_color = Color(0.36, 0.31, 0.22, 0.82)
 antialiased = true
@@ -1400,7 +1400,7 @@ antialiased = true
 [node name="ImportedRoad_74" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1351055518]
 position = Vector2(-101.78871, -349.9858)
 rotation = 0.40133995
-points = PackedVector2Array(481.64713, 297.27435, 480.25784, 297.86392, 464.683, 304.275, 461.409, 305.728, 459, 306.77554, 450.679, 310.394, 438.927, 315.077, 432.633, 317.69, 427.35, 319.853, 415.397, 324.682, 412.425, 325.831, 407.2, 327.897, 402.03674, 329.88782, 380.115, 338.664, 378.391, 339.318, 365.37997, 344.50714)
+points = PackedVector2Array(482.12192, 297.78336, 480.25784, 297.86392, 464.683, 304.275, 461.409, 305.728, 459, 306.77554, 450.679, 310.394, 438.927, 315.077, 432.633, 317.69, 427.35, 319.853, 415.397, 324.682, 412.425, 325.831, 407.2, 327.897, 402.03674, 329.88782, 380.115, 338.664, 378.391, 339.318, 365.37997, 344.50714)
 width = 0.5
 default_color = Color(0.36, 0.31, 0.22, 0.82)
 antialiased = true
@@ -1784,7 +1784,7 @@ antialiased = true
 [node name="ImportedRoad_122" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1351643619]
 position = Vector2(-101.78871, -349.9858)
 rotation = 0.40133995
-points = PackedVector2Array(509.92, 286.371, 507.51, 287.371, 482.6937, 297.53284, 481.8998, 297.86975)
+points = PackedVector2Array(509.92, 286.371, 507.51, 287.371, 482.6937, 297.53284, 481.72498, 297.9518)
 width = 0.5
 default_color = Color(0.36, 0.31, 0.22, 0.82)
 antialiased = true
@@ -1841,14 +1841,6 @@ antialiased = true
 position = Vector2(-101.78871, -349.9858)
 rotation = 0.40133995
 points = PackedVector2Array(444.1112, 248.56102, 456.40378, 238.89435, 458.92215, 237.8342, 467.16837, 234.38808, 480.5582, 228.79242, 493.80023, 223.25848, 517.5023, 213.43417)
-width = 0.5
-default_color = Color(0.36, 0.31, 0.22, 0.82)
-antialiased = true
-
-[node name="ImportedRoad_130" type="Line2D" parent="MapLayers/RoadLayer" unique_id=798745047]
-position = Vector2(-85.44204, -356.03177)
-rotation = 0.40133995
-points = PackedVector2Array(460.539, 301.426, 460.89902, 302.56186, 461.428, 304.231)
 width = 0.5
 default_color = Color(0.36, 0.31, 0.22, 0.82)
 antialiased = true
@@ -2063,6 +2055,7 @@ default_color = Color(0.36, 0.31, 0.22, 0.82)
 antialiased = true
 
 [node name="RouteLayer" type="Control" parent="MapLayers" unique_id=2018913495]
+visible = false
 layout_mode = 1
 anchor_top = 0.021000002
 anchor_right = 1.0
