@@ -2,7 +2,6 @@
 extends SceneTree
 
 const RADIO_SCENE := "res://scenes/interactables/new_office/NewRadioStation.tscn"
-const MAP_SCENE := "res://scenes/interactables/new_office/NewWallMap.tscn"
 const NOTEBOOK_SCENE := "res://scenes/interactables/new_office/NewNotebook.tscn"
 
 
@@ -11,9 +10,9 @@ func _initialize() -> void:
 
 
 func _run() -> void:
-	var succeeded := _upgrade_radio() and _upgrade_map() and _upgrade_notebook()
+	var succeeded := _upgrade_radio() and _upgrade_notebook()
 	if succeeded:
-		print("New office radio, wall map and notebook upgraded to functional scenes.")
+		print("New office radio and notebook upgraded to functional scenes.")
 	quit(0 if succeeded else 1)
 
 
@@ -112,74 +111,6 @@ func _upgrade_radio() -> bool:
 	return _save_scene(RADIO_SCENE, packed, root)
 
 
-func _upgrade_map() -> bool:
-	var loaded := _load_scene(MAP_SCENE)
-	if loaded.is_empty():
-		return false
-	var packed: PackedScene = loaded[0]
-	var root: Node3D = loaded[1]
-	if root.has_node("MapViewport"):
-		root.free()
-		return true
-
-	root.add_to_group("interactive", true)
-	var visual_root := root.get_node("VisualRoot")
-	var viewport_surface := MeshInstance3D.new()
-	viewport_surface.name = "ViewportSurface"
-	viewport_surface.position = Vector3(0.036, 0.0, 0.0)
-	viewport_surface.rotation = Vector3(0.0, PI * 0.5, 0.0)
-	var viewport_quad := QuadMesh.new()
-	viewport_quad.size = Vector2(1.30, 0.93)
-	viewport_surface.mesh = viewport_quad
-	_owned_child(visual_root, viewport_surface, root)
-
-	var background_surface := MeshInstance3D.new()
-	background_surface.name = "MapBackgroundSurface"
-	background_surface.transform = viewport_surface.transform
-	var background_quad := QuadMesh.new()
-	background_quad.size = viewport_quad.size
-	var background_material := StandardMaterial3D.new()
-	background_material.albedo_texture = load("res://assets/textures/test man.png")
-	background_material.roughness = 0.9
-	background_quad.material = background_material
-	background_surface.mesh = background_quad
-	_owned_child(visual_root, background_surface, root)
-	var marker_container := Node3D.new()
-	marker_container.name = "MapMarkers"
-	_owned_child(visual_root, marker_container, root)
-
-	_add_outline(root)
-	_add_interaction_area(root, "Map", Vector3(0.10, 1.04, 1.46))
-
-	var viewport := SubViewport.new()
-	viewport.name = "MapViewport"
-	viewport.disable_3d = true
-	viewport.transparent_bg = true
-	viewport.size = Vector2i(1024, 768)
-	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
-	_owned_child(root, viewport, root)
-	var map_ui_scene := load("res://scenes/ui/map/MapUI.tscn") as PackedScene
-	var map_ui := map_ui_scene.instantiate()
-	map_ui.name = "MapUI"
-	_owned_child(viewport, map_ui, root)
-
-	var renderer := Node.new()
-	renderer.name = "MapSurfaceRenderer"
-	renderer.set_script(load("res://scripts/interaction/SubViewportSurfaceRenderer.cs"))
-	renderer.set("SurfacePath", NodePath("../VisualRoot/ViewportSurface"))
-	renderer.set("ViewportPath", NodePath("../MapViewport"))
-	_owned_child(root, renderer, root)
-	var marker_controller := Node.new()
-	marker_controller.name = "MapMarkerController"
-	marker_controller.set_script(load("res://scripts/interactables/map_marker/MapMarkerController.cs"))
-	marker_controller.set("MapMissionMarkerScene", load("res://scenes/interactables/map_marker/MapMissionMarker.tscn"))
-	marker_controller.add_to_group("map_marker_controller", true)
-	_owned_child(root, marker_controller, root)
-	var background_layout := Node.new()
-	background_layout.name = "MapBackgroundLayout"
-	background_layout.set_script(load("res://scripts/interactables/MapBackgroundLayout.cs"))
-	_owned_child(root, background_layout, root)
-	return _save_scene(MAP_SCENE, packed, root)
 
 
 func _upgrade_notebook() -> bool:

@@ -10,10 +10,12 @@ public partial class MapMissionMarker : Node3D
 	[Export] public float RingRadius { get; set; } = 0.02625f;
 	[Export] public float RingWidth { get; set; } = 0.023f;
 	[Export] public float RingOffset { get; set; } = 0.012f;
-	[Export] public Color DispatchCountdownColor { get; set; } = new(0.95f, 0.72f, 0.16f, 1.0f);
-	[Export] public Color RadioCountdownColor { get; set; } = new(0.9f, 0.34f, 0.12f, 1.0f);
-	[Export] public Color MissionExecutionColor { get; set; } = new(0.3f, 0.8f, 0.42f, 1.0f);
-	[Export] public Color TravellingColor { get; set; } = new(0.38f, 0.75f, 0.46f, 1.0f);
+	// Тёплый жёлто-оранжевый пришёл на место прежней пары «жёлтый + оранжевый»,
+	// а зелёный один на оба состояния, где группа уже работает.
+	[Export] public Color DispatchCountdownColor { get; set; } = new("d68b1a");
+	[Export] public Color RadioCountdownColor { get; set; } = new("41536e");
+	[Export] public Color MissionExecutionColor { get; set; } = new("707819");
+	[Export] public Color TravellingColor { get; set; } = new("707819");
 
 	private MapPin _pin = null!;
 	private MeshInstance3D _ring = null!;
@@ -87,29 +89,40 @@ public partial class MapMissionMarker : Node3D
 		});
 	}
 
-	public void ShowDispatchCountdown(double remainingSeconds, double durationSeconds)
+	/// <summary>Состояния индикатора; цвет каждого берётся из экспортов.</summary>
+	public enum RingState
 	{
-		ShowCountdown(remainingSeconds, durationSeconds, DispatchCountdownColor);
+		Hidden,
+		DispatchCountdown,
+		Travelling,
+		RadioCountdown,
+		MissionExecution,
 	}
 
-	public void ShowTravelling()
+	/// <summary>
+	/// Единственная точка отрисовки кольца. Состояние выбирает цвет, доля
+	/// оставшегося времени — длину дуги. <see cref="RingState.Travelling"/>
+	/// показывает полное кольцо, поэтому время ему не нужно.
+	/// </summary>
+	public void ShowRing(RingState state, double remainingSeconds = 0.0, double durationSeconds = 0.0)
 	{
-		ShowProgress(1.0, 1.0, TravellingColor);
-	}
+		if (_ring == null || state == RingState.Hidden)
+		{
+			HideIndicator();
+			return;
+		}
 
-	public void ShowMissionExecution(double remainingSeconds, double durationSeconds)
-	{
-		ShowCountdown(remainingSeconds, durationSeconds, MissionExecutionColor);
-	}
+		float progress = state == RingState.Travelling
+			? 1.0f
+			: Mathf.Clamp((float)(remainingSeconds / durationSeconds), 0.0f, 1.0f);
+		if (durationSeconds <= 0.0 && state != RingState.Travelling)
+		{
+			HideIndicator();
+			return;
+		}
 
-	public void ShowRadioCountdown(double remainingSeconds, double durationSeconds)
-	{
-		ShowCountdown(remainingSeconds, durationSeconds, RadioCountdownColor);
-	}
-
-	private void ShowCountdown(double remainingSeconds, double durationSeconds, Color color)
-	{
-		ShowProgress(remainingSeconds, durationSeconds, color);
+		_ring.Mesh = BuildRingMesh(progress, GetStateColor(state));
+		_ring.Visible = progress > 0.0f;
 	}
 
 	public void HideIndicator()
@@ -120,17 +133,16 @@ public partial class MapMissionMarker : Node3D
 		}
 	}
 
-	private void ShowProgress(double remainingSeconds, double durationSeconds, Color color)
+	private Color GetStateColor(RingState state)
 	{
-		if (durationSeconds <= 0.0 || _ring == null)
+		return state switch
 		{
-			HideIndicator();
-			return;
-		}
-
-		float progress = Mathf.Clamp((float)(remainingSeconds / durationSeconds), 0.0f, 1.0f);
-		_ring.Mesh = BuildRingMesh(progress, color);
-		_ring.Visible = progress > 0.0f;
+			RingState.DispatchCountdown => DispatchCountdownColor,
+			RingState.Travelling => TravellingColor,
+			RingState.RadioCountdown => RadioCountdownColor,
+			RingState.MissionExecution => MissionExecutionColor,
+			_ => Colors.Transparent,
+		};
 	}
 
 	private ImmediateMesh BuildRingMesh(float progress, Color color)
@@ -144,6 +156,10 @@ public partial class MapMissionMarker : Node3D
 			EmissionEnergyMultiplier = 0.6f,
 			ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
 			CullMode = BaseMaterial3D.CullModeEnum.Disabled,
+			// Поверхность карты тоже прозрачная, а прозрачные материалы сортируются
+			// по расстоянию до начала объекта: кольцо у края доски оказывалось
+			// «дальше» центра квада и уезжало под карту. Приоритет это фиксирует.
+			RenderPriority = 1,
 		};
 		var mesh = new ImmediateMesh();
 		mesh.SurfaceBegin(Mesh.PrimitiveType.TriangleStrip, material);
@@ -151,7 +167,12 @@ public partial class MapMissionMarker : Node3D
 		const int segments = 48;
 		float innerRadius = Mathf.Max(0.001f, RingRadius - RingWidth * 0.5f);
 		float outerRadius = RingRadius + RingWidth * 0.5f;
-		float startAngle = -Mathf.Pi * 0.5f;
+		// Кольцо лежит в плоскости XY маркера, где +Y — верх, значит верхняя точка
+		// это угол +пи/2, а убывание угла для игрока выглядит движением по часовой.
+		// Оставшаяся дуга всегда заканчивается наверху, а её начало уезжает по
+		// часовой стрелке: прогалина растёт от верха кольца по часовой.
+		const float topAngle = Mathf.Pi * 0.5f;
+		float startAngle = topAngle - Mathf.Tau * (1.0f - progress);
 		for (int index = 0; index <= segments; index++)
 		{
 			float angle = startAngle - Mathf.Tau * progress * index / segments;

@@ -352,7 +352,9 @@ public partial class DossierDispatchUI : Control
 			}
 		}
 
-		return GD.Load<Texture2D>("res://assets/textures/test man.png");
+		// Заглушки нет намеренно: пустая рамка сразу видна как недостающий портрет,
+		// а подставленное чужое лицо выглядело бы штатно и пряло бы дыру в данных.
+		return null;
 	}
 
 	private static string BuildTraitsText(EmployeeView employee)

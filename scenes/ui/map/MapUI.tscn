@@ -1,12 +1,10 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene format=3 uid="uid://cf4y8wigminpv"]
 
-[ext_resource type="Script" path="res://scripts/ui/MapBuildingEditor.cs" id="1_map_editor"]
-[ext_resource type="Script" path="res://scripts/ui/DashedRouteRenderer.cs" id="2_dashed_route"]
-[ext_resource type="PackedScene" path="res://scenes/ui/map/GeneratedMapGeometry.tscn" id="3_geometry"]
+[ext_resource type="Script" uid="uid://dquax6jasu0r7" path="res://scripts/ui/MapBuildingEditor.cs" id="1_map_editor"]
 [ext_resource type="PackedScene" path="res://scenes/ui/map/MapDispatchRoute.tscn" id="4_dispatch_route"]
-[ext_resource type="Resource" path="res://assets/ui_preview/MapPreview.tres" id="5_preview"]
+[ext_resource type="Texture2D" uid="uid://3n677eof3vr0" path="res://assets/textures/текстура карты.png" id="6_backdrop"]
 
-[node name="MapUI" type="Control"]
+[node name="MapUI" type="Control" unique_id=450173806]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -14,179 +12,2099 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_map_editor")
-BuildingLayerPath = NodePath("MapLayers/GeneratedMapGeometry/BuildingLayer")
-RoadLayerPath = NodePath("MapLayers/GeneratedMapGeometry/RoadLayer")
-SelectionOutlinePath = NodePath("OverlayLayer/SelectionOutline")
-RouteRendererPath = NodePath("MapLayers/RouteLayer/RouteDashRenderer")
-MovingMarkerPath = NodePath("MapLayers/RouteLayer/MovingMarker")
-HeadquartersMarkerPath = NodePath("MapLayers/MarkerLayer/HeadquartersMarker")
-EffectLayerPath = NodePath("MapLayers/EffectLayer")
-PaperFramePath = NodePath("OverlayLayer/PaperFrame")
+DispatchRouteScene = ExtResource("4_dispatch_route")
 HeadquartersBuildingName = "ImportedBuilding_569"
 HeadquartersBuildingId = "building_block_r04_c03"
 ShowHeadquartersLabel = false
-DispatchRouteScene = ExtResource("4_dispatch_route")
-PreviewData = ExtResource("5_preview")
 
-[node name="Background" type="ColorRect" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="MapBackdrop" type="TextureRect" parent="." unique_id=1860243750]
+layout_mode = 0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 944.0
+offset_bottom = 523.0
 mouse_filter = 2
-color = Color(0.72, 0.67, 0.54, 0)
+texture = ExtResource("6_backdrop")
+expand_mode = 1
 
-[node name="MapLayers" type="Control" parent="."]
+[node name="MapLayers" type="Control" parent="." unique_id=870947709]
 clip_contents = true
-layout_mode = 0
-offset_left = 47.1034
-offset_top = 117.292
-offset_right = 990.896
-offset_bottom = 663.708
+anchors_preset = 0
+offset_left = -0.0013
+offset_top = -11.7414
+offset_right = 943.7913
+offset_bottom = 534.6746
 mouse_filter = 2
 
-[node name="GeneratedMapGeometry" parent="MapLayers" instance=ExtResource("3_geometry")]
-custom_minimum_size = Vector2(377, 236)
-layout_mode = 0
+[node name="BuildingLayer" type="Control" parent="MapLayers" unique_id=426163589]
+anchors_preset = 0
+offset_left = -435.1034
+offset_top = -187.29199
+offset_right = -0.29638672
+offset_bottom = -0.34298706
+scale = Vector2(4.63819, 4.63819)
+mouse_filter = 2
+
+[node name="ImportedBuilding_2" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1030815963]
+position = Vector2(-97.45181, -348.41183)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(355.714, 320.753, 354.695, 321.139, 352.849, 316.503, 356.43658, 315.05432, 357.8684, 318.4283, 359.85312, 317.58606, 359.34778, 316.39523, 361.13397, 315.63715, 364.6414, 324.454, 356.374, 327.74, 355.658, 325.942, 357.489, 325.213)
+
+[node name="ImportedBuilding_3" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=907728281]
+position = Vector2(-100.25463, -348.62738)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(397.474, 311.496, 406.399, 308.067, 403.047, 299.341, 401.305, 300.011, 401.75, 301.168, 399.666, 301.969, 398.688, 299.423, 399.094, 299.267, 398.763, 298.402, 394.426, 300.067, 396.158, 304.574, 395.85, 304.694, 396.242, 305.714, 397.556, 305.209, 398.937, 308.8, 396.759, 309.637)
+
+[node name="ImportedBuilding_6" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=674166510]
+position = Vector2(-104.35108, -347.54938)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(473.66, 254.128, 472.577, 251.412, 470.667, 252.174, 471.836, 255.105, 471.158, 255.375, 470.479, 255.646, 472.022, 259.515, 473.951, 258.738, 472.711, 255.629, 473.262, 255.418, 474.05, 255.104, 474.41653, 255.85245, 476.5997, 254.92593, 475.9259, 253.33821)
+
+[node name="ImportedBuilding_12" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=821186855]
+position = Vector2(-97.731316, -348.70132)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(359.346, 300.93793, 348.82, 305.017, 348.188, 303.46, 358.6722, 299.35016)
+
+[node name="ImportedBuilding_14" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1094953847]
+position = Vector2(-99.60783, -347.98056)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(402.026, 268.606, 415.0241, 263.25684, 414.4345, 261.86755, 401.36557, 266.94525)
+
+[node name="ImportedBuilding_17" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1025778769]
+position = Vector2(-100.25463, -348.19617)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(405.548, 279.398, 407.202, 278.73, 406.32, 276.547, 408.494, 275.668, 409.378, 277.859, 411.05, 277.184, 409.202, 272.611, 407.485, 273.305, 408.068, 274.748, 405.929, 275.612, 405.34, 274.158, 403.698, 274.821)
+
+[node name="ImportedBuilding_18" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=20008567]
+position = Vector2(-100.47023, -348.41177)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(374.982, 291.121, 376.456, 290.535, 375.936, 289.305, 378.023, 288.446, 378.492, 289.577, 380.149, 288.89, 379.369, 287.01, 380.15, 286.687, 380.505, 287.541, 381.639, 287.072, 381.479, 286.685, 382.508, 286.231, 381.806, 284.539, 380.826, 284.973, 380.689, 284.643, 379.477, 285.147, 379.78, 285.878, 379.029, 286.189, 378.348, 284.546, 376.664, 285.245, 377.286, 286.744, 375.226, 287.593, 374.586, 286.051, 373.113, 286.635)
+
+[node name="ImportedBuilding_19" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1359476439]
+position = Vector2(-99.60786, -348.843)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(371.068, 298.253, 372.549, 297.656, 369.353, 289.509, 367.872, 290.106)
+
+[node name="ImportedBuilding_20" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=586123476]
+position = Vector2(-99.024925, -348.70132)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(360.013, 288.592, 361.531, 287.983, 366.175, 299.955, 364.657, 300.563)
+
+[node name="ImportedBuilding_21" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=507650417]
+position = Vector2(-98.809326, -348.91693)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(357.082, 296.465, 358.538, 295.856, 355.081, 287.579, 353.624, 288.187)
+
+[node name="ImportedBuilding_22" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1843357860]
+position = Vector2(-97.66741, -348.62738)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(341.861, 291.932, 342.496, 291.675, 352.5421, 287.66467, 351.86832, 286.0769, 341.269, 290.474)
+
+[node name="ImportedBuilding_23" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1683661334]
+position = Vector2(-100.25463, -348.62744)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(386.5063, 289.8803, 398.412, 285.143, 397.839, 283.663, 385.91672, 288.49103)
+
+[node name="ImportedBuilding_24" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=2116944006]
+position = Vector2(-100.68584, -348.62738)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(384.965, 285.1, 386.55377, 284.4732, 383.38324, 276.4502, 381.7955, 277.124)
+
+[node name="ImportedBuilding_25" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1527043355]
+position = Vector2(-100.25463, -348.62738)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(382.39676, 275.22937, 383.19064, 274.8925, 383.44333, 275.48788, 393.25253, 271.55933, 392.99988, 270.96393, 394.19067, 270.45856, 393.714, 269.368, 381.971, 274.128)
+
+[node name="ImportedBuilding_26" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1893428377]
+position = Vector2(-98.96102, -348.62738)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(362.433, 285.099, 375.246, 279.90344, 374.5722, 278.31567, 361.788, 283.464)
+
+[node name="ImportedBuilding_27" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1754280405]
+position = Vector2(-100.47023, -348.843)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(423.28162, 313.62146, 433.09082, 309.69287, 432.9224, 309.29596, 434.11322, 308.7906, 433.52362, 307.4013, 422.568, 311.829)
+
+[node name="ImportedBuilding_65" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1483536784]
+position = Vector2(-106.7227, -349.48978)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(526.0155, 314.5242, 527.0078, 314.10306, 527.68164, 315.69083, 524.9031, 316.86996, 521.227, 308.23, 530.626, 304.301, 531.394, 306.138, 523.961, 309.244)
+
+[node name="ImportedBuilding_66" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=518006837]
+position = Vector2(-104.13545, -349.48978)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(513.6853, 310.8567, 515.0746, 310.26712, 518.2451, 318.2901, 501.2068, 325.0523, 499.101, 319.876, 500.763, 319.215, 502.20496, 322.98923, 516.182, 317.29193)
+
+[node name="ImportedBuilding_67" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=2014328525]
+position = Vector2(-107.36948, -349.48978)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(537.653, 297.846, 536.848, 295.803, 537.938, 295.373, 536.932, 292.821, 538.973, 292.017, 539.948, 294.493, 541.0073, 294.10928, 541.7654, 295.8955, 540.9715, 296.2324, 541.13995, 296.62933, 539.7507, 297.21893, 539.646, 296.993)
+
+[node name="ImportedBuilding_73" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=360550898]
+position = Vector2(-107.585075, -349.48978)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(538.024, 309.535, 538.711, 311.181, 547.542, 307.501, 543.971, 298.93, 532.7926, 303.4507, 533.5506, 305.23694, 543.008, 301.389, 545.162, 306.558)
+
+[node name="ImportedBuilding_76" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=928743884]
+position = Vector2(-106.50707, -349.05862)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(520.308, 305.801, 517.742, 299.524, 525.59845, 296.43268, 522.5964, 288.8066, 521.8025, 289.1435, 520.7076, 286.56342, 523.28766, 285.46848, 524.38257, 288.04858, 527.86, 297.34662, 520.011, 300.711, 521.863, 305.209)
+
+[node name="ImportedBuilding_79" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=895327929]
+position = Vector2(-106.07587, -349.0586)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(508.956, 296.62, 510.519, 295.999, 515.101, 307.513, 513.538, 308.135)
+
+[node name="ImportedBuilding_80" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1476130988]
+position = Vector2(-100.47023, -350.3522)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(470.2998, 338.87112, 465.73502, 340.8083, 458.9879, 351.4006, 455.41547, 352.91666, 456.128, 354.49, 460.2571, 352.7357, 467.0042, 342.14337, 470.9736, 340.45886)
+
+[node name="ImportedBuilding_81" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=209713733]
+position = Vector2(-106.50707, -349.70538)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(532.661, 311.926, 535.8247, 310.59567, 536.41425, 311.98495, 533.213, 313.306)
+
+[node name="ImportedBuilding_82" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=861706572]
+position = Vector2(-101.54824, -348.41177)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(462.853, 331.25754, 463.44257, 332.64682, 472.45792, 329.05518, 471.86835, 327.6659, 470.08212, 328.4239, 468.797, 325.12, 470.91766, 324.32193, 470.24387, 322.73416, 462.726, 325.547, 463.42, 327.256, 466.4671, 325.9764, 467.81473, 329.15192)
+
+[node name="ImportedBuilding_83" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1352772791]
+position = Vector2(-103.488655, -349.27417)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(481.724, 307.911, 483.332, 307.316, 490.898, 326.86, 487.907, 327.983, 487.329, 326.484, 488.811, 325.87)
+
+[node name="ImportedBuilding_84" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1438167330]
+position = Vector2(-103.91985, -348.6274)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(492.62167, 303.16653, 494.01096, 302.57697, 492.698, 298.859, 505.8766, 293.5599, 506.46616, 294.9492, 508.05392, 294.2754, 506.87476, 291.49683, 490.723, 297.971)
+
+[node name="ImportedBuilding_85" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1941529553]
+position = Vector2(-100.47023, -349.0586)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(446.718, 337.651, 447.399, 339.335, 457.88544, 335.00516, 457.21164, 333.41742)
+
+[node name="ImportedBuilding_86" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=149244757]
+position = Vector2(-103.05745, -348.843)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(480.155, 303.202, 480.735, 304.694, 473.378, 307.552, 475.025, 311.794, 473.588, 312.352, 471.969, 308.186, 471.36, 306.62, 472.716, 306.094)
+
+[node name="ImportedBuilding_87" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=963059657]
+position = Vector2(-102.410645, -349.27417)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(487.344, 330.46695, 488.0178, 332.0547, 474.393, 337.604, 473.793, 336.243)
+
+[node name="ImportedBuilding_88" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=274656154]
+position = Vector2(-102.19507, -349.05856)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(467.894, 308.019, 468.367, 309.295, 468.777, 310.403, 467.01, 311.089, 466.709, 310.314, 458.497, 313.524, 460.182, 317.866, 458.611, 318.452, 456.948, 314.088, 456.317, 312.518, 457.395, 312.084, 466.522, 308.548)
+
+[node name="ImportedBuilding_89" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1761353714]
+position = Vector2(-101.117035, -348.843)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(452.952, 321.17236, 454.53973, 320.49857, 459.064, 331.804, 457.535, 332.381)
+
+[node name="ImportedBuilding_96" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1415409789]
+position = Vector2(-84.41746, -308.6592)
+rotation = 0.40133995
+scale = Vector2(0.93129927, 0.8991327)
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(540.589, 275.84, 541.231, 277.514, 548.887, 274.458, 548.246, 272.787)
+
+[node name="ImportedBuilding_98" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=440325033]
+position = Vector2(-108.23188, -344.96216)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(499.344, 220.44, 499.483, 220.78, 500.181, 222.482, 502.175, 221.664, 502.888, 221.372, 505.309, 227.21, 509.181, 225.543, 506.896, 219.761, 508.107, 219.265, 509.461, 218.689, 508.761, 216.922, 508.67, 216.757, 505.733, 217.809, 505.542, 217.341, 503.564, 218.15, 501.466, 219.01, 501.663, 219.491)
+
+[node name="ImportedBuilding_106" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=204108599]
+position = Vector2(-42.80243, -326.7353)
+rotation = 0.40133995
+scale = Vector2(0.87190795, 1.0153873)
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(531.03674, 281.75815, 535.8169, 280.0162, 537.3625, 283.14362, 534.801, 283.962, 537.52893, 290.00284, 535.2527, 290.83234)
+
+[node name="ImportedBuilding_149" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=841322862]
+position = Vector2(-100.901436, -348.62738)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(442.21698, 274.90396, 444.2859, 274.26016, 455.00668, 300.62656, 453.02197, 301.4688)
+
+[node name="ImportedBuilding_150" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1117623342]
+position = Vector2(-100.47023, -347.76498)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(429.193, 283.692, 429.802, 285.154, 440.1006, 280.9548, 439.511, 279.56552)
+
+[node name="ImportedBuilding_151" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=832164308]
+position = Vector2(-107.585075, -348.41177)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(535.321, 249.37, 537.686, 248.422, 540.715, 255.981, 539.844, 256.33, 542.453, 262.834, 540.959, 263.432)
+
+[node name="ImportedBuilding_152" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=647697557]
+position = Vector2(-107.585075, -347.54938)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(524.717, 242.674, 526.02, 246.008, 529.977, 244.463, 528.674, 241.127)
+
+[node name="ImportedBuilding_195" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=590888013]
+position = Vector2(-106.50707, -349.921)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(550.76404, 304.9584, 551.43787, 306.54617, 557.78894, 303.85095, 557.1151, 302.2632)
+
+[node name="ImportedBuilding_199" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=112675300]
+position = Vector2(-109.741104, -351.86142)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(544.7591, 281.97763, 545.43286, 283.56537, 550.19617, 281.54398, 549.52234, 279.95624)
+
+[node name="ImportedBuilding_209" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1196988090]
+position = Vector2(-107.15388, -348.843)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(545.991, 292.615, 549.5608, 301.01904, 551.14856, 300.34525, 547.727, 291.906)
+
+[node name="ImportedBuilding_259" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1142958151]
+position = Vector2(-99.823425, -349.48978)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(404.208, 346.15, 404.897, 347.84, 406.296, 347.269, 407.005, 349.008, 405.569, 349.594, 406.245, 351.252, 410.717, 349.429, 410.087, 347.884, 408.781, 348.416, 408.012, 346.533, 409.434, 345.953, 408.757, 344.294)
+
+[node name="ImportedBuilding_263" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=586496147]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(441.9902, 344.3974, 442.664, 345.98517, 449.89313, 343.15155, 449.21933, 341.56378)
+
+[node name="ImportedBuilding_264" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=517206250]
+position = Vector2(-99.17662, -349.921)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(390.52, 358.99, 391.112, 360.463, 399.473, 357.099, 398.882, 355.627, 395.11856, 357.14056)
+
+[node name="ImportedBuilding_265" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1242965704]
+position = Vector2(-97.88302, -349.70538)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(379.153, 343.599, 365.1193, 349.31195, 370.53387, 363.1748, 372.12164, 362.50098, 367.18237, 350.31012, 378.253, 345.689, 378.87, 347.21, 380.371, 346.6)
+
+[node name="ImportedBuilding_266" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=2138366326]
+position = Vector2(-98.09863, -349.70544)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(382.569, 345.684, 383.221, 347.252, 393.50714, 343.35446, 392.7491, 341.56824)
+
+[node name="ImportedBuilding_267" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1876100736]
+position = Vector2(-104.56666, -346.68698)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(466.213, 240.575, 467.377, 243.503, 466.017, 244.044, 467.551, 247.901, 469.235, 247.232, 468, 244.126, 469.343, 243.591, 467.881, 239.911)
+
+[node name="ImportedBuilding_268" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=317893473]
+position = Vector2(-97.45181, -349.70538)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(375.328, 360.271, 377.247, 364.89, 379.005, 364.16, 378.114, 362.015, 380.189, 361.153, 381.099, 363.344, 382.934, 362.582, 380.971, 357.856, 379.183, 358.599, 379.786, 360.051, 377.681, 360.926, 377.103, 359.534)
+
+[node name="ImportedBuilding_269" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1082125190]
+position = Vector2(-99.17662, -349.70538)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(394.996, 343.697, 399.562, 355.434, 401.206, 354.78, 396.641, 343.043)
+
+[node name="ImportedBuilding_270" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1373938519]
+position = Vector2(-100.901436, -348.843)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(432.86, 320.949, 430.688, 321.845, 433.89896, 329.258, 433.30356, 329.51065, 435.57764, 334.86932, 433.7981, 341.71402, 435.1457, 344.88953, 436.53497, 344.29996, 435.35583, 341.5214, 437.2496, 334.39398, 434.8913, 328.83685, 435.28824, 328.6684, 433.29688, 323.42398, 432.8999, 323.5924, 432.571, 322.713, 433.478, 322.361)
+
+[node name="ImportedBuilding_271" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=41621150]
+position = Vector2(-100.03903, -350.7834)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(422.77643, 368.17303, 422.009, 366.527, 432.90417, 362.2356, 433.578, 363.82336)
+
+[node name="ImportedBuilding_274" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=882959088]
+position = Vector2(-101.117035, -348.843)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(442.473, 328.594, 444.23, 333.006, 445.926, 332.331, 445.417, 331.054, 447.193, 330.348, 447.674, 331.557, 449.317, 330.901, 447.572, 326.521, 445.883, 327.195, 446.468, 328.666, 444.734, 329.357, 444.162, 327.921)
+
+[node name="ImportedBuilding_275" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1312851385]
+position = Vector2(-98.74542, -350.7834)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(393.819, 366.01, 397.374, 374.969, 405.946, 371.566, 405.217, 369.732, 398.294, 372.481, 396.795, 368.705, 401.104, 366.944, 401.753, 368.579, 406.381, 366.789, 404.871, 362.99, 400.749, 364.628, 400.563, 364.157, 399.662, 364.515, 400.226, 365.939, 396.406, 367.455, 395.558, 365.32)
+
+[node name="ImportedBuilding_277" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=2070445231]
+position = Vector2(-104.99786, -348.19617)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(488.682, 267.376, 489.252, 268.8, 488.655, 269.04, 490.195, 272.886, 489.723, 273.074, 490.523, 275.076, 492.198, 274.405, 491.511, 272.687, 492.046, 272.473, 490.539, 268.706, 491, 268.523, 490.284, 266.734)
+
+[node name="ImportedBuilding_279" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1579311563]
+position = Vector2(-96.58941, -350.1366)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(375.34, 371.026, 375.918, 372.489, 385.66095, 368.46588, 385.07138, 367.07657)
+
+[node name="ImportedBuilding_280" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1733073614]
+position = Vector2(-106.2915, -349.70538)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(528.431, 313.612, 528.976, 315.014, 532.0479, 313.83792, 531.4584, 312.44864)
+
+[node name="ImportedBuilding_282" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=45189924]
+position = Vector2(-101.117035, -350.999)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(430.8761, 351.38568, 435.079, 361.927, 436.548, 361.358, 432.26538, 350.79608)
+
+[node name="ImportedBuilding_283" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1891883638]
+position = Vector2(-101.33264, -349.48978)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(449.754, 342.125, 453.349, 350.511, 454.969, 349.821, 451.374, 341.435)
+
+[node name="ImportedBuilding_284" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1198264442]
+position = Vector2(-106.291466, -348.41177)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(497.437, 263.73, 498.125, 265.459, 497.526, 265.697, 499.063, 269.558, 498.59, 269.746, 499.393, 271.762, 501.089, 271.087, 500.406, 269.368, 500.94, 269.154, 499.435, 265.374, 499.896, 265.19, 499.058, 263.085)
+
+[node name="ImportedBuilding_285" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=295994733]
+position = Vector2(-100.901436, -348.6274)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(434.8963, 319.46625, 435.57007, 321.05402, 449.9441, 315.18826, 449.2703, 313.60052)
+
+[node name="ImportedBuilding_287" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1530485348]
+position = Vector2(-100.47022, -350.13663)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(417.699, 354.116, 418.263, 355.516, 428.95145, 351.26563, 428.36188, 349.87628)
+
+[node name="ImportedBuilding_289" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=55919390]
+position = Vector2(-105.21348, -347.76498)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(483.134, 253.355, 483.761, 254.981, 491.75592, 252.00728, 491.08215, 250.41953)
+
+[node name="ImportedBuilding_290" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1949043688]
+position = Vector2(-100.47023, -350.7834)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(437.79254, 348.91895, 441.901, 359.078, 443.451, 358.453, 443.285, 358.042, 439.18182, 348.32935)
+
+[node name="ImportedBuilding_291" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1919540693]
+position = Vector2(-98.31422, -349.48978)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(382.558, 348.501, 387.157, 360.353, 388.876, 359.685, 384.194, 347.935)
+
+[node name="ImportedBuilding_293" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1254122046]
+position = Vector2(-100.47023, -349.48978)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(416.662, 357.037, 419.64844, 364.1136, 421.03772, 363.524, 418.196, 356.451)
+
+[node name="ImportedBuilding_294" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1979398379]
+position = Vector2(-96.37381, -350.7834)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(373.12738, 374.2532, 377.347, 385.031, 378.7821, 384.26672, 374.51666, 373.66364)
+
+[node name="ImportedBuilding_295" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=303399619]
+position = Vector2(-105.86027, -347.98056)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(493.233, 255.107, 493.92, 256.836, 493.322, 257.074, 494.858, 260.933, 494.386, 261.122, 495.186, 263.133, 496.878, 262.459, 496.193, 260.742, 496.73, 260.528, 495.224, 256.748, 495.686, 256.564, 494.848, 254.463)
+
+[node name="ImportedBuilding_296" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=971401572]
+position = Vector2(-96.37381, -350.56778)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(390.2091, 379.1832, 379.662, 383.413, 380.312, 385.041, 390.8829, 380.77094)
+
+[node name="ImportedBuilding_297" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1840137971]
+position = Vector2(-97.45183, -350.35223)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(387.375, 368.805, 390.35922, 376.77744, 391.94696, 376.10364, 388.677, 368.302)
+
+[node name="ImportedBuilding_298" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1537805612]
+position = Vector2(-104.99786, -348.62738)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(490.915, 277.379, 492.969, 283.306, 495.167, 282.501, 496.0598, 283.67313, 501.61694, 281.31482, 501.22583, 279.8413, 503.80594, 278.7464, 501.78455, 273.98312, 500.31104, 274.37424, 501.79706, 278.42783, 493.846, 281.345, 492.209, 276.928)
+
+[node name="ImportedBuilding_300" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=404916907]
+position = Vector2(-100.03904, -350.5678)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(443.895, 357.799, 444.481, 359.288, 451.5245, 356.44153, 450.93494, 355.05225)
+
+[node name="ImportedBuilding_302" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1985023708]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(395.67172, 337.35358, 396.2613, 338.74286, 404.08582, 335.65652, 416.47018, 340.00366, 420.0426, 338.4876, 419.45306, 337.0983, 416.39178, 338.1632, 404.09167, 334.0146)
+
+[node name="ImportedBuilding_303" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=2093915161]
+position = Vector2(-105.21346, -347.54938)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(484.818, 258.422, 485.506, 260.152, 484.907, 260.39, 486.445, 264.251, 485.972, 264.439, 486.759, 266.417, 488.418, 265.757, 487.735, 264.038, 488.27, 263.826, 486.764, 260.044, 487.226, 259.86, 486.403, 257.792)
+
+[node name="ImportedBuilding_315" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1154002153]
+position = Vector2(-100.68584, -348.19617)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(377.93298, 320.45294, 378.691, 322.23914, 388.673, 318.262, 387.94067, 316.44012)
+
+[node name="ImportedBuilding_317" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1349661019]
+position = Vector2(-101.33264, -348.19617)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(435.474, 285.662, 436.309, 287.585, 435.532, 287.906, 437.113, 291.737, 437.135, 291.789, 436.875, 291.897, 436.854, 291.845, 436.634, 291.936, 437.253, 293.436, 437.439, 293.359, 437.754, 294.121, 437.927, 294.049, 438.567, 295.601, 437.748, 295.938, 438.33, 297.348, 438.525, 297.268, 438.802, 297.927, 440.436, 297.253, 440.037, 296.298, 439.885, 296.361, 439.612, 295.701, 440.399, 295.378, 439.514, 293.231, 439.161, 293.377, 438.468, 291.698, 439.199, 291.396, 438.348, 289.334, 438.032, 289.465, 437.307, 287.708, 438.103, 287.381, 437.079, 285)
+
+[node name="ImportedBuilding_318" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=626012424]
+position = Vector2(-99.17662, -348.62738)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(371.922, 307.376, 372.588, 309.037, 383.16986, 304.64624, 382.5803, 303.25693)
+
+[node name="ImportedBuilding_319" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=865434394]
+position = Vector2(-100.03903, -348.41183)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(418.403, 304.834, 418.965, 306.258, 429.6076, 302.03683, 428.9338, 300.4491)
+
+[node name="ImportedBuilding_325" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=722810245]
+position = Vector2(-100.901436, -348.41183)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(427.303, 272.265, 427.904, 273.769, 438.9806, 269.4853, 438.30676, 267.89752)
+
+[node name="ImportedBuilding_326" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=257306119]
+position = Vector2(-99.39223, -348.41177)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(374.928, 318.461, 376.498, 317.872, 373.348, 309.468, 371.776, 310.057, 373.1422, 313.69955)
+
+[node name="ImportedBuilding_328" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1195678498]
+position = Vector2(-100.03903, -348.41177)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(393.503, 321.634, 395.142, 320.973, 395.532, 321.942, 395.279, 322.043, 395.413, 322.377, 393.40863, 323.25397, 393.9982, 324.64325, 395.9829, 323.801, 396.356, 324.718, 397.909, 324.091, 397.183, 322.289, 398.985, 321.564, 398.374, 320.049, 396.564, 320.777, 396.167, 319.791, 396.372, 319.709, 395.309, 317.069, 393.772, 317.687, 394.494, 319.481, 392.896, 320.125)
+
+[node name="ImportedBuilding_333" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1020487834]
+position = Vector2(-96.805046, -348.62735)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(362.994, 335.484, 363.61, 337.014, 364.826, 336.549, 364.98, 336.932, 374.7467, 332.81305, 374.57825, 332.41608, 375.96753, 331.8265, 375.37796, 330.43723)
+
+[node name="ImportedBuilding_334" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=906018235]
+position = Vector2(-100.901436, -348.19617)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(422.803, 257.703, 423.376, 259.16, 434.3899, 254.80434, 433.8003, 253.41505)
+
+[node name="ImportedBuilding_343" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1135558428]
+position = Vector2(-100.03905, -348.41183)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(411.365, 291.426, 412.057, 293.17, 422.888, 288.96204, 422.41266, 287.29004)
+
+[node name="ImportedBuilding_460" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=980104145]
+position = Vector2(-102.410645, -347.54938)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(452.582, 258.805, 453.142, 260.256, 447.488, 262.467, 446.693, 260.411, 451.773, 258.428, 452.008, 259.028)
+
+[node name="ImportedBuilding_461" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1407315908]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(459.99567, 272.5822, 460.22998, 270.37488, 462.35312, 270.4107, 462.4015, 272.7323)
+
+[node name="ImportedBuilding_514" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=445284303]
+position = Vector2(-66.83645, -313.05313)
+rotation = 0.40133995
+scale = Vector2(0.88487077, 0.9383588)
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(359.691, 334.558, 360.384, 336.282, 359.853, 336.496, 360.213, 337.392, 358.736, 337.985, 358.424, 337.21, 357.906, 337.417, 357.346, 336.024, 359.089, 335.323, 358.907, 334.872)
+
+[node name="ImportedBuilding_515" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=393603410]
+position = Vector2(-99.82345, -348.62738)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(396.6924, 267.5232, 399.07404, 266.51248, 399.41095, 267.30637, 397.0293, 268.31705)
+
+[node name="ImportedBuilding_521" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1009804408]
+position = Vector2(-98.74544, -348.19623)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(363.2079, 305.62286, 362.183, 303.498, 365.93808, 302.1221, 366.86456, 304.30527, 365.47528, 304.89484, 366.06485, 306.28412, 365.6679, 306.45258, 365.9206, 307.048, 364.92822, 307.46912, 364.67557, 306.87372, 364.4771, 306.95795, 363.81305, 305.40482)
+
+[node name="ImportedBuilding_522" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1242483502]
+position = Vector2(-100.25463, -348.41177)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(380.582, 298.859, 380.24, 297.999, 380.998, 297.679, 380.59476, 296.37054, 384.1672, 294.8545, 385.0937, 297.03766, 384.4983, 297.29034, 384.38403, 297.57303, 383.59015, 297.9099, 384.09552, 299.10074, 383.58432, 299.55188, 383.837, 300.14728, 382.84467, 300.56842, 382.59198, 299.97302, 382.19504, 300.14148, 381.471, 298.502)
+
+[node name="ImportedBuilding_524" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=924277934]
+position = Vector2(-104.35106, -346.47137)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(461.584, 234.634, 467.96036, 232.3605, 468.71838, 234.14673, 464.86322, 235.54854, 465.342, 236.682, 464.761, 236.899, 465.724, 239.474, 463.682, 240.238)
+
+[node name="ImportedBuilding_525" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=218379955]
+position = Vector2(-105.21346, -347.76498)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(473.11475, 231.81262, 475.216, 237.072, 473.83105, 237.36392, 471.83966, 232.1195)
+
+[node name="ImportedBuilding_527" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1801516697]
+position = Vector2(-105.860275, -347.11816)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(484.35165, 248.35721, 488.409, 246.625, 487.077, 242.986, 485.894, 243.418, 486.752, 245.762, 483.7621, 246.96793)
+
+[node name="ImportedBuilding_528" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=467895819]
+position = Vector2(-103.704254, -346.68698)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(450.631, 247.018, 450.84, 246.626, 450.51, 245.665, 451.822, 245.132, 452.51, 243.808, 453.755, 244.493, 455.002, 243.936, 455.371, 244.817, 455.804, 245.058, 456.76, 244.643, 457.324, 245.981, 458.563, 246.506, 458.052, 247.979, 458.504, 249.093, 457.473, 249.506, 457.992, 250.652, 453.372, 252.523, 452.934, 251.301, 451.739, 251.782, 451.321, 250.532, 449.879, 250.031, 450.369, 248.648, 449.729, 247.347)
+
+[node name="ImportedBuilding_529" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1046897104]
+position = Vector2(-103.704254, -347.54938)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(457.117, 260.358, 461.909, 258.561, 463.475, 262.735, 461.447, 263.498, 460.704, 261.518, 457.942, 262.555)
+
+[node name="ImportedBuilding_530" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=418795167]
+position = Vector2(-107.36948, -349.27417)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(530.36, 294.617, 532.498, 300.062, 537.415, 298.15, 535.276, 292.704)
+
+[node name="ImportedBuilding_532" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1685874766]
+position = Vector2(-104.99786, -348.843)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(502.543, 308.178, 501.64, 305.795, 502.564, 305.444, 502.403, 305.02, 502.898, 304.832, 502.309, 303.209, 504.809, 302.262, 505.278, 303.572, 504.885, 303.721, 505.193, 304.535, 504.806, 304.68, 505.081, 305.408, 504.28, 305.711, 504.6, 306.555, 503.854, 306.837, 503.982, 307.175, 503.242, 307.454, 503.395, 307.856)
+
+[node name="ImportedBuilding_534" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=2018850433]
+position = Vector2(-106.72267, -349.921)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(527.649, 309.936, 530.973, 308.598, 531.887, 310.872, 528.564, 312.21)
+
+[node name="ImportedBuilding_569" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1518653803]
+position = Vector2(-102.195045, -348.19617)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(457.73514, 281.66855, 463.97192, 279.25604, 464.6157, 281.32495, 463.554, 281.853, 464.121, 283.267, 464.8567, 285.20428, 465.53635, 285.1501, 466.38443, 285.49283, 467.03403, 285.91977, 467.2867, 286.51517, 467.53937, 287.1106, 467.39514, 287.87445, 467.0524, 288.72253, 466.5412, 289.17368, 467.77457, 292.63187, 468.9654, 292.12653, 469.97607, 294.50815, 462.35004, 297.51025, 457.32654, 285.1209, 458.9143, 284.4471)
+
+[node name="ImportedBuilding_570" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1496032470]
+position = Vector2(-103.704254, -347.98056)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(463.677, 258.252, 464.978, 257.742, 466.372, 261.489, 465.137, 261.982)
+
+[node name="ImportedBuilding_574" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1692882835]
+position = Vector2(-97.731316, -348.48572)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(342.7871, 292.27283, 347.191, 303.75403, 345.60324, 304.42783, 341.0886, 293.07397)
+
+[node name="ImportedBuilding_575" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1497131582]
+position = Vector2(-101.33264, -347.98056)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(436.11603, 255.00862, 436.45294, 255.80249, 437.24683, 255.46559, 441.84918, 266.86258, 439.8645, 267.70483, 434.92523, 255.51396)
+
+[node name="ImportedBuilding_576" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=2035845047]
+position = Vector2(-101.117035, -347.98056)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(427.66113, 268.19937, 425.87488, 268.9574, 422.4517, 260.339, 424.2379, 259.58096)
+
+[node name="ImportedBuilding_577" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1335275276]
+position = Vector2(-101.33264, -347.98053)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(414.8, 275.552, 416.566, 274.841, 415.69, 272.661, 417.89, 271.776, 418.773, 273.971, 420.433, 273.303, 418.594, 268.729, 416.867, 269.424, 417.446, 270.865, 415.327, 271.717, 414.74, 270.258, 412.959, 270.974)
+
+[node name="ImportedBuilding_578" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=826028757]
+position = Vector2(-99.82344, -349.0586)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(394.15485, 272.58167, 398.543, 283.786, 400.243, 283.101, 395.94104, 271.82364)
+
+[node name="ImportedBuilding_580" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1794216892]
+position = Vector2(-100.901436, -348.41177)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(423.728, 289.324, 425.294, 288.694, 428.633, 297.005, 427.067, 297.635)
+
+[node name="ImportedBuilding_581" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=2027989470]
+position = Vector2(-100.68584, -348.62738)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(417.779, 305.447, 417.552, 305.534, 416.108, 306.086, 411.44, 294.052, 413.1329, 293.5702)
+
+[node name="ImportedBuilding_582" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=869180547]
+position = Vector2(-100.03903, -348.19617)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(403.27, 317.649, 404.705, 317.081, 405.11832, 318.28467, 402.7367, 319.29535, 403.32626, 320.68463, 405.50943, 319.75818, 405.899, 320.73, 407.302, 320.173, 406.662, 318.561, 408.303, 317.91, 407.718, 316.436, 406.118, 317.07, 405.711, 316.044, 405.919, 315.962, 404.876, 313.33, 403.41, 313.911, 404.119, 315.697, 402.717, 316.252)
+
+[node name="ImportedBuilding_583" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=829857634]
+position = Vector2(-100.25463, -348.62738)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(384.30066, 305.1032, 388.982, 317.043, 390.572, 316.416, 385.97266, 304.62787)
+
+[node name="ImportedBuilding_589" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1699679349]
+position = Vector2(-100.47023, -347.98056)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(427.329, 291.375, 431.503, 289.582, 431.889, 290.482, 427.716, 292.275)
+
+[node name="ImportedBuilding_606" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=570435297]
+position = Vector2(-100.901436, -348.19617)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(426.952, 288.361, 432.601, 285.979, 433.405, 287.798, 427.62, 290.154)
+
+[node name="ImportedBuilding_627" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1863566159]
+position = Vector2(-100.03905, -348.4118)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(403.01013, 290.13705, 401.975, 287.678, 405.77036, 286.15515, 406.78107, 288.53677, 405.39178, 289.12637, 405.98135, 290.51566, 405.38593, 290.7683, 405.72284, 291.5622, 404.7305, 291.9833, 404.39362, 291.18945, 403.99664, 291.3579, 403.40707, 289.96863)
+
+[node name="ImportedBuilding_628" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=746206136]
+position = Vector2(-100.90145, -348.19617)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(425.32874, 279.2603, 424.82336, 278.06952, 427.00653, 277.14304, 427.93304, 279.3262, 426.34528, 280, 427.01907, 281.5878, 426.62213, 281.75616, 426.87482, 282.35156, 425.684, 282.85703, 425.43134, 282.2616, 425.03436, 282.43005, 424.3606, 280.84232, 424.7575, 280.67386, 424.3364, 279.68152)
+
+[node name="ImportedBuilding_630" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1285598567]
+position = Vector2(-101.97944, -348.19617)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(436.27197, 250.96088, 437.66125, 250.37129, 438.84042, 253.14987, 437.45114, 253.73944)
+
+[node name="ImportedBuilding_709" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=643476777]
+position = Vector2(-105.213486, -347.54938)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(476.358, 243.846, 477.924, 243.262, 481.374, 252.503, 479.809, 253.089)
+
+[node name="ImportedBuilding_768" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1676703273]
+position = Vector2(-103.91985, -349.27417)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(498.395, 317.986, 498.57, 318.426, 497.042, 319.041, 492.15887, 305.93927, 493.74664, 305.26547, 493.99933, 305.86087, 494.7932, 305.52396, 499.64822, 317.51636)
+
+[node name="ImportedBuilding_786" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1186832233]
+position = Vector2(-108.44748, -347.54938)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(518.026, 244.156, 510.428, 246.89, 512.173, 251.738, 519.771, 249.004)
+
+[node name="ImportedBuilding_824" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1655002252]
+position = Vector2(-105.21348, -346.47137)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(477.249, 235.223, 480.258, 243.238, 482.50455, 242.34897, 479.41824, 234.52443)
+
+[node name="ImportedBuilding_852" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=765062904]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+
+[node name="ImportedBuilding_858" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=2121331579]
+position = Vector2(-103.488655, -348.62738)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(480.2898, 284.04175, 482.573, 289.744, 484.032, 289.164, 482.82825, 286.7119, 483.22516, 286.54346, 481.87756, 283.36795)
+
+[node name="ImportedBuilding_864" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1514544231]
+position = Vector2(-93.78661, -367.3847)
+rotation = 0.40133995
+scale = Vector2(1, 1.0211273)
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(391.52246, 337.0752, 381.115, 341.058, 381.7074, 342.53046, 383.09668, 341.95306, 383.26514, 342.3418, 392.2805, 338.82446)
+
+[node name="ImportedBuilding_865" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1862169419]
+position = Vector2(-100.25463, -349.27426)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(419.96942, 329.54828, 418.97705, 329.9694, 418.55594, 328.97705, 419.54828, 328.5559, 418.87448, 326.96817, 421.65308, 325.789, 422.0742, 326.78137, 424.4558, 325.77066, 424.1189, 324.97678, 426.8975, 323.79764, 427.82397, 325.98077, 421.5872, 328.3933, 422.3452, 330.1795, 421.74982, 330.4322, 422.0867, 331.22607, 420.89587, 331.7314)
+
+[node name="ImportedBuilding_898" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1201552036]
+position = Vector2(-100.25463, -348.41177)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(411.884, 315.814, 414.408, 314.868, 414.2, 314.34, 414.455, 314.239, 414.097, 313.33, 412.663, 313.896, 412.142, 312.579, 413.545, 312.026, 412.898, 310.385, 414.35, 309.813, 415.325, 312.281, 415.117, 312.363, 415.502, 313.338, 417.101, 312.706, 417.654, 314.106, 416.01, 314.756, 416.715, 316.541, 415.286, 317.105, 415.072, 316.562, 412.553, 317.506)
+
+[node name="ImportedBuilding_907" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1249597894]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(470.14, 302.751, 469.999, 302.415, 470.539, 302.189, 470.59, 302.312, 470.677, 302.523)
+
+[node name="ImportedBuilding_908" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1869332687]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(470.539, 302.189, 470.84, 302.065, 470.978, 302.399, 470.677, 302.523, 470.59, 302.312)
+
+[node name="ImportedBuilding_910" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1920944889]
+position = Vector2(-104.35104, -348.6274)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(481.574, 270.791, 482.559, 273.238, 483.064, 273.047, 484.202, 272.568, 483.216, 270.12)
+
+[node name="ImportedBuilding_958" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=1429155801]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(436.4588, 307.63135, 437.24683, 308.9364, 438.2392, 308.5153, 438.40765, 308.91223, 450.79697, 303.88873, 450.12317, 302.301)
+
+[node name="ImportedBuilding_975" type="Polygon2D" parent="MapLayers/BuildingLayer" unique_id=645814035]
+position = Vector2(-102.410645, -347.98056)
+rotation = 0.40133995
+color = Color(0.58, 0.54, 0.42, 1)
+polygon = PackedVector2Array(457.286, 261.269, 458.065, 263.472, 452.72, 265.362, 452.672, 266.432, 449.121, 266.273, 449.27, 262.98, 452.092, 263.107)
+
+[node name="RoadLayer" type="Control" parent="MapLayers" unique_id=894972760]
+anchors_preset = 0
 offset_left = -434.807
 offset_top = -186.949
-offset_right = -57.807
-offset_bottom = 49.051
 scale = Vector2(4.63819, 4.63819)
+mouse_filter = 2
 
-[node name="RouteLayer" type="Control" parent="MapLayers"]
+[node name="ImportedRoad_4" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1238928742]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(481.54456, 294.27313, 479.55988, 295.11536, 463.79657, 301.57068, 462.01035, 302.3287, 456.36896, 304.48853, 449.73526, 307.0695, 437.65866, 311.72607, 424.16272, 317.45337, 413.87234, 321.35193, 404.46008, 325.11203, 400.70624, 326.70508, 395.52893, 328.90216, 382.85693, 333.8114, 378.88754, 335.4959)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_9" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1475952595]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(440.578, 250.185, 441.409, 252.336, 443.963, 258.913, 445.068, 261.743, 448.344, 270.361, 454.43008, 284.46646, 461.42078, 300.93942)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_18" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1017301388]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(480.5028, 228.90157, 490.2729, 251.92401, 491.7047, 255.29799, 492.9798, 254.9911, 500.86694, 274.1284, 504.37436, 282.94525, 505.7036, 283.318, 506.20895, 284.50882, 506.88275, 286.0966, 507.47232, 287.48587, 508.23035, 289.2721, 507.57874, 290.58463, 507.34644, 291.0525, 511.72614, 301.3729, 515.2336, 310.18976, 518.7952, 319.68628, 520.12445, 320.05902, 528.7979, 316.54352, 533.332, 314.70575, 544.9031, 310.01205, 545.58856, 308.3159)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_26" type="Line2D" parent="MapLayers/RoadLayer" unique_id=2129541084]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(364.76038, 343.59903, 377.924, 338.132, 379.634, 337.452, 401.5314, 328.69702, 406.646, 326.594, 411.914, 324.504, 414.746, 323.299, 418.895, 321.746, 426.842, 318.532, 432.086, 316.418, 438.472, 313.861, 450.243, 309.081)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_33" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1497938747]
+position = Vector2(-105.27737, -348.70132)
+rotation = 0.40133995
+points = PackedVector2Array(481.213, 258.574, 485.065, 268.69, 484.787, 270.382, 486.097, 274.017, 488.039, 275.137, 489.23257, 276.9677)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_68" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1346697460]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(514.27124, 310.12973, 518.83606, 308.19254, 526.2636, 305.2747, 541.3473, 298.87357)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_99" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1516569585]
+position = Vector2(-100.534134, -348.27014)
+rotation = 0.40133995
+points = PackedVector2Array(398.1784, 271.5768, 399.41174, 275.035, 402.2454, 282.26413, 401.58997, 283.47913, 402.021, 286.895, 400.981, 287.464, 403.573, 293.693, 409.803, 290.969, 407.847, 288.888, 406.411, 285.361, 406.061, 285.258, 402.021, 286.895)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_100" type="Line2D" parent="MapLayers/RoadLayer" unique_id=479694861]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(372.2204, 307.6435, 383.53314, 302.84265, 388.976, 300.76703, 389.20453, 300.20166, 388.19382, 297.82, 388.99353, 295.84116, 388.2355, 294.05493, 385.99146, 288.2151, 382.5382, 280.07785, 380.09567, 274.32224)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_102" type="Line2D" parent="MapLayers/RoadLayer" unique_id=397624118]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(419.30923, 265.17584, 423.08014, 263.57556, 422.60483, 261.9036, 425.86456, 260.75446, 427.13376, 262.08954, 430.6954, 271.58603)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_103" type="Line2D" parent="MapLayers/RoadLayer" unique_id=2111244188]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(380.7513, 328.84967, 382.85693, 333.8114)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_106" type="Line2D" parent="MapLayers/RoadLayer" unique_id=469213174]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(376.91193, 309.86832, 377.53735, 309.1345, 384.68225, 306.1024, 385.6193, 307.24463, 389.51312, 316.93396)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_107" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1931364782]
+position = Vector2(-99.67173, -349.99493)
+rotation = 0.40133995
+points = PackedVector2Array(398.839, 316.7336, 402.5149, 325.94742)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_108" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1947745516]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(359.1305, 286.7325, 356.35193, 287.91165, 356.26187, 289.35513, 358.78864, 295.30923, 358.58432, 297.0354, 361.09854, 298.54477)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_110" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1020109808]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(410.39493, 312.0539, 414.07083, 321.2677)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_111" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1503441583]
+position = Vector2(-113.03901, -353.01337)
+rotation = 0.40133995
+points = PackedVector2Array(390.80432, 323.1881, 402.91095, 318.05035)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_115" type="Line2D" parent="MapLayers/RoadLayer" unique_id=166452541]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(428.824, 282.822, 442.90546, 277.17816)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_119" type="Line2D" parent="MapLayers/RoadLayer" unique_id=2057430614]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(422.68906, 262.10205, 421.00455, 258.13266, 426.84436, 255.88861, 435.7755, 252.09848, 438.55408, 250.91933, 440.2386, 254.8887)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_120" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1570283868]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(381.8944, 278.00894, 385.06995, 276.66135, 388.94427, 285.79092)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_121" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1933469182]
+position = Vector2(-100.318535, -349.13254)
+rotation = 0.40133995
+points = PackedVector2Array(370.53375, 307.4323, 371.79712, 310.40936, 373.9803, 309.48288, 375.22528, 309.65717, 378.5943, 317.59595, 376.34528, 321.1267)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_122" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1916600757]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(428.02698, 289.58173, 429.03766, 291.96338, 435.38867, 289.26816)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_123" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1015409692]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(365.38562, 287.12274, 369.33752, 290.36414, 373.6872, 301.1657, 371.1071, 302.26062, 370.4875, 301.3525)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_124" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1755475509]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(399.25885, 283.0532, 395.36032, 272.7628, 399.13123, 271.1625)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_125" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1898980206]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(420.40262, 308.0411, 419.9331, 304.72717, 415.78192, 293.84137)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_126" type="Line2D" parent="MapLayers/RoadLayer" unique_id=2020226674]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(366.6682, 300.6312, 367.79898, 301.08817, 369.98215, 300.16168, 364.95868, 287.77237, 362.61288, 286.65994)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_127" type="Line2D" parent="MapLayers/RoadLayer" unique_id=607642067]
+position = Vector2(-116.27303, -347.19217)
+rotation = 0.40133995
+points = PackedVector2Array(411.3733, 262.93253, 409.773, 259.16162)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_128" type="Line2D" parent="MapLayers/RoadLayer" unique_id=669021905]
+position = Vector2(-100.31854, -348.27014)
+rotation = 0.40133995
+points = PackedVector2Array(420.154, 311.287, 433.568, 305.937, 437.78156, 304.18903, 449.6897, 299.13553)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_129" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1504511621]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(368.4829, 339.67715, 367.36963, 334.2943, 380.7513, 328.84967, 393.14063, 323.82617, 396.28613, 322.95975)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_130" type="Line2D" parent="MapLayers/RoadLayer" unique_id=2121016355]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(399.13123, 271.1625, 400.0035, 272.66605, 404.25558, 271.0958, 419.11078, 265.26007, 416.95093, 259.6187)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_131" type="Line2D" parent="MapLayers/RoadLayer" unique_id=891958657]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(339.8848, 293.26038)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_132" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1519439487]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(377.91766, 321.62054, 380.7513, 328.84967)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_133" type="Line2D" parent="MapLayers/RoadLayer" unique_id=33019759]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(427.12296, 273.10208, 430.46628, 271.74646, 439.51227, 268.0786, 435.44528, 257.39127, 437.3758, 255.86938)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_134" type="Line2D" parent="MapLayers/RoadLayer" unique_id=362081422]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(437.32175, 310.9322, 435.55304, 306.76434, 432.4909, 300.10062, 431.9255, 299.87213, 428.4673, 301.10547, 419.9331, 304.72717)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_135" type="Line2D" parent="MapLayers/RoadLayer" unique_id=2101698642]
+position = Vector2(-101.18094, -348.05453)
+rotation = 0.40133995
+points = PackedVector2Array(410.2276, 290.58734, 427.281, 283.725, 428.824, 282.822, 429.345, 280.092, 427.89, 276.452, 427.18085, 275.898, 425.415, 271.349, 423.1, 265.555, 421.741, 262.151)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_136" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1827303869]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(450.3147, 271.45755, 448.86978, 272.0252, 447.63153, 272.51166, 445.46722, 273.2805, 442.88712, 274.37543, 442.34592, 275.3077, 442.82123, 276.9797, 451.8033, 298.69708, 451.71326, 300.14056, 453.482, 304.3084)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_137" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1181313706]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(391.57037, 319.5741, 400.78418, 315.89822, 410.47916, 312.25235, 420.40262, 308.0411, 422.17136, 312.20895, 424.16272, 317.45337)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_138" type="Line2D" parent="MapLayers/RoadLayer" unique_id=785885667]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(385.65454, 287.42123, 389.0285, 285.98938, 389.8466, 286.8133, 399.34308, 283.25165, 401.09344, 284.61676, 403.41504, 284.56836)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_139" type="Line2D" parent="MapLayers/RoadLayer" unique_id=911234211]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(364.95868, 287.77237, 365.38562, 287.12274, 379.6754, 281.05853, 377.3171, 275.5014)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_140" type="Line2D" parent="MapLayers/RoadLayer" unique_id=319633909]
+position = Vector2(-98.37812, -348.48572)
+rotation = 0.40133995
+points = PackedVector2Array(340.12277, 293.16928, 339.47897, 291.10037, 340.19446, 288.92303, 353.84668, 283.32733, 356.9171, 282.0688, 372.79764, 275.78973, 376.4543, 274.47217, 392.01917, 268.10107, 393.72015, 267.4244, 398.29053, 265.6063, 413.1728, 259.7388, 417.27896, 258.0841)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_141" type="Line2D" parent="MapLayers/RoadLayer" unique_id=394552863]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(428.02698, 289.58173, 430.0417, 288.25833, 433.89682, 286.8565, 434.46222, 287.085, 435.4729, 289.4666, 435.58133, 290.8259, 436.59204, 293.20752, 437.17578, 296.23877, 438.35492, 299.01733, 438.20483, 301.42316, 439.7209, 304.9956)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_142" type="Line2D" parent="MapLayers/RoadLayer" unique_id=879872932]
+position = Vector2(-98.59372, -348.05453)
+rotation = 0.40133995
+points = PackedVector2Array(366.37082, 299.8305, 366.79193, 300.82285, 361.382, 302.998, 361.1, 303.593, 363.0277, 308.5098, 364.07428, 308.7683, 368.52484, 307.11383)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_143" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1788768040]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(373.48376, 310.6205, 377.77924, 320.74246, 378.11615, 321.53632, 389.51312, 316.93396, 391.14923, 318.58176, 393.28568, 323.61624, 395.52893, 328.90216)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_144" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1028888854]
+position = Vector2(-97.946915, -348.70132)
+rotation = 0.40133995
+points = PackedVector2Array(353.57614, 283.47845, 356.18713, 289.63098, 358.9065, 297.14282, 359.04495, 298.0209, 347.954, 302.566, 343.86368, 292.0502, 339.61157, 293.62045)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_237" type="Line2D" parent="MapLayers/RoadLayer" unique_id=580032730]
+position = Vector2(-105.924164, -345.46732)
+rotation = 0.40133995
+points = PackedVector2Array(495.84192, 217.48355, 496.89462, 219.6566, 497.463, 220.941)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_287" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1161074]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(483.513, 299.73, 481.437, 300.6425, 479.84924, 301.31628, 467.85687, 306.17133, 454.07825, 311.7844, 456.575, 318.21964)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_288" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1720952384]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(454.07825, 311.7844, 451.3297, 312.48236, 453.06842, 317.1314, 450.74683, 317.17978, 435.80743, 322.81702, 434.4598, 319.6415, 433.4491, 317.2599, 432.086, 316.418)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_289" type="Line2D" parent="MapLayers/RoadLayer" unique_id=627587780]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(435.80743, 322.81702, 435.4647, 323.6651, 439.8986, 334.66516, 437.86053, 342.5564, 438.78705, 344.73956, 440.26056, 344.34845, 447.8866, 341.34637, 448.45782, 339.9329, 447.53134, 337.74976, 457.25635, 333.6227, 457.59906, 332.77463, 452.65982, 320.58377, 452.9842, 316.93292)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_290" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1495785519]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(440.26056, 344.34845, 444.8329, 356.2266, 453.764, 352.43646, 455.1116, 355.61197)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_291" type="Line2D" parent="MapLayers/RoadLayer" unique_id=2125622306]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(453.764, 352.43646, 459.63385, 349.71124, 466.60944, 338.55356, 471.57117, 336.44794, 486.14368, 330.498, 490.70844, 328.5608, 493.88397, 327.2132)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_292" type="Line2D" parent="MapLayers/RoadLayer" unique_id=11158648]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(486.14368, 330.498, 485.04874, 327.91785, 486.18536, 326.73288, 480.15115, 311.9619, 479.53738, 309.41183, 482.7129, 308.06424, 481.9549, 306.278)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_293" type="Line2D" parent="MapLayers/RoadLayer" unique_id=126374825]
+position = Vector2(-102.25894, -348.70132)
+rotation = 0.40133995
+points = PackedVector2Array(473.74872, 308.36514, 475.43323, 312.33453, 471.438, 313.538, 468.746, 314.538, 461.056, 317.479)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_294" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1200116047]
+position = Vector2(-102.47455, -349.77933)
+rotation = 0.40133995
+points = PackedVector2Array(468.40756, 305.71335, 472.11346, 314.44598)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_295" type="Line2D" parent="MapLayers/RoadLayer" unique_id=79523482]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(366.4449, 347.56842, 379.526, 341.932, 378.391, 339.318, 377.924, 338.132)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_296" type="Line2D" parent="MapLayers/RoadLayer" unique_id=48426060]
+position = Vector2(-98.59372, -349.56375)
+rotation = 0.40133995
+points = PackedVector2Array(379.75766, 340.7577, 381.391, 345.01, 381.43, 347.094, 379.325, 348.037, 377.737, 347.779, 369.5582, 350.9414, 374.3832, 363.41495, 374.28732, 366.5004, 375.4665, 369.27896)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_297" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1176408233]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(377.39328, 365.64078, 374.41626, 366.90417, 376.43765, 371.66742, 382.05072, 385.44604, 384.2339, 384.51956, 383.81274, 383.5272, 384.22134, 380.07483, 391.8474, 377.07275, 393.7779, 375.55084)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_298" type="Line2D" parent="MapLayers/RoadLayer" unique_id=380767074]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(384.22134, 380.07483, 380.4312, 371.1437, 378.65668, 368.6178, 390.16788, 363.73276, 393.295, 360.06357, 392.59705, 357.315, 400.81848, 354.06024, 396.38458, 343.0602, 399.19318, 341.3999, 399.28323, 339.95642, 395.6324, 339.63202, 394.53748, 337.05194, 403.46857, 333.2618, 402.03674, 329.88782, 401.4952, 328.61172, 400.60492, 326.51385)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_299" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1470431272]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(384.63235, 344.06595, 395.6324, 339.63202)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_300" type="Line2D" parent="MapLayers/RoadLayer" unique_id=946497810]
+position = Vector2(-98.37812, -349.77933)
+rotation = 0.40133995
+points = PackedVector2Array(381.43, 347.094, 381.886, 347.626, 385.161, 347.453, 389.412, 358.41)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_301" type="Line2D" parent="MapLayers/RoadLayer" unique_id=814212628]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(423.38654, 368.6068, 422.12317, 365.6298, 422.66437, 364.69748, 433.94708, 360.3778, 430.5539, 351.27826, 430.8424, 349.75055)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_302" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1216679304]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(422.77863, 364.4148, 423.31982, 363.48248, 420.73883, 356.84875, 417.35236, 353.83588, 414.7839, 351.64688)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_303" type="Line2D" parent="MapLayers/RoadLayer" unique_id=2093771974]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(414.07083, 321.2677, 414.7146, 323.3366, 415.397, 324.682, 418.83, 332.856, 419.336, 333.715, 419.679, 334.514, 420.02078, 335.84018, 421.309, 338.907, 424.42468, 347.32138, 425.60382, 350.09995, 417.97778, 353.10205, 417.43658, 354.03436)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_305" type="Line2D" parent="MapLayers/RoadLayer" unique_id=918275819]
+position = Vector2(-101.18094, -349.99493)
+rotation = 0.40133995
+points = PackedVector2Array(453.216, 352.831, 449.70068, 343.86542)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_359" type="Line2D" parent="MapLayers/RoadLayer" unique_id=782219368]
+position = Vector2(-102.04334, -349.77933)
+rotation = 0.40133995
+points = PackedVector2Array(492.299, 322.27466, 495.27606, 321.01126, 499.09167, 319.61627, 500.8062, 323.1045, 512.8828, 318.44794, 510.58453, 311.92847, 513.72406, 310.60397, 514.59344, 310.23715, 514.38666, 309.75, 508.61346, 296.1458, 505.04102, 297.66187, 503.65753, 296.6095, 492.65753, 301.0434, 493.66238, 305.067, 499.09167, 319.61627)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_360" type="Line2D" parent="MapLayers/RoadLayer" unique_id=483425142]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(493.50864, 305.3565, 489.53925, 307.04102, 487.15762, 308.05173, 485.97263, 306.9151, 484.24628, 307.54822, 482.7129, 308.06424)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_363" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1121228403]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(489.73773, 306.9568, 495.32074, 321.21655)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_364" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1934426185]
+position = Vector2(-106.35537, -349.34814)
+rotation = 0.40133995
+points = PackedVector2Array(522.7907, 305.8216, 521.4431, 302.6461, 521.9001, 301.51532, 528.84656, 298.56744, 528.9908, 297.8036, 527.85846, 294.87625, 524.1658, 285.33002, 522.95074, 284.6746, 522.1085, 282.68988)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_417" type="Line2D" parent="MapLayers/RoadLayer" unique_id=574091932]
+position = Vector2(-102.25894, -350.42615)
+rotation = 0.40133995
+points = PackedVector2Array(436.2962, 252.12166, 437.89163, 256.12805, 439.33997, 255.98264, 445.28992, 270.5551, 448.42377, 272.9726, 459.0603, 299.14053, 457.7194, 302.0517)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_418" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1159046846]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(458.45538, 298.91888, 459.5503, 301.499)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_431" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1476720869]
+position = Vector2(-104.414955, -347.83893)
+rotation = 0.40133995
+points = PackedVector2Array(491.8518, 248.92181, 481.167, 252.98, 479.693, 254.281, 479.017, 256.581, 479.883, 259.084)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_432" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1430544526]
+position = Vector2(-101.82774, -350.64175)
+rotation = 0.40133995
+points = PackedVector2Array(543.79004, 275.8309, 533.55115, 279.8912, 518.5302, 285.84787, 514.85724, 287.1718, 508.52252, 289.86066, 506.5078, 291.18408, 483.71387, 300.3888)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_470" type="Line2D" parent="MapLayers/RoadLayer" unique_id=385664062]
+position = Vector2(-101.18094, -347.19214)
+rotation = 0.40133995
+points = PackedVector2Array(461.3225, 252.0407, 460.3302, 252.46182, 449.142, 256.836)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_471" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1293991203]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(467.12112, 234.34619, 469.31097, 239.5064, 466.95355, 241.67789, 470.12408, 249.70088, 469.4386, 251.39705, 465.27075, 253.16577)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_477" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1442320086]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(424.0785, 317.2549, 426.70697, 318.48157, 427.35, 319.853, 428.9627, 321.03748, 431.2068, 326.87732, 425.64963, 329.23563, 424.70566, 331.97833, 420.33932, 333.8313, 419.377, 333.77127)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_484" type="Line2D" parent="MapLayers/RoadLayer" unique_id=892869856]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(447.8171, 257.29367, 444.1112, 248.56102, 442.104, 249.623, 440.623, 250.27554, 438.55408, 250.91933)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_485" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1686942934]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(384.2339, 384.51956, 397.2186, 379.2434, 423.38654, 368.6068, 440.8218, 361.67618, 444.39426, 360.16013, 455.1116, 355.61197, 464.04272, 351.82184, 467.3083, 349.03076, 472.08905, 342.08347, 473.83792, 340.54, 475.66733, 338.92545)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_486" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1351055518]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(481.64713, 297.27435, 480.25784, 297.86392, 464.683, 304.275, 461.409, 305.728, 459, 306.77554, 450.679, 310.394, 438.927, 315.077, 432.633, 317.69, 427.35, 319.853, 415.397, 324.682, 412.425, 325.831, 407.2, 327.897, 402.03674, 329.88782, 380.115, 338.664, 378.391, 339.318, 365.37997, 344.50714)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_493" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1046478308]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(477.25232, 259.3233, 472.76422, 247.64363, 475.63867, 243.37903)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_561" type="Line2D" parent="MapLayers/RoadLayer" unique_id=2050370770]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(366.1078, 291.0321)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_567" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1414728805]
+position = Vector2(-104.199356, -347.62332)
+rotation = 0.40133995
+points = PackedVector2Array(478.54852, 256.20682, 474.668, 257.379, 474.441, 257.587, 474.349, 257.754, 474.299, 257.972, 474.331, 258.263, 474.99445, 260.52563)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_568" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1797163111]
+position = Vector2(-102.25894, -347.62332)
+rotation = 0.40133995
+points = PackedVector2Array(465.821, 253.414, 470.7231, 251.56445, 472.64194, 253.32649, 474.93353, 253.75928, 476.8465, 257.16327)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_569" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1014724512]
+position = Vector2(-105.492966, -348.27014)
+rotation = 0.40133995
+points = PackedVector2Array(487.32373, 256.46448, 490.07312, 263.49512, 491.79932, 263.6994, 492.90588, 262.9956, 492.91174, 261.35364, 490.4992, 255.11685)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_570" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1618569895]
+position = Vector2(-105.492966, -348.70132)
+rotation = 0.40133995
+points = PackedVector2Array(491.96777, 264.09634, 492.634, 265.901, 492.04034, 267.57874, 493.955, 272.365, 496.44336, 271.3313, 497.93524, 273.74298)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_571" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1317024111]
+position = Vector2(-106.786575, -348.91693)
+rotation = 0.40133995
+points = PackedVector2Array(496.88782, 265.7558, 498.0069, 269.4967, 497.506, 271.096)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_572" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1014694188]
+position = Vector2(-105.06176, -348.05453)
+rotation = 0.40133995
+points = PackedVector2Array(488.119, 268.189, 487.7399, 266.82742, 489.92303, 265.90094, 491.39075, 267.1518)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_573" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1881885273]
+position = Vector2(-105.27737, -348.70132)
+rotation = 0.40133995
+points = PackedVector2Array(492.77502, 275.93283, 494.365, 280.282, 500.86475, 277.88663, 499.21027, 273.4361)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_575" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1720532666]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(490.95685, 290.513, 486.52292, 279.51297)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_582" type="Line2D" parent="MapLayers/RoadLayer" unique_id=579682848]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(428.6941, 285.08282, 430.0417, 288.25833)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_583" type="Line2D" parent="MapLayers/RoadLayer" unique_id=413600205]
+position = Vector2(-103.55255, -347.4077)
+rotation = 0.40133995
+points = PackedVector2Array(449.61285, 257.00995, 451.39905, 256.25192, 452.161, 256.956, 453.964, 257.358, 461.9663, 254.10959, 462.79605, 251.64957)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_584" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1562666847]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(446.41617, 261.16718, 448.99628, 260.07224, 447.8171, 257.29367)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_591" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1164533250]
+position = Vector2(-107.43338, -348.70132)
+rotation = 0.40133995
+points = PackedVector2Array(539.435, 279.6, 549.70825, 275.42728)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_593" type="Line2D" parent="MapLayers/RoadLayer" unique_id=894994908]
+position = Vector2(-106.786575, -349.13254)
+rotation = 0.40133995
+points = PackedVector2Array(544.438, 292.39, 547.766, 291.235, 548.504, 291.684, 552.955, 302.56)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_594" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1097794370]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(523.284, 283.35214, 527.4652, 293.75677, 526.6355, 296.2168, 523.85693, 297.39597)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_595" type="Line2D" parent="MapLayers/RoadLayer" unique_id=817957990]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(514.58136, 286.5769, 515.42365, 288.56158, 517.44507, 293.32483, 518.2931, 293.66757, 519.8634, 297.91968, 511.72614, 301.3729)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_596" type="Line2D" parent="MapLayers/RoadLayer" unique_id=86188719]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(523.2274, 315.22903, 527.678, 313.57455, 532.0443, 311.7216)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_597" type="Line2D" parent="MapLayers/RoadLayer" unique_id=846370520]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(526.2461, 310.20056, 522.6737, 311.7166, 522.01825, 312.93164, 523.02893, 315.31326, 524.3765, 318.48877)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_598" type="Line2D" parent="MapLayers/RoadLayer" unique_id=886122192]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(526.34784, 305.47314, 528.03235, 309.44254, 526.449, 310.361, 527.59375, 313.37607, 528.8571, 316.35312)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_599" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1848444238]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(533.3076, 314.69864, 532.0443, 311.7216, 531.4063, 308.0107, 537.55884, 305.39972, 539.02075, 308.29254, 532.0443, 311.7216)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_600" type="Line2D" parent="MapLayers/RoadLayer" unique_id=441061738]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(528.03235, 309.44254, 531.4063, 308.0107)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_601" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1123562107]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(504.88727, 297.9514, 504.43027, 299.08218, 503.60638, 299.90024, 502.6933, 309.89044, 499.8305, 310.87112, 498.98242, 310.52838, 498.2002, 307.58136, 498.54294, 306.73328, 496.28137, 305.81934, 493.50864, 305.3565)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_604" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1424258972]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(473.90186, 309.92972, 474.41302, 309.47858, 481.9549, 306.278, 479.84924, 301.31628)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_605" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1782856206]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(480.06693, 311.76346, 475.50214, 313.70062)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_606" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1587779603]
+position = Vector2(-102.04334, -348.91693)
+rotation = 0.40133995
+points = PackedVector2Array(461.056, 317.479, 459.765, 314.019, 466.547, 311.305, 467.694, 311.641, 468.746, 314.538)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_607" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1121142677]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(451.3297, 312.48236, 450.679, 310.394, 450.243, 309.081)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_608" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1616291220]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(451.13123, 312.5666, 450.42157, 313.102, 434.4598, 319.6415)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_609" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1580755018]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(398.99954, 339.85422, 401.12366, 339.87802, 405.09305, 338.1935, 416.721, 340.705, 421.309, 338.907)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_610" type="Line2D" parent="MapLayers/RoadLayer" unique_id=957837593]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(403.46857, 333.2618, 416.44833, 337.35623, 419.82233, 335.9244)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_611" type="Line2D" parent="MapLayers/RoadLayer" unique_id=581262846]
+position = Vector2(-97.731316, -351.07294)
+rotation = 0.40133995
+points = PackedVector2Array(386.85757, 366.3185, 388.15097, 368.8144, 387.1828, 370.3963, 390.38336, 377.93814, 392.5607, 378.65363, 393.8241, 381.63068)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_674" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1055655100]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(422.33072, 339.07574, 424.42966, 337.95078, 425.79785, 336.3747, 432.21164, 330.9009, 432.47015, 329.85437, 431.2068, 326.87732)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_675" type="Line2D" parent="MapLayers/RoadLayer" unique_id=662756672]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(432.32587, 330.61823, 434.76843, 336.37384, 433.7644, 340.0789, 433.24738, 342.172, 435.49146, 348.01184, 440.8218, 361.67618)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_676" type="Line2D" parent="MapLayers/RoadLayer" unique_id=88783204]
+position = Vector2(-100.96534, -349.77933)
+rotation = 0.40133995
+points = PackedVector2Array(434.53857, 348.42612, 429.739, 349.947)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_677" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1643515724]
+position = Vector2(-100.96534, -349.13254)
+rotation = 0.40133995
+points = PackedVector2Array(430.97, 330.417, 431.07, 332.121, 429.216, 335.969, 428.387, 337.764, 427.804, 339.429, 427.275, 341.092, 426.467, 343.524)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_678" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1806364096]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(419.679, 334.514, 420.185, 334.647, 425.107, 335.945, 428.387, 337.764, 431.483, 339.315, 433.56592, 340.1631)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_679" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1765321233]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(419.679, 334.514, 420.185, 334.647, 422.41495, 339.2742, 423.3114, 341.93854, 425.13434, 346.786)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_680" type="Line2D" parent="MapLayers/RoadLayer" unique_id=645590064]
+position = Vector2(-101.18094, -349.56375)
+rotation = 0.40133995
+points = PackedVector2Array(427.804, 339.429, 427.408, 339.045, 426.486, 338.255, 425.903, 337.855, 425.021, 337.805, 424.64557, 337.92938, 424.3, 338.044, 423.719, 338.477, 423.163, 339.145, 422.979, 339.974, 423.084, 341.018, 423.18243, 341.53476)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_681" type="Line2D" parent="MapLayers/RoadLayer" unique_id=549717740]
+position = Vector2(-100.534134, -348.91693)
+rotation = 0.40133995
+points = PackedVector2Array(431.07, 332.121, 432.393, 335.478, 432.346, 337.006, 431.483, 339.315, 428.453, 345.772, 427.494, 346.669, 425.957, 346.977, 424.69266, 346.74915, 424.24152, 346.23798, 424.30154, 345.27563, 424.36157, 344.31332, 424.9028, 343.381, 425.97937, 343.15836, 427.11014, 343.61533, 427.44705, 344.4092, 428.453, 345.772)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_682" type="Line2D" parent="MapLayers/RoadLayer" unique_id=299758532]
+position = Vector2(-100.74973, -348.91693)
+rotation = 0.40133995
+points = PackedVector2Array(431.07, 332.121, 429.58, 332.695, 428.559, 333.657, 428.469, 334.498, 428.882, 335.308, 429.216, 335.969, 429.862, 336.446, 431.511, 336.473, 432.106, 336.074, 432.393, 335.478)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_684" type="Line2D" parent="MapLayers/RoadLayer" unique_id=274264698]
+position = Vector2(-100.96534, -349.13254)
+rotation = 0.40133995
+points = PackedVector2Array(422.222, 341.455, 422.705, 341.294, 423.696, 341.431, 424.657, 341.66, 426.115, 341.3, 427.275, 341.092)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_696" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1650776743]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(458.9839, 237.79941, 465.07227, 253.25, 469.9273, 265.2424, 480.15527, 294.8627, 481.64713, 297.27435, 482.8263, 300.05292, 492.2595, 322.28146, 494.08243, 327.12897, 495.34583, 330.10602)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_697" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1726415235]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(482.112, 295.791, 507.005, 286.046, 509.42, 285.093, 511.75, 284.182, 515.005, 282.899, 522.707, 279.673, 528.006, 277.61, 537.112, 273.971, 542.34875, 271.9826)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_699" type="Line2D" parent="MapLayers/RoadLayer" unique_id=459485610]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(541.5907, 270.19638, 511.17072, 282.4032, 506.4074, 284.42462, 504.14005, 285.15262, 490.9872, 290.44165, 481.54456, 294.27313)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_721" type="Line2D" parent="MapLayers/RoadLayer" unique_id=84862168]
+position = Vector2(-100.10293, -350.21054)
+rotation = 0.40133995
+points = PackedVector2Array(442.989, 361.029, 443.28464, 356.89355)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_724" type="Line2D" parent="MapLayers/RoadLayer" unique_id=153973138]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(400.73425, 353.8618, 402.2862, 355.3111, 404.34924, 356.3093, 413.88, 352.422)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_725" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1354671864]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(413.88, 352.422, 415.0666, 351.76114, 416.37164, 350.97308, 424.59314, 347.71832, 425.72974, 346.53333)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_762" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1411629292]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(444.685, 270.33347, 445.79742, 267.98767, 443.526, 262.368, 440.2386, 254.8887, 438.9335, 255.67676)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_773" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1351643619]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(509.92, 286.371, 507.51, 287.371, 482.6937, 297.53284, 481.8998, 297.86975)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_777" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1426541926]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(438.927, 315.077, 438.472, 313.861, 437.971, 312.567, 437.777, 312.04, 437.259, 310.974)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_779" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1805471222]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(380.115, 338.664, 379.634, 337.452, 379.082, 336.117, 378.877, 335.607)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_833" type="Line2D" parent="MapLayers/RoadLayer" unique_id=396043632]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(542.65564, 273.25766, 537.573, 275.167, 528.489, 278.919, 523.086, 281.112, 514.404, 284.331, 512.515, 284.548, 511.987, 284.757, 511.463, 284.991, 511.335, 285.803, 509.92, 286.371)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_839" type="Line2D" parent="MapLayers/RoadLayer" unique_id=405103856]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(533.20746, 279.1409, 534.79175, 282.8741, 540.11395, 295.41537, 541.55457, 298.81015, 545.58856, 308.3159, 547.56744, 309.1156, 556.30005, 305.40967, 545.13904, 278.65146, 543.6385, 275.054, 542.85406, 273.17343, 542.25366, 271.8226, 541.51636, 270.16388, 540.65076, 268.21643, 529.04114, 240.62447)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_840" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1660514647]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(486.60715, 279.71143, 490.06537, 278.4781, 496.5006, 275.98132, 500.86694, 274.1284)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_869" type="Line2D" parent="MapLayers/RoadLayer" unique_id=195586583]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(428.4673, 301.10547, 424.3703, 290.89932)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_878" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1372708159]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(444.1112, 248.56102, 456.40378, 238.89435, 458.92215, 237.8342, 467.16837, 234.38808, 480.5582, 228.79242, 493.80023, 223.25848, 517.5023, 213.43417)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_893" type="Line2D" parent="MapLayers/RoadLayer" unique_id=798745047]
+position = Vector2(-85.44204, -356.03177)
+rotation = 0.40133995
+points = PackedVector2Array(460.539, 301.426, 460.89902, 302.56186, 461.428, 304.231)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_899" type="Line2D" parent="MapLayers/RoadLayer" unique_id=621535538]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(491.7047, 255.29799, 491.72894, 256.4588, 487.75952, 258.14328, 484.58405, 259.4909, 478.54572, 261.81918, 473.69824, 263.64212, 469.9273, 265.2424)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_932" type="Line2D" parent="MapLayers/RoadLayer" unique_id=154180492]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(440.32278, 255.08719)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_952" type="Line2D" parent="MapLayers/RoadLayer" unique_id=213160578]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(513.6458, 310.86356, 517.52014, 319.99316, 517.06323, 321.12393, 495.14734, 330.19022)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_953" type="Line2D" parent="MapLayers/RoadLayer" unique_id=867041042]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(527.98486, 314.84958)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_959" type="Line2D" parent="MapLayers/RoadLayer" unique_id=473324825]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(482.7129, 308.06424, 490.62424, 328.3623, 492.05606, 331.7363, 476.37698, 338.39008, 475.66733, 338.92545)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_976" type="Line2D" parent="MapLayers/RoadLayer" unique_id=76971696]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(480.25784, 297.86392, 481.437, 300.6425, 485.36557, 310.45172, 492.4947, 327.80276)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_979" type="Line2D" parent="MapLayers/RoadLayer" unique_id=2078519567]
+position = Vector2(-102.47457, -349.34814)
+rotation = 0.40133995
+points = PackedVector2Array(474.1191, 339.5924, 471.95343, 335.59302)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_983" type="Line2D" parent="MapLayers/RoadLayer" unique_id=810918710]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(466.00134, 278.61908, 464.94894, 280.00253, 455.3382, 283.84686)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_984" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1222165818]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(455.25397, 283.6484, 454.6644, 282.25912, 451.052, 272.653, 450.062, 270.86215, 446.806, 263.035, 446.48, 261.135, 441.81378, 249.77019)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_986" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1265987412]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(465.80286, 278.7033, 471.8412, 276.37503, 470.5778, 273.39798, 462.97333, 254.37495, 456.518, 238.61165)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_1002" type="Line2D" parent="MapLayers/RoadLayer" unique_id=425596743]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(363.91812, 341.61432, 368.46527, 339.7558, 378.88754, 335.4959)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_1006" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1926529761]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(348.7576, 305.88986, 351.53616, 304.7107, 352.0832, 302.13644, 353.20145, 298.14868, 352.61188, 296.7594, 353.26733, 295.5444, 353.1589, 294.18512, 354.2655, 293.48132, 356.23767, 288.19434, 347.7035, 291.81604)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_1008" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1225192931]
+position = Vector2(-103.76816, -346.97653)
+rotation = 0.40133995
+points = PackedVector2Array(518.1489, 209.89075, 529.68774, 237.08104, 493.6264, 251.44768)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_1028" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1924869458]
+position = Vector2(-100.96534, -343.0957)
+rotation = 0.40133995
+points = PackedVector2Array(455.666, 300.859, 453.49643, 295.41217, 444.06, 271.978, 442.043, 266.936)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_1031" type="Line2D" parent="MapLayers/RoadLayer" unique_id=957514788]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(472.24652, 297.75052, 465.06317, 279.71985)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_1066" type="Line2D" parent="MapLayers/RoadLayer" unique_id=2048464129]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(511.0865, 282.20474, 511.312, 283.097, 511.75, 284.182, 511.987, 284.757)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_1073" type="Line2D" parent="MapLayers/RoadLayer" unique_id=506963613]
+position = Vector2(-117.35105, -348.70135)
+rotation = 0.40133995
+points = PackedVector2Array(418.07956, 263.83392, 415.80548, 258.47525)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_1074" type="Line2D" parent="MapLayers/RoadLayer" unique_id=235604624]
+position = Vector2(-102.90575, -346.1141)
+rotation = 0.40133995
+points = PackedVector2Array(428.01056, 273.43796, 423.8427, 275.2067, 422.1582, 271.2373)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_1081" type="Line2D" parent="MapLayers/RoadLayer" unique_id=920569646]
+position = Vector2(-100.74973, -348.27014)
+rotation = 0.40133995
+points = PackedVector2Array(422.68686, 265.8603, 421.29758, 266.4499, 420.10675, 266.95523, 411.703, 270.487, 412.103, 271.475, 414.319, 277.045, 421.01575, 274.06427, 419.8666, 270.80453, 420.10675, 266.95523)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_1082" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1419550870]
+position = Vector2(-100.534134, -348.48572)
+rotation = 0.40133995
+points = PackedVector2Array(399.5802, 275.43195, 402.458, 274.401, 409.38943, 271.5034, 412.08466, 277.8544, 405.147, 280.665, 402.458, 274.401)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_1085" type="Line2D" parent="MapLayers/RoadLayer" unique_id=2084439679]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(411.1303, 272.39417, 413.3977, 271.66614)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_1086" type="Line2D" parent="MapLayers/RoadLayer" unique_id=130497857]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(413.8255, 278.74518, 415.89444, 278.10138)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_1106" type="Line2D" parent="MapLayers/RoadLayer" unique_id=837903480]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(374.33203, 366.7057, 366.4449, 347.56842, 365.17023, 344.50262, 364.77316, 343.5476, 363.55334, 340.61362, 343.84836, 293.21783)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_1108" type="Line2D" parent="MapLayers/RoadLayer" unique_id=1942794518]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(360.52, 281.835, 362.488, 286.664, 362.37857, 288.86728, 366.9509, 300.74542)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_1125" type="Line2D" parent="MapLayers/RoadLayer" unique_id=887224148]
+position = Vector2(-102.68555, -351.3907)
+rotation = 0.40133995
+scale = Vector2(1.0027186, 1.0031754)
+points = PackedVector2Array(508.45972, 296.43533, 506.12988, 290.41776)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_1128" type="Line2D" parent="MapLayers/RoadLayer" unique_id=2004192585]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(450.243, 309.081, 458.36758, 305.558, 461.428, 304.231, 464.326, 303.076, 468.715, 301.288, 480.255, 296.478, 482.112, 295.791)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="ImportedRoad_1129" type="Line2D" parent="MapLayers/RoadLayer" unique_id=2127080460]
+position = Vector2(-101.78871, -349.9858)
+rotation = 0.40133995
+points = PackedVector2Array(450.243, 309.081, 449.2541, 307.0395)
+width = 0.5
+default_color = Color(0.36, 0.31, 0.22, 0.82)
+antialiased = true
+
+[node name="RouteLayer" type="Control" parent="MapLayers" unique_id=2018913495]
 layout_mode = 1
-anchors_preset = 15
+anchor_top = 0.021000002
 anchor_right = 1.0
-anchor_bottom = 1.0
+anchor_bottom = 0.97900003
+offset_left = -0.103401184
+offset_top = 0.23326302
+offset_right = 0.104003906
+offset_bottom = -0.23327637
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-
-[node name="RouteDashRenderer" type="Control" parent="MapLayers/RouteLayer"]
-visible = false
-z_index = 2
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-script = ExtResource("2_dashed_route")
-
-[node name="MovingMarker" type="Polygon2D" parent="MapLayers/RouteLayer"]
-visible = false
-z_index = 3
-scale = Vector2(0.5, 0.5)
-color = Color(0.08, 0.12, 0.2, 1)
-polygon = PackedVector2Array(0, -14, 7, -12.124, 12.124, -7, 14, 0, 12.124, 7, 7, 12.124, 0, 14, -7, 12.124, -12.124, 7, -14, 0, -12.124, -7, -7, -12.124)
-
-[node name="MarkerLayer" type="Control" parent="MapLayers"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="HeadquartersMarker" type="Label" parent="MapLayers/MarkerLayer"]
-visible = false
-z_index = 4
-custom_minimum_size = Vector2(94, 30)
-layout_mode = 0
-offset_right = 94.0
-offset_bottom = 30.0
-text = "HQ"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="EffectLayer" type="Control" parent="MapLayers"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="InteractionLayer" type="Control" parent="MapLayers"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="OverlayLayer" type="Control" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="PaperFrame" type="Line2D" parent="OverlayLayer"]
-position = Vector2(-6.241381, 74.5)
-scale = Vector2(1.025862, 0.82291657)
-points = PackedVector2Array(52, 52, 972, 52, 972, 716, 52, 716, 52, 52)
-width = 4.0
-default_color = Color(0.42, 0.34, 0.22, 0.7)
-joint_mode = 2
-begin_cap_mode = 2
-end_cap_mode = 2
-
-[node name="SelectionOutline" type="Line2D" parent="OverlayLayer"]
-visible = false
-width = 6.0
-default_color = Color(0.12, 0.2, 0.24, 0.9)
-joint_mode = 2
-begin_cap_mode = 2
-end_cap_mode = 2
-
-[node name="EditorPreviewPanel" type="Control" parent="OverlayLayer"]
-visible = false
-z_index = 10
-layout_mode = 0
-offset_left = 60.0
-offset_top = 88.0
-offset_right = 350.0
-offset_bottom = 180.0
-mouse_filter = 2
-
-[node name="Title" type="Label" parent="OverlayLayer/EditorPreviewPanel"]
-layout_mode = 1
-anchors_preset = 0
-anchor_right = 1.0
-anchor_bottom = 0.25
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.12, 0.2, 0.16, 1)
-theme_override_font_sizes/font_size = 16
-
-[node name="Subtitle" type="Label" parent="OverlayLayer/EditorPreviewPanel"]
-layout_mode = 1
-anchors_preset = 0
-anchor_top = 0.27
-anchor_right = 1.0
-anchor_bottom = 0.47
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.21, 0.31, 0.22, 1)
-theme_override_font_sizes/font_size = 12
-
-[node name="Details" type="Label" parent="OverlayLayer/EditorPreviewPanel"]
-layout_mode = 1
-anchors_preset = 0
-anchor_top = 0.52
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.18, 0.25, 0.18, 1)
-theme_override_font_sizes/font_size = 12
