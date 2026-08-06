@@ -7,7 +7,7 @@
 [ext_resource type="Script" path="res://scripts/interaction/InspectableItemController.cs" id="5_item_controller"]
 [ext_resource type="Script" path="res://scripts/interaction/SubViewportInputController.cs" id="6_viewport_input"]
 [ext_resource type="PackedScene" uid="uid://btkg0ayvhc075" path="res://assets/models/environment/office_split/interactive/shift_note_paper.glb" id="7_note_model"]
-[ext_resource type="Texture2D" path="res://assets/textures/Текстура записки.jpg" id="8_note_paper_texture"]
+[ext_resource type="Texture2D" uid="uid://emny3rh5gdub" path="res://assets/textures/Note_texture 3.jpg" id="8_note_paper_texture"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_note"]
 size = Vector3(0.1326, 0.012, 0.1777)

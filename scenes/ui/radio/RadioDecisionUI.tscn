@@ -1,24 +1,17 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene format=3 uid="uid://dmwp8met5hipi"]
 
-[ext_resource type="Script" path="res://scripts/ui/radio/RadioDecisionUI.cs" id="1_radio_ui"]
-[ext_resource type="VideoStream" path="res://assets/video/transition_masks/Экран-выбора-маска.ogv" id="2_transition_video"]
-[ext_resource type="Shader" path="res://assets/shaders/RadioLumaMask.gdshader" id="3_luma_mask"]
-[ext_resource type="Shader" path="res://assets/shaders/VideoMaskSource.gdshader" id="4_video_source"]
-[ext_resource type="Shader" path="res://assets/shaders/RadioPreviousScreenBlur.gdshader" id="5_previous_blur"]
-[ext_resource type="Theme" path="res://assets/themes/KonturUi.tres" id="6_kontur_ui"]
-[ext_resource type="Texture2D" path="res://assets/textures/ui/frames/title_frame_top.png" id="7_frame_top"]
-[ext_resource type="Texture2D" path="res://assets/textures/ui/frames/title_frame_bottom.png" id="8_frame_bottom"]
-[ext_resource type="FontFile" path="res://assets/fonts/kontur_soviet_typewriter.otf" id="9_typewriter"]
+[ext_resource type="Script" uid="uid://c6rmd8tfd0yv" path="res://scripts/ui/radio/RadioDecisionUI.cs" id="1_radio_ui"]
+[ext_resource type="VideoStream" uid="uid://bdno2lfo8avfu" path="res://assets/video/transition_masks/Экран-выбора-маска.ogv" id="2_transition_video"]
+[ext_resource type="Shader" uid="uid://6yr3dxiihk7u" path="res://assets/shaders/RadioLumaMask.gdshader" id="3_luma_mask"]
+[ext_resource type="Shader" uid="uid://clggwdpfoh2qp" path="res://assets/shaders/VideoMaskSource.gdshader" id="4_video_source"]
+[ext_resource type="Shader" uid="uid://b31vwmkhmqv5j" path="res://assets/shaders/RadioPreviousScreenBlur.gdshader" id="5_previous_blur"]
+[ext_resource type="Theme" uid="uid://e3caa1e43c8l" path="res://assets/themes/KonturUi.tres" id="6_kontur_ui"]
+[ext_resource type="Texture2D" uid="uid://ov05ujyf6h4y" path="res://assets/textures/ui/frames/title_frame_top.png" id="7_frame_top"]
+[ext_resource type="Texture2D" uid="uid://d17w53fggmmo3" path="res://assets/textures/ui/frames/title_frame_bottom.png" id="8_frame_bottom"]
+[ext_resource type="FontFile" uid="uid://klsb3josflx6" path="res://assets/fonts/kontur_soviet_typewriter.otf" id="9_typewriter"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_luma_mask"]
 shader = ExtResource("3_luma_mask")
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_video_source"]
-shader = ExtResource("4_video_source")
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_previous_blur"]
-shader = ExtResource("5_previous_blur")
-shader_parameter/blur_radius_pixels = 7.0
 
 [sub_resource type="Gradient" id="Gradient_shade"]
 offsets = PackedFloat32Array(0, 0.42, 0.72)
@@ -28,13 +21,19 @@ colors = PackedColorArray(0, 0, 0, 0.93, 0, 0, 0, 0.82, 0, 0, 0, 0)
 gradient = SubResource("Gradient_shade")
 width = 256
 height = 8
-fill_to = Vector2(1, 0)
 
 [sub_resource type="FontVariation" id="FontVariation_header"]
 base_font = ExtResource("9_typewriter")
 spacing_glyph = 2
 
-[node name="RadioDecisionUI" type="Control"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_video_source"]
+shader = ExtResource("4_video_source")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_previous_blur"]
+shader = ExtResource("5_previous_blur")
+shader_parameter/blur_radius_pixels = 7.0
+
+[node name="RadioDecisionUI" type="Control" unique_id=779535691]
 custom_minimum_size = Vector2(1280, 720)
 layout_mode = 3
 anchors_preset = 15
@@ -42,24 +41,24 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 0
 theme = ExtResource("6_kontur_ui")
 script = ExtResource("1_radio_ui")
 
-[node name="TransitionGroup" type="CanvasGroup" parent="."]
+[node name="TransitionGroup" type="CanvasGroup" parent="." unique_id=469869802]
 material = SubResource("ShaderMaterial_luma_mask")
 fit_margin = 0.0
 clear_margin = 0.0
 
-[node name="ScreenContent" type="Control" parent="TransitionGroup"]
-layout_mode = 0
+[node name="ScreenContent" type="Control" parent="TransitionGroup" unique_id=701116885]
+layout_mode = 3
+anchors_preset = 0
 offset_right = 1280.0
 offset_bottom = 720.0
 grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("6_kontur_ui")
 
-[node name="Background" type="ColorRect" parent="TransitionGroup/ScreenContent"]
+[node name="Background" type="ColorRect" parent="TransitionGroup/ScreenContent" unique_id=1098277946]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -69,7 +68,7 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0.008, 0.008, 0.01, 1)
 
-[node name="Illustration" type="TextureRect" parent="TransitionGroup/ScreenContent"]
+[node name="Illustration" type="TextureRect" parent="TransitionGroup/ScreenContent" unique_id=597832420]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -80,7 +79,7 @@ mouse_filter = 2
 expand_mode = 1
 stretch_mode = 6
 
-[node name="Shade" type="TextureRect" parent="TransitionGroup/ScreenContent"]
+[node name="Shade" type="TextureRect" parent="TransitionGroup/ScreenContent" unique_id=1075955118]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -90,9 +89,8 @@ grow_vertical = 2
 mouse_filter = 2
 texture = SubResource("GradientTexture2D_shade")
 expand_mode = 1
-stretch_mode = 0
 
-[node name="TitleFrameTop" type="TextureRect" parent="TransitionGroup/ScreenContent"]
+[node name="TitleFrameTop" type="TextureRect" parent="TransitionGroup/ScreenContent" unique_id=1847389153]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.029
@@ -104,9 +102,8 @@ grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("7_frame_top")
 expand_mode = 1
-stretch_mode = 0
 
-[node name="Header" type="Label" parent="TransitionGroup/ScreenContent"]
+[node name="Header" type="Label" parent="TransitionGroup/ScreenContent" unique_id=116820584]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.029
@@ -115,14 +112,13 @@ anchor_right = 0.394
 anchor_bottom = 0.163
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
 theme_override_fonts/font = SubResource("FontVariation_header")
 theme_override_font_sizes/font_size = 24
 text = "ЖАЛОБА ПЕНСИОНЕРА"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="TitleFrameBottom" type="TextureRect" parent="TransitionGroup/ScreenContent"]
+[node name="TitleFrameBottom" type="TextureRect" parent="TransitionGroup/ScreenContent" unique_id=1535859051]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.041
@@ -134,9 +130,8 @@ grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("8_frame_bottom")
 expand_mode = 1
-stretch_mode = 0
 
-[node name="SituationLabel" type="RichTextLabel" parent="TransitionGroup/ScreenContent"]
+[node name="SituationLabel" type="RichTextLabel" parent="TransitionGroup/ScreenContent" unique_id=202421165]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.062
@@ -150,7 +145,7 @@ bbcode_enabled = true
 text = "Бригада зашла в квартиру и обнаружила там достаточно длинный коридор. Спустя какое-то время ходьбы по нему они, казалось бы, нашли деда. Но вместо этого их встретило обнажённое кривое существо, отдалённо похожее на человека."
 scroll_active = false
 
-[node name="StatusLine" type="Label" parent="TransitionGroup/ScreenContent"]
+[node name="StatusLine" type="Label" parent="TransitionGroup/ScreenContent" unique_id=837447832]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.062
@@ -159,12 +154,11 @@ anchor_right = 0.42
 anchor_bottom = 0.46
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
 theme_override_colors/font_color = Color(0.749, 0.722, 0.714, 0.7)
 theme_override_font_sizes/font_size = 13
 vertical_alignment = 1
 
-[node name="OptionOneButton" type="Button" parent="TransitionGroup/ScreenContent"]
+[node name="OptionOneButton" type="Button" parent="TransitionGroup/ScreenContent" unique_id=576949487]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.065
@@ -174,10 +168,9 @@ anchor_bottom = 0.646
 grow_horizontal = 2
 grow_vertical = 2
 text = "Тихо пройти мимо существа, стараясь не привлекать внимание (Ловкость)"
-alignment = 1
 autowrap_mode = 2
 
-[node name="OptionTwoButton" type="Button" parent="TransitionGroup/ScreenContent"]
+[node name="OptionTwoButton" type="Button" parent="TransitionGroup/ScreenContent" unique_id=1129221892]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.088
@@ -187,10 +180,9 @@ anchor_bottom = 0.763
 grow_horizontal = 2
 grow_vertical = 2
 text = "Напасть на существо и забрать его с собой на исследование (Боевая подготовка)"
-alignment = 1
 autowrap_mode = 2
 
-[node name="OptionThreeButton" type="Button" parent="TransitionGroup/ScreenContent"]
+[node name="OptionThreeButton" type="Button" parent="TransitionGroup/ScreenContent" unique_id=257500338]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.133
@@ -200,36 +192,11 @@ anchor_bottom = 0.876
 grow_horizontal = 2
 grow_vertical = 2
 text = "Кажется, где-то в начале был поворот налево, может быть, дед был там? (Интеллект)"
-alignment = 1
 autowrap_mode = 2
 
-[node name="TransitionPlayer" type="VideoStreamPlayer" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
+[node name="TransitionPlayer" type="VideoStreamPlayer" parent="." unique_id=1257630753]
 z_index = -1
 material = SubResource("ShaderMaterial_video_source")
-stream = ExtResource("2_transition_video")
-expand = true
-loop = false
-
-[node name="InputBlocker" type="ColorRect" parent="."]
-visible = false
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 0
-color = Color(0, 0, 0, 0)
-
-[node name="PreviousScreenBlur" type="ColorRect" parent="."]
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -237,6 +204,27 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+stream = ExtResource("2_transition_video")
+expand = true
+
+[node name="InputBlocker" type="ColorRect" parent="." unique_id=1836352979]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0)
+
+[node name="PreviousScreenBlur" type="ColorRect" parent="." unique_id=49264214]
+visible = false
 z_index = -2
 material = SubResource("ShaderMaterial_previous_blur")
-color = Color(1, 1, 1, 1)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
