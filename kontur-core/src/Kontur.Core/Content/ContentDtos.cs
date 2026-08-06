@@ -222,6 +222,10 @@ namespace Kontur.Core.Content
 
 		public string? MissionEventId { get; set; }
 
+		public string? SetsFlagOnSuccess { get; set; }
+
+		public string? SetsFlagOnFailure { get; set; }
+
 		public ScaleDeltaDto? ScalesOnSuccess { get; set; }
 
 		public ScaleDeltaDto? ScalesOnFailure { get; set; }

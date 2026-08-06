@@ -39,6 +39,14 @@ public partial class GameFlow : Node
 	/// <summary>Экран найма открыт для стартового выбора, а не для добора между сменами.</summary>
 	public bool HiringIsStartingChoice { get; private set; }
 
+	/// <summary>День, который ждёт кнопки «Приступить к смене». 0 — ждать нечего.</summary>
+	public int PendingShiftDay { get; private set; }
+
+	/// <summary>Смена ждёт не начала, а продолжения: партия поднята из сохранения.</summary>
+	private bool _pendingShiftResume;
+
+	public bool PendingShiftIsResume => _pendingShiftResume;
+
 	public override void _Ready()
 	{
 		Instance = this;
@@ -109,8 +117,10 @@ public partial class GameFlow : Node
 			return false;
 		}
 
-		// Ядро после загрузки держит время остановленным, пока интерфейс не готов.
-		// Отпускаем его уже в кабинете, когда сцена собралась.
+		// Ядро после загрузки держит время остановленным. Отпускает его игрок
+		// кнопкой на терминале — тем же способом, каким начинает новую смену:
+		// возвращаться в уже идущую смену прямо из главного меню слишком резко.
+		_pendingShiftResume = true;
 		GoToOffice();
 		return true;
 	}
@@ -160,7 +170,13 @@ public partial class GameFlow : Node
 		BeginShift(nextDay);
 	}
 
-	/// <summary>Начинает смену и уводит игрока в кабинет.</summary>
+	/// <summary>
+	/// Уводит игрока в кабинет со сменой наготове.
+	///
+	/// Саму смену запускает игрок кнопкой на терминале: до неё он сидит в
+	/// кабинете при остановленном ядре и волен осмотреться. Поэтому здесь
+	/// только переход, а день кладётся в <see cref="PendingShiftDay"/>.
+	/// </summary>
 	public void BeginShift(int day)
 	{
 		if (!HasCore())
@@ -168,15 +184,58 @@ public partial class GameFlow : Node
 			return;
 		}
 
-		CommandResult result = _kontur.Simulation.StartShift(day);
+		PendingShiftDay = day;
+		_pendingShiftResume = false;
+		GoToOffice();
+	}
+
+	/// <summary>Смена ждёт кнопки на терминале — начала или продолжения.</summary>
+	public bool HasPendingShift
+	{
+		get
+		{
+			if (!HasReadyCore())
+			{
+				return false;
+			}
+
+			return _pendingShiftResume || (PendingShiftDay > 0 && !_kontur.Simulation.IsShiftActive);
+		}
+	}
+
+	/// <summary>
+	/// Пускает время: начинает отложенную смену или продолжает поднятую из
+	/// сохранения. Ложь — ядро отказало, и терминал обязан остаться запертым:
+	/// выпускать игрока в кабинет, где время не идёт, нельзя.
+	/// </summary>
+	public bool StartPendingShift()
+	{
+		if (!HasCore())
+		{
+			return false;
+		}
+
+		if (_pendingShiftResume)
+		{
+			_kontur.Simulation.ResumeAfterLoad();
+			_pendingShiftResume = false;
+			return true;
+		}
+
+		if (PendingShiftDay <= 0)
+		{
+			return false;
+		}
+
+		CommandResult result = _kontur.Simulation.StartShift(PendingShiftDay);
 		if (!result.IsSuccess)
 		{
 			GD.PushError("[FLOW] Смена не началась: " + result.Error);
-			ShowMainMenu();
-			return;
+			return false;
 		}
 
-		GoToOffice();
+		PendingShiftDay = 0;
+		return true;
 	}
 
 	private void GoToOffice()
@@ -192,11 +251,8 @@ public partial class GameFlow : Node
 	{
 		Pause(false);
 
-		// Если пришли из загрузки, ядро всё ещё держит время — отпускаем.
-		if (HasCore() && _kontur.Simulation.IsTimeFrozen)
-		{
-			_kontur.Simulation.ResumeAfterLoad();
-		}
+		// Заморозку загрузки здесь не снимаем: её снимет кнопка на терминале.
+		// Иначе смена побежала бы, пока игрок ещё не сел за стол.
 	}
 
 	private void GoTo(string scenePath)
@@ -239,6 +295,12 @@ public partial class GameFlow : Node
 		{
 			_kontur.IsPaused = paused;
 		}
+	}
+
+	/// <summary>Тихая проверка для свойств: ядро есть, но ругаться незачем.</summary>
+	private bool HasReadyCore()
+	{
+		return _kontur != null && _kontur.IsReady;
 	}
 
 	private bool HasCore()

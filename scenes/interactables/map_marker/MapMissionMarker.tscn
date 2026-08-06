@@ -6,14 +6,14 @@
 [ext_resource type="Script" path="res://scripts/interaction/InteractionOutline.cs" id="4_outline"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_interaction"]
-radius = 0.12
-height = 0.24
+radius = 0.06
+height = 0.12
 
 [node name="MapMissionMarker" type="Node3D"]
 script = ExtResource("1_marker")
 
 [node name="VisualRoot" type="Node3D" parent="."]
-scale = Vector3(2, 2, 2)
+scale = Vector3(1, 1, 1)
 
 [node name="MapPin" parent="VisualRoot" instance=ExtResource("2_pin")]
 

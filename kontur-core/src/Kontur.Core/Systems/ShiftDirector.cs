@@ -743,6 +743,16 @@ namespace Kontur.Core.Systems
 				_counters.Failures++;
 			}
 
+			// Развилка без решения по рации: ветку выбирает исход броска.
+			// У миссии с решением флаг ставит выбранный вариант — здесь его нет,
+			// и партии надо запомнить, чем кончилось, иначе следующие смены
+			// не получат ни одной из взаимоисключающих миссий-последствий.
+			string? outcomeFlag = outcome.IsSuccess ? mission.SetsFlagOnSuccess : mission.SetsFlagOnFailure;
+			if (!string.IsNullOrEmpty(outcomeFlag))
+			{
+				_state.Flags.Set(outcomeFlag!);
+			}
+
 			_bus.Publish(new MissionResolved(outcome));
 
 			ApplyCasualties(incident, outcome);

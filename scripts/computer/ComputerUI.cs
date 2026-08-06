@@ -11,6 +11,7 @@ public enum ComputerScreen
 	Encyclopedia,
 	Equipment,
 	MissionDispatch,
+	ShiftStart,
 }
 
 public interface IComputerScreen
@@ -32,6 +33,7 @@ public partial class ComputerUI : Control
 	[Export] public PackedScene MissionDispatchScreenScene { get; set; } = null!;
 	[Export] public PackedScene EquipmentScreenScene { get; set; } = null!;
 	[Export] public PackedScene EncyclopediaScreenScene { get; set; } = null!;
+	[Export] public PackedScene ShiftStartScreenScene { get; set; } = null!;
 
 	/// <summary>
 	/// Отступ от края текстуры до рамки терминала, пиксели вьюпорта.
@@ -62,9 +64,17 @@ public partial class ComputerUI : Control
 	private int _pendingEquipmentSlot = -1;
 	private bool _pendingEquipmentIsConsumable;
 
+	/// <summary>Терминал заперт заставкой «смена не начата».</summary>
+	private bool _isShiftStartMode;
+
 	public event System.Action<int>? DispatchSlotRequested;
 
+	/// <summary>Игрок нажал «Приступить к смене» на заставке.</summary>
+	public event System.Action? ShiftStartRequested;
+
 	public bool IsDispatchSelectionActive => !string.IsNullOrEmpty(_dispatchIncidentId);
+
+	public bool IsShiftStartModeActive => _isShiftStartMode;
 
 	public override void _Ready()
 	{
@@ -75,6 +85,13 @@ public partial class ComputerUI : Control
 		AddScreen(ComputerScreen.Encyclopedia, EncyclopediaScreenScene);
 		AddScreen(ComputerScreen.Equipment, EquipmentScreenScene);
 		AddScreen(ComputerScreen.MissionDispatch, MissionDispatchScreenScene);
+		AddScreen(ComputerScreen.ShiftStart, ShiftStartScreenScene);
+
+		if (_screens.TryGetValue(ComputerScreen.ShiftStart, out Control? shiftStartScreen)
+			&& shiftStartScreen is ShiftStartScreenUI shiftStartUi)
+		{
+			shiftStartUi.Confirmed += () => ShiftStartRequested?.Invoke();
+		}
 
 		if (_screens.TryGetValue(ComputerScreen.MissionDispatch, out Control? dispatchScreen)
 			&& dispatchScreen is MissionDispatchUI missionDispatch)
@@ -177,6 +194,48 @@ public partial class ComputerUI : Control
 		}
 	}
 
+	// ------------------------------------------------------------------ начало смены
+
+	/// <summary>
+	/// Запереть терминал заставкой до начала смены.
+	///
+	/// Вкладки не прячутся, а гаснут и перестают нажиматься: игрок с первого
+	/// взгляда видит, из чего состоит рабочее место, и что оно откроется, —
+	/// пустая панель этого не сообщает.
+	/// </summary>
+	public void BeginShiftStartMode()
+	{
+		if (_isShiftStartMode)
+		{
+			return;
+		}
+
+		_isShiftStartMode = true;
+		SetTabsEnabled(false);
+		OpenScreen(ComputerScreen.ShiftStart, false);
+	}
+
+	/// <summary>Снять заставку и вернуть терминал в рабочий вид.</summary>
+	public void EndShiftStartMode()
+	{
+		if (!_isShiftStartMode)
+		{
+			return;
+		}
+
+		_isShiftStartMode = false;
+		SetTabsEnabled(true);
+		OpenScreen(DefaultScreen, false);
+	}
+
+	private void SetTabsEnabled(bool enabled)
+	{
+		foreach (KeyValuePair<ComputerScreen, Button> pair in _tabs)
+		{
+			pair.Value.Disabled = !enabled;
+		}
+	}
+
 	// ------------------------------------------------------------------ навигация
 
 	public void OpenScreen(ComputerScreen screen)
@@ -186,6 +245,13 @@ public partial class ComputerUI : Control
 
 	private void OpenScreen(ComputerScreen screen, bool userInitiated)
 	{
+		// Пока смена не начата, уйти с заставки нельзя ничем: погашенные вкладки
+		// не нажимаются, но экран открывают и мимо них — из сценария и отладки.
+		if (_isShiftStartMode && screen != ComputerScreen.ShiftStart)
+		{
+			return;
+		}
+
 		// Уход со склада снимает незавершённый выбор предмета: иначе выбор
 		// «повиснет» и следующее открытие склада начнётся в чужом режиме.
 		if (userInitiated && screen != ComputerScreen.Equipment && _pendingEquipmentSlot >= 0)

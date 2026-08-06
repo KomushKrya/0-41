@@ -109,12 +109,12 @@ public partial class MapMarkerController : Node
 					_markerDurations[incident.Id] = markerDuration;
 				}
 
-				marker.ShowDispatchCountdown(incident.RemainingSeconds, markerDuration);
+				marker.ShowRing(MapMissionMarker.RingState.DispatchCountdown, incident.RemainingSeconds, markerDuration);
 				marker.SetDispatchInteractive(true);
 				break;
 			case IncidentPhase.Travelling:
 				marker.SetDispatchInteractive(false);
-				marker.ShowTravelling();
+				marker.ShowRing(MapMissionMarker.RingState.Travelling);
 				break;
 			case IncidentPhase.RadioPending:
 				marker.SetDispatchInteractive(false);
@@ -124,7 +124,7 @@ public partial class MapMarkerController : Node
 					_radioDurations[incident.Id] = radioDuration;
 				}
 
-				marker.ShowRadioCountdown(incident.RemainingSeconds, radioDuration);
+				marker.ShowRing(MapMissionMarker.RingState.RadioCountdown, incident.RemainingSeconds, radioDuration);
 				break;
 			case IncidentPhase.OnSite:
 				marker.SetDispatchInteractive(false);
@@ -134,7 +134,7 @@ public partial class MapMarkerController : Node
 					_executionDurations[incident.Id] = executionDuration;
 				}
 
-				marker.ShowMissionExecution(incident.RemainingSeconds, executionDuration);
+				marker.ShowRing(MapMissionMarker.RingState.MissionExecution, incident.RemainingSeconds, executionDuration);
 				break;
 		}
 	}
@@ -158,7 +158,7 @@ public partial class MapMarkerController : Node
 		_markerDurations[marker.IncidentId] = marker.LifetimeSeconds;
 		if (_pins.TryGetValue(marker.IncidentId, out MapMissionMarker pin))
 		{
-			pin.ShowDispatchCountdown(marker.LifetimeSeconds, marker.LifetimeSeconds);
+			pin.ShowRing(MapMissionMarker.RingState.DispatchCountdown, marker.LifetimeSeconds, marker.LifetimeSeconds);
 			pin.SetDispatchInteractive(true);
 		}
 	}
@@ -191,7 +191,7 @@ public partial class MapMarkerController : Node
 		if (_pins.TryGetValue(dispatch.IncidentId, out MapMissionMarker pin))
 		{
 			pin.SetDispatchInteractive(false);
-			pin.ShowTravelling();
+			pin.ShowRing(MapMissionMarker.RingState.Travelling);
 		}
 		if (!_mapUi.StartDispatchRoute(dispatch.IncidentId, buildingId, dispatch.TravelSeconds))
 		{
@@ -205,7 +205,7 @@ public partial class MapMarkerController : Node
 		_executionDurations[execution.IncidentId] = execution.DurationSeconds;
 		if (_pins.TryGetValue(execution.IncidentId, out MapMissionMarker pin))
 		{
-			pin.ShowMissionExecution(execution.DurationSeconds, execution.DurationSeconds);
+			pin.ShowRing(MapMissionMarker.RingState.MissionExecution, execution.DurationSeconds, execution.DurationSeconds);
 		}
 	}
 
@@ -214,7 +214,7 @@ public partial class MapMarkerController : Node
 		_radioDurations[radio.IncidentId] = radio.ResponseSeconds;
 		if (_pins.TryGetValue(radio.IncidentId, out MapMissionMarker pin))
 		{
-			pin.ShowRadioCountdown(radio.ResponseSeconds, radio.ResponseSeconds);
+			pin.ShowRing(MapMissionMarker.RingState.RadioCountdown, radio.ResponseSeconds, radio.ResponseSeconds);
 		}
 	}
 
@@ -224,7 +224,7 @@ public partial class MapMarkerController : Node
 		_radioDurations.Remove(resolved.Outcome.IncidentId);
 		if (_pins.TryGetValue(resolved.Outcome.IncidentId, out MapMissionMarker pin))
 		{
-			pin.HideIndicator();
+			pin.ShowRing(MapMissionMarker.RingState.Hidden);
 		}
 
 		if (resolved.Outcome.SquadWiped)

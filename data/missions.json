@@ -606,10 +606,12 @@
   {
     "id": "m_workshop_gravel",
     "day": 2,
-    "tier": "Story",
+    "tier": "Filler",
     "creatureId": "",
     "callId": "call_workshop_gravel",
-    "missionEventId": "radio_workshop_gravel",
+    "missionEventId": "",
+    "setsFlagOnSuccess": "flag_gravel_delivered",
+    "setsFlagOnFailure": "flag_gravel_failed",
     "requirements": {
       "strength": 3
     },
@@ -643,13 +645,9 @@
       "loyalty": -3.0
     },
     "reports": {
-      "deliver": {
+      "": {
         "success": "report_workshop_gravel_deliver_success",
         "failure": "report_workshop_gravel_deliver_failure"
-      },
-      "refuse": {
-        "success": "report_workshop_gravel_refuse_success",
-        "failure": "report_workshop_gravel_refuse_failure"
       }
     }
   },

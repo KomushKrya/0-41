@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/ui/phone/PhoneCallAcceptanceUI.cs" id="1_phone_ui"]
 [ext_resource type="Shader" path="res://assets/shaders/PhoneCallBackgroundBlur.gdshader" id="2_background_blur"]
+[ext_resource type="Theme" path="res://assets/themes/KonturUi.tres" id="3_kontur_ui"]
 
 [sub_resource type="SystemFont" id="SystemFont_terminal"]
 font_names = PackedStringArray("Cascadia Mono", "Consolas", "Courier New")
@@ -33,24 +34,12 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
-[sub_resource type="StyleBoxFlat" id="StyleBox_confirm"]
-bg_color = Color(0.04, 0.13, 0.07, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.33, 0.74, 0.42, 0.85)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_background_blur"]
 shader = ExtResource("2_background_blur")
 shader_parameter/blur_radius_pixels = 7.0
 
 [node name="PhoneCallAcceptanceUI" type="Control"]
-custom_minimum_size = Vector2(960, 540)
+custom_minimum_size = Vector2(1280, 720)
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -58,6 +47,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 0
+theme = ExtResource("3_kontur_ui")
 script = ExtResource("1_phone_ui")
 
 [node name="PreviousScreenBlur" type="ColorRect" parent="."]
@@ -204,10 +194,6 @@ anchor_right = 0.93
 anchor_bottom = 0.88
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(0.78, 1, 0.8, 1)
-theme_override_fonts/font = SubResource("SystemFont_terminal")
-theme_override_font_sizes/font_size = 16
-theme_override_styles/normal = SubResource("StyleBox_confirm")
 text = "ПОДТВЕРДИТЬ ПРИНЯТИЕ ВЫЗОВА"
 
 [node name="PausedHint" type="Label" parent="."]
