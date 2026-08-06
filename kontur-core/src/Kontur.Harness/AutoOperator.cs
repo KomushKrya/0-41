@@ -148,6 +148,10 @@ namespace Kontur.Harness
 			List<string> squad = PickSquad(incident.Requirements, squadLimit);
 			if (squad.Count == 0)
 			{
+				// Свободных людей нет: экран отправки держит время остановленным,
+				// поэтому его обязательно надо закрыть — иначе прогон встанет.
+				// Вызовы теперь идут внахлёст, и такая ситуация штатная.
+				_session.CloseDispatchScreen(incident.Id);
 				return;
 			}
 
@@ -157,7 +161,12 @@ namespace Kontur.Harness
 			if (!result.IsSuccess && equipment.Count > 0)
 			{
 				// Снаряжение мог занять параллельный вызов — пробуем без него.
-				_session.DispatchSquad(incident.Id, squad, Array.Empty<string>());
+				result = _session.DispatchSquad(incident.Id, squad, Array.Empty<string>());
+			}
+
+			if (!result.IsSuccess)
+			{
+				_session.CloseDispatchScreen(incident.Id);
 			}
 		}
 

@@ -1,12 +1,12 @@
 {
   "timings": {
     "phoneRingSeconds": 15.0,
-    "mapMarkerSeconds": 30.0,
-    "radioSeconds": 35.0,
-    "shiftCallWindowSeconds": 300.0,
-    "firstCallSeconds": 10.0,
-    "callIntervalSeconds": 45.0,
-    "minSecondsBetweenCalls": 12.0,
+    "mapMarkerSeconds": 20.0,
+    "radioSeconds": 15.0,
+    "firstCallMinSeconds": 5.0,
+    "firstCallMaxSeconds": 10.0,
+    "nextCallMinSeconds": 5.0,
+    "nextCallMaxSeconds": 40.0,
     "reportDelaySeconds": 1.0
   },
   "scales": {
@@ -53,25 +53,15 @@
     {
       "day": 1,
       "staffLimit": 3,
-      "minCalls": 2,
-      "maxCalls": 2,
       "requirementMultiplier": 1.0,
       "consumablesPerShift": 4,
       "standardPerShift": 1,
       "shiftNoteId": "shift_note_day_1",
-      "outroCutsceneId": "cutscene_before_shift_2",
-      "disableTimers": false,
-      "sequentialCallCount": 2,
-      "missionOrder": [
-        "m_black_mold",
-        "m_pensioner_door"
-      ]
+      "outroCutsceneId": "cutscene_before_shift_2"
     },
     {
       "day": 2,
       "staffLimit": 4,
-      "minCalls": 3,
-      "maxCalls": 3,
       "requirementMultiplier": 1.15,
       "consumablesPerShift": 4,
       "standardPerShift": 1,
@@ -81,8 +71,6 @@
     {
       "day": 3,
       "staffLimit": 5,
-      "minCalls": 4,
-      "maxCalls": 4,
       "requirementMultiplier": 1.3,
       "consumablesPerShift": 5,
       "standardPerShift": 2,
@@ -92,8 +80,6 @@
     {
       "day": 4,
       "staffLimit": 6,
-      "minCalls": 5,
-      "maxCalls": 5,
       "requirementMultiplier": 1.5,
       "consumablesPerShift": 5,
       "standardPerShift": 2,
