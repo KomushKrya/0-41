@@ -332,6 +332,18 @@ namespace Kontur.Core.Api
 			return Array.Empty<RadioOptionOffer>();
 		}
 
+		/// <summary>Отладка: случайный запланированный вызов начинает звонить сейчас.</summary>
+		public CommandResult DebugRingRandomCall()
+		{
+			return _director.DebugRingRandomCall();
+		}
+
+		/// <summary>Отладка: рация поднимается по случайной миссии с событием.</summary>
+		public CommandResult DebugTriggerRandomRadio()
+		{
+			return _director.DebugTriggerRandomRadio();
+		}
+
 		public CommandResult OpenMissionOutcome(string incidentId)
 		{
 			if (string.IsNullOrWhiteSpace(incidentId)) return CommandResult.Fail("Не указан вызов.");

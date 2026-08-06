@@ -229,6 +229,80 @@ namespace Kontur.Core.Systems
 				ringSeconds));
 		}
 
+		/// <summary>
+		/// Отладка: заставляет случайный запланированный вызов зазвонить сейчас.
+		///
+		/// Берём из уже собранного расписания смены, а не сочиняем инцидент с нуля:
+		/// так вызов приходит со своим зданием, миссией и текстом, и дальше идёт
+		/// обычным путём — брифинг, метка, отправка.
+		/// </summary>
+		public CommandResult DebugRingRandomCall()
+		{
+			var candidates = new List<IncidentRuntime>();
+			for (int i = 0; i < _incidents.Count; i++)
+			{
+				IncidentPhase phase = _incidents[i].Phase;
+				if (phase == IncidentPhase.Scheduled || phase == IncidentPhase.Queued)
+				{
+					candidates.Add(_incidents[i]);
+				}
+			}
+
+			if (candidates.Count == 0)
+			{
+				return CommandResult.Fail("Нет запланированных вызовов: начните смену.");
+			}
+
+			IncidentRuntime picked = candidates[_random.NextInt(0, candidates.Count)];
+			StartRinging(picked, _content.Config.GetDay(_state.Day));
+			return CommandResult.Ok();
+		}
+
+		/// <summary>
+		/// Отладка: поднимает рацию по случайной миссии, у которой есть событие.
+		///
+		/// Группу никуда не отправляем — экран рации её и не требует: ему нужен
+		/// инцидент в фазе RadioPending и список вариантов. Зато проверяется весь
+		/// путь от сигнала до выбора и итога.
+		/// </summary>
+		public CommandResult DebugTriggerRandomRadio()
+		{
+			var candidates = new List<IncidentRuntime>();
+			for (int i = 0; i < _incidents.Count; i++)
+			{
+				IncidentRuntime incident = _incidents[i];
+				if (incident.Phase == IncidentPhase.Closed
+					|| incident.Phase == IncidentPhase.RadioPending
+					|| string.IsNullOrWhiteSpace(incident.Mission.MissionEventId))
+				{
+					continue;
+				}
+
+				if (_content.FindMissionEvent(incident.Mission.MissionEventId!) != null)
+				{
+					candidates.Add(incident);
+				}
+			}
+
+			if (candidates.Count == 0)
+			{
+				return CommandResult.Fail("Нет миссий с рацией: начните смену.");
+			}
+
+			IncidentRuntime picked = candidates[_random.NextInt(0, candidates.Count)];
+			MissionEventDefinition missionEvent = _content.FindMissionEvent(picked.Mission.MissionEventId!)!;
+
+			double radioSeconds = GetTimer(
+				_content.Config.GetDay(_state.Day),
+				_content.Config.Timings.RadioSeconds);
+
+			picked.MissionEvent = missionEvent;
+			picked.RadioWasTriggered = true;
+			picked.SetPhase(IncidentPhase.RadioPending, radioSeconds > 0.0 ? radioSeconds : (double?)null);
+			_bus.Publish(new RadioTriggered(picked.Id, missionEvent.Id, BuildOffers(picked), radioSeconds));
+			return CommandResult.Ok();
+		}
+
 		private bool IsPhoneLineBusy()
 		{
 			for (int i = 0; i < _incidents.Count; i++)

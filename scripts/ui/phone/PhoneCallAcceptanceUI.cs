@@ -5,29 +5,31 @@ using System;
 public partial class PhoneCallAcceptanceUI : Control
 {
 	[Export] public NodePath PreviousScreenBlurPath { get; set; } = new("PreviousScreenBlur");
-	[Export] public NodePath TitlePath { get; set; } = new("ContentFrame/CallTitle");
-	[Export] public NodePath DescriptionPath { get; set; } = new("ContentFrame/Description");
-	[Export] public NodePath IllustrationPath { get; set; } = new("ContentFrame/IllustrationPanel/Illustration");
-	[Export] public NodePath IllustrationPlaceholderPath { get; set; } = new("ContentFrame/IllustrationPanel/Placeholder");
-	[Export] public NodePath ConfirmButtonPath { get; set; } = new("ContentFrame/ConfirmButton");
+	[Export] public NodePath TitlePath { get; set; } = new("Window/CallTitle");
+	[Export] public NodePath DescriptionPath { get; set; } = new("Window/Description");
+	[Export] public NodePath IllustrationPath { get; set; } = new("Window/Illustration");
+	[Export] public NodePath ConfirmButtonPath { get; set; } = new("Window/ConfirmButton");
 
 	private ColorRect _previousScreenBlur = null!;
 	private Label _title = null!;
 	/// <summary>Стенограмма приходит с разметкой движка, поэтому не Label.</summary>
 	private RichTextLabel _description = null!;
 	private TextureRect _illustration = null!;
-	private Label _illustrationPlaceholder = null!;
 	private Button _confirmButton = null!;
 	private Action? _confirmedCallback;
 	private bool _pausedRuntime;
 
 	public override void _Ready()
 	{
+		// Экран сам ставит симуляцию на паузу, но дерево при этом живо. А вот меню
+		// паузы дерево останавливает — и кнопка «принять вызов» переставала жать,
+		// пока меню не закроют. Экран поверх кабинета обязан переживать паузу.
+		ProcessMode = ProcessModeEnum.Always;
+
 		_previousScreenBlur = GetNode<ColorRect>(PreviousScreenBlurPath);
 		_title = GetNode<Label>(TitlePath);
 		_description = GetNode<RichTextLabel>(DescriptionPath);
 		_illustration = GetNode<TextureRect>(IllustrationPath);
-		_illustrationPlaceholder = GetNode<Label>(IllustrationPlaceholderPath);
 		_confirmButton = GetNode<Button>(ConfirmButtonPath);
 		_confirmButton.Pressed += CloseCall;
 	}
@@ -44,12 +46,11 @@ public partial class PhoneCallAcceptanceUI : Control
 		Action? confirmedCallback = null)
 	{
 		_title.Text = title;
-		FitCallTitle();
-		_description.Text = description;
+		RequestTitleFit();
+		_description.Text = $"[p align=fill]{description}[/p]";
 		RequestDescriptionFit();
 		_illustration.Texture = illustration;
 		_illustration.Visible = illustration != null;
-		_illustrationPlaceholder.Visible = illustration == null;
 		_confirmedCallback = confirmedCallback;
 
 		GameRuntime runtime = GameRuntime.Get(this);
@@ -81,6 +82,10 @@ public partial class PhoneCallAcceptanceUI : Control
 		Action? confirmedCallback = _confirmedCallback;
 		_confirmedCallback = null;
 		_previousScreenBlur.Hide();
+
+		// Картинку снимаем сразу: иначе она доживёт до следующего вызова и мелькнёт
+		// чужим кадром в тот миг, пока новый ещё не назначен.
+		_illustration.Texture = null;
 		Hide();
 		if (_pausedRuntime)
 		{
@@ -105,11 +110,28 @@ public partial class PhoneCallAcceptanceUI : Control
 
 	private int _descriptionFitAttempts;
 
-	/// <summary>Крупнее этого заголовок вызова не станет: размер из сцены.</summary>
-	private const int TitleFontMax = 23;
+	/// <summary>Крупнее этого заголовок вызова не станет: 36 pt макета в координатах 1280x720.</summary>
+	private const int TitleFontMax = 24;
 
 	/// <summary>Мельче — заголовок перестаёт быть заголовком.</summary>
-	private const int TitleFontMin = 15;
+	private const int TitleFontMin = 16;
+
+	private int _titleFitAttempts;
+
+	/// <summary>
+	/// Ставит подгонку заголовка в очередь.
+	///
+	/// Раньше FitCallTitle звался прямо из ShowCallAcceptance — и на первом показе
+	/// уходил ни с чем: рамке ещё не назначили размер, ширина нулевая, проверка
+	/// внизу метода молча возвращала управление. Заголовок оставался крупным
+	/// и наезжал на текст вызова — ровно то, от чего подгонка и заводилась.
+	/// У описания такая же очередь была с самого начала, у заголовка её забыли.
+	/// </summary>
+	private void RequestTitleFit()
+	{
+		_titleFitAttempts = DescriptionFitAttempts;
+		CallDeferred(nameof(FitCallTitle));
+	}
 
 	/// <summary>
 	/// Подгоняет заголовок вызова под его рамку.
@@ -134,6 +156,13 @@ public partial class PhoneCallAcceptanceUI : Control
 
 		if (font == null || available <= 1.0f || width <= 1.0f)
 		{
+			// Размер ещё не назначен. Ждём следующего кадра, но не вечно:
+			// у скрытого экрана рамка нулевая всегда, и цикл был бы бесконечным.
+			if (_titleFitAttempts-- > 0)
+			{
+				CallDeferred(nameof(FitCallTitle));
+			}
+
 			return;
 		}
 
