@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Godot;
 using Kontur.Core.Api;
 using Kontur.Core.Model;
@@ -357,7 +358,7 @@ public partial class DossierDispatchUI : Control
 		return null;
 	}
 
-	private static string BuildTraitsText(EmployeeView employee)
+	private string BuildTraitsText(EmployeeView employee)
 	{
 		if (employee.AbilityIds.Count == 0)
 		{
@@ -367,10 +368,74 @@ public partial class DossierDispatchUI : Control
 		var traits = new List<string>();
 		foreach (string abilityId in employee.AbilityIds)
 		{
-			traits.Add("• " + ResolveName(abilityId));
+			// В скобках идёт строка эффекта, а не художественное описание: в досье
+			// перк стоит рядом с характеристиками, и читают его ради цифры. Само
+			// описание остаётся в тексте записи для сноски при найме.
+			string effect = ResolveEffect(abilityId);
+			traits.Add(effect.Length > 0
+				? $"• {ResolveName(abilityId)} ({effect})"
+				: "• " + ResolveName(abilityId));
 		}
 
 		return string.Join("\n", traits);
+	}
+
+	/// <summary>
+	/// Строка эффекта перка с подставленными числами.
+	///
+	/// Эффект — последний кусок записи; числа в нём стоят как {{bonus.strength}} и
+	/// берутся из data/abilities.json, поэтому правка баланса меняет досье сама.
+	/// Точка на конце снимается: в скобках она читается как обрыв фразы.
+	/// </summary>
+	private string ResolveEffect(string abilityId)
+	{
+		if (Content.Instance == null)
+		{
+			return string.Empty;
+		}
+
+		ContentEntry? entry = Content.Instance.GetEntry(abilityId);
+		if (entry == null || entry.Chunks.Count == 0)
+		{
+			return string.Empty;
+		}
+
+		string text = entry.Chunks[entry.Chunks.Count - 1].Text.Trim();
+		if (text.Length == 0)
+		{
+			return string.Empty;
+		}
+
+		// Незаполненная подстановка остаётся видимой — так же, как в текстовых
+		// боксах: пустое место прочиталось бы как опечатка автора.
+		text = Content.Fill(text, name => AbilityValue(abilityId, name));
+		return text.EndsWith(".", StringComparison.Ordinal) ? text.Substring(0, text.Length - 1) : text;
+	}
+
+	private string AbilityValue(string abilityId, string name)
+	{
+		GameRuntime runtime = GameRuntime.Get(this);
+		if (runtime == null || !runtime.IsReady)
+		{
+			return string.Empty;
+		}
+
+		Ability? ability = runtime.Session.Content.FindAbility(abilityId);
+		if (ability == null)
+		{
+			return string.Empty;
+		}
+
+		if (name.Equals("allStatsBonus", StringComparison.OrdinalIgnoreCase))
+		{
+			return ability.AllStatsBonus.ToString(CultureInfo.InvariantCulture);
+		}
+
+		const string bonusPrefix = "bonus.";
+		return name.StartsWith(bonusPrefix, StringComparison.OrdinalIgnoreCase)
+			&& StatKinds.TryParse(name.Substring(bonusPrefix.Length), out StatKind kind)
+			? ability.Bonus[kind].ToString(CultureInfo.InvariantCulture)
+			: string.Empty;
 	}
 
 	/// <summary>
