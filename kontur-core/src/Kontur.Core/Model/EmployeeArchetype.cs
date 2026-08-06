@@ -24,6 +24,15 @@ namespace Kontur.Core.Model
 	{
 		public int CandidatesPerShift { get; set; }
 		public int CandidatesChoiceMargin { get; set; } = 2;
+
+		/// <summary>
+		/// Сколько кандидатов показывать за раз на экране найма.
+		///
+		/// Влияет не только на вёрстку: игрок берёт из тройки одного, остальные
+		/// уходят навсегда. Значит на каждое свободное место нужна своя тройка,
+		/// и пул кандидатов считается отсюда.
+		/// </summary>
+		public int CandidatesPerDraw { get; set; } = 3;
 		public int LevelLagBehindDay { get; set; } = 1;
 		public int LevelSpread { get; set; } = 1;
 		public int MinAge { get; set; } = 24;
