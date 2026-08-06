@@ -86,7 +86,11 @@ namespace Kontur.Core.Systems
 		{
 			_state.Day = day;
 			_shiftTime = 0.0;
-			_callQueueCooldown = 0.0;
+
+			// Первый звонок не мгновенный: игроку нужно осмотреться и прочитать записку.
+			TimingConfig startTimings = _content.Config.Timings;
+			_callQueueCooldown = RandomSeconds(startTimings.FirstCallMinSeconds, startTimings.FirstCallMaxSeconds);
+
 			_callWindowClosed = false;
 			_spawnedCount = 0;
 			_counters = new ShiftCounters();
@@ -156,7 +160,8 @@ namespace Kontur.Core.Systems
 		{
 			DayConfig dayConfig = _content.Config.GetDay(_state.Day);
 
-			// _pending отсортирован по времени, поэтому всегда берём с головы.
+			// Вызовы идут строго по одному: следующий звонит, когда истечёт пауза,
+			// заведённая после закрытия предыдущего разговора. Расписания по времени нет.
 			while (_pending.Count > 0)
 			{
 				bool isSequential = _spawnedCount < dayConfig.SequentialCallCount;
@@ -169,7 +174,14 @@ namespace Kontur.Core.Systems
 						break;
 					}
 				}
-				else if (_pending[0].ScheduledAtSeconds > _shiftTime)
+				else if (_callQueueCooldown > 0.0)
+				{
+					break;
+				}
+
+				// Линия занята — вызов ждёт в расписании, а не переезжает в очередь:
+				// иначе один тик выгреб бы весь список и смена «закрыла приём» сразу.
+				if (IsPhoneLineBusy())
 				{
 					break;
 				}
@@ -178,30 +190,11 @@ namespace Kontur.Core.Systems
 				_pending.RemoveAt(0);
 				_incidents.Add(incident);
 				_spawnedCount++;
-				if (isSequential && _spawnedCount == dayConfig.SequentialCallCount)
-				{
-					RebaseRemainingSchedule();
-				}
-
-				if (IsPhoneLineBusy() || _callQueueCooldown > 0.0)
-				{
-					incident.SetPhase(IncidentPhase.Queued, null);
-					_bus.Publish(new IncidentQueued(
-						incident.Id,
-						incident.Mission.Id,
-						incident.BuildingId,
-						CountQueuedIncidents()));
-					continue;
-				}
 
 				StartRinging(incident, dayConfig);
 
-				// Сценарная часть закончилась — остаток расписания сдвигаем от текущего момента,
-				// иначе давно просроченные времена выпустили бы все вызовы разом.
-				if (isSequential && _spawnedCount == dayConfig.SequentialCallCount)
-				{
-					RebaseRemainingSchedule();
-				}
+				// За тик выпускаем ровно один звонок: остальные ждут своей паузы.
+				break;
 			}
 		}
 
@@ -343,13 +336,27 @@ namespace Kontur.Core.Systems
 			_callQueueCooldown = Math.Max(_callQueueCooldown, _content.Config.Timings.CallQueueGapSeconds);
 		}
 
-		private void RebaseRemainingSchedule()
+		/// <summary>
+		/// Заводит паузу до следующего звонка. Зовётся, когда разговор закрыт: игрок
+		/// подтвердил бриф либо упустил вызов. Длительность случайная, поэтому ритм
+		/// смены каждый раз свой, но при одном seed прогон воспроизводится.
+		/// </summary>
+		private void StartNextCallDelay()
 		{
-			double gap = _content.Config.Timings.MinSecondsBetweenCalls;
-			for (int i = 0; i < _pending.Count; i++)
+			TimingConfig timings = _content.Config.Timings;
+			_callQueueCooldown = Math.Max(
+				_callQueueCooldown,
+				RandomSeconds(timings.NextCallMinSeconds, timings.NextCallMaxSeconds));
+		}
+
+		private double RandomSeconds(double min, double max)
+		{
+			if (max <= min)
 			{
-				_pending[i].ScheduledAtSeconds = _shiftTime + (gap * (i + 1));
+				return min > 0.0 ? min : 0.0;
 			}
+
+			return min + (_random.NextDouble() * (max - min));
 		}
 
 		/// <summary>
@@ -644,7 +651,8 @@ namespace Kontur.Core.Systems
 		private void HandleCallMissed(IncidentRuntime incident)
 		{
 			_counters.MissedCalls++;
-			StartCallQueueCooldown();
+			// Вызов упущен — это тоже конец разговора, значит заводим паузу до следующего.
+			StartNextCallDelay();
 			_bus.Publish(new CallMissed(incident.Id, incident.Mission.Id));
 			ResolveAutoFailure(incident, MissionResolutionReason.CallMissed, incident.Mission.ScalesOnMissedCall, "пропущен звонок");
 		}
@@ -1180,6 +1188,10 @@ namespace Kontur.Core.Systems
 				_content.Config.GetDay(_state.Day),
 				_content.Config.Timings.MapMarkerSeconds);
 			incident.SetPhase(IncidentPhase.MarkerActive, markerSeconds > 0.0 ? markerSeconds : (double?)null);
+
+			// Трубка положена — отсюда и отсчитывается пауза до следующего звонка.
+			StartNextCallDelay();
+
 			_bus.Publish(new BriefingConfirmed(incident.Id, incident.Mission.Id, incident.BuildingId, markerSeconds));
 			_bus.Publish(new MapMarkerSpawned(incident.Id, incident.BuildingId, markerSeconds));
 

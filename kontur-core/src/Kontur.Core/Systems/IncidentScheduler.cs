@@ -43,23 +43,13 @@ namespace Kontur.Core.Systems
 				return BuildScriptedSchedule(dayConfig, timings, day);
 			}
 
-			int count;
-			if (dayConfig.CallTimes.Count > 0)
-			{
-				count = dayConfig.CallTimes.Count;
-			}
-			else
-			{
-				int minCalls = dayConfig.MinCalls;
-				int maxCalls = dayConfig.MaxCalls < minCalls ? minCalls : dayConfig.MaxCalls;
-				count = _random.NextInt(minCalls, maxCalls + 1);
-			}
-
-			List<double> times = BuildCallTimes(count, timings, dayConfig);
+			// Смена отыгрывает весь пул дня: сколько миссий написано на день, столько
+			// вызовов и придёт. Порядок тасуется здесь, а момент каждого звонка решает
+			// директор — пауза отсчитывается от закрытия предыдущего разговора.
 			var usedThisShift = new HashSet<string>();
 			var usedBuildingIds = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
 
-			for (int i = 0; i < times.Count; i++)
+			for (int i = 0; i < pool.Count; i++)
 			{
 				MissionDefinition? mission = PickMission(pool, usedThisShift);
 				BuildingDefinition? building = PickBuilding(usedBuildingIds);
@@ -72,12 +62,8 @@ namespace Kontur.Core.Systems
 				usedBuildingIds.Add(building.Id);
 				_state.UsedMissionIds.Add(mission.Id);
 
-				var incident = new IncidentRuntime($"INC-{day:00}-{i + 1:00}", mission, building.Id)
-				{
-					ScheduledAtSeconds = times[i]
-				};
-
-				schedule.Add(incident);
+				// Время не назначаем: очередь выпускает вызовы по паузе, а не по расписанию.
+				schedule.Add(new IncidentRuntime($"INC-{day:00}-{i + 1:00}", mission, building.Id));
 			}
 
 			return schedule;
@@ -117,7 +103,6 @@ namespace Kontur.Core.Systems
 		{
 			var schedule = new List<IncidentRuntime>();
 			var usedBuildingIds = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
-			double gap = timings.MinSecondsBetweenCalls;
 
 			for (int i = 0; i < dayConfig.MissionOrder.Count; i++)
 			{
@@ -142,53 +127,10 @@ namespace Kontur.Core.Systems
 				}
 
 				usedBuildingIds.Add(building.Id);
-				schedule.Add(new IncidentRuntime($"INC-{day:00}-{i + 1:00}", mission, building.Id)
-				{
-					ScheduledAtSeconds = gap * i
-				});
+				schedule.Add(new IncidentRuntime($"INC-{day:00}-{i + 1:00}", mission, building.Id));
 			}
 
 			return schedule;
-		}
-
-		/// <summary>
-		/// Времена звонков от начала смены.
-		///
-		/// Раньше здесь были равномерные слоты с джиттером, и на дне со «звонком
-		/// ровно один» единственный вызов мог выпасть на четвёртую минуту — смена
-		/// выглядела пустой. Хуже того, времена за пределами окна молча
-		/// выбрасывались: чем больше вызовов просил день, тем меньше их доходило.
-		///
-		/// Теперь расписание жёсткое и предсказуемое: первый звонок через
-		/// FirstCallSeconds, дальше через равные CallIntervalSeconds. Никакого
-		/// броска, ничего не теряется. День, которому нужен свой ритм, задаёт
-		/// его списком callTimes.
-		/// </summary>
-		private List<double> BuildCallTimes(int count, TimingConfig timings, DayConfig dayConfig)
-		{
-			var times = new List<double>();
-			if (count <= 0)
-			{
-				return times;
-			}
-
-			if (dayConfig.CallTimes.Count > 0)
-			{
-				times.AddRange(dayConfig.CallTimes);
-				times.Sort();
-				return times;
-			}
-
-			double interval = timings.CallIntervalSeconds > 0.0
-				? timings.CallIntervalSeconds
-				: timings.MinSecondsBetweenCalls;
-
-			for (int i = 0; i < count; i++)
-			{
-				times.Add(timings.FirstCallSeconds + (interval * i));
-			}
-
-			return times;
 		}
 
 		private MissionDefinition? PickMission(IReadOnlyList<MissionDefinition> pool, HashSet<string> usedThisShift)
