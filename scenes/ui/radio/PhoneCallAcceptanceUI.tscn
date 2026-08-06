@@ -1,31 +1,41 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene format=3 uid="uid://babfa6s4xmf6"]
 
-[ext_resource type="Script" path="res://scripts/ui/phone/PhoneCallAcceptanceUI.cs" id="1_phone_ui"]
-[ext_resource type="Shader" path="res://assets/shaders/PhoneCallBackgroundBlur.gdshader" id="2_background_blur"]
-[ext_resource type="Theme" path="res://assets/themes/KonturUi.tres" id="3_kontur_ui"]
-[ext_resource type="Texture2D" path="res://assets/textures/ui/frames/title_frame_top.png" id="4_frame_top"]
-[ext_resource type="Texture2D" path="res://assets/textures/ui/frames/title_frame_bottom.png" id="5_frame_bottom"]
-[ext_resource type="FontFile" path="res://assets/fonts/kontur_soviet_typewriter.otf" id="6_typewriter"]
+[ext_resource type="Script" uid="uid://bmd12onid24fq" path="res://scripts/ui/phone/PhoneCallAcceptanceUI.cs" id="1_phone_ui"]
+[ext_resource type="Shader" uid="uid://6yr3dxiihk7u" path="res://assets/shaders/RadioLumaMask.gdshader" id="2_luma_mask"]
+[ext_resource type="Shader" uid="uid://clggwdpfoh2qp" path="res://assets/shaders/VideoMaskSource.gdshader" id="3_video_source"]
+[ext_resource type="Shader" uid="uid://b31vwmkhmqv5j" path="res://assets/shaders/RadioPreviousScreenBlur.gdshader" id="4_previous_blur"]
+[ext_resource type="Shader" uid="uid://htpiatoga1dp" path="res://assets/shaders/IllustrationMask.gdshader" id="5_illo_mask"]
+[ext_resource type="Texture2D" uid="uid://bdsshnyt7su8b" path="res://assets/textures/ui/illustration_masks/Маска картинки экрана выбора.png" id="6_illo_mask_tex"]
+[ext_resource type="Theme" uid="uid://e3caa1e43c8l" path="res://assets/themes/KonturUi.tres" id="7_kontur_ui"]
+[ext_resource type="Texture2D" uid="uid://ov05ujyf6h4y" path="res://assets/textures/ui/frames/title_frame_top.png" id="8_frame_top"]
+[ext_resource type="Texture2D" uid="uid://d17w53fggmmo3" path="res://assets/textures/ui/frames/title_frame_bottom.png" id="9_frame_bottom"]
+[ext_resource type="FontFile" uid="uid://klsb3josflx6" path="res://assets/fonts/kontur_soviet_typewriter.otf" id="10_typewriter"]
+[ext_resource type="VideoStream" uid="uid://8lelwnp8nkqb" path="res://assets/video/transition_masks/call/call_mask1.ogv" id="11_call_mask1"]
+[ext_resource type="VideoStream" uid="uid://bxdxx215en4d5" path="res://assets/video/transition_masks/call/call_mask2.ogv" id="12_call_mask2"]
+[ext_resource type="VideoStream" uid="uid://c1eeuuy1yt4au" path="res://assets/video/transition_masks/call/call_mask3.ogv" id="13_call_mask3"]
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_background_blur"]
-shader = ExtResource("2_background_blur")
-shader_parameter/blur_radius_pixels = 7.0
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_luma_mask"]
+shader = ExtResource("2_luma_mask")
+shader_parameter/closing = 0.0
 
-[sub_resource type="Gradient" id="Gradient_shade"]
-offsets = PackedFloat32Array(0, 0.5, 0.85)
-colors = PackedColorArray(0, 0, 0, 0.94, 0, 0, 0, 0.84, 0, 0, 0, 0.15)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_shade"]
-gradient = SubResource("Gradient_shade")
-width = 256
-height = 8
-fill_to = Vector2(1, 0)
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_illo_mask"]
+shader = ExtResource("5_illo_mask")
+shader_parameter/mask_texture = ExtResource("6_illo_mask_tex")
+shader_parameter/node_rect = Vector4(0, 0, 1, 1)
+shader_parameter/mask_strength = 1.0
 
 [sub_resource type="FontVariation" id="FontVariation_header"]
-base_font = ExtResource("6_typewriter")
+base_font = ExtResource("10_typewriter")
 spacing_glyph = 2
 
-[node name="PhoneCallAcceptanceUI" type="Control"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_video_source"]
+shader = ExtResource("3_video_source")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_previous_blur"]
+shader = ExtResource("4_previous_blur")
+shader_parameter/blur_radius_pixels = 7.0
+
+[node name="PhoneCallAcceptanceUI" type="Control" unique_id=1947818757]
 custom_minimum_size = Vector2(1280, 720)
 layout_mode = 3
 anchors_preset = 15
@@ -33,45 +43,25 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 0
-theme = ExtResource("3_kontur_ui")
+theme = ExtResource("7_kontur_ui")
 script = ExtResource("1_phone_ui")
+TransitionMasks = Array[VideoStream]([ExtResource("11_call_mask1"), ExtResource("12_call_mask2"), ExtResource("13_call_mask3")])
 
-[node name="PreviousScreenBlur" type="ColorRect" parent="."]
-visible = false
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+[node name="TransitionGroup" type="CanvasGroup" parent="." unique_id=253127510]
+material = SubResource("ShaderMaterial_luma_mask")
+fit_margin = 0.0
+clear_margin = 0.0
+
+[node name="ScreenContent" type="Control" parent="TransitionGroup" unique_id=2009419263]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1280.0
+offset_bottom = 720.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
-z_index = -1
-material = SubResource("ShaderMaterial_background_blur")
-color = Color(1, 1, 1, 1)
+theme = ExtResource("7_kontur_ui")
 
-[node name="BackdropShade" type="ColorRect" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-color = Color(0, 0, 0, 0.42)
-
-[node name="Window" type="Control" parent="."]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.14
-anchor_top = 0.16
-anchor_right = 0.86
-anchor_bottom = 0.84
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="Background" type="ColorRect" parent="Window"]
+[node name="Background" type="ColorRect" parent="TransitionGroup/ScreenContent" unique_id=1249506296]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -81,53 +71,57 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0.008, 0.008, 0.01, 1)
 
-[node name="Illustration" type="TextureRect" parent="Window"]
+[node name="Illustration" type="TextureRect" parent="TransitionGroup/ScreenContent" unique_id=556514187]
+material = SubResource("ShaderMaterial_illo_mask")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 475.0
+offset_top = 191.0
+offset_right = -211.22217
+offset_bottom = -195.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 expand_mode = 1
 stretch_mode = 6
 
-[node name="Shade" type="TextureRect" parent="Window"]
+[node name="ScreenOverlay" type="Control" parent="." unique_id=1457173299]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
+anchor_left = 0.075
+anchor_right = 0.925
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-texture = SubResource("GradientTexture2D_shade")
-expand_mode = 1
-stretch_mode = 0
 
-[node name="TitleFrameTop" type="TextureRect" parent="Window"]
+[node name="TitleFrameTop" type="TextureRect" parent="ScreenOverlay" unique_id=548058177]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.03
-anchor_top = 0.06
-anchor_right = 0.55
-anchor_bottom = 0.115
+anchor_left = 0.273
+anchor_top = 0.299
+anchor_right = 0.625
+anchor_bottom = 0.329
+offset_left = -90.0
+offset_right = -90.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-texture = ExtResource("4_frame_top")
+texture = ExtResource("8_frame_top")
 expand_mode = 1
-stretch_mode = 0
 
-[node name="CallTitle" type="Label" parent="Window"]
+[node name="CallTitle" type="Label" parent="ScreenOverlay" unique_id=211363827]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.03
-anchor_top = 0.115
-anchor_right = 0.55
-anchor_bottom = 0.215
+anchor_left = 0.273
+anchor_top = 0.329
+anchor_right = 0.625
+anchor_bottom = 0.382
+offset_left = -90.0
+offset_right = -90.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
 theme_override_fonts/font = SubResource("FontVariation_header")
 theme_override_font_sizes/font_size = 24
 text = "ВХОДЯЩИЙ ВЫЗОВ"
@@ -135,27 +129,30 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="TitleFrameBottom" type="TextureRect" parent="Window"]
+[node name="TitleFrameBottom" type="TextureRect" parent="ScreenOverlay" unique_id=1943279314]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.045
-anchor_top = 0.225
-anchor_right = 0.532
-anchor_bottom = 0.245
+anchor_left = 0.281
+anchor_top = 0.389
+anchor_right = 0.617
+anchor_bottom = 0.401
+offset_left = -90.0
+offset_right = -90.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-texture = ExtResource("5_frame_bottom")
+texture = ExtResource("9_frame_bottom")
 expand_mode = 1
-stretch_mode = 0
 
-[node name="Description" type="RichTextLabel" parent="Window"]
+[node name="Description" type="RichTextLabel" parent="ScreenOverlay" unique_id=1915707611]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.06
-anchor_top = 0.3
-anchor_right = 0.53
-anchor_bottom = 0.72
+anchor_left = 0.281
+anchor_top = 0.424
+anchor_right = 0.617
+anchor_bottom = 0.597
+offset_left = -90.0
+offset_right = -90.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
@@ -163,15 +160,49 @@ bbcode_enabled = true
 text = "Алло? Алло. Да, здравствуйте, меня зовут Наталья. У меня неделю назад отклеились обои от стен, а под ними какая-то непонятная плесень."
 scroll_active = false
 
-[node name="ConfirmButton" type="Button" parent="Window"]
+[node name="ConfirmButton" type="Button" parent="ScreenOverlay" unique_id=1956765006]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.06
-anchor_top = 0.8
-anchor_right = 0.53
-anchor_bottom = 0.886
+anchor_left = 0.281
+anchor_top = 0.632
+anchor_right = 0.62
+anchor_bottom = 0.69
+offset_left = -90.0
+offset_right = -90.0
 grow_horizontal = 2
 grow_vertical = 2
 text = "ПРИНЯТЬ ВЫЗОВ"
-alignment = 1
 autowrap_mode = 2
+
+[node name="TransitionPlayer" type="VideoStreamPlayer" parent="." unique_id=199455494]
+z_index = -1
+material = SubResource("ShaderMaterial_video_source")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+stream = ExtResource("11_call_mask1")
+expand = true
+
+[node name="InputBlocker" type="ColorRect" parent="." unique_id=1002576688]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0)
+
+[node name="PreviousScreenBlur" type="ColorRect" parent="." unique_id=71414232]
+z_index = -2
+material = SubResource("ShaderMaterial_previous_blur")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
