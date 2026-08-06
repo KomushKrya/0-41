@@ -114,7 +114,7 @@ public partial class DeskPhone : Node3D
 				_callAcceptanceUi.ShowCallAcceptance(
 					title,
 					description,
-					null,
+					MissionIllustrations.LoadCall(incident.MissionId),
 					() => ConfirmBriefing(runtime, incidentId));
 				return true;
 			}
