@@ -100,6 +100,10 @@ public partial class PhoneCallAcceptanceUI : Control
 		}
 
 		Resized -= FitScreenContentToWindow;
+
+		// Сцена может смениться прямо во время закрытия — например, игрок вышел
+		// в меню. Пауза тогда осталась бы висеть на партии, и время не пошло бы.
+		ReleaseRuntimePause();
 	}
 
 	public override void _Process(double delta)
@@ -334,9 +338,36 @@ public partial class PhoneCallAcceptanceUI : Control
 
 		CursorMode.Hide(this);
 
+		// Время отпускаем ровно здесь: окно ушло, блокировщик снят, управление
+		// вернулось к игроку. Раньше этого момента секунды капали бы впустую.
+		ReleaseRuntimePause();
+
 		Action confirmedCallback = _confirmedCallback;
 		_confirmedCallback = null;
 		confirmedCallback?.Invoke();
+	}
+
+	/// <summary>
+	/// Снимает паузу, если её ставило это окно.
+	///
+	/// Зовётся и из <see cref="FinishClose"/>, и при уходе узла из дерева: сцена
+	/// может смениться прямо во время закрытия — например, игрок вышел в меню, —
+	/// и тогда пауза осталась бы висеть на партии, которую никто не отпустит.
+	/// </summary>
+	private void ReleaseRuntimePause()
+	{
+		if (!_pausedRuntime)
+		{
+			return;
+		}
+
+		_pausedRuntime = false;
+
+		GameRuntime runtime = GameRuntime.Get(this);
+		if (runtime != null)
+		{
+			runtime.IsPaused = false;
+		}
 	}
 
 	private void SetMaskTexture()
@@ -371,19 +402,10 @@ public partial class PhoneCallAcceptanceUI : Control
 			return;
 		}
 
-		// Симуляцию отпускаем сразу — время идёт, пока окно доигрывает уход.
-		// Обещанный вызывающему коллбэк уходит в FinishClose, когда окно ушло.
-		if (_pausedRuntime)
-		{
-			GameRuntime runtime = GameRuntime.Get(this);
-			if (runtime != null)
-			{
-				runtime.IsPaused = false;
-			}
-
-			_pausedRuntime = false;
-		}
-
+		// Симуляцию здесь не отпускаем: окно ещё доигрывает уход, а блокировщик
+		// ввода держит управление у себя. Пусти время сейчас — таймеры вызовов
+		// побегут, пока игрок смотрит на маску и ничего нажать не может.
+		// Отпускает FinishClose, вместе с обещанным вызывающему коллбэком.
 		StopTransition();
 		StartCloseTransition();
 	}
