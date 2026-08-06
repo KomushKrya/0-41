@@ -30,7 +30,10 @@ public partial class DeskComputerInteractable : Area3D, IInteractable
 			return;
 		}
 
-		_computer.EnterComputerMode(player);
+		// Время в игре останавливают только модальные экраны: отправка группы,
+		// разговор по телефону и по рации. Обычный терминал — справочник:
+		// пока игрок листает энциклопедию, вызов продолжает идти и может сорваться.
+		_computer.EnterComputerMode(player, pauseSimulation: false);
 	}
 
 	public void SetHovered(bool isHovered)

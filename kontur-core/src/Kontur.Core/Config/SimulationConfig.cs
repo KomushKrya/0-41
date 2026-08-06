@@ -59,34 +59,31 @@ namespace Kontur.Core.Config
 		/// <summary>ДД, раздел 4: 15 секунд на ответ.</summary>
 		public double PhoneRingSeconds { get; set; } = 15.0;
 
-		/// <summary>ДД, раздел 4: метка держится 30 секунд.</summary>
+		/// <summary>Метка на карте держится 20 секунд.</summary>
 		public double MapMarkerSeconds { get; set; } = 20.0;
 
-		/// <summary>ДД, раздел 4: 20 секунд на реакцию по радио.</summary>
-		public double RadioSeconds { get; set; } = 20.0;
-
-		/// <summary>ДД, раздел 3, п. 14: 5 минут реального времени на приём новых вызовов.</summary>
-		public double ShiftCallWindowSeconds { get; set; } = 300.0;
+		/// <summary>15 секунд на реакцию по радио.</summary>
+		public double RadioSeconds { get; set; } = 15.0;
 
 		/// <summary>
-		/// Через сколько секунд после начала смены звонит первый телефон.
-		///
-		/// Не ноль: игроку нужно осмотреться и прочитать записку смены. Но и не
-		/// минута — пустой кабинет в самом начале читается как «игра сломалась».
+		/// Пауза до первого звонка смены. Разброс, а не фиксированное число:
+		/// начало смены не должно быть одинаковым от прогона к прогону.
 		/// </summary>
-		public double FirstCallSeconds { get; set; } = 10.0;
+		public double FirstCallMinSeconds { get; set; } = 5.0;
+
+		/// <summary>Верхняя граница паузы до первого звонка.</summary>
+		public double FirstCallMaxSeconds { get; set; } = 10.0;
 
 		/// <summary>
-		/// Шаг между звонками, когда день не расписан вручную.
-		///
-		/// Тот самый «оптимизированный интервал»: достаточно, чтобы отправить
-		/// группу и дождаться доклада, и мало, чтобы не сидеть в тишине. Если
-		/// нужен другой ритм на конкретный день — заводите ему callTimes.
+		/// Пауза до следующего звонка. Отсчитывается от момента, когда игрок закрыл
+		/// предыдущий разговор (нажал ОК на брифе) или упустил вызов. Берётся случайно
+		/// из диапазона, поэтому ритм смены каждый раз свой, а расписание заранее
+		/// не строится: смена длится, пока не отыграны все миссии дня.
 		/// </summary>
-		public double CallIntervalSeconds { get; set; } = 45.0;
+		public double NextCallMinSeconds { get; set; } = 5.0;
 
-		/// <summary>Минимальный зазор между запланированными звонками.</summary>
-		public double MinSecondsBetweenCalls { get; set; } = 12.0;
+		/// <summary>Верхняя граница паузы до следующего звонка.</summary>
+		public double NextCallMaxSeconds { get; set; } = 40.0;
 
 		/// <summary>Короткий зазор после освобождения телефонной линии перед следующим звонком из очереди.</summary>
 		public double CallQueueGapSeconds { get; set; } = 2.0;

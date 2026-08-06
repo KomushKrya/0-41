@@ -58,7 +58,7 @@ namespace Kontur.Harness
 			TestFlags(content);
 			TestEncyclopediaReveals(content);
 			TestDeterminism(content);
-			TestTutorialShift(content);
+			TestFirstShift(content);
 			TestFullShiftCompletes(content);
 
 			Console.WriteLine(new string('-', 78));
@@ -156,14 +156,20 @@ namespace Kontur.Harness
 		private static void TestTimings(ContentDatabase content)
 		{
 			Check("Phone ring duration is exactly 15 seconds", Math.Abs(content.Config.Timings.PhoneRingSeconds - 15.0) < 1e-9);
-			Check("Map marker lifetime is exactly 30 seconds", Math.Abs(content.Config.Timings.MapMarkerSeconds - 30.0) < 1e-9);
-			Check("Radio response duration is exactly 20 seconds", Math.Abs(content.Config.Timings.RadioSeconds - 20.0) < 1e-9);
-			Check("Call window lasts five minutes", Math.Abs(content.Config.Timings.ShiftCallWindowSeconds - 300.0) < 1e-9);
+			Check("Map marker lifetime is exactly 20 seconds", Math.Abs(content.Config.Timings.MapMarkerSeconds - 20.0) < 1e-9);
+			Check("Radio response duration is exactly 15 seconds", Math.Abs(content.Config.Timings.RadioSeconds - 15.0) < 1e-9);
 			Check($"Staff limit progression continues beyond authored days ({content.Config.GetStaffLimit(5)}/{content.Config.GetStaffLimit(9)})", content.Config.GetStaffLimit(5) == 7 && content.Config.GetStaffLimit(9) == 11);
 			Check("Звонок 15 с", Math.Abs(content.Config.Timings.PhoneRingSeconds - 15.0) < 1e-9);
-			Check("У метки задан положительный таймер", content.Config.Timings.MapMarkerSeconds > 0.0);
-			Check("Радио 20 с", Math.Abs(content.Config.Timings.RadioSeconds - 20.0) < 1e-9);
-			Check("Окно вызовов 5 минут", Math.Abs(content.Config.Timings.ShiftCallWindowSeconds - 300.0) < 1e-9);
+			Check("Метка 20 с", Math.Abs(content.Config.Timings.MapMarkerSeconds - 20.0) < 1e-9);
+			Check("Радио 15 с", Math.Abs(content.Config.Timings.RadioSeconds - 15.0) < 1e-9);
+			Check("Пауза до первого звонка 5–10 с",
+				content.Config.Timings.FirstCallMinSeconds >= 5.0
+				&& content.Config.Timings.FirstCallMaxSeconds <= 10.0
+				&& content.Config.Timings.FirstCallMaxSeconds > content.Config.Timings.FirstCallMinSeconds);
+			Check("Пауза между звонками 5–40 с",
+				content.Config.Timings.NextCallMinSeconds >= 5.0
+				&& content.Config.Timings.NextCallMaxSeconds <= 40.0
+				&& content.Config.Timings.NextCallMaxSeconds > content.Config.Timings.NextCallMinSeconds);
 			Check("Лимиты штата 3/4/5/6",
 				content.Config.GetDay(1).StaffLimit == 3
 				&& content.Config.GetDay(2).StaffLimit == 4
@@ -194,7 +200,9 @@ namespace Kontur.Harness
 			string? incidentId = null;
 			simulation.Events.Subscribe<IncidentCreated>(e => incidentId ??= e.IncidentId);
 			simulation.StartShift(1);
-			RunSeconds(simulation, 1.0, 0.25);
+
+			// Первый звонок приходит через случайные 5–10 секунд, поэтому ждём с запасом.
+			RunSeconds(simulation, content.Config.Timings.FirstCallMaxSeconds + 1.0, 0.25);
 
 			bool briefing = incidentId != null
 				&& simulation.AnswerCall(incidentId).IsSuccess
@@ -223,34 +231,39 @@ namespace Kontur.Harness
 			Check("Рация удерживает время только пока открыт диалог", radioFreeze && !simulation.IsTimeFrozen);
 		}
 
+		/// <summary>
+		/// Вызовы идут по одному. Пока игрок не закрыл разговор, второй телефон не звонит,
+		/// даже если пауза до следующего звонка уже истекла.
+		/// </summary>
 		private static void TestCallQueue(ContentDatabase content)
 		{
 			TimingConfig timings = content.Config.Timings;
-			DayConfig day = content.Config.GetDay(3);
-			double window = timings.ShiftCallWindowSeconds;
-			double gap = timings.MinSecondsBetweenCalls;
-			int minCalls = day.MinCalls;
-			int maxCalls = day.MaxCalls;
+			double firstMin = timings.FirstCallMinSeconds;
+			double firstMax = timings.FirstCallMaxSeconds;
+			double nextMin = timings.NextCallMinSeconds;
+			double nextMax = timings.NextCallMaxSeconds;
 			try
 			{
-				timings.ShiftCallWindowSeconds = 4.0;
-				timings.MinSecondsBetweenCalls = 0.0;
-				day.MinCalls = 2;
-				day.MaxCalls = 2;
+				timings.FirstCallMinSeconds = 0.0;
+				timings.FirstCallMaxSeconds = 0.0;
+				timings.NextCallMinSeconds = 0.0;
+				timings.NextCallMaxSeconds = 0.0;
 
 				var simulation = new KonturSimulation(content, 6);
-				bool wasQueued = false;
-				simulation.Events.Subscribe<IncidentQueued>(_ => wasQueued = true);
+				int ringing = 0;
+				simulation.Events.Subscribe<IncidentCreated>(_ => ringing++);
 				simulation.StartShift(3);
 				RunSeconds(simulation, 5.0, 0.25);
-				Check("Звонок, пришедший на занятую линию, попадает в очередь", wasQueued);
+
+				// Трубку никто не снимал: первый вызов всё это время держит линию.
+				Check("Пока линия занята, второй звонок не приходит", ringing == 1);
 			}
 			finally
 			{
-				timings.ShiftCallWindowSeconds = window;
-				timings.MinSecondsBetweenCalls = gap;
-				day.MinCalls = minCalls;
-				day.MaxCalls = maxCalls;
+				timings.FirstCallMinSeconds = firstMin;
+				timings.FirstCallMaxSeconds = firstMax;
+				timings.NextCallMinSeconds = nextMin;
+				timings.NextCallMaxSeconds = nextMax;
 			}
 		}
 
@@ -283,10 +296,12 @@ namespace Kontur.Harness
 
 		private static void TestMissedCallIsAutoFailure(ContentDatabase content)
 		{
-			// Во второй смене один вызов. Сжимаем окно расписания, чтобы проверять
-			// пропуск звонка, а не ждать случайный слот до конца смены.
-			double window = content.Config.Timings.ShiftCallWindowSeconds;
-			content.Config.Timings.ShiftCallWindowSeconds = 3.0;
+			// Убираем паузу до первого звонка, чтобы проверять сам пропуск,
+			// а не ждать случайные секунды до начала разговора.
+			double firstMin = content.Config.Timings.FirstCallMinSeconds;
+			double firstMax = content.Config.Timings.FirstCallMaxSeconds;
+			content.Config.Timings.FirstCallMinSeconds = 0.0;
+			content.Config.Timings.FirstCallMaxSeconds = 0.0;
 			var simulation = new KonturSimulation(content, 7);
 
 			MissionOutcome? outcome = null;
@@ -298,7 +313,8 @@ namespace Kontur.Harness
 
 			simulation.StartShift(2);
 			RunSeconds(simulation, 30.0, 0.25);
-			content.Config.Timings.ShiftCallWindowSeconds = window;
+			content.Config.Timings.FirstCallMinSeconds = firstMin;
+			content.Config.Timings.FirstCallMaxSeconds = firstMax;
 
 			Check("Неотвеченный звонок помечается пропущенным", missed);
 			Check("Пропуск звонка = автопровал", outcome != null && outcome.Reason == MissionResolutionReason.CallMissed);
@@ -310,8 +326,10 @@ namespace Kontur.Harness
 
 		private static void TestExpiredMarkerIsAutoFailure(ContentDatabase content)
 		{
-			double window = content.Config.Timings.ShiftCallWindowSeconds;
-			content.Config.Timings.ShiftCallWindowSeconds = 3.0;
+			double firstMin = content.Config.Timings.FirstCallMinSeconds;
+			double firstMax = content.Config.Timings.FirstCallMaxSeconds;
+			content.Config.Timings.FirstCallMinSeconds = 0.0;
+			content.Config.Timings.FirstCallMaxSeconds = 0.0;
 			var simulation = new KonturSimulation(content, 11);
 
 			string? ringingId = null;
@@ -341,7 +359,8 @@ namespace Kontur.Harness
 			}
 
 			RunSeconds(simulation, content.Config.Timings.MapMarkerSeconds + 5.0, 0.25);
-			content.Config.Timings.ShiftCallWindowSeconds = window;
+			content.Config.Timings.FirstCallMinSeconds = firstMin;
+			content.Config.Timings.FirstCallMaxSeconds = firstMax;
 
 			Check("Метка истекает по таймеру конфигурации", expired);
 			Check("Истечение метки = автопровал", outcome != null && outcome.Reason == MissionResolutionReason.MarkerExpired);
@@ -707,23 +726,22 @@ namespace Kontur.Harness
 			Check("Разный seed — разный прогон", first != third);
 		}
 
-		/// <summary>Сценарная смена: фиксированный порядок, вызовы по одному, обычные таймеры игрока.</summary>
-		private static void TestTutorialShift(ContentDatabase content)
+		/// <summary>
+		/// Первый день играется по общим правилам: никакого сценария и поблажек.
+		/// Смена отыгрывает весь пул дня, вызовы приходят по одному и с обычными таймерами.
+		/// </summary>
+		private static void TestFirstShift(ContentDatabase content)
 		{
 			Kontur.Core.Config.DayConfig day1 = content.Config.GetDay(1);
-			Check("День 1 помечен как сценарный", day1.IsScripted);
+			Check("У первого дня нет сценария", !day1.IsScripted);
 			Check("День 1 использует таймеры игрока", !day1.DisableTimers);
 
 			var simulation = new KonturSimulation(content, 5);
-
-			var order = new List<string>();
-			int maxSimultaneous = 0;
 			double ringSeconds = -1.0;
 			bool missedCall = false;
 
 			simulation.Events.Subscribe<IncidentCreated>(e =>
 			{
-				order.Add(e.MissionId);
 				if (ringSeconds < 0.0)
 				{
 					ringSeconds = e.RingSeconds;
@@ -733,47 +751,51 @@ namespace Kontur.Harness
 
 			simulation.StartShift(1);
 
-			RunSeconds(simulation, 14.0, 0.25);
+			// Ждём первый звонок (пауза 5–10 с) и проверяем, что он не срывается раньше срока.
+			RunSeconds(simulation, content.Config.Timings.FirstCallMaxSeconds + 1.0, 0.25);
 			Check("Звонок не срывается до истечения таймера", !missedCall);
 			Check("Телефон получает обычный обратный отсчёт", Math.Abs(ringSeconds - content.Config.Timings.PhoneRingSeconds) < 1e-9);
-			RunSeconds(simulation, 2.0, 0.25);
-			Check("Звонок сценарной смены срывается по таймеру", missedCall);
-			Check("Первым идёт вызов из сценария", order.Count > 0 && order[0] == day1.MissionOrder[0]);
 
-			// Теперь проходим смену автопилотом и смотрим порядок и наложение.
-			var scripted = new KonturSimulation(content, 5);
-			var oper = new AutoOperator(scripted, content, RadioStrategy.Best, 5);
+			RunSeconds(simulation, content.Config.Timings.PhoneRingSeconds + 1.0, 0.25);
+			Check("Неотвеченный звонок срывается по таймеру", missedCall);
+
+			// Полный прогон автопилотом: смена обязана выдать весь пул дня и завершиться.
+			int poolSize = content.GetMissionsForDay(1).Count;
+			var played = new KonturSimulation(content, 5);
+			var oper = new AutoOperator(played, content, RadioStrategy.Best, 5);
 			var missionOrder = new List<string>();
+			int maxRinging = 0;
 
-			scripted.Events.Subscribe<IncidentCreated>(e => missionOrder.Add(e.MissionId));
+			played.Events.Subscribe<IncidentCreated>(e => missionOrder.Add(e.MissionId));
 
-			scripted.StartShift(1);
+			played.StartShift(1);
 
 			double guard = 0.0;
-			while (scripted.IsShiftActive && guard < 1800.0)
+			while (played.IsShiftActive && guard < 1800.0)
 			{
-				scripted.Tick(0.25);
+				played.Tick(0.25);
 				guard += 0.25;
 				oper.Update();
 
-				int open = scripted.GetActiveIncidents().Count;
-				if (open > maxSimultaneous)
+				int ringing = 0;
+				foreach (IncidentView incident in played.GetActiveIncidents())
 				{
-					maxSimultaneous = open;
+					if (incident.Phase == IncidentPhase.Ringing || incident.Phase == IncidentPhase.Briefing)
+					{
+						ringing++;
+					}
+				}
+
+				if (ringing > maxRinging)
+				{
+					maxRinging = ringing;
 				}
 			}
 
-			Check("Сценарий пройден целиком", missionOrder.Count == day1.MissionOrder.Count);
-
-			bool sameOrder = missionOrder.Count == day1.MissionOrder.Count;
-			for (int i = 0; sameOrder && i < missionOrder.Count; i++)
-			{
-				sameOrder = missionOrder[i] == day1.MissionOrder[i];
-			}
-
-			Check("Порядок вызовов совпадает со сценарием", sameOrder);
-			Check("Обучающая смена завершается", !scripted.IsShiftActive);
-			Check("Сценарный день не накладывает вызовы", maxSimultaneous == 1);
+			Check($"Смена отыгрывает весь пул дня ({missionOrder.Count}/{poolSize})", missionOrder.Count == poolSize);
+			Check("Миссии в смене не повторяются", missionOrder.Count == new HashSet<string>(missionOrder).Count);
+			Check("Смена завершается", !played.IsShiftActive);
+			Check("Телефон занят не больше чем одним разговором", maxRinging <= 1);
 		}
 
 		/// <summary>

@@ -36,6 +36,12 @@ public partial class AudioManager : Node
 	/// <summary>Как часто искать в дереве предметы кабинета. Сцена приходит не сразу — из меню.</summary>
 	[Export] public float RescanSeconds { get; set; } = 0.25f;
 
+	/// <summary>Пауза после сборки кабинета, прежде чем заводить фон.</summary>
+	[Export] public float OfficeMusicDelaySeconds { get; set; } = 1.0f;
+
+	/// <summary>За сколько секунд фон выходит на полную громкость.</summary>
+	[Export] public float MusicFadeInSeconds { get; set; } = 2.0f;
+
 	public static AudioManager Instance { get; private set; }
 
 	private AudioStreamPlayer _music;
@@ -45,6 +51,10 @@ public partial class AudioManager : Node
 	private AudioStreamPlayer _sfxOverlay;
 
 	private AudioStreamPlayer _ring;
+
+	/// <summary>Шум рации: отдельный канал, чтобы его не обрывали звуки предметов.</summary>
+	private AudioStreamPlayer _radio;
+
 	private AudioStreamPlayer _computerHum;
 
 	private readonly List<string> _ambientQueue = new();
@@ -76,6 +86,10 @@ public partial class AudioManager : Node
 	private bool _hasUnreadScaleChanges;
 
 	private bool _wasPhoneRinging;
+	/// <summary>На сколько дБ фон приглушается перед плавным вводом.</summary>
+	private const float MusicFadeInDropDb = 24.0f;
+
+	private double _officeSettleTimer;
 	private double _rescanTimer;
 
 	private readonly List<IDisposable> _subscriptions = new();
@@ -84,10 +98,17 @@ public partial class AudioManager : Node
 	{
 		Instance = this;
 
+		// Звук живёт и на паузе: иначе, пока открыто меню, нечем остановить звонок.
+		ProcessMode = ProcessModeEnum.Always;
+
 		_music = CreatePlayer("Music", "Music", MusicVolumeDb);
 		_sfx = CreatePlayer("Sfx", "SFX", SfxVolumeDb);
 		_sfxOverlay = CreatePlayer("SfxOverlay", "SFX", SfxVolumeDb);
 		_ring = CreatePlayer("Ring", "SFX", SfxVolumeDb);
+
+		// У рации свой канал: иначе взятый в руки предмет обрывал бы её шум.
+		_radio = CreatePlayer("Radio", "SFX", SfxVolumeDb);
+
 		_computerHum = CreatePlayer("ComputerHum", "SFX", SfxVolumeDb - 4.0f);
 
 		_music.Finished += OnMusicFinished;
@@ -104,7 +125,8 @@ public partial class AudioManager : Node
 		IEventBus events = runtime.Session.Events;
 
 		// Музыка
-		Listen(events.Subscribe<ShiftStarted>(_ => StartShiftMusic()));
+		// Фон заводится не по началу смены, а по готовности кабинета — см. PollOfficeMusic.
+		// К моменту, когда игрок жмёт «Начать смену», музыка уже играет.
 		Listen(events.Subscribe<ShiftEnded>(_ => StopMusic()));
 		// На HiringOpened музыку не заводим: сигнал приходит внутри ShiftEnded, до ролика
 		// (см. GameFlow.OnHiringOpened), и тогда она играла бы под текстовый экран.
@@ -118,7 +140,7 @@ public partial class AudioManager : Node
 		Listen(events.Subscribe<BriefingConfirmed>(_ => Play(_sfx, Sfx.PhonePut)));
 
 		// Рация
-		Listen(events.Subscribe<RadioTriggered>(_ => Play(_sfx, Sfx.Radio)));
+		Listen(events.Subscribe<RadioTriggered>(_ => Play(_radio, Sfx.Radio)));
 		// На открытие меню выбора звука нет: щелчок ответа звучит по клику (см. _Input),
 		// а choice_ambient тонул в нём — играли одновременно и почти одинаковой длины.
 		Listen(events.Subscribe<RadioOptionChosen>(_ => Play(_sfx, Sfx.ChoicePress)));
@@ -154,6 +176,8 @@ public partial class AudioManager : Node
 		}
 
 		PollPhone();
+		PollModalAudioPause();
+		PollOfficeMusic(delta);
 		PollHiringScreen();
 		PollComputer();
 		PollDossier();
@@ -367,6 +391,92 @@ public partial class AudioManager : Node
 		return flow is GameFlow gameFlow ? gameFlow.HiringDay : 0;
 	}
 
+	/// <summary>
+	/// Фон кабинета включается ещё до кнопки «Начать смену», но не в момент подмены
+	/// сцены: там кадр занят сборкой кабинета, и музыка успела бы зазвучать раньше
+	/// картинки. Поэтому ждём, пока кабинет соберётся и игра снимет паузу, выдерживаем
+	/// небольшую задержку и вводим звук плавно.
+	/// </summary>
+	private void PollOfficeMusic(double delta)
+	{
+		// Кабинета нет вовсе — вышли в меню или ушли на ролик: фон гасим.
+		if (!IsValid(_computerInput))
+		{
+			_officeSettleTimer = 0.0;
+			if (_isShiftMusicActive)
+			{
+				StopMusic();
+			}
+
+			return;
+		}
+
+		// Кабинет на месте, но игра стоит на паузе — просто ждём, ничего не трогая.
+		if (GetTree().Paused || IsPauseMenuOpen())
+		{
+			return;
+		}
+
+		if (_isShiftMusicActive)
+		{
+			FadeInMusic(delta);
+			return;
+		}
+
+		// Между сменами играет своя музыка — её не перебиваем.
+		if (_isBetweenShiftsIntro || IsValid(_hiringScreen))
+		{
+			return;
+		}
+
+		_officeSettleTimer += delta;
+		if (_officeSettleTimer < OfficeMusicDelaySeconds)
+		{
+			return;
+		}
+
+		StartShiftMusic();
+	}
+
+	/// <summary>Плавный ввод: резкий старт трека читается как сбой.</summary>
+	private void FadeInMusic(double delta)
+	{
+		if (_music.VolumeDb >= MusicVolumeDb)
+		{
+			return;
+		}
+
+		float step = (float)(delta * (MusicFadeInSeconds > 0.0f ? 60.0f / MusicFadeInSeconds : 60.0f));
+		_music.VolumeDb = Mathf.Min(MusicVolumeDb, _music.VolumeDb + step);
+	}
+
+	/// <summary>
+	/// Экран рации и меню паузы глушат телефон: разговор идёт «поверх» звонка,
+	/// а время в игре в этот момент стоит. Экран компьютера — намеренное исключение:
+	/// таймер звонка там тоже заморожен, но сам звонок продолжает звучать,
+	/// чтобы игрок помнил про снятую трубку.
+	/// </summary>
+	private void PollModalAudioPause()
+	{
+		bool radioOpen = IsValid(_radioDecisionUi) && _radioDecisionUi.Visible;
+		bool menuOpen = IsPauseMenuOpen();
+
+		_ring.StreamPaused = radioOpen || menuOpen;
+		_radio.StreamPaused = menuOpen;
+		_computerHum.StreamPaused = menuOpen;
+
+		// Игрок взял рацию — шум сменился разговором, тянуть его дальше незачем.
+		if (radioOpen && _radio.Playing)
+		{
+			_radio.Stop();
+		}
+	}
+
+	private bool IsPauseMenuOpen()
+	{
+		return GetNodeOrNull("/root/Pause") is PauseMenu pause && pause.IsOpen;
+	}
+
 	private void PollDossier()
 	{
 		bool isOpen = IsValid(_dossierInput) && _dossierInput.IsActive;
@@ -545,6 +655,9 @@ public partial class AudioManager : Node
 	{
 		_isShiftMusicActive = true;
 		_ambientQueue.Clear();
+
+		// Стартуем с тишины — громкость доводит FadeInMusic.
+		_music.VolumeDb = MusicVolumeDb - MusicFadeInDropDb;
 		PlayNextAmbient();
 	}
 
