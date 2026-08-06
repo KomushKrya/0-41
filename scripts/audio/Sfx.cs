@@ -34,15 +34,6 @@ public static class Sfx
 	/// <summary>Длинная версия: играет по кругу, пока игрок сидит на экране найма.</summary>
 	public const string BetweenShiftsFull = "res://sound/ambient/between_shifts_full.mp3";
 
-	/// <summary>Скрип стула на резкое движение камеры. Берётся случайный.</summary>
-	public static readonly string[] ChairCreak =
-	{
-		"res://sound/events/chair_1.mp3",
-		"res://sound/events/chair_2.mp3",
-		"res://sound/events/chair_3.mp3",
-		"res://sound/events/chair_4.mp3"
-	};
-
 	public const string PhoneRing = "res://sound/events/phone_ring.mp3";
 	public const string PhoneTake = "res://sound/events/phone_take.mp3";
 	public const string PhonePut = "res://sound/events/phone_put.mp3";
@@ -56,16 +47,12 @@ public static class Sfx
 	/// </summary>
 	public const string ChoiceAmbient = "res://sound/events/choice_ambient.mp3";
 
-	/// <summary>
-	/// Ответ по рации: звучит, когда игрок берёт её в руки. Берётся случайный из трёх.
-	/// Файлы лежат в ambient/, хотя это эффект — путь оставлен как есть, чтобы
-	/// не трогать раскладку звуков.
-	/// </summary>
+	/// <summary>Ответ по рации: звучит, когда игрок берёт её в руки. Берётся случайный из трёх.</summary>
 	public static readonly string[] RadioAnswer =
 	{
-		"res://sound/ambient/radio_answer_1.mp3",
-		"res://sound/ambient/radio_answer_2.mp3",
-		"res://sound/ambient/radio_answer_3.mp3"
+		"res://sound/events/radio_answer_1.mp3",
+		"res://sound/events/radio_answer_2.mp3",
+		"res://sound/events/radio_answer_3.mp3"
 	};
 
 	/// <summary>Нажатие на вариант ответа по рации.</summary>
