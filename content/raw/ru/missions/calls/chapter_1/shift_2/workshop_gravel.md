@@ -3,14 +3,16 @@ id: call_workshop_gravel
 type: call
 mission_id: m_workshop_gravel
 status: draft
-mission_type: radio
+mission_type: filler
 requires: сила
 ---
 
 %% dev %%
-Первая настоящая развилка линии. Согласие ставит flag_gravel_delivered, отказ —
-flag_gravel_refused; по ним третья смена выдаёт ровно одну из двух миссий последствий.
-Зацепка под силу.
+Первая настоящая развилка линии, но без решения по рации: бригада всегда пытается
+вывезти щебень, и ветку выбирает бросок. Успех ставит flag_gravel_delivered, провал —
+flag_gravel_failed; по ним третья смена выдаёт ровно одну из двух миссий последствий.
+Флаги ставит сама миссия (setsFlagOnSuccess / setsFlagOnFailure в data/missions.json),
+а не вариант ответа. Зацепка под силу.
 %% /dev %%
 
 %% call_meta: ЗВОНОК В ГАЗОВУЮ СЛУЖБУ. ГОВОРИТ ЗНАКОМЫЙ МУЖСКОЙ ГОЛОС %%

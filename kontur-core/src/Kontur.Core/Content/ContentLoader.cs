@@ -252,6 +252,8 @@ namespace Kontur.Core.Content
 					OnSiteSeconds = dto.OnSiteSeconds,
 					ReturnSeconds = dto.ReturnSeconds,
 					MissionEventId = string.IsNullOrWhiteSpace(dto.MissionEventId) ? null : dto.MissionEventId,
+					SetsFlagOnSuccess = string.IsNullOrWhiteSpace(dto.SetsFlagOnSuccess) ? null : dto.SetsFlagOnSuccess,
+					SetsFlagOnFailure = string.IsNullOrWhiteSpace(dto.SetsFlagOnFailure) ? null : dto.SetsFlagOnFailure,
 					ScalesOnSuccess = ToDelta(dto.ScalesOnSuccess),
 					ScalesOnFailure = ToDelta(dto.ScalesOnFailure),
 					ScalesOnMissedCall = ToDelta(dto.ScalesOnMissedCall),
