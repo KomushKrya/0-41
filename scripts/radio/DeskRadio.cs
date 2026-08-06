@@ -98,6 +98,7 @@ public partial class DeskRadio : Node3D
 
 		_decisionUi.ShowRadioDecision(
 			incident.Id,
+			incident.MissionId,
 			ContentTextResolver.ResolveEntryName(incident.MissionId, incident.MissionId),
 			request.Options,
 			request.MissionEventId);
