@@ -184,6 +184,9 @@ public partial class RadioDecisionUI : Control
 		_screenOverlay.Modulate = new Color(1f, 1f, 1f, Math.Clamp(alpha, 0f, 1f));
 	}
 
+	/// <summary>Какой маской открылось окно: ей же оно и закроется.</summary>
+	private int _maskIndex = -1;
+
 	/// <summary>
 	/// Берёт одну из масок наугад, чтобы вызовы не открывались под копирку.
 	/// Форма кляксы у них разная, так что и окно каждый раз рвётся по-своему.
@@ -192,10 +195,31 @@ public partial class RadioDecisionUI : Control
 	{
 		if (TransitionMasks == null || TransitionMasks.Count == 0)
 		{
+			_maskIndex = -1;
 			return;
 		}
 
-		_transitionPlayer.Stream = TransitionMasks[_rng.RandiRange(0, TransitionMasks.Count - 1)];
+		_maskIndex = _rng.RandiRange(0, TransitionMasks.Count - 1);
+		_transitionPlayer.Stream = TransitionMasks[_maskIndex];
+	}
+
+	/// <summary>
+	/// Ставит ту же маску, которой окно открылось.
+	///
+	/// На закрытии брать случайную нельзя. Форма окна заморожена от маски
+	/// открытия, а съедала бы его чужая клякса: окно уходило бы не по своим
+	/// краям. Хуже того, кляксы разного размера — широкая накрыла бы узкую
+	/// за первую секунду, а узкая не доела бы широкую до конца ролика, и
+	/// остаток снимал бы предохранитель по таймеру, то есть рывком.
+	/// </summary>
+	private void ReplayTransitionMask()
+	{
+		if (TransitionMasks == null || _maskIndex < 0 || _maskIndex >= TransitionMasks.Count)
+		{
+			return;
+		}
+
+		_transitionPlayer.Stream = TransitionMasks[_maskIndex];
 	}
 
 	/// <summary>Открывает экран по рации и временно останавливает симуляцию.</summary>
@@ -542,7 +566,7 @@ public partial class RadioDecisionUI : Control
 		_closeElapsed = 0.0;
 		_inputBlocker.Show();
 		_transitionPlayer.Stop();
-		PickTransitionMask();
+		ReplayTransitionMask();
 		_transitionPlayer.Show();
 		_transitionPlayer.Play();
 
