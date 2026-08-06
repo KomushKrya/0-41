@@ -490,6 +490,12 @@ public partial class RadioDecisionUI : Control
 			return;
 		}
 
+		// Шанс спрашиваем до команды: после неё вызов уже уходит в исполнение,
+		// а входные данные для расчёта те же самые — группа, снаряжение,
+		// требования варианта. Так цифра гарантированно та, по которой
+		// и будет брошен кубик.
+		double? chance = runtime.Session.EstimateRadioOptionChance(_incidentId, _options[optionIndex].Id);
+
 		CommandResult result = runtime.Session.ChooseRadioOption(_incidentId, _options[optionIndex].Id);
 		if (!result.IsSuccess)
 		{
@@ -498,12 +504,33 @@ public partial class RadioDecisionUI : Control
 		}
 
 		_chosenOptionIndex = optionIndex;
+		ShowChanceOnChosenOption(optionIndex, chance);
 		_awaitingOutcome = true;
 		_statusLine.Text = "\u0423\u041a\u0410\u0417\u0410\u041d\u0418\u0415 \u041f\u0415\u0420\u0415\u0414\u0410\u041d\u041e. \u041e\u0416\u0418\u0414\u0410\u0415\u041c \u0414\u041e\u041a\u041b\u0410\u0414 \u0413\u0420\u0423\u041f\u041f\u042b\u2026";
 		for (int index = 0; index < _optionButtons.Count; index++)
 		{
 			_optionButtons[index].Disabled = true;
 		}
+	}
+
+	/// <summary>
+	/// Дописывает к выбранной плашке шанс, с которым решение сработает.
+	///
+	/// Появляется только после нажатия и только на нажатой кнопке. До выбора
+	/// цифр нет намеренно: иначе рация превратилась бы из «что здесь вообще
+	/// происходит» в «где число больше», а по ДД подсказок в интерфейсе быть
+	/// не должно. После выбора это уже не подсказка, а цена решения — и то,
+	/// из чего игрок поймёт, что провал не всегда его вина.
+	/// </summary>
+	private void ShowChanceOnChosenOption(int optionIndex, double? chance)
+	{
+		if (chance == null || optionIndex < 0 || optionIndex >= _optionButtons.Count)
+		{
+			return;
+		}
+
+		int percent = (int)Math.Round(Math.Clamp(chance.Value, 0.0, 1.0) * 100.0);
+		_optionButtons[optionIndex].Text = $"{_optionButtons[optionIndex].Text} ({percent}%)";
 	}
 
 	public override void _UnhandledInput(InputEvent @event)

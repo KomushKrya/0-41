@@ -12,7 +12,6 @@ using Kontur.Core.Model;
 /// </summary>
 public partial class DeskPhone : Node3D
 {
-	[Export] public NodePath RingLightPath { get; set; } = new("VisualRoot/RingLight");
 	[Export] public NodePath PhoneCallAcceptanceUiPath { get; set; } = new("../../PhoneCallAcceptanceLayer/PhoneCallAcceptanceUI");
 	[Export] public bool Active { get; set; } = true;
 
@@ -21,15 +20,12 @@ public partial class DeskPhone : Node3D
 	private IDisposable _callAnsweredSubscription = null!;
 	private IDisposable _callMissedSubscription = null!;
 	private IDisposable _shiftEndedSubscription = null!;
-	private OmniLight3D _ringLight = null!;
 	private PhoneCallAcceptanceUI _callAcceptanceUi = null!;
 
 	public bool IsRinging => _ringingIncidentIds.Count > 0;
 
 	public override void _Ready()
 	{
-		_ringLight = GetNode<OmniLight3D>(RingLightPath);
-		SetRingingVisual(false);
 		if (!Active)
 		{
 			return;
@@ -122,7 +118,6 @@ public partial class DeskPhone : Node3D
 			_ringingIncidentIds.RemoveAt(0);
 		}
 
-		SetRingingVisual(false);
 		error = "Нет входящих звонков.";
 		return false;
 	}
@@ -162,13 +157,11 @@ public partial class DeskPhone : Node3D
 		}
 
 		_ringingIncidentIds.Add(incidentId);
-		SetRingingVisual(true);
 	}
 
 	private void RemoveRingingCall(string incidentId)
 	{
 		_ringingIncidentIds.Remove(incidentId);
-		SetRingingVisual(IsRinging);
 	}
 
 	private void OnCallAnswered(CallAnswered call)
@@ -179,11 +172,5 @@ public partial class DeskPhone : Node3D
 	private void ClearRingingCalls()
 	{
 		_ringingIncidentIds.Clear();
-		SetRingingVisual(false);
-	}
-
-	private void SetRingingVisual(bool isRinging)
-	{
-		_ringLight.Visible = isRinging;
 	}
 }

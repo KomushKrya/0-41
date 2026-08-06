@@ -18,13 +18,6 @@ script = ExtResource("2_radio")
 [node name="RadioBody" type="MeshInstance3D" parent="VisualRoot"]
 mesh = SubResource("BoxMesh_radio")
 
-[node name="SignalLight" type="OmniLight3D" parent="VisualRoot"]
-visible = false
-position = Vector3(0, 0.16, 0)
-light_color = Color(0.38, 1, 0.48, 1)
-light_energy = 1.4
-omni_range = 0.75
-
 [node name="InteractionOutline" type="Node" parent="."]
 script = ExtResource("1_outline")
 VisualRootPath = NodePath("../VisualRoot")

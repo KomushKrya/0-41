@@ -22,13 +22,6 @@ script = ExtResource("2_phone")
 material_override = SubResource("StandardMaterial3D_phone")
 mesh = SubResource("BoxMesh_phone")
 
-[node name="RingLight" type="OmniLight3D" parent="VisualRoot"]
-visible = false
-position = Vector3(0, 0.11, 0)
-light_color = Color(1, 0.18, 0.08, 1)
-light_energy = 1.6
-omni_range = 0.8
-
 [node name="InteractionOutline" type="Node" parent="."]
 script = ExtResource("1_outline")
 VisualRootPath = NodePath("../VisualRoot")

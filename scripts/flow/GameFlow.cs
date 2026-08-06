@@ -50,6 +50,9 @@ public partial class GameFlow : Node
 	/// <summary>Смена ждёт не начала, а продолжения: партия поднята из сохранения.</summary>
 	private bool _pendingShiftResume;
 
+	/// <summary>Кабинет заказан фоновой загрузкой и ещё не забран.</summary>
+	private bool _officeRequested;
+
 	public bool PendingShiftIsResume => _pendingShiftResume;
 
 	public override void _Ready()
@@ -245,9 +248,69 @@ public partial class GameFlow : Node
 		return true;
 	}
 
+	/// <summary>
+	/// Просит движок начать грузить кабинет в фоне.
+	///
+	/// Сцена кабинета — пять мегабайт и полторы сотни текстур; её разбор занимает
+	/// секунды, а ChangeSceneToFile делает это в главном потоке, и окно на всё
+	/// время перестаёт отвечать. Зовут отсюда экраны, которые идут перед кабинетом
+	/// и заведомо длятся дольше загрузки: ролик и катсцена. К моменту перехода
+	/// ресурс уже готов, и переход становится мгновенным.
+	///
+	/// Повторные вызовы безвредны: заказ живёт до тех пор, пока его не заберут.
+	/// </summary>
+	public void PreloadOffice()
+	{
+		if (_officeRequested)
+		{
+			return;
+		}
+
+		if (ResourceLoader.LoadThreadedRequest(OfficeScene) != Error.Ok)
+		{
+			// Не вышло — не беда: GoToOffice загрузит сцену обычным путём.
+			return;
+		}
+
+		_officeRequested = true;
+	}
+
+	/// <summary>
+	/// Забирает заказанный кабинет. Null — заказа не было или он не удался.
+	/// Если загрузка ещё идёт, ждёт её здесь: это ровно то, что сделал бы
+	/// обычный переход, только часть работы уже позади.
+	/// </summary>
+	private PackedScene TakePreloadedOffice()
+	{
+		if (!_officeRequested)
+		{
+			return null;
+		}
+
+		_officeRequested = false;
+
+		var status = ResourceLoader.LoadThreadedGetStatus(OfficeScene);
+		if (status == ResourceLoader.ThreadLoadStatus.Failed
+			|| status == ResourceLoader.ThreadLoadStatus.InvalidResource)
+		{
+			GD.PushWarning("[FLOW] Фоновая загрузка кабинета не удалась — грузим обычным путём.");
+			return null;
+		}
+
+		return ResourceLoader.LoadThreadedGet(OfficeScene) as PackedScene;
+	}
+
 	private void GoToOffice()
 	{
-		GetTree().ChangeSceneToFile(OfficeScene);
+		PackedScene office = TakePreloadedOffice();
+		if (office != null)
+		{
+			GetTree().ChangeSceneToPacked(office);
+		}
+		else
+		{
+			GetTree().ChangeSceneToFile(OfficeScene);
+		}
 
 		// Пауза снимается в конце кадра: сцена кабинета должна успеть собраться,
 		// иначе первый Tick пройдёт по ещё не подписавшимся предметам на столе.

@@ -15,7 +15,6 @@ using Kontur.Core.Model;
 /// </summary>
 public partial class DeskRadio : Node3D
 {
-	[Export] public NodePath SignalLightPath { get; set; } = new("VisualRoot/SignalLight");
 	[Export] public NodePath RadioDecisionUiPath { get; set; } = new("../../RadioDecisionLayer/RadioDecisionUI");
 
 	/// <summary>
@@ -40,7 +39,6 @@ public partial class DeskRadio : Node3D
 	/// пропуска. Очередь ждёт только те миссии, где выбора не было вовсе.
 	/// </summary>
 	private readonly HashSet<string> _askedIncidents = new(StringComparer.OrdinalIgnoreCase);
-	private OmniLight3D _signalLight = null!;
 	private RadioDecisionUI _decisionUi = null!;
 	private GameRuntime _runtime = null!;
 	private IDisposable _radioTriggeredSubscription = null!;
@@ -53,10 +51,8 @@ public partial class DeskRadio : Node3D
 
 	public override void _Ready()
 	{
-		_signalLight = GetNode<OmniLight3D>(SignalLightPath);
 		_decisionUi = GetNodeOrNull<RadioDecisionUI>(RadioDecisionUiPath)
 			?? GetTree().GetFirstNodeInGroup("radio_decision_ui") as RadioDecisionUI;
-		SetActiveVisual(false);
 		if (_decisionUi == null)
 		{
 			GD.PushError("DeskRadio: radio decision UI is not available.");
@@ -75,7 +71,6 @@ public partial class DeskRadio : Node3D
 		_radioChosenSubscription = _runtime.Session.Events.Subscribe<RadioOptionChosen>(radio => RemoveRequest(radio.IncidentId));
 		_missionOutcomeSubscription = _runtime.Session.Events.Subscribe<MissionOutcomeReady>(OnMissionOutcome);
 		_shiftEndedSubscription = _runtime.Session.Events.Subscribe<ShiftEnded>(_ => ClearRequests());
-		RefreshActiveVisual();
 	}
 
 	public override void _ExitTree()
@@ -104,7 +99,6 @@ public partial class DeskRadio : Node3D
 		if (!FindNextRequest(out RadioRequest next, out IncidentView incident))
 		{
 			error = "Нет ожидающих ответов по рации.";
-			RefreshActiveVisual();
 			return false;
 		}
 
@@ -117,7 +111,6 @@ public partial class DeskRadio : Node3D
 		if (!answered.IsSuccess)
 		{
 			error = answered.Error;
-			RefreshActiveVisual();
 			return false;
 		}
 
@@ -142,12 +135,10 @@ public partial class DeskRadio : Node3D
 		if (!opened.IsSuccess)
 		{
 			error = opened.Error;
-			RefreshActiveVisual();
 			return false;
 		}
 
 		_pendingRequests.Remove(request);
-		RefreshActiveVisual();
 
 		_decisionUi.ShowOutcomeReport(request.Outcome);
 		return true;
@@ -185,7 +176,6 @@ public partial class DeskRadio : Node3D
 	{
 		RemoveRequest(request.IncidentId);
 		_pendingRequests.Add(request);
-		RefreshActiveVisual();
 	}
 
 	private void RemoveRequest(string incidentId)
@@ -197,15 +187,12 @@ public partial class DeskRadio : Node3D
 				_pendingRequests.RemoveAt(index);
 			}
 		}
-
-		RefreshActiveVisual();
 	}
 
 	private void ClearRequests()
 	{
 		_pendingRequests.Clear();
 		_askedIncidents.Clear();
-		SetActiveVisual(false);
 	}
 
 	/// <summary>
@@ -244,15 +231,5 @@ public partial class DeskRadio : Node3D
 		}
 
 		return false;
-	}
-
-	private void RefreshActiveVisual()
-	{
-		SetActiveVisual(IsActive);
-	}
-
-	private void SetActiveVisual(bool isActive)
-	{
-		_signalLight.Visible = isActive;
 	}
 }

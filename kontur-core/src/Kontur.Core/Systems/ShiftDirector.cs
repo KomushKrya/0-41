@@ -776,6 +776,62 @@ namespace Kontur.Core.Systems
 			CloseIncident(incident, false);
 		}
 
+		/// <summary>
+		/// Шанс успеха, если по этому вызову выбрать этот вариант.
+		///
+		/// Считается тем же кодом и по тем же входным данным, что и настоящий
+		/// бросок в ResolveMission: та же группа, то же снаряжение, то же
+		/// существо, те же требования варианта. Иначе показанный игроку процент
+		/// расходился бы с тем, что происходит на самом деле, — а это хуже,
+		/// чем не показывать процент вовсе.
+		///
+		/// Идеальное совпадение по характеристикам броска не требует: там успех
+		/// гарантирован, и честный ответ — единица.
+		/// </summary>
+		public double? EstimateRadioOptionChance(string incidentId, string optionId)
+		{
+			for (int i = 0; i < _incidents.Count; i++)
+			{
+				IncidentRuntime incident = _incidents[i];
+				if (!string.Equals(incident.Id, incidentId, StringComparison.OrdinalIgnoreCase))
+				{
+					continue;
+				}
+
+				MissionEventOption? option = incident.MissionEvent?.FindOption(optionId);
+				if (option == null)
+				{
+					return null;
+				}
+
+				List<Employee> squad = ResolveSquad(incident);
+				List<EquipmentDefinition> equipment = ResolveEquipment(incident);
+				CreatureDefinition? creature = _content.FindCreature(incident.Mission.CreatureId);
+
+				StatBlock requirements = _resolver.ComputeEffectiveRequirements(
+					incident.Mission,
+					option,
+					_state.Day);
+				StatBlock squadStats = _resolver.ComputeSquadStats(squad, equipment, creature);
+
+				IReadOnlyList<StatMatch> matches = _resolver.EvaluateMatches(
+					requirements,
+					squadStats,
+					incident.Mission.PrimaryStat);
+
+				if (MissionResolver.IsPerfectMatch(matches))
+				{
+					return 1.0;
+				}
+
+				return _resolver.ComputeSuccessChance(
+					_resolver.ComputeMatchScore(matches),
+					incident.RadioWasMissed);
+			}
+
+			return null;
+		}
+
 		private void ResolveMission(IncidentRuntime incident)
 		{
 			MissionDefinition mission = incident.Mission;

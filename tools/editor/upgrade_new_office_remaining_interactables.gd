@@ -85,15 +85,6 @@ func _upgrade_radio() -> bool:
 
 	root.set_script(load("res://scripts/radio/DeskRadio.cs"))
 	root.add_to_group("interactive", true)
-	var signal_light := OmniLight3D.new()
-	signal_light.name = "SignalLight"
-	signal_light.position = Vector3(-0.08, 0.32, -0.14)
-	signal_light.light_color = Color(0.38, 1.0, 0.48)
-	signal_light.light_energy = 1.4
-	signal_light.omni_range = 0.75
-	signal_light.visible = false
-	_owned_child(root.get_node("VisualRoot"), signal_light, root)
-
 	_add_outline(root)
 	var area := Area3D.new()
 	area.name = "InteractionArea"
