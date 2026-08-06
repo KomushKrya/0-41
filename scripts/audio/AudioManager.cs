@@ -72,6 +72,10 @@ public partial class AudioManager : Node
 	private RayCast3D _interactionRay;
 	private DeskRadio _deskRadio;
 	private RadioDecisionUI _radioDecisionUi;
+
+	/// <summary>Ждала ли рация ответа на прошлом опросе: шум запускается по фронту.</summary>
+	private bool _wasRadioWaiting;
+
 	private HiringScreen _hiringScreen;
 	private bool _wasHiringOpen;
 	private InspectableItemController _shiftNote;
@@ -141,9 +145,20 @@ public partial class AudioManager : Node
 
 		// Рация
 		Listen(events.Subscribe<RadioTriggered>(_ => Play(_radio, Sfx.Radio)));
+
+		// Шум держится ровно до того, как вызов по рации перестал ждать ответа.
+		// Одной видимости меню мало: игрок может ответить, когда экран ещё не собрался,
+		// а вызов — просрочиться или закрыться вообще без открытия меню.
+		Listen(events.Subscribe<RadioAnswered>(_ => _radio.Stop()));
+		Listen(events.Subscribe<RadioMissed>(_ => _radio.Stop()));
+		Listen(events.Subscribe<ShiftEnded>(_ => _radio.Stop()));
 		// На открытие меню выбора звука нет: щелчок ответа звучит по клику (см. _Input),
 		// а choice_ambient тонул в нём — играли одновременно и почти одинаковой длины.
-		Listen(events.Subscribe<RadioOptionChosen>(_ => Play(_sfx, Sfx.ChoicePress)));
+		Listen(events.Subscribe<RadioOptionChosen>(_ =>
+		{
+			_radio.Stop();
+			Play(_sfx, Sfx.ChoicePress);
+		}));
 
 		// Признак для скрипа карандаша: шкалы менялись с прошлого открытия блокнота.
 		Listen(events.Subscribe<ScalesChanged>(_ => _hasUnreadScaleChanges = true));
@@ -470,6 +485,29 @@ public partial class AudioManager : Node
 		{
 			_radio.Stop();
 		}
+
+		PollRadioQueue(radioOpen || menuOpen);
+	}
+
+	/// <summary>
+	/// Рация зовёт снова, когда экран закрылся, а в очереди осталось чужое обращение —
+	/// например, отчёт по миссии, прошедшей без выбора.
+	///
+	/// Считаем по фронту, а не по факту «очередь не пуста»: файл шума не зациклен,
+	/// и повтор при каждом опросе превратил бы отдельный сигнал в непрерывное гудение.
+	/// Проверка Playing попутно гасит второй запуск сразу после RadioTriggered —
+	/// там шум уже пошёл по подписке.
+	/// </summary>
+	private void PollRadioQueue(bool screenBusy)
+	{
+		bool waiting = !screenBusy && IsValid(_deskRadio) && _deskRadio.IsActive;
+
+		if (waiting && !_wasRadioWaiting && !_radio.Playing)
+		{
+			Play(_radio, Sfx.Radio);
+		}
+
+		_wasRadioWaiting = waiting;
 	}
 
 	private bool IsPauseMenuOpen()

@@ -1,6 +1,7 @@
 using Godot;
 using Kontur.Core.Api;
 using Kontur.Core.Events;
+using Kontur.Core.Model;
 
 /// <summary>
 /// Порядок экранов: меню, стартовый выбор, ролик, смена, найм, снова смена.
@@ -26,6 +27,7 @@ public partial class GameFlow : Node
 	private GameRuntime _kontur;
 	private System.IDisposable _shiftEnded;
 	private System.IDisposable _hiringOpened;
+	private System.IDisposable _gameOver;
 
 	/// <summary>Куда идти после текущего ролика. Пусто — в главное меню.</summary>
 	private string _afterCutscene = string.Empty;
@@ -61,12 +63,14 @@ public partial class GameFlow : Node
 		// Смена кончилась — ролик, потом найм. Порядок задаётся здесь и только здесь.
 		_shiftEnded = _kontur.Simulation.Events.Subscribe<ShiftEnded>(OnShiftEnded);
 		_hiringOpened = _kontur.Simulation.Events.Subscribe<HiringOpened>(OnHiringOpened);
+		_gameOver = _kontur.Simulation.Events.Subscribe<GameOverTriggered>(OnGameOver);
 	}
 
 	public override void _ExitTree()
 	{
 		_shiftEnded?.Dispose();
 		_hiringOpened?.Dispose();
+		_gameOver?.Dispose();
 
 		if (Instance == this)
 		{
@@ -271,12 +275,57 @@ public partial class GameFlow : Node
 
 	private void OnShiftEnded(ShiftEnded e)
 	{
-		// Ролик, а после него — найм. Если брать некого, HiringOpened не придёт,
-		// и найм сам решит начать следующую смену.
-		PlayCutscene(e.OutroCutsceneId, HiringScene);
+		// Партия проиграна — концовку показывает OnGameOver, обычный порядок не нужен.
+		if (_kontur.Simulation.GetStatus().IsGameOver)
+		{
+			return;
+		}
 
 		HiringDay = e.Day + 1;
 		HiringIsStartingChoice = false;
+
+		// После последней смены найма уже не будет: ролик и назад в меню.
+		bool wasLastShift = e.Day >= _kontur.Simulation.Config.Days.Count;
+		PlayCutscene(e.OutroCutsceneId, wasLastShift ? MainMenuScene : HiringScene);
+	}
+
+	/// <summary>
+	/// Проигрыш: у каждой шкалы своя концовка, после неё — главное меню.
+	///
+	/// Ролик идёт не сразу. Сначала игрока подводят к блокноту, чтобы он увидел
+	/// добившую его шкалу; этим занят GameOverSequence в кабинете, и он же зовёт
+	/// <see cref="PlayEnding"/>, когда проводы кончились. Кабинета нет — показываем
+	/// ролик сами: остаться совсем без концовки хуже, чем показать её без проводов.
+	/// </summary>
+	private void OnGameOver(GameOverTriggered e)
+	{
+		if (GameOverSequence.TryRun(e.Reason))
+		{
+			return;
+		}
+
+		PlayEnding(e.Reason);
+	}
+
+	/// <summary>Показывает концовку по причине проигрыша и возвращает в главное меню.</summary>
+	public void PlayEnding(GameOverReason reason)
+	{
+		PlayCutscene(EndingCutsceneFor(reason), MainMenuScene);
+	}
+
+	private static string EndingCutsceneFor(GameOverReason reason)
+	{
+		switch (reason)
+		{
+			case GameOverReason.LoyaltyDepleted:
+				return "ending_loyalty";
+			case GameOverReason.InfectionMaxed:
+				return "ending_infection";
+			case GameOverReason.PublicityMaxed:
+				return "ending_publicity";
+			default:
+				return string.Empty;
+		}
 	}
 
 	private void OnHiringOpened(HiringOpened e)
