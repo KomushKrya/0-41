@@ -17,7 +17,9 @@ public partial class MapMissionMarkerInteractable : Area3D, IInteractable
 
 	public bool CanInteract(FlyPlayer player)
 	{
-		return _marker.IsDispatchInteractive && (!RequiresSeated || player.IsSeated);
+		// CanOpenDispatch, а не IsDispatchInteractive: с пустой базой экран отправки
+		// не закрыть, поэтому кнопка не должна нажиматься вовсе.
+		return _marker.CanOpenDispatch && (!RequiresSeated || player.IsSeated);
 	}
 
 	public void Interact(FlyPlayer player)
@@ -30,6 +32,6 @@ public partial class MapMissionMarkerInteractable : Area3D, IInteractable
 
 	public void SetHovered(bool isHovered)
 	{
-		_marker.SetHovered(isHovered && _marker.IsDispatchInteractive);
+		_marker.SetHovered(isHovered && _marker.CanOpenDispatch);
 	}
 }

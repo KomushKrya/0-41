@@ -19,7 +19,8 @@ public partial class MapPinInteractable : Area3D, IInteractable
 
 	public bool CanInteract(FlyPlayer player)
 	{
-		return !RequiresSeated || player.IsSeated;
+		// Без свободных людей экран отправки не закрыть — см. MapMissionMarker.
+		return MapMissionMarker.HasAvailableStaff(this) && (!RequiresSeated || player.IsSeated);
 	}
 
 	public void Interact(FlyPlayer player)
