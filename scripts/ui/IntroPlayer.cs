@@ -39,6 +39,10 @@ public partial class IntroPlayer : Control
 		CursorMode.Hide(this);
 		BuildUi();
 
+		// Кабинет грузится секундами и в главном потоке. Заказываем его сейчас,
+		// чтобы к концу вступительного ролика сцена была уже готова.
+		GameFlow.Instance?.PreloadOffice();
+
 		if (!TryPlay())
 		{
 			// Ролика нет или он не читается — молча уходим в меню, а не показываем чёрный экран.

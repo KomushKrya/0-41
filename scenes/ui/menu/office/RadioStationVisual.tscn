@@ -127,9 +127,3 @@ mesh = SubResource("ArrayMesh_s0kyy")
 transform = Transform3D(-0.02622544, -0.0019008573, -0.9996543, 0.998822, 0.040792357, -0.026281178, 0.040828213, -0.99916583, 0.0008288212, -0.2578318, -0.34608173, -0.11499077)
 mesh = SubResource("ArrayMesh_0mcj3")
 
-[node name="SignalLight" type="OmniLight3D" parent="VisualRoot" unique_id=1012786100]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.08, 0.32, -0.14)
-visible = false
-light_color = Color(0.38, 1, 0.48, 1)
-light_energy = 1.4
-omni_range = 0.75
