@@ -1,4 +1,6 @@
 using Godot;
+using Kontur.Core.Api;
+using Kontur.Core.Model;
 
 /// <summary>Физическая кнопка задания и её 3D-индикатор состояния.</summary>
 public partial class MapMissionMarker : Node3D
@@ -23,6 +25,36 @@ public partial class MapMissionMarker : Node3D
 	private InteractionOutline _interactionOutline = null!;
 
 	public bool IsDispatchInteractive { get; private set; }
+
+	/// <summary>
+	/// Есть ли кого отправлять: хоть один сотрудник на базе и не в пути.
+	///
+	/// Без этого кнопка вела в тупик. Экран отправки закрывается только
+	/// состоявшейся отправкой: Escape там проглатывается намеренно, а кнопки
+	/// «отмена» на нём нет. С пустой базой собрать группу нечем, и игрок
+	/// оставался запертым в экране до конца партии.
+	/// </summary>
+	public static bool HasAvailableStaff(Node context)
+	{
+		GameRuntime runtime = GameRuntime.Get(context);
+		if (runtime == null || !runtime.IsReady)
+		{
+			return false;
+		}
+
+		foreach (EmployeeView employee in runtime.Session.GetRoster())
+		{
+			if (employee.Status == EmployeeStatus.Available)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/// <summary>Кнопку можно нажать: вызов ждёт отправки и есть кого отправить.</summary>
+	public bool CanOpenDispatch => IsDispatchInteractive && HasAvailableStaff(this);
 
 	public override void _Ready()
 	{
@@ -71,6 +103,14 @@ public partial class MapMissionMarker : Node3D
 		if (runtime == null || !runtime.IsReady)
 		{
 			GD.PushWarning("MapMissionMarker: GameRuntime is not ready.");
+			return;
+		}
+
+		// Вторая проверка, помимо CanInteract: последний свободный человек мог уйти
+		// на другой вызов между наведением и нажатием.
+		if (!HasAvailableStaff(this))
+		{
+			GD.Print("MapMissionMarker: на базе нет свободных сотрудников — экран отправки не открываем.");
 			return;
 		}
 
