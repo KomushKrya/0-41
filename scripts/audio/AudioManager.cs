@@ -202,6 +202,7 @@ public partial class AudioManager : Node
 			RescanOfficeNodes();
 		}
 
+		PollOfficeSilence();
 		PollPhone();
 		PollModalAudioPause();
 		PollMainMenuMusic(delta);
@@ -211,6 +212,34 @@ public partial class AudioManager : Node
 		PollDossier();
 		PollInspectableItem(_shiftNote, ref _wasNoteOpen, Sfx.NoteTake, Sfx.NotePut, false);
 		PollInspectableItem(_notebook, ref _wasNotebookOpen, Sfx.NotepadTake, string.Empty, true);
+	}
+
+	/// <summary>Кабинет собран. Телефон, рация и гул монитора звучат только в нём.</summary>
+	private bool IsOfficeLoaded => IsValid(_deskRadio);
+
+	/// <summary>
+	/// Кабинет исчез — вместе с ним замолкают его звуки.
+	///
+	/// Телефон и рация держатся не сценой, а состоянием ядра, а оно смену сцены
+	/// переживает: партия остаётся жива, когда игрок уходит в меню или на ролик.
+	/// Без этой проверки звонок и шум рации тянулись бы поверх главного меню —
+	/// вызов-то в ядре всё ещё ждёт ответа.
+	/// </summary>
+	private void PollOfficeSilence()
+	{
+		if (IsOfficeLoaded)
+		{
+			return;
+		}
+
+		_ring.Stop();
+		_radio.Stop();
+		_computerHum.Stop();
+
+		// Признаки сбрасываем тоже: иначе по возвращении в кабинет опрос решит,
+		// что звонок уже звучит, и не заведёт его заново.
+		_wasPhoneRinging = false;
+		_wasRadioWaiting = false;
 	}
 
 	/// <summary>
@@ -699,7 +728,7 @@ public partial class AudioManager : Node
 	{
 		bool anyRinging = false;
 		GameRuntime runtime = GameRuntime.Get(this);
-		if (runtime != null && runtime.IsReady)
+		if (IsOfficeLoaded && runtime != null && runtime.IsReady)
 		{
 			IReadOnlyList<IncidentView> incidents = runtime.Session.GetActiveIncidents();
 			for (int i = 0; i < incidents.Count; i++)

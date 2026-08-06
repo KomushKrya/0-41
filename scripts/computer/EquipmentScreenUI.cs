@@ -150,6 +150,8 @@ public partial class EquipmentScreenUI : DosSplitScreen
 				text.AppendLine(ContentSpanFormatter.Escape("Выдано только на текущую смену."));
 			}
 
+			AppendBonus(text, runtime.Session.Content.FindEquipment(item.Id));
+
 			text.AppendLine();
 			text.AppendLine(ContentSpanFormatter.Escape($"На складе: {item.Quantity}"));
 			if (!string.IsNullOrWhiteSpace(item.Description))
@@ -162,6 +164,62 @@ public partial class EquipmentScreenUI : DosSplitScreen
 		}
 
 		return string.Empty;
+	}
+
+	/// <summary>Характеристики в том же порядке, в каком они стоят в досье сотрудника.</summary>
+	private static readonly (StatKind Kind, string ContentId)[] StatOrder =
+	{
+		(StatKind.Strength, "strength"),
+		(StatKind.Combat, "combat"),
+		(StatKind.Agility, "agility"),
+		(StatKind.Charisma, "charisma"),
+		(StatKind.Intellect, "intellect")
+	};
+
+	/// <summary>
+	/// Дописывает, что предмет реально прибавляет группе.
+	///
+	/// Числа берём из определения, а не из описания: описание — проза автора, оно
+	/// не обязано совпадать с балансом и устаревает при первой же правке цифр.
+	/// Бонус «ко всем характеристикам» ядро складывает с точечным, поэтому спрашиваем
+	/// готовую сумму — иначе предмет вроде контейнера показал бы нули.
+	/// </summary>
+	private static void AppendBonus(System.Text.StringBuilder text, EquipmentDefinition? definition)
+	{
+		if (definition == null)
+		{
+			return;
+		}
+
+		StatBlock bonus = definition.GetEffectiveBonus();
+
+		text.AppendLine();
+		if (bonus.Total == 0)
+		{
+			text.AppendLine(ContentSpanFormatter.Escape("Характеристик не меняет."));
+			return;
+		}
+
+		text.AppendLine(ContentSpanFormatter.Escape("Даёт группе:"));
+		for (int i = 0; i < StatOrder.Length; i++)
+		{
+			int value = bonus[StatOrder[i].Kind];
+			if (value == 0)
+			{
+				continue;
+			}
+
+			string name = ContentTextResolver.ResolveEntryName(StatOrder[i].ContentId, StatOrder[i].ContentId);
+			text.AppendLine(ContentSpanFormatter.Escape($"  {name} {value:+#;-#;0}"));
+		}
+
+		// Условный бонус в контенте пока не встречается, но ядро его умеет.
+		// Промолчать о таком предмете — значит обещать прибавку, которой не будет.
+		if (definition.Condition == AbilityConditionKind.AgainstCreatureTag
+			&& !string.IsNullOrWhiteSpace(definition.ConditionValue))
+		{
+			text.AppendLine(ContentSpanFormatter.Escape($"Только против: {definition.ConditionValue}"));
+		}
 	}
 
 	protected override string GetSummary()

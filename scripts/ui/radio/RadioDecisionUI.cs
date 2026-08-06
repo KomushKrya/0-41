@@ -147,6 +147,10 @@ public partial class RadioDecisionUI : Control
 		{
 			_illustration.Resized -= UpdateIllustrationRect;
 		}
+
+		// Сцена может смениться прямо во время закрытия — например, игрок вышел
+		// в меню. Владелец заморозки тогда остался бы висеть на партии.
+		ReleaseTimeFreeze();
 	}
 
 	/// <summary>
@@ -554,25 +558,15 @@ public partial class RadioDecisionUI : Control
 
 	private void CloseDecision(bool closeRadio)
 	{
-		if (closeRadio && !string.IsNullOrEmpty(_incidentId))
+		// Кого отпускать в ядре, решаем здесь, а отпускаем в FinishClose: окно ещё
+		// доигрывает уход, блокировщик держит ввод, и пущенное сейчас время капало
+		// бы в таймеры вызовов, пока игрок смотрит на маску и не может нажать ничего.
+		if (!string.IsNullOrEmpty(_incidentId) && (closeRadio || _showingOutcome))
 		{
-			GameRuntime runtime = GameRuntime.Get(this);
-			if (runtime != null && runtime.IsReady)
-			{
-				runtime.Session.CloseRadio(_incidentId);
-			}
-		}
-		else if (_showingOutcome && !string.IsNullOrEmpty(_incidentId))
-		{
-			GameRuntime runtime = GameRuntime.Get(this);
-			if (runtime != null && runtime.IsReady)
-			{
-				runtime.Session.CloseMissionOutcome(_incidentId);
-			}
+			_pendingReleaseIncidentId = _incidentId;
+			_pendingReleaseIsRadio = closeRadio;
 		}
 
-		// Ядру сообщили сразу — время идёт дальше, пока окно доигрывает уход.
-		// Само окно прячет FinishClose, когда маска его доест.
 		StopTransition();
 		StartCloseTransition();
 
@@ -677,6 +671,49 @@ public partial class RadioDecisionUI : Control
 		Hide();
 		_illustration.Texture = null;
 		CursorMode.Hide(this);
+
+		// Время отпускаем ровно здесь: окно ушло, блокировщик снят, управление
+		// вернулось к игроку.
+		ReleaseTimeFreeze();
+	}
+
+	/// <summary>Вызов, чью заморозку осталось снять. Пусто — снимать нечего.</summary>
+	private string _pendingReleaseIncidentId = string.Empty;
+
+	/// <summary>Заморозку ставил ответ по рации, а не показ итога.</summary>
+	private bool _pendingReleaseIsRadio;
+
+	/// <summary>
+	/// Возвращает ядру время, которое забрал этот экран.
+	///
+	/// Зовётся и из <see cref="FinishClose"/>, и при уходе узла из дерева: сцена
+	/// может смениться прямо во время закрытия — например, игрок вышел в меню, —
+	/// и тогда владелец заморозки остался бы висеть, а время в партии стоять.
+	/// </summary>
+	private void ReleaseTimeFreeze()
+	{
+		if (string.IsNullOrEmpty(_pendingReleaseIncidentId))
+		{
+			return;
+		}
+
+		string incidentId = _pendingReleaseIncidentId;
+		bool wasRadio = _pendingReleaseIsRadio;
+		_pendingReleaseIncidentId = string.Empty;
+
+		GameRuntime runtime = GameRuntime.Get(this);
+		if (runtime == null || !runtime.IsReady)
+		{
+			return;
+		}
+
+		if (wasRadio)
+		{
+			runtime.Session.CloseRadio(incidentId);
+			return;
+		}
+
+		runtime.Session.CloseMissionOutcome(incidentId);
 	}
 
 	private void FitScreenContentToWindow()

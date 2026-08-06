@@ -733,9 +733,13 @@ def write_locale(entries: list[dict], out_root: Path, locale: str) -> list[str]:
 
         items = by_type[content_type]
         target = target_dir / f"{content_type}.json"
+        # newline="\n" по той же причине, что и у реестра: собранный JSON лежит
+        # в git, а .gitattributes требует LF. Без этого каждая сборка контента
+        # помечала бы изменёнными все четырнадцать файлов, не меняя в них ни строки.
         target.write_text(
             json.dumps(items, ensure_ascii=False, indent="\t") + "\n",
             encoding="utf-8",
+            newline="\n",
         )
         written.append(f"{target.as_posix()} ({len(items)})")
 
