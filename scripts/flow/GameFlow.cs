@@ -20,8 +20,6 @@ public partial class GameFlow : Node
 	private const string MainMenuScene = "res://scenes/ui/menu/MainMenu.tscn";
 	private const string CutsceneScene = "res://scenes/ui/cutscene/CutscenePlayer.tscn";
 	// Набор листами: по трое за раз, берёшь одного.
-	// Прежний экран со всем пулом сразу лежит рядом в HiringScreen.tscn
-	// и включается заменой этой строки.
 	private const string HiringScene = "res://scenes/ui/hiring/PageHiring.tscn";
 	private const string OfficeScene = "res://scenes/main.tscn";
 
